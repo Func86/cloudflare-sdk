@@ -1,6 +1,5 @@
 node_modules/
 dist/
 .cache/
-generated/
 generated.partial/
 generator/*.wasm

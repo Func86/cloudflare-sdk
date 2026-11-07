@@ -1,0 +1,66 @@
+{
+ "pagination": {
+  "paged parameters, but the response has no envelope": [
+   "GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes",
+   "GET /accounts/{account_id}/cloudforce-one/v2/brand-protection/logo/matches",
+   "GET /accounts/{account_id}/cloudforce-one/v2/brand-protection/domain/matches",
+   "GET /accounts/{account_id}/browser-rendering/devtools/session",
+   "GET /accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}/messages",
+   "GET /accounts/{account_id}/cloudforce-one/rules",
+   "GET /accounts/{account_id}/cloudforce-one/rules/search",
+   "GET /accounts/{account_id}/cloudforce-one/rules/approvals",
+   "GET /accounts/{account_id}/cloudforce-one/rules/structured",
+   "GET /accounts/{account_id}/cloudforce-one/events",
+   "GET /accounts/{account_id}/cloudforce-one/events/{event_id}/relationships",
+   "GET /accounts/{account_id}/cloudforce-one/events/by-id/{event_id}/relationships",
+   "GET /accounts/{account_id}/cloudforce-one/events/indicators",
+   "GET /accounts/{account_id}/cloudforce-one/events/dataset/{dataset_id}/indicators",
+   "GET /accounts/{account_id}/cloudforce-one/events/tags",
+   "GET /accounts/{account_id}/cloudforce-one/events/tags/categories/actors",
+   "GET /accounts/{account_id}/cloudforce-one/events/tags/{tag_uuid}/indicators",
+   "GET /accounts/{account_id}/cni/cnis",
+   "GET /accounts/{account_id}/cni/interconnects",
+   "GET /accounts/{account_id}/cni/slots",
+   "GET /accounts/{account_id}/pipelines"
+  ],
+  "cursor parameter, but no next cursor in result_info": [
+   "GET /accounts/{account_id}/artifacts/namespaces",
+   "GET /accounts/{account_id}/artifacts/namespaces/{namespace}/repos",
+   "GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces/{namespace}/tables/{table_name}/maintenance-runs",
+   "GET /accounts/{account_id}/builds/builds/{build_uuid}/logs",
+   "GET /accounts/{account_id}/cloudforce-one/v2/collections/{collection_id}/items",
+   "GET /accounts/{account_id}/cloudforce-one/v2/threat-signals/articles",
+   "GET /accounts/{account_id}/cloudforce-one/v2/threat-signals/indicators",
+   "GET /accounts/{account_id}/magic/connectors/{connector_id}/telemetry/events",
+   "GET /accounts/{account_id}/magic/connectors/{connector_id}/telemetry/snapshots",
+   "GET /accounts/{account_id}/pay-per-use/enabled-domains",
+   "GET /accounts/{account_id}/r2-catalog/{bucket_name}/namespaces/{namespace}/tables/{table_name}/maintenance-runs",
+   "GET /accounts/{account_id}/stream",
+   "GET /accounts/{account_id}/vectorize/v2/indexes/{index_name}/list"
+  ],
+  "result has several arrays: details, namespace_uuids, namespaces": [
+   "GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces",
+   "GET /accounts/{account_id}/r2-catalog/{bucket_name}/namespaces"
+  ],
+  "result has several arrays: details, identifiers, table_uuids": [
+   "GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces/{namespace}/tables",
+   "GET /accounts/{account_id}/r2-catalog/{bucket_name}/namespaces/{namespace}/tables"
+  ],
+  "result is a union of other shapes": [
+   "GET /accounts/{account_id}/cloudforce-one/v2/brand-protection/domain/queries"
+  ],
+  "result has several arrays: records, robots": [
+   "GET /accounts/{account_id}/browser-rendering/crawl/{job_id}"
+  ],
+  "result has several arrays: edges, nodes": [
+   "GET /accounts/{account_id}/cloudforce-one/events/graph"
+  ],
+  "result has several arrays: entities, relationships": [
+   "GET /accounts/{account_id}/cloudforce-one/events/dataset/{dataset_id}/indicators/{indicator_id}/relationships",
+   "GET /accounts/{account_id}/cloudforce-one/events/tags/{tag_uuid}/relationships"
+  ],
+  "result has several arrays: buyers, data": [
+   "GET /{account_or_zone}/{account_or_zone_id}/pay-per-use/usage-stats"
+  ]
+ }
+}
