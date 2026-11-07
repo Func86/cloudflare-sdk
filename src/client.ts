@@ -1,0 +1,716 @@
+/**
+ * The hand-written runtime. Generated modules are plain `Operation` literals
+ * with no imports, so an application bundles this runtime and only the
+ * operations it imports.
+ */
+import { formatOfMediaType } from './media.ts';
+
+/** Where a paginated operation keeps its items, and how it picks the next page. */
+export type Pagination =
+	| {
+			kind: 'page';
+			/** The array's key in `result`; `result` itself is the array when absent. */
+			items?: string;
+	  }
+	| {
+			kind: 'offset';
+			items?: string;
+	  }
+	| {
+			kind: 'cursor';
+			items?: string;
+			/** The query parameter that takes the cursor. */
+			param: string;
+			/** The dotted path of the next cursor in `result_info`. */
+			next: string;
+	  };
+
+/** What an operation sends and how its response is read. `Req` and `Res` are type-only. */
+export interface Operation<Req = unknown, Res = unknown> {
+	method: string;
+	/** The path, with each path parameter as `{name}`. */
+	route: string;
+	/** The path parameters whose value is a path of its own, so its slashes aren't encoded. */
+	slashes?: readonly string[];
+	/** The query parameters, by wire name. A name with `<placeholders>` matches any request field it fits. */
+	query?: readonly string[];
+	/** The query parameters whose arrays are joined with commas. */
+	joined?: readonly string[];
+	/** The header parameters, by wire name. */
+	headers?: readonly string[];
+	/** How the request's `body` field is sent. No body when absent. */
+	body?: 'json' | 'form' | 'raw';
+	/** The media type of a `json` or `raw` body, when not `application/json`. */
+	contentType?: string;
+	/** Whether the JSON response is the Cloudflare envelope; true when absent. */
+	envelope?: false;
+	/**
+	 * How the response is read: enveloped JSON when absent, and by its content type when
+	 * `auto`. A `stream`, such as server-sent events, is the body, unread. A list is the
+	 * formats of an operation with no JSON, read by the content type, and as the first
+	 * when it names none of them, JSON included.
+	 */
+	response?: 'none' | 'text' | 'bytes' | 'stream' | 'auto' | readonly ('text' | 'bytes' | 'stream')[];
+	/** The `Accept` header, when not `application/json`. */
+	accept?: string;
+	readonly __req?: (request: Req) => void;
+	readonly __res?: () => Res;
+}
+
+/** An operation that `page` and `paginate` accept. */
+export interface PagedOperation<Req = unknown, Res = unknown, Item = unknown> extends Operation<Req, Res> {
+	page: Pagination;
+	readonly __item?: () => Item;
+}
+
+/** The item type of a result that is itself the array. */
+export type RootItem<Res> = Res extends readonly (infer Item)[] ? Item : never;
+
+/** The item type of a result that keeps its array under `Key`. */
+export type ItemOf<Res, Key extends string> = Res extends { [K in Key]?: infer List }
+	? NonNullable<List> extends readonly (infer Item)[]
+		? Item
+		: never
+	: never;
+
+export interface ClientOptions {
+	/** The API token or OAuth access token, sent as a bearer token. */
+	token?: string;
+	baseUrl?: string;
+	/** Headers sent with every request, such as `Cloudflare-Version`. */
+	headers?: HeadersInit;
+	/**
+	 * Aborts each attempt, including reading its response, after this long. A stream, such
+	 * as server-sent events, is only timed until it's returned, and `signal` ends it.
+	 * No timeout when absent. It doesn't bound the waits between retries: to bound a whole
+	 * call, give the call a `signal`, such as `AbortSignal.timeout(10_000)`.
+	 */
+	timeoutMs?: number;
+	/**
+	 * How many times to retry a GET, HEAD, PUT or DELETE after a 429 or 5XX, unless its
+	 * body is a stream, which can only be read once. 0 by default. A retry waits as long as
+	 * `Retry-After` says, up to 60 s, and `0` retries at once; when it says longer, the
+	 * failure is thrown at once, with the header. Without it, or with a date that has
+	 * passed, the wait doubles from 0.5 s, up to 8 s.
+	 */
+	maxRetries?: number;
+	/**
+	 * Called as a plain function. A method that needs its object, as a service binding's
+	 * does, fails with "Illegal invocation", so wrap it:
+	 * `(input, init) => env.API.fetch(input, init)`.
+	 */
+	fetch?: typeof fetch;
+}
+
+export interface RequestOptions {
+	signal?: AbortSignal;
+	/** Headers that replace any others, including the client's and the request's header fields. */
+	headers?: HeadersInit;
+	/** Called with the response before its body is read. */
+	onResponse?: (response: Response) => void;
+	timeoutMs?: number;
+	maxRetries?: number;
+}
+
+/** A message of the Cloudflare envelope. */
+export interface ApiMessage {
+	code?: number | string;
+	message: string;
+	[key: string]: unknown;
+}
+
+/** The pagination metadata of the Cloudflare envelope. */
+export interface ResultInfo {
+	page?: number;
+	per_page?: number;
+	count?: number;
+	total_count?: number;
+	total_pages?: number;
+	cursor?: string;
+	[key: string]: unknown;
+}
+
+/** One page of a paginated operation. */
+export interface Page<Res, Item> {
+	/** The array the operation's pagination points at; empty when it is `null`. */
+	items: Item[];
+	/** The whole `result`, including any fields next to the items. */
+	result: Res;
+	/** Absent when the API sends none, as several list endpoints do. */
+	resultInfo: ResultInfo | undefined;
+}
+
+/**
+ * A failed request: a non-2XX status, a 2XX whose envelope says `success: false`, or a
+ * 2XX whose body should be JSON and isn't, such as a proxy's HTML page.
+ */
+export class ApiError extends Error {
+	override readonly name = 'ApiError';
+	readonly status: number;
+	readonly errors: readonly ApiMessage[];
+	readonly messages: readonly ApiMessage[];
+	readonly headers: Headers;
+	/** The parsed JSON body, or the text of a body that isn't JSON. */
+	readonly body: unknown;
+
+	constructor(response: Response, body: unknown, method: string, path: string, problem?: string) {
+		const envelope = isRecord(body) ? body : {};
+		const listed = messageList(envelope['errors']);
+		// Some failures aren't in the envelope, such as a validation error under `error`.
+		const errors = listed.length > 0 ? listed : messageList(envelope['error'] ?? envelope['message'] ?? envelope['msg']);
+		const detail =
+			problem ?? errors.map((e) => (e.code === undefined ? e.message : `${e.code}: ${e.message}`)).join('; ');
+		super(`${method} ${path} failed with ${response.status}${detail ? `: ${detail}` : ''}`);
+		this.status = response.status;
+		this.errors = errors;
+		this.messages = messageList(envelope['messages']);
+		this.headers = response.headers;
+		this.body = body;
+	}
+}
+
+/**
+ * A request that got no response, or lost it while reading it, such as to a timeout or a
+ * reset connection. One the caller aborted throws the abort instead.
+ */
+export class ApiConnectionError extends Error {
+	override readonly name = 'ApiConnectionError';
+
+	constructor(method: string, path: string, cause: unknown) {
+		super(`${method} ${path} got no complete response`, { cause });
+	}
+}
+
+/** `never`, which rejects the overload, when `Req` has a required field. */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- `{}` is the request with no fields.
+type WhenOptional<Req> = {} extends Req ? unknown : never;
+
+/**
+ * Each method has an overload for a request that can be left out. The request
+ * is a parameter of its own rather than part of a conditional rest tuple, which
+ * would turn off the excess property check and let a mistyped optional
+ * parameter compile, and then be dropped.
+ */
+export interface Client {
+	/** Sends a request and returns the envelope's `result`, or the bare response of an operation without one. */
+	send<Req, Res>(
+		operation: Operation<Req, Res> & WhenOptional<Req>,
+		request?: NoInfer<Req>,
+		options?: RequestOptions,
+	): Promise<Res>;
+	send<Req, Res>(operation: Operation<Req, Res>, request: NoInfer<Req>, options?: RequestOptions): Promise<Res>;
+	/** Sends one page of a paginated operation. */
+	page<Req, Res, Item>(
+		operation: PagedOperation<Req, Res, Item> & WhenOptional<Req>,
+		request?: NoInfer<Req>,
+		options?: RequestOptions,
+	): Promise<Page<Res, Item>>;
+	page<Req, Res, Item>(
+		operation: PagedOperation<Req, Res, Item>,
+		request: NoInfer<Req>,
+		options?: RequestOptions,
+	): Promise<Page<Res, Item>>;
+	/**
+	 * Iterates every item of every page, without a trailing request when the last page is
+	 * known. Throws a `TypeError` on a response that isn't a page, such as one in CSV.
+	 */
+	paginate<Req, Res, Item>(
+		operation: PagedOperation<Req, Res, Item> & WhenOptional<Req>,
+		request?: NoInfer<Req>,
+		options?: RequestOptions,
+	): AsyncIterable<Item>;
+	paginate<Req, Res, Item>(
+		operation: PagedOperation<Req, Res, Item>,
+		request: NoInfer<Req>,
+		options?: RequestOptions,
+	): AsyncIterable<Item>;
+}
+
+type Fields = Record<string, unknown>;
+
+const DEFAULT_BASE_URL = 'https://api.cloudflare.com/client/v4';
+const IDEMPOTENT = new Set(['GET', 'HEAD', 'PUT', 'DELETE']);
+
+function isRecord(value: unknown): value is Fields {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Reads `errors` or `messages`, so that what the server said is never lost. Beside the
+ * usual list of objects, the API declares strings, objects with no `message`, and a
+ * lone object rather than a list.
+ */
+function messageList(value: unknown): ApiMessage[] {
+	const said = (entry: unknown): boolean =>
+		entry !== undefined && entry !== null && entry !== '' && !(isRecord(entry) && Object.keys(entry).length === 0);
+	return (Array.isArray(value) ? value : [value]).filter(said).map((entry: unknown) => {
+		if (typeof entry === 'string') {
+			return { message: entry };
+		}
+		if (isRecord(entry)) {
+			return typeof entry['message'] === 'string' ? (entry as ApiMessage) : { ...entry, message: JSON.stringify(entry) };
+		}
+		return { message: JSON.stringify(entry) };
+	});
+}
+
+/** A value as text for a URL or a header: an object as JSON, rather than `[object Object]`. */
+function toParam(value: unknown): string {
+	// eslint-disable-next-line @typescript-eslint/no-base-to-string -- objects are JSON, so this is a primitive.
+	return typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
+function pathOf(operation: Operation, request: Fields): string {
+	return operation.route.replace(/\{([^}]+)\}/g, (_, name: string) => {
+		const value = request[name];
+		// An empty segment would address a different endpoint.
+		if (value === undefined || value === null || value === '') {
+			throw new TypeError(`${operation.method} ${operation.route}: ${name} is required`);
+		}
+		const segments = operation.slashes?.includes(name) ? toParam(value).split('/') : [toParam(value)];
+		// Encoding leaves dots alone, and URL parsing would resolve these against the
+		// route: a value could reach another endpoint with the same token and method.
+		if (segments.some((segment) => segment === '.' || segment === '..')) {
+			throw new TypeError(`${operation.method} ${operation.route}: ${name} can't have a "." or ".." segment`);
+		}
+		return segments.map((segment) => encodeURIComponent(segment)).join('/');
+	});
+}
+
+/** Matches the names a template such as `meta.<field>[<operator>]` stands for. */
+function templatePattern(template: string): RegExp {
+	const parts = template.split(/<[^>]+>/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+	return new RegExp(`^${parts.join('.+')}$`);
+}
+
+function queryOf(operation: Operation, request: Fields): string {
+	const query = new URLSearchParams();
+	const add = (name: string, value: unknown): void => {
+		if (value === undefined || value === null) {
+			return;
+		}
+		if (isRecord(value)) {
+			// OpenAPI's default for an object: each field is a parameter of its own.
+			for (const [field, item] of Object.entries(value)) {
+				if (item !== undefined && item !== null) {
+					query.append(field, toParam(item));
+				}
+			}
+		} else if (!Array.isArray(value)) {
+			query.append(name, toParam(value));
+		} else if (operation.joined?.includes(name)) {
+			query.append(name, value.map(toParam).join(','));
+		} else {
+			for (const item of value) {
+				query.append(name, toParam(item));
+			}
+		}
+	};
+	for (const name of operation.query ?? []) {
+		if (name.includes('<')) {
+			// A name with placeholders, such as Images' metadata filters, is each field it matches.
+			const pattern = templatePattern(name);
+			for (const [field, value] of Object.entries(request)) {
+				if (pattern.test(field)) {
+					add(field, value);
+				}
+			}
+		} else {
+			add(name, request[name]);
+		}
+	}
+	const text = query.toString();
+	return text === '' ? '' : `?${text}`;
+}
+
+function formOf(body: unknown): FormData {
+	if (body instanceof FormData) {
+		return body;
+	}
+	const form = new FormData();
+	const append = (name: string, value: unknown): void => {
+		if (value instanceof Blob) {
+			form.append(name, value);
+		} else if (Array.isArray(value)) {
+			value.forEach((item) => append(name, item));
+		} else if (value !== undefined && value !== null) {
+			form.append(name, toParam(value));
+		}
+	};
+	for (const [name, value] of Object.entries(body as Fields)) {
+		append(name, value);
+	}
+	return form;
+}
+
+/** The longest `Retry-After` worth waiting for. Longer would outlive most callers, such as a Worker's request. */
+const MAX_RETRY_AFTER_MS = 60_000;
+const MAX_BACKOFF_MS = 8_000;
+
+/** How long to wait before a retry, or undefined when the server asks for longer than is worth waiting. */
+function retryDelayMs(response: Response, attempt: number): number | undefined {
+	const header = response.headers.get('retry-after')?.trim() ?? '';
+	// Seconds, where 0 asks for a retry at once, or an HTTP date. A date that has passed is
+	// likelier a difference between the clocks, and asks for nothing, as no header does.
+	const seconds = /^\d+(\.\d+)?$/.test(header);
+	const asked = seconds ? Number(header) * 1000 : Date.parse(header) - Date.now();
+	if (seconds || asked > 0) {
+		return asked <= MAX_RETRY_AFTER_MS ? asked : undefined;
+	}
+	return Math.min(500 * 2 ** attempt, MAX_BACKOFF_MS);
+}
+
+/** A signal that aborts after `ms`, as `AbortSignal.timeout` does, but whose timer can be stopped. */
+function deadline(ms: number): { signal: AbortSignal; stop: () => void } {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(new DOMException('The operation timed out.', 'TimeoutError')), ms);
+	return { signal: controller.signal, stop: () => clearTimeout(timer) };
+}
+
+/** Waits, unless the caller cancels first. */
+function delay(ms: number, signal: AbortSignal | undefined): Promise<void> {
+	// Both reject with the caller's abort reason, whatever it is, as fetch does.
+	return new Promise((resolve, reject) => {
+		if (signal?.aborted) {
+			// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- the abort reason, as fetch rejects.
+			reject(signal.reason);
+			return;
+		}
+		const onAbort = (): void => {
+			clearTimeout(timer);
+			// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- the abort reason, as fetch rejects.
+			reject(signal?.reason);
+		};
+		const timer = setTimeout(() => {
+			signal?.removeEventListener('abort', onAbort);
+			resolve();
+		}, ms);
+		signal?.addEventListener('abort', onAbort, { once: true });
+	});
+}
+
+/**
+ * How to read a response of an operation that can answer in several formats, by
+ * what the response says it is. Undefined means JSON, which also keeps a response
+ * with no content empty.
+ */
+function formatOf(response: Response): 'text' | 'bytes' | 'stream' | undefined {
+	const type = response.headers.get('content-type') ?? '';
+	const format = type === '' ? 'json' : formatOfMediaType(type);
+	return format === 'json' ? undefined : format;
+}
+
+/** How an operation's response is read, where undefined is JSON. */
+function formatFor(operation: Operation, response: Response): 'none' | 'text' | 'bytes' | 'stream' | undefined {
+	const declared = operation.response;
+	if (declared === 'auto') {
+		return formatOf(response);
+	}
+	if (declared === undefined || typeof declared === 'string') {
+		return declared;
+	}
+	// No JSON is declared, so a response in none of the formats, or with no content type, is read as the first.
+	const format = formatOf(response);
+	return format !== undefined && declared.includes(format) ? format : declared[0];
+}
+
+/** Whether a response says its body is JSON. */
+function saysJson(response: Response): boolean {
+	return formatOfMediaType(response.headers.get('content-type') ?? '') === 'json';
+}
+
+/** The value of a JSON text, or undefined when it isn't JSON, which `JSON.parse` never returns. */
+function jsonOf(text: string): unknown {
+	try {
+		return JSON.parse(text);
+	} catch {
+		return undefined;
+	}
+}
+
+/** Reads the value at a dotted path, such as `cursors.after`. */
+function at(value: unknown, path: string): unknown {
+	let current = value;
+	for (const key of path.split('.')) {
+		current = isRecord(current) ? current[key] : undefined;
+	}
+	return current;
+}
+
+/** Whether a JSON body is the Cloudflare envelope, which can leave out an empty `result`. */
+function isEnvelope(body: unknown): body is Fields {
+	return isRecord(body) && ('result' in body || 'success' in body);
+}
+
+/**
+ * Whether a page-number response says the page it just returned is the last. Only a page
+ * size the API states counts: one that caps the size asked for would end the list early.
+ */
+function isLastPage(info: ResultInfo | undefined, page: number, count: number, seen: number): boolean {
+	if (typeof info?.total_pages === 'number') {
+		return page >= info.total_pages;
+	}
+	const perPage = info?.per_page;
+	if (typeof info?.total_count === 'number') {
+		// Counting what was seen undercounts from a later first page, which costs a request.
+		return typeof perPage === 'number' ? page * perPage >= info.total_count : seen >= info.total_count;
+	}
+	return typeof perPage === 'number' && count < perPage;
+}
+
+export function createClient(options: ClientOptions = {}): Client {
+	const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
+
+	/** Sends a request, and returns its response with a function that stops its timeout. */
+	async function request(
+		operation: Operation,
+		fields: Fields,
+		call: RequestOptions | undefined,
+	): Promise<{ response: Response; stopTimeout: () => void }> {
+		const path = pathOf(operation, fields);
+		// The more specific a header's source, the later it's set: the client, the operation,
+		// the request's header fields, and then the call.
+		const headers = new Headers(options.token === undefined ? {} : { authorization: `Bearer ${options.token}` });
+		const assign = (from: HeadersInit | undefined): void => new Headers(from).forEach((value, key) => headers.set(key, value));
+		assign(options.headers);
+		headers.set('accept', operation.accept ?? 'application/json');
+		const init: RequestInit = { method: operation.method, headers };
+		const body = fields['body'];
+		if (operation.body !== undefined && body !== undefined) {
+			// Three operations take a form beside JSON, and JSON can't carry a FormData.
+			if (operation.body === 'form' || body instanceof FormData) {
+				init.body = formOf(body);
+			} else {
+				headers.set('content-type', operation.contentType ?? 'application/json');
+				init.body = operation.body === 'json' ? JSON.stringify(body) : (body as BodyInit);
+			}
+		}
+		for (const name of operation.headers ?? []) {
+			const value = fields[name];
+			if (value !== undefined && value !== null) {
+				headers.set(name, toParam(value));
+			}
+		}
+		assign(call?.headers);
+		if (init.body instanceof FormData) {
+			// fetch sets it with the boundary, which no content type given here can have.
+			headers.delete('content-type');
+		}
+		const streamed = init.body instanceof ReadableStream;
+		if (streamed) {
+			// Node's fetch requires this for a stream, and the DOM's types don't declare it.
+			(init as RequestInit & { duplex: 'half' }).duplex = 'half';
+		}
+
+		const url = baseUrl + path + queryOf(operation, fields);
+		const send = options.fetch ?? fetch;
+		const timeoutMs = call?.timeoutMs ?? options.timeoutMs;
+		const maxRetries = IDEMPOTENT.has(operation.method) && !streamed ? (call?.maxRetries ?? options.maxRetries ?? 0) : 0;
+		for (let attempt = 0; ; attempt++) {
+			const timer = timeoutMs === undefined ? undefined : deadline(timeoutMs);
+			const signals = [call?.signal, timer?.signal].filter((signal) => signal !== undefined);
+			if (signals.length > 0) {
+				init.signal = signals.length === 1 ? signals[0]! : AbortSignal.any(signals);
+			}
+			const stopTimeout = (): void => timer?.stop();
+			let response: Response;
+			try {
+				response = await send(url, init);
+			} catch (error) {
+				stopTimeout();
+				if (call?.signal?.aborted) {
+					throw error;
+				}
+				throw new ApiConnectionError(operation.method, operation.route, error);
+			}
+			const wait = attempt < maxRetries && (response.status === 429 || response.status >= 500) ? retryDelayMs(response, attempt) : undefined;
+			if (wait !== undefined) {
+				stopTimeout();
+				// A body that breaks off while being discarded doesn't matter.
+				await response.body?.cancel().catch(() => undefined);
+				await delay(wait, call?.signal);
+				continue;
+			}
+			try {
+				call?.onResponse?.(response);
+			} catch (error) {
+				stopTimeout();
+				throw error;
+			}
+			return { response, stopTimeout };
+		}
+	}
+
+	/** Reads a response's body, as a connection error when it breaks off, other than by the caller. */
+	async function read<T>(operation: Operation, call: RequestOptions | undefined, reader: () => Promise<T>): Promise<T> {
+		try {
+			return await reader();
+		} catch (error) {
+			if (call?.signal?.aborted) {
+				throw error;
+			}
+			throw new ApiConnectionError(operation.method, operation.route, error);
+		}
+	}
+
+	async function envelope(operation: Operation, fields: Fields, call: RequestOptions | undefined): Promise<unknown> {
+		const { response, stopTimeout } = await request(operation, fields, call);
+		try {
+			return await readBody(operation, response, call, stopTimeout);
+		} finally {
+			stopTimeout();
+		}
+	}
+
+	/** Reads a response as its operation says, under its timeout until `stopTimeout`. */
+	async function readBody(
+		operation: Operation,
+		response: Response,
+		call: RequestOptions | undefined,
+		stopTimeout: () => void,
+	): Promise<unknown> {
+		const fail = (body: unknown, problem?: string): ApiError =>
+			new ApiError(response, body, operation.method, operation.route, problem);
+		if (response.status < 200 || response.status > 299) {
+			const text = await read(operation, call, () => response.text());
+			throw fail(text === '' ? undefined : (jsonOf(text) ?? text));
+		}
+		const format = formatFor(operation, response);
+		if (format === 'stream') {
+			// It may never end, so the caller reads it as it arrives, and ends it with `signal`.
+			// No body, as with a 204, is a stream that ends at once.
+			stopTimeout();
+			return response.body ?? new ReadableStream({ start: (controller) => controller.close() });
+		}
+		// A failure can come as the envelope whatever the operation's format, though only in
+		// JSON. A file that only looks like one would also need a list of `errors`.
+		const check = (text: string): void => {
+			const body = jsonOf(text);
+			if (isRecord(body) && body['success'] === false && Array.isArray(body['errors'])) {
+				throw fail(body);
+			}
+		};
+		if (format === 'bytes') {
+			const bytes = new Uint8Array(await read(operation, call, () => response.arrayBuffer()));
+			if (saysJson(response)) {
+				check(new TextDecoder().decode(bytes));
+			}
+			return bytes;
+		}
+		const text = await read(operation, call, () => response.text());
+		if (format === 'none' || format === 'text') {
+			if (format === 'none' || saysJson(response)) {
+				check(text);
+			}
+			return format === 'none' ? undefined : text;
+		}
+		if (text === '') {
+			return undefined;
+		}
+		const body = jsonOf(text);
+		if (body === undefined) {
+			throw fail(text, "the body isn't JSON");
+		}
+		if (isRecord(body) && body['success'] === false) {
+			throw fail(body);
+		}
+		return body;
+	}
+
+	async function readPage(operation: PagedOperation, fields: Fields, call: RequestOptions | undefined) {
+		const body = await envelope(operation, fields, call);
+		const enveloped = operation.envelope !== false && isEnvelope(body);
+		// Another format, or a bare branch of the JSON, is the result as it is, as for `send`.
+		const result = enveloped ? body['result'] : body;
+		const list = operation.page.items === undefined ? result : at(result, operation.page.items);
+		const bareJson =
+			operation.envelope === false &&
+			typeof body !== 'string' &&
+			!(body instanceof Uint8Array) &&
+			!(body instanceof ReadableStream);
+		return {
+			// No content is an empty page. The rest is what `paginate` can't read.
+			paged: body === undefined || enveloped || bareJson,
+			current: {
+				// Some endpoints send `null` for an empty list, against their spec.
+				items: Array.isArray(list) ? (list as unknown[]) : [],
+				result,
+				resultInfo: enveloped && isRecord(body['result_info']) ? (body['result_info'] as ResultInfo) : undefined,
+			},
+		};
+	}
+
+	async function* items(operation: PagedOperation, request: Fields, call: RequestOptions | undefined) {
+		const pagination = operation.page;
+		let fields = request;
+		// A few operations declare `page` as a string. Their "all" isn't a number, and has no next page.
+		let number = Number(request['page'] ?? 1);
+		let offset = typeof request['offset'] === 'number' ? request['offset'] : 0;
+		let seen = 0;
+		let previous: string | undefined;
+		for (;;) {
+			const { current, paged } = await readPage(operation, fields, call);
+			// Stopping here would look like an empty list.
+			if (!paged) {
+				throw new TypeError(`${operation.method} ${operation.route}: this response isn't a page, so read it with send`);
+			}
+			if (pagination.kind === 'cursor') {
+				// Only the cursor ends the list. An empty page can have more after it: KV
+				// skips deleted keys, and R2 lists keys grouped by a delimiter elsewhere.
+				yield* current.items;
+				const next = at(current.resultInfo, pagination.next);
+				if (typeof next !== 'string' || next === '' || next === fields[pagination.param]) {
+					return;
+				}
+				fields = { ...fields, [pagination.param]: next };
+				continue;
+			}
+			if (current.items.length === 0) {
+				return;
+			}
+			const info = current.resultInfo;
+			// A total ends the list, and two pages alike can be real data. Without one, an
+			// endpoint that ignores the page parameter would repeat itself forever. A short
+			// page doesn't end it either, as the API may cap the size asked for.
+			const counted =
+				typeof info?.total_count === 'number' || (pagination.kind === 'page' && typeof info?.total_pages === 'number');
+			if (!counted) {
+				const fingerprint = JSON.stringify(current.items);
+				if (fingerprint === previous) {
+					return;
+				}
+				previous = fingerprint;
+			}
+			yield* current.items;
+			seen += current.items.length;
+			if (pagination.kind === 'offset') {
+				offset += current.items.length;
+				if (typeof info?.total_count === 'number' && offset >= info.total_count) {
+					return;
+				}
+				fields = { ...fields, offset };
+			} else {
+				if (Number.isNaN(number) || isLastPage(info, number, current.items.length, seen)) {
+					return;
+				}
+				number += 1;
+				fields = { ...fields, page: number };
+			}
+		}
+	}
+
+	return {
+		async send(operation: Operation, fields?: Fields, call?: RequestOptions) {
+			const body = await envelope(operation, fields ?? {}, call);
+			const json = operation.response === undefined || operation.response === 'auto';
+			// An envelope that leaves out `result` has none, as `page` reads it.
+			return json && operation.envelope !== false && isEnvelope(body) ? body['result'] : body;
+		},
+		async page(operation: PagedOperation, fields?: Fields, call?: RequestOptions) {
+			return (await readPage(operation, fields ?? {}, call)).current;
+		},
+		paginate(operation: PagedOperation, fields?: Fields, call?: RequestOptions) {
+			return items(operation, fields ?? {}, call);
+		},
+	} as Client;
+}

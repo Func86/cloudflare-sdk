@@ -1,0 +1,60 @@
+{
+	"name": "@libreflare/cloudflare-sdk",
+	"version": "0.1.0",
+	"private": false,
+	"description": "A slim Cloudflare API client generated from Forge's openapi.forge.json.",
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/client.d.ts",
+			"default": "./dist/client.js"
+		},
+		"./types/*": {
+			"types": "./generated/_types/*.d.ts"
+		},
+		"./*": {
+			"types": "./generated/*/index.d.ts",
+			"default": "./generated/*/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"imports": {
+		"#runtime": {
+			"types": "./dist/client.d.ts",
+			"default": "./dist/client.js"
+		}
+	},
+	"files": [
+		"dist",
+		"generated"
+	],
+	"scripts": {
+		"generate": "npm run generate:plugin && node generator/generate.ts",
+		"generate:plugin": "forge-plugin build generator/entry.ts -o generator/sdk.wasm",
+		"build": "tsc -p tsconfig.build.json",
+		"test": "node --test \"test/*.test.ts\"",
+		"check:type": "tsc -p tsconfig.json && tsc -p generator && tsc -p generator/plugin && tsc -p test && tsc -p tsconfig.generated.json",
+		"lint": "npm run lint:eslint && npm run lint:knip",
+		"lint:eslint": "eslint . --max-warnings=0",
+		"lint:knip": "knip && knip --production --include exports",
+		"prepack": "npm run build",
+		"prepublishOnly": "npm run build && npm run check:type && npm run lint && npm test"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"devDependencies": {
+		"@bytecodealliance/jco": "1.40.0",
+		"@cloudflare/forge": "https://pkg.pr.new/cloudflare/forge/@cloudflare/forge@0d1877431691b07cbe3b042a4b64cb0bd8e81c03",
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^24.19.2",
+		"eslint": "^10.14.0",
+		"knip": "^6.44.2",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.72.1"
+	},
+	"engines": {
+		"node": ">=22.18"
+	}
+}

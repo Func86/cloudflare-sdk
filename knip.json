@@ -1,0 +1,6 @@
+{
+	"$schema": "./node_modules/knip/schema.json",
+	"entry": ["src/client.ts!", "generator/conformance.ts", "generator/entry.ts", "test/*.test.ts"],
+	"project": ["src/**/*.ts!", "generator/**/*.ts", "test/**/*.ts"],
+	"ignoreExportsUsedInFile": true
+}
