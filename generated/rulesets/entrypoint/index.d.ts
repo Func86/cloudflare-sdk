@@ -14,7 +14,7 @@ export type GetResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 };
 /**
  * Get an account or zone entry point ruleset
@@ -44,7 +44,7 @@ export type UpdateResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 } | null;
 /**
  * Update an account or zone entry point ruleset

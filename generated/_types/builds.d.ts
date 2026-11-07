@@ -409,6 +409,7 @@ export type BuildTriggerMetadataResponse = {
 export type BuildTriggerSource = "push" | "pull_request" | "manual" | "api";
 
 export type BuildsByVersionResponse = {
+	/** Each build under the ID of the Worker version it was asked for, as a build doesn't name its version. */
 	builds?: { [key: string]: BuildResponse };
 };
 

@@ -277,6 +277,15 @@ test('a failure carries the status and the errors of the envelope', async () => 
 	});
 });
 
+test('an ApiError can be made from a status alone, as a test has no Response', () => {
+	const error = new ApiError({ status: 403 }, { success: false, errors: [{ code: 10000, message: 'nope' }] }, 'GET', '/a');
+	assert.equal(error.message, 'GET /a failed with 403: 10000: nope');
+	assert.equal(error.status, 403);
+	assert.deepEqual([...error.headers], []);
+	const headers = new Headers({ 'retry-after': '1' });
+	assert.equal(new ApiError({ status: 429, headers }, undefined, 'GET', '/a').headers, headers);
+});
+
 test('a 200 whose envelope says success: false is a failure', async () => {
 	const { client } = mock(() => json({ success: false, errors: [{ message: 'nope' }], result: null }));
 	await assert.rejects(client.send({ method: 'GET', route: '/a' }), ApiError);
@@ -296,10 +305,10 @@ test('string errors and messages are kept, as logs and Builds declare them', asy
 	assert.match(error.message, /failed with 400: Invalid query$/);
 });
 
-test('an entry with no message still says what the server said', async () => {
+test('an entry with no message has none, and the error still says what the server said', async () => {
 	const coded = await failureOf({ success: false, errors: [{ code: 1, detail: 'why' }] });
-	assert.equal(coded.errors[0]?.message, '{"code":1,"detail":"why"}');
-	assert.equal(coded.errors[0]?.['detail'], 'why');
+	assert.deepEqual(coded.errors, [{ code: 1, detail: 'why' }]);
+	assert.match(coded.message, /failed with 400: 1: \{"code":1,"detail":"why"\}$/);
 	assert.doesNotMatch(coded.message, /undefined/);
 	assert.match(coded.message, /why/);
 	const usual = await failureOf({ success: false, errors: [{ code: 'not_found', message: 'Gone' }] });
@@ -313,6 +322,7 @@ test('a field a message declares is left out when the server sends another type,
 			{ code: 1000, message: 'typed', documentation_url: 'https://developers.cloudflare.com', source: { pointer: '/a' } },
 			{ code: { at: 1 }, message: 'untyped', documentation_url: null, source: 'body', extra: null },
 			{ message: 'pointer', source: { pointer: null, parameter: 'per_page' } },
+			{ code: 2, message: { text: 'not text' } },
 		],
 	};
 	const error = await failureOf(body);
@@ -321,8 +331,15 @@ test('a field a message declares is left out when the server sends another type,
 		{ message: 'untyped', extra: null },
 		// Only the pointer is of another type, so the rest of the source stays.
 		{ message: 'pointer', source: { parameter: 'per_page' } },
+		{ code: 2 },
 	]);
 	assert.deepEqual(error.body, body);
+	// The error's own message shows each entry as sent.
+	assert.match(error.message, /; pointer; 2: \{"code":2,"message":\{"text":"not text"\}\}$/);
+	assert.match(error.message, /: 1000: typed; untyped; /);
+	const structured = await failureOf({ success: false, errors: [{ message: { text: 'Invalid configuration' } }] });
+	assert.deepEqual(structured.errors, [{}]);
+	assert.match(structured.message, /failed with 400: \{"message":\{"text":"Invalid configuration"\}\}$/);
 });
 
 test('a lone errors object is a list of one, and an empty one is nothing', async () => {
@@ -341,6 +358,7 @@ test('a failure outside the envelope is read from where it is', async () => {
 	const zod = await failureOf({ success: false, error: { issues: [{ message: 'Invalid uuid' }], name: 'ZodError' } });
 	assert.match(zod.message, /Invalid uuid/);
 	assert.equal(zod.errors[0]?.['name'], 'ZodError');
+	assert.equal(zod.errors[0]?.message, undefined);
 	assert.equal((await failureOf({ error: 'singular' })).errors[0]?.message, 'singular');
 	assert.equal((await failureOf({ message: 'only a message' })).errors[0]?.message, 'only a message');
 	assert.equal((await failureOf({ msg: 'abuse reports say msg' })).errors[0]?.message, 'abuse reports say msg');

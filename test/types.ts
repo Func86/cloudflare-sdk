@@ -15,7 +15,7 @@ import { list as listListItems } from '@libreflare/cloudflare-sdk/rules/lists/it
 import type { Item as ListItem } from '@libreflare/cloudflare-sdk/types/lists';
 import { put as putKey } from '@libreflare/cloudflare-sdk/kv/keys';
 import { put as putObject } from '@libreflare/cloudflare-sdk/r2/objects';
-import { create as createRuleset, type CreateResult as CreatedRuleset } from '@libreflare/cloudflare-sdk/rulesets';
+import { create as createRuleset, get as getRuleset, type CreateResult as CreatedRuleset } from '@libreflare/cloudflare-sdk/rulesets';
 import { list as listShadowHosts } from '@libreflare/cloudflare-sdk/security-insights/partners/shadow-hosts';
 import { update as updateWorker } from '@libreflare/cloudflare-sdk/workers/legacy/scripts';
 import * as buildTriggers from '@libreflare/cloudflare-sdk/builds/triggers';
@@ -243,6 +243,14 @@ export function pointerOf(error: ApiError): string | undefined {
 	return error.errors[0]?.source?.pointer;
 }
 
+// An entry's message is only text the server sent, so it may have none.
+export function messageOf(error: ApiError): string {
+	const first = error.errors[0];
+	// @ts-expect-error An entry such as `{ code, detail }` has no message.
+	const said: string = first === undefined ? '' : first.message;
+	return said;
+}
+
 export async function logpushAndBuilds(): Promise<void> {
 	// A listed job isn't null, though a single job's result can be, and it has the filter the API sends.
 	const jobs = await cf.send(logpushJobs.list, { zone_id: 'z' });
@@ -302,6 +310,23 @@ export const skipCurrent: RequestRuleInput = { action: 'skip', expression: 'true
 // Any rule's parameters can be read, as a rule whose action takes none has none.
 export function parametersOf(rule: ResponseRule): unknown {
 	return rule.action_parameters;
+}
+// One action's rule is picked from the union, with its own parameters.
+type RewriteRule = Extract<ResponseRule, { action: 'rewrite' }>;
+assertType<Equal<[RewriteRule] extends [never] ? true : false, false>>();
+export function headersOf(rule: RewriteRule): unknown {
+	return rule.action_parameters?.headers;
+}
+// @ts-expect-error A block rule isn't a rewrite.
+export const notRewrite: RewriteRule = { id: 'i', ref: 'r', enabled: true, expression: 'true', action: 'block' };
+
+// An empty ruleset leaves out its rules, and always has its version.
+export async function ruleCount(ruleset_id: string): Promise<number> {
+	const ruleset = await cf.send(getRuleset, { zone_id: 'z', ruleset_id });
+	// @ts-expect-error `rules` may be absent.
+	void ruleset.rules.length;
+	void ruleset.version.length;
+	return (ruleset.rules ?? []).length;
 }
 
 // A ruleset write returns what it changed, and a dry run, which only validates, returns null.

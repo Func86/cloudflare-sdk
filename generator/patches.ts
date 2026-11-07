@@ -37,6 +37,22 @@ const MOVE_RULE =
 const RULE_ACTION_PARAMETERS =
 	'Dry runs of POST /zones/{id}/rulesets on 2026-11-08 refused an unknown key in action_parameters with "invalid JSON: unknown field", for block, skip and the six actions that declare no parameters (challenge, js_challenge, managed_challenge, log, force_connection_close, ddos_dynamic), before checking the phase or the plan. Those six took {} or none, and the managed rulesets read from the playground zone send none for them.';
 
+const RULESET_WITHOUT_RULES =
+	'An empty zone ruleset came back without rules from every read and write tried on the playground zone, 2026-11-08, including deleting its last rule. So did a managed ruleset read by a tag no rule has. All had version and last_updated.';
+
+/** The result of a ruleset response, which requires `rules` that an empty ruleset leaves out. */
+function rulesetRulesOptional(id: string, pointer: string): SpecPatch {
+	return {
+		id,
+		evidence: RULESET_WITHOUT_RULES,
+		pointer,
+		applies: (node) => node['properties']?.['rules'] !== undefined && node['required']?.includes('rules') === true,
+		apply: (node) => {
+			node['required'] = (node['required'] as string[]).filter((name) => name !== 'rules');
+		},
+	};
+}
+
 /** The `position` a ruleset rule request body declares beside the rule. */
 function positionOf(body: Schema | undefined): Schema | undefined {
 	const branches = body?.['content']?.['application/json']?.['schema']?.['allOf'] as Schema[] | undefined;
@@ -115,6 +131,16 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		applies: (node) => node['nullable'] === true && node['properties']?.['features'] !== undefined,
 		apply: (node) => {
 			delete node['nullable'];
+		},
+	},
+	{
+		id: 'builds-by-version-key',
+		evidence:
+			"GET /accounts/{id}/builds/builds with 10 version IDs returned { builds } with a build under each ID asked for, and none of the builds had a worker_version_id, 2026-11-08. The spec doesn't say what the key is.",
+		pointer: '/components/schemas/builds_BuildsByVersionResponse/properties/builds',
+		applies: (node) => node['description'] === undefined && node['additionalProperties'] !== undefined,
+		apply: (node) => {
+			node['description'] = "Each build under the ID of the Worker version it was asked for, as a build doesn't name its version.";
 		},
 	},
 	{
@@ -207,6 +233,14 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 			node[EXCLUSIVE_BODY] = true;
 		},
 	},
+	rulesetRulesOptional(
+		'rulesets-ruleset-rules-optional',
+		'/components/responses/rulesets_Ruleset/content/application~1json/schema/allOf/1/properties/result/allOf/1',
+	),
+	rulesetRulesOptional(
+		'rulesets-ruleset-or-dry-run-rules-optional',
+		'/components/responses/rulesets_RulesetOrDryRun/content/application~1json/schema/allOf/1/properties/result/oneOf/0/allOf/1',
+	),
 	scriptSourceAsText('worker-script-content-text', '/accounts/{account_id}/workers/scripts/{script_name}/content/v2'),
 	scriptSourceAsText(
 		'dispatch-script-content-text',

@@ -1,10 +1,33 @@
 # Changelog
 
 Changes a caller notices, newest first. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and versions follow [Semantic Versioning](https://semver.org/): before 1.0, a minor version can break calls, so
-`^0.1.0` doesn't take 0.2.0.
+and versions follow [Semantic Versioning](https://semver.org/), under which anything can change before 1.0. A minor
+version can break calls, so `^0.1.0` doesn't take 0.2.0. A patch can still make a type match what the API sends, or
+change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
+
+### Added
+
+- `ApiError` can be made from a status and any headers, without a `Response`:
+  `new ApiError({ status: 403 }, body, 'GET', '/route')`, as a test needs.
+
+### Changed
+
+- **An `ApiMessage` has a `message` only when the server sent one.** An entry of `ApiError.errors` or `messages`
+  without one, such as Builds' `{ issues, name: 'ZodError' }` or `{ code, detail }`, no longer gets its JSON as its
+  `message`, so code that shows an entry's message can skip it. `ApiError`'s own message still shows such an entry
+  as JSON. Replace `entry.message` with `entry.message ?? fallback`, including in a template string, where a missing
+  one would read `undefined`. A `message` that isn't a string is left out too.
+
+### Fixed
+
+- **A ruleset's `rules` can be absent,** as an empty ruleset leaves them out, in the result of the 11 operations that
+  return a whole ruleset, such as `rulesets.get`, `rulesets.entrypoint.update`, `rulesets.versions.get` and
+  `rulesets.rules.delete`. Read `ruleset.rules ?? []`.
+- `ClientOptions.headers`' doc names `api-version`, the header the API reads a version date from, rather than
+  `Cloudflare-Version`.
+- The `builds` map of `builds.versions.get` says it's keyed by the version ID asked for.
 
 ## [0.2.0] - 2026-11-08
 

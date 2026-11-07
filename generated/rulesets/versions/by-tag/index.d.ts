@@ -17,7 +17,7 @@ export type GetResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 };
 /**
  * List an account or zone ruleset version's rules by tag

@@ -110,7 +110,7 @@ export interface ClientOptions {
 	/** The API token or OAuth access token, sent as a bearer token. */
 	token?: string;
 	baseUrl?: string;
-	/** Headers sent with every request, such as `Cloudflare-Version`. */
+	/** Headers sent with every request, such as `api-version`. */
 	headers?: HeadersInit;
 	/**
 	 * Aborts each attempt, including reading its response, after this long. A stream, such
@@ -148,7 +148,11 @@ export interface RequestOptions {
 /** A message of the Cloudflare envelope. */
 export interface ApiMessage {
 	code?: number | string;
-	message: string;
+	/**
+	 * The text the server sent. An entry without it, such as Builds' `{ issues, name: 'ZodError' }`,
+	 * has none, and `ApiError`'s own message shows that entry as JSON.
+	 */
+	message?: string;
 	/** A page about this message. */
 	documentation_url?: string;
 	/**
@@ -193,18 +197,33 @@ export class ApiError extends Error {
 	/** The parsed JSON body, or the text of a body that isn't JSON. */
 	readonly body: unknown;
 
-	constructor(response: Response, body: unknown, method: string, path: string, problem?: string) {
+	/** `response` can also be its status and any headers alone, as a test that has no `Response` gives. */
+	constructor(
+		response: { readonly status: number; readonly headers?: Headers },
+		body: unknown,
+		method: string,
+		path: string,
+		problem?: string,
+	) {
 		const envelope = isRecord(body) ? body : {};
-		const listed = messageList(envelope['errors']);
+		const listed = entriesOf(envelope['errors']);
 		// Some failures aren't in the envelope, such as a validation error under `error`.
-		const errors = listed.length > 0 ? listed : messageList(envelope['error'] ?? envelope['message'] ?? envelope['msg']);
+		const entries = listed.length > 0 ? listed : entriesOf(envelope['error'] ?? envelope['message'] ?? envelope['msg']);
+		const errors = entries.map(messageOf);
+		// The text is the entry as sent, as `errors` leaves out its fields of another type.
 		const detail =
-			problem ?? errors.map((e) => (e.code === undefined ? e.message : `${e.code}: ${e.message}`)).join('; ');
+			problem ??
+			entries
+				.map((entry, index) => {
+					const code = errors[index]?.code;
+					return code === undefined ? textOf(entry) : `${code}: ${textOf(entry)}`;
+				})
+				.join('; ');
 		super(`${method} ${path} failed with ${response.status}${detail ? `: ${detail}` : ''}`);
 		this.status = response.status;
 		this.errors = errors;
-		this.messages = messageList(envelope['messages']);
-		this.headers = response.headers;
+		this.messages = entriesOf(envelope['messages']).map(messageOf);
+		this.headers = response.headers ?? new Headers();
 		this.body = body;
 	}
 }
@@ -292,43 +311,57 @@ function isRecord(value: unknown): value is Fields {
 }
 
 /**
- * An entry as an `ApiMessage`, leaving out a field it declares that the entry has in another
- * type, such as a `documentation_url` of `null`, and keeping the rest. `ApiError.body` still
- * has it as sent.
+ * The entries of `errors` or `messages`, so that what the server said is never lost. Beside
+ * the usual list of objects, the API declares strings, objects with no `message`, and a lone
+ * object rather than a list.
  */
-function messageOf(entry: Fields, message: string): ApiMessage {
-	const { code, documentation_url: url, source, ...rest } = entry;
-	let typedSource: Fields | undefined;
-	if (isRecord(source)) {
-		const { pointer, ...others } = source;
-		typedSource = pointer === undefined || typeof pointer === 'string' ? source : others;
+function entriesOf(value: unknown): unknown[] {
+	const said = (entry: unknown): boolean =>
+		entry !== undefined && entry !== null && entry !== '' && !(isRecord(entry) && Object.keys(entry).length === 0);
+	return (Array.isArray(value) ? value : [value]).filter(said);
+}
+
+/** An entry as text for the error's own message: the server's message, or the entry as sent, as JSON. */
+function textOf(entry: unknown): string {
+	if (typeof entry === 'string') {
+		return entry;
 	}
-	return {
-		...rest,
-		message,
-		...(typeof code === 'number' || typeof code === 'string' ? { code } : {}),
-		...(typeof url === 'string' ? { documentation_url: url } : {}),
-		...(typedSource === undefined ? {} : { source: typedSource }),
-	};
+	const message = isRecord(entry) ? entry['message'] : undefined;
+	return typeof message === 'string' ? message : JSON.stringify(entry);
 }
 
 /**
- * Reads `errors` or `messages`, so that what the server said is never lost. Beside the
- * usual list of objects, the API declares strings, objects with no `message`, and a
- * lone object rather than a list.
+ * An entry as an `ApiMessage`, leaving out a field it declares that the entry has in another
+ * type, such as a `documentation_url` of `null`, and keeping the rest. `ApiError.body` still
+ * has it as sent. An entry that is neither text nor an object, which none declares, is its JSON.
  */
-function messageList(value: unknown): ApiMessage[] {
-	const said = (entry: unknown): boolean =>
-		entry !== undefined && entry !== null && entry !== '' && !(isRecord(entry) && Object.keys(entry).length === 0);
-	return (Array.isArray(value) ? value : [value]).filter(said).map((entry: unknown) => {
-		if (typeof entry === 'string') {
-			return { message: entry };
-		}
-		if (isRecord(entry)) {
-			return messageOf(entry, typeof entry['message'] === 'string' ? entry['message'] : JSON.stringify(entry));
-		}
+function messageOf(entry: unknown): ApiMessage {
+	if (typeof entry === 'string') {
+		return { message: entry };
+	}
+	if (!isRecord(entry)) {
 		return { message: JSON.stringify(entry) };
-	});
+	}
+	const typed: Fields = { ...entry };
+	const { code, message, documentation_url: url, source } = entry;
+	if (typeof message !== 'string') {
+		delete typed['message'];
+	}
+	if (typeof code !== 'number' && typeof code !== 'string') {
+		delete typed['code'];
+	}
+	if (typeof url !== 'string') {
+		delete typed['documentation_url'];
+	}
+	if (!isRecord(source)) {
+		delete typed['source'];
+	} else {
+		const { pointer, ...others } = source;
+		if (pointer !== undefined && typeof pointer !== 'string') {
+			typed['source'] = others;
+		}
+	}
+	return typed;
 }
 
 /** A value as text for a URL or a header: an object as JSON, rather than `[object Object]`. */
@@ -738,7 +771,8 @@ export function createClient(options: ClientOptions = {}): Client {
 			// No content is an empty page. The rest is what `paginate` can't read.
 			paged: body === undefined || enveloped || bareJson,
 			current: {
-				// Some endpoints send `null` for an empty list, against their spec.
+				// Some endpoints send `null` for an empty list, against their spec. A patch types each
+				// one seen, as for abuse reports, so `send` returns what its type says.
 				items: Array.isArray(list) ? (list as unknown[]) : [],
 				result,
 				resultInfo: enveloped && isRecord(body['result_info']) ? (body['result_info'] as ResultInfo) : undefined,

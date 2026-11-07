@@ -38,15 +38,19 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
   `dry_run: true`, which only validates. With a `dry_run` that may be either, such as an optional `true` or a
   `boolean`, it's both. Such an operation is a `DryRunOperation`, listed in `DRY_RUNS` in `generator/patches.ts`. Its
   result type, such as `CreateResult`, keeps the `null`, so it holds wherever the operation is passed as an
-  `Operation`; `send` leaves it out of a request whose `dry_run` is left out or `false`.
+  `Operation`; `send` leaves it out of a request whose `dry_run` is left out or `false`. A helper that builds such a
+  request types it as `CreateRequest & { dry_run?: false }` to keep that.
 - Types are importable from `@libreflare/cloudflare-sdk/types/<prefix>`, such as `types/workers`.
 - `paginate` only accepts paginated operations, so calling it on anything else is a compile error. It throws a
   `TypeError` on a response that isn't a page, such as CSV, rather than looking like an empty list.
 - Failures throw `ApiError` (with `status`, `errors`, `messages`) or `ApiConnectionError`. `errors` keeps what the server
   said in any shape: strings, objects with no `message`, and a failure under `error`, `message` or `msg`. An entry's
-  `source.pointer` names the field a validation error is about, such as `/rules/0/action`. An entry leaves out a `code`
-  that isn't a number or a string, a `documentation_url` that isn't a string, a `source` that isn't an object, and a
-  `pointer` in it that isn't a string; `body` keeps the response as sent.
+  `message` is only text the server sent, so an entry such as `{ code, detail }` has none, and the error's own message
+  shows it as JSON. An entry's `source.pointer` names the field a validation error is about, such as
+  `/rules/0/action`. An entry leaves out a `message` or `documentation_url` that isn't a string, a `code` that isn't a
+  number or a string, a `source` that isn't an object, and a `pointer` in it that isn't a string; `body` keeps the
+  response as sent. A test can make an `ApiError` from a status alone: `new ApiError({ status: 403 }, body, 'GET',
+  '/route')`.
 - `ApiError` also covers a 2XX whose body should be JSON and isn't, such as a proxy's HTML page, and a failed envelope
   from an operation that answers in another format or with no content. `ApiConnectionError` also covers a response that
   breaks off or times out while it's read.
@@ -172,11 +176,14 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   Besides those described elsewhere, patches require each ruleset rule's `action`, which the API rejects a rule
   without and the spec names as the discriminator, apart from an update that only moves a rule, by its `position` with no
   field of a rule beside it; take each rule's `action_parameters` from its action alone, as the API refuses any other
-  key; and add the 3 fields a Logpush job has undeclared and stop a listed job from being `null`. `RequestRule` lists
+  key; let a ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds keys builds by the
+  version ID asked for; and add the 3 fields a Logpush job has undeclared and stop a listed job from being `null`.
+  `RequestRule` lists
   its variants so that each declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in
   `generator/patches.ts` says: the six actions that take no parameters, such as `log`, have `action_parameters?:
   never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule` or
-  `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it.
+  `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it. One action's rule is
+  `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's parameters.
 - **A string described as a comma-separated list is a list,** sent joined with commas, where `COMMA_LISTS` in
   `generator/patches.ts` names it: Builds' `version_ids` and `external_script_ids` for now. Of the 52 query strings
   whose description says comma-separated, comma-delimited or separated by commas, each of the other 50 is added after
@@ -306,7 +313,8 @@ The generated types are only as right as the spec, so this is the main risk. 13 
 - The official SDK has the same gaps on the fields looked up there.
 
 This is a small sample of one account. Six other endpoints couldn't be checked: three returned empty lists, two
-needed permissions the test token lacks, and one needs a build to query. Expect to write patches.
+needed permissions the test token lacks, and one needed a build, which was later read by hand, as Verified says.
+Expect to write patches.
 
 ### Verified
 
@@ -319,7 +327,12 @@ needed permissions the test token lacks, and one needs a build to query. Expect 
 - Read-only on the live API: the screenshot endpoint returns a PNG. `intel.dns.list` reads `start` and ignores both
   `start_end_params` forms tried. An R2 listing with a delimiter returns empty pages with cursors. Audit logs and R2 stop
   sending a cursor at the end of a list. `ai.models.list` with `format=openrouter` returns only `{ data }`.
-  `GET /builds/builds/not-a-uuid` fails with `error` rather than `errors`.
+  `GET /builds/builds/not-a-uuid` fails with `error` rather than `errors`. `builds.versions.get` with 10 version IDs
+  keys each build by the version ID asked for, and no build has a `worker_version_id`. An empty list is `[]` from Rules
+  Lists, account Logpush jobs and Builds triggers, and `{ reports: null }` from abuse reports, which a patch types.
+- Ruleset writes on a test zone: dry runs refuse a rule without its `action` and an unknown key in
+  `action_parameters`, and read a `position` alone as a move. A saved rule drops `action_parameters: {}`. An empty
+  ruleset leaves out `rules`, and every ruleset read has its `version` and `last_updated`.
 - The generated declarations pass strict `tsc`. Pagination matches the official SDK on 179 operations, and of the
   operations generated, the SDK paginates none that this doesn't.
 - The plugin's types against those of that earlier generator, with TypeScript's checker: 5,119 of 5,136 models are
@@ -329,7 +342,7 @@ needed permissions the test token lacks, and one needs a build to query. Expect 
 
 - 23 operations this paginates and the official SDK doesn't. 6 where the spec declares a cursor and the SDK uses page
   numbers.
-- Any write operation against the live API.
+- Any write operation against the live API other than those ruleset writes.
 - Bundlers other than esbuild.
 - `Accept: */*` on binary operations, and `application/scim+json` on SCIM's. The tool used for live checks can't set
   headers, so neither these nor the earlier `application/json` were tried on the API.

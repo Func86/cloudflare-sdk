@@ -27,7 +27,7 @@ export type CreateResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 } | null;
 /**
  * Create an account or zone ruleset rule
@@ -55,7 +55,7 @@ export type DeleteResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 } | null;
 /**
  * Delete an account or zone ruleset rule
@@ -121,7 +121,7 @@ export type UpdateResult = $rulesets.Ruleset & {
 	/** The phase of the ruleset. */
 	phase: $rulesets.RulesetPhase;
 	/** The list of rules in the ruleset. */
-	rules: $rulesets.ResponseRules;
+	rules?: $rulesets.ResponseRules;
 } | null;
 /**
  * Update an account or zone ruleset rule
