@@ -2,7 +2,7 @@
  * Compile-time checks, run by `npm run check:type`. Each `@ts-expect-error` is a
  * mistake the types must reject: tsc fails if one of them stops being an error.
  */
-import { createClient, type ApiError } from '@libreflare/cloudflare-sdk';
+import { createClient, type AccountOrZone, type ApiError } from '@libreflare/cloudflare-sdk';
 import { get as getEntitlements } from '@libreflare/cloudflare-sdk/accounts/entitlements';
 import { list as listModels } from '@libreflare/cloudflare-sdk/ai/models';
 import { create as createWatermark } from '@libreflare/cloudflare-sdk/stream/watermarks';
@@ -94,13 +94,30 @@ export async function checks(): Promise<void> {
 	void back;
 
 	// Libreflare widens the official SDK's type by hand to send service token tags.
-	await cf.send(serviceTokens.create, {
-		account_or_zone: 'accounts',
-		account_or_zone_id: 'a',
-		body: { name: 'n', tags: { team: 'x' } },
-	});
-	// @ts-expect-error The two-part scope takes only accounts or zones.
-	await cf.send(serviceTokens.create, { account_or_zone: 'users', account_or_zone_id: 'a', body: { name: 'n' } });
+	await cf.send(serviceTokens.create, { account_id: 'a', body: { name: 'n', tags: { team: 'x' } } });
+
+	// An operation for an account or a zone takes one of their IDs, and the scope of an account operation fits.
+	await cf.send(serviceTokens.list, { zone_id: 'z' });
+	await cf.send(serviceTokens.list, scope);
+	const either = Math.random() > 0.5 ? { zone_id: 'z' } : { account_id: 'a' };
+	await cf.send(serviceTokens.list, either);
+	for await (const token of cf.paginate(serviceTokens.list, { zone_id: 'z' })) {
+		void token.client_id;
+	}
+	// @ts-expect-error It needs an account or a zone.
+	await cf.send(serviceTokens.create, { body: { name: 'n' } });
+	// @ts-expect-error Even when it asks for nothing else.
+	await cf.send(getEntitlements);
+	// @ts-expect-error Not both.
+	await cf.send(serviceTokens.list, { account_id: 'a', zone_id: 'z' });
+	// @ts-expect-error The selector the route is written with isn't a field.
+	await cf.send(serviceTokens.list, { zone_id: 'z', account_or_zone: 'zones' });
+	// A helper's scope typed as `AccountOrZone` keeps the rule, unlike one made with `Omit`.
+	const zone = (zone_id: string): AccountOrZone => ({ zone_id });
+	await cf.send(serviceTokens.list, { ...zone('z'), name: 'n' });
+	// @ts-expect-error Not both.
+	const bothScopes: AccountOrZone = { account_id: 'a', zone_id: 'z' };
+	void bothScopes;
 
 	// Libreflare calls this with a hand-written envelope and result type.
 	const triggers = await cf.send(buildTriggers.list, { account_id: 'a', external_script_id: 's' });
@@ -173,7 +190,7 @@ export async function checks(): Promise<void> {
 	assertType<Equal<typeof scan.result, string>>();
 
 	// A declared 204 has no content.
-	const entitlements = await cf.send(getEntitlements, { account_or_zone: 'accounts', account_or_zone_id: 'a' });
+	const entitlements = await cf.send(getEntitlements, { account_id: 'a' });
 	// @ts-expect-error It may be undefined.
 	void entitlements.length;
 	void entitlements?.length;
@@ -189,7 +206,7 @@ export const batchDelete: DnsRecordBatchDelete = {};
 // The same, in a request body shared under `components.requestBodies`.
 export async function rulesetCreate(): Promise<void> {
 	// @ts-expect-error `name`, `kind` and `phase` are required.
-	await cf.send(createRuleset, { account_or_zone: 'zones', account_or_zone_id: 'z', body: {} });
+	await cf.send(createRuleset, { zone_id: 'z', body: {} });
 }
 
 // A `nullable` in one `allOf` branch: a Pages project with no deployment has none.

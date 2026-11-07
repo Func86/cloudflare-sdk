@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { test } from 'node:test';
 import {
+	type AccountOrZone,
 	ApiConnectionError,
 	ApiError,
 	createClient,
@@ -404,6 +405,83 @@ test('a path parameter that is a path keeps its slashes, and only that one', asy
 	const { client, calls } = mock(() => envelope(null));
 	await client.send(operation, { bucket: 'a/b', key: 'dir/a b?.txt' });
 	assert.equal(calls[0]?.url.pathname, '/client/v4/buckets/a%2Fb/objects/dir/a%20b%3F.txt');
+});
+
+test('an account-or-zone operation runs against the account or the zone the request names', async () => {
+	const operation: Operation<AccountOrZone & { id: string; page?: number }> = {
+		method: 'GET',
+		route: '/{account_or_zone}/{account_or_zone_id}/things/{id}',
+		accountOrZone: true,
+		query: ['page'],
+	};
+	const { client, calls } = mock(() => envelope(null));
+	await client.send(operation, { account_id: 'a/b', id: 'x', page: 2 });
+	await client.send(operation, { zone_id: 'z', id: 'x' });
+	const bare: Operation<AccountOrZone> = { method: 'GET', route: '/{account_or_zone}/{account_or_zone_id}', accountOrZone: true };
+	await client.send(bare, { zone_id: 'z' });
+	// Without types: null is absent, as for any other field.
+	const untyped = operation as Operation;
+	await client.send(untyped, { account_id: 'a', zone_id: null, id: 'x' });
+	assert.deepEqual(
+		calls.map(({ url }) => url.pathname + url.search),
+		['/client/v4/accounts/a%2Fb/things/x?page=2', '/client/v4/zones/z/things/x', '/client/v4/zones/z', '/client/v4/accounts/a/things/x'],
+	);
+	// Neither, both, or an ID that can't be a segment fails before any request, naming the route it would take.
+	const route = '/{account_or_zone}/{account_or_zone_id}/things/{id}';
+	await assert.rejects(client.send(untyped, { id: 'x' }), { message: `GET ${route}: give account_id or zone_id` });
+	await assert.rejects(client.send(untyped, { account_id: null, id: 'x' }), { message: `GET ${route}: give account_id or zone_id` });
+	await assert.rejects(client.send(untyped, { account_id: 'a', zone_id: 'z', id: 'x' }), { message: `GET ${route}: give account_id or zone_id, not both` });
+	await assert.rejects(client.send(untyped, { account_id: '', id: 'x' }), { message: 'GET /accounts/{account_id}/things/{id}: account_id is required' });
+	await assert.rejects(client.send(untyped, { zone_id: '..', id: 'x' }), { message: 'GET /zones/{zone_id}/things/{id}: zone_id can\'t have a "." or ".." segment' });
+	assert.equal(calls.length, 4);
+});
+
+test('a failure of an account-or-zone operation names the account or the zone it went to', async () => {
+	const operation: PagedOperation<AccountOrZone & { id: string }, unknown, unknown> = {
+		method: 'GET',
+		route: '/{account_or_zone}/{account_or_zone_id}/things/{id}',
+		accountOrZone: true,
+		response: 'auto',
+		page: { kind: 'page' },
+	};
+	const zone = { zone_id: 'z', id: 'x' };
+	const account = { account_id: 'a', id: 'x' };
+	const denied = mock(() => json({ success: false, errors: [{ code: 10000, message: 'Authentication error' }] }, 403));
+	await assert.rejects(denied.client.send(operation, zone), {
+		name: 'ApiError',
+		message: 'GET /zones/{zone_id}/things/{id} failed with 403: 10000: Authentication error',
+	});
+	const unreachable = mock(() => {
+		throw new TypeError('fetch failed');
+	});
+	await assert.rejects(unreachable.client.send(operation, account), {
+		name: 'ApiConnectionError',
+		message: 'GET /accounts/{account_id}/things/{id} got no complete response',
+	});
+	const broken = mock(() => new Response(new ReadableStream({ pull: (controller) => controller.error(new Error('reset')) })));
+	await assert.rejects(broken.client.send(operation, zone), {
+		name: 'ApiConnectionError',
+		message: 'GET /zones/{zone_id}/things/{id} got no complete response',
+	});
+	const csv = mock(() => new Response('a,b\n', { headers: { 'content-type': 'text/csv' } }));
+	await assert.rejects(collect(csv.client.paginate(operation, account)), {
+		name: 'TypeError',
+		message: "GET /accounts/{account_id}/things/{id}: this response isn't a page, so read it with send",
+	});
+});
+
+test('only an operation marked as one is filled from account_id or zone_id', async () => {
+	const { client, calls } = mock(() => envelope(null));
+	// A hand-written operation, or a double, fills the pair from its own fields.
+	const plain: Operation = { method: 'GET', route: '/{account_or_zone}/{account_or_zone_id}/things' };
+	await client.send(plain, { account_or_zone: 'zones', account_or_zone_id: 'z' });
+	assert.equal(calls[0]?.url.pathname, '/client/v4/zones/z/things');
+	// A mark on a route without the whole prefix is a mistake.
+	for (const route of ['/{account_or_zone}s/{id}', '/accounts/{account_or_zone}/{account_or_zone_id}']) {
+		const marked: Operation = { method: 'GET', route, accountOrZone: true };
+		await assert.rejects(client.send(marked, { zone_id: 'z', id: 'x' }), /an account-or-zone route starts with/);
+	}
+	assert.equal(calls.length, 1);
 });
 
 test('a value that would climb out of its route fails before any request', async () => {

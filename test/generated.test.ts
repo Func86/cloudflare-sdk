@@ -188,6 +188,39 @@ test('a generated script module imports nothing but its own subgroups', () => {
 	}
 });
 
+test('an account-or-zone operation takes account_id or zone_id, and its declaration says so', async () => {
+	const { list } = (await import('../generated/rulesets/index.js')) as unknown as { list: PagedOperation<Record<string, unknown>, unknown> };
+	const { cf, urls } = client(() => Response.json({ success: true, errors: [], result: [] }));
+	await cf.send(list, { zone_id: 'z', per_page: 5 });
+	await cf.send(list, { account_id: 'a' });
+	assert.deepEqual(urls, [
+		'https://api.cloudflare.com/client/v4/zones/z/rulesets?per_page=5',
+		'https://api.cloudflare.com/client/v4/accounts/a/rulesets',
+	]);
+	const rulesets = readFileSync('generated/rulesets/index.d.ts', 'utf8');
+	assert.match(rulesets, /^export type ListRequest = AccountOrZone & \{$/m);
+	assert.match(rulesets, /^ \* `GET \/accounts\/\{account_id\}\/rulesets` or `GET \/zones\/\{zone_id\}\/rulesets`$/m);
+	assert.match(readFileSync('generated/accounts/entitlements/index.d.ts', 'utf8'), /^export type GetRequest = AccountOrZone;$/m);
+	// Each operation on such a route is marked, and no request or doc keeps the selector it's written with.
+	const files = readdirSync('generated', { recursive: true, withFileTypes: true }).filter((entry) => entry.name.startsWith('index.'));
+	let marked = 0;
+	for (const entry of files) {
+		const path = join(entry.parentPath, entry.name);
+		const source = readFileSync(path, 'utf8');
+		if (entry.name === 'index.js') {
+			for (const [literal] of source.matchAll(/^(?:export )?const \S+ = .*;$/gm)) {
+				const paired = literal.includes('"route":"/{account_or_zone}/{account_or_zone_id}');
+				assert.equal(literal.includes('"accountOrZone":true'), paired, literal);
+				marked += paired ? 1 : 0;
+			}
+		} else {
+			assert.doesNotMatch(source, /account_or_zone/, path);
+		}
+	}
+	assert.equal(marked, manifest.filter((entry) => entry.route.startsWith('/{account_or_zone}/')).length);
+	assert.ok(marked > 100);
+});
+
 test('Images metadata filters are sent as the parameters they name', async () => {
 	const { list } = (await import('../generated/images/index.js')) as unknown as { list: Operation<Record<string, unknown>, unknown> };
 	const { cf, urls } = client(() => Response.json({ success: true, errors: [], result: { images: [] } }));

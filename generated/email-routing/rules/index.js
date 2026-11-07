@@ -3,7 +3,7 @@ export const create = {"method":"POST","route":"/zones/{zone_id}/email/routing/r
 const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/email/routing/rules/{rule_identifier}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/zones/{zone_id}/email/routing/rules/{rule_identifier}"};
-export const listAccount = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/email/routing/rules","query":["page","per_page","enabled"],"page":{"kind":"page"}};
+export const listAccount = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/email/routing/rules","accountOrZone":true,"query":["page","per_page","enabled"],"page":{"kind":"page"}};
 export const plan = {"method":"POST","route":"/accounts/{account_id}/email/routing/rules/plan","body":"json"};
 export const update = {"method":"PUT","route":"/zones/{zone_id}/email/routing/rules/{rule_identifier}","body":"json"};
 export * as catchAll from "./catch-all/index.js";

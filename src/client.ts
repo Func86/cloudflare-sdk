@@ -4,6 +4,7 @@
  * operations it imports.
  */
 import { formatOfMediaType } from './media.ts';
+import { ACCOUNT_OR_ZONE, afterAccountOrZone } from './routes.ts';
 
 /** Where a paginated operation keeps its items, and how it picks the next page. */
 export type Pagination =
@@ -30,6 +31,11 @@ export interface Operation<Req = unknown, Res = unknown> {
 	method: string;
 	/** The path, with each path parameter as `{name}`. */
 	route: string;
+	/**
+	 * Whether the route starts with `/{account_or_zone}/{account_or_zone_id}`, which the
+	 * request's `account_id` or `zone_id` fills, as `AccountOrZone` says.
+	 */
+	accountOrZone?: true;
 	/** The path parameters whose value is a path of its own, so its slashes aren't encoded. */
 	slashes?: readonly string[];
 	/** The query parameters, by wire name. A name with `<placeholders>` matches any request field it fits. */
@@ -65,6 +71,22 @@ export interface PagedOperation<Req = unknown, Res = unknown, Item = unknown> ex
 
 /** The item type of a result that is itself the array. */
 export type RootItem<Res> = Res extends readonly (infer Item)[] ? Item : never;
+
+/**
+ * The account or the zone that an operation under `/{account_or_zone}/{account_or_zone_id}`
+ * runs against: `account_id` sends it to `/accounts/{account_id}`, and `zone_id` to `/zones/{zone_id}`.
+ */
+export type AccountOrZone =
+	| {
+			/** The account to run against. */
+			account_id: string;
+			zone_id?: never;
+	  }
+	| {
+			/** The zone to run against. */
+			zone_id: string;
+			account_id?: never;
+	  };
 
 /** The item type of a result that keeps its array under `Key`. */
 export type ItemOf<Res, Key extends string> = Res extends { [K in Key]?: infer List }
@@ -260,18 +282,37 @@ function toParam(value: unknown): string {
 	return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
-function pathOf(operation: Operation, request: Fields): string {
-	return operation.route.replace(/\{([^}]+)\}/g, (_, name: string) => {
+/** The route, with an account-or-zone prefix replaced by the account's or the zone's. */
+function routeOf(operation: Operation, request: Fields): string {
+	const { method, route } = operation;
+	if (!operation.accountOrZone) {
+		return route;
+	}
+	const rest = afterAccountOrZone(route);
+	if (rest === undefined) {
+		throw new TypeError(`${method} ${route}: an account-or-zone route starts with ${ACCOUNT_OR_ZONE}`);
+	}
+	const given = (name: string): boolean => request[name] !== undefined && request[name] !== null;
+	const account = given('account_id');
+	if (account === given('zone_id')) {
+		throw new TypeError(`${method} ${route}: give account_id or zone_id${account ? ', not both' : ''}`);
+	}
+	return (account ? '/accounts/{account_id}' : '/zones/{zone_id}') + rest;
+}
+
+/** The route filled from the request, with each value encoded. */
+function pathOf(operation: Operation, route: string, request: Fields): string {
+	return route.replace(/\{([^}]+)\}/g, (_, name: string) => {
 		const value = request[name];
 		// An empty segment would address a different endpoint.
 		if (value === undefined || value === null || value === '') {
-			throw new TypeError(`${operation.method} ${operation.route}: ${name} is required`);
+			throw new TypeError(`${operation.method} ${route}: ${name} is required`);
 		}
 		const segments = operation.slashes?.includes(name) ? toParam(value).split('/') : [toParam(value)];
 		// Encoding leaves dots alone, and URL parsing would resolve these against the
 		// route: a value could reach another endpoint with the same token and method.
 		if (segments.some((segment) => segment === '.' || segment === '..')) {
-			throw new TypeError(`${operation.method} ${operation.route}: ${name} can't have a "." or ".." segment`);
+			throw new TypeError(`${operation.method} ${route}: ${name} can't have a "." or ".." segment`);
 		}
 		return segments.map((segment) => encodeURIComponent(segment)).join('/');
 	});
@@ -461,13 +502,17 @@ function isLastPage(info: ResultInfo | undefined, page: number, count: number, s
 export function createClient(options: ClientOptions = {}): Client {
 	const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
 
-	/** Sends a request, and returns its response with a function that stops its timeout. */
+	/**
+	 * Sends a request, and returns its response with a function that stops its timeout, and
+	 * the route it took, which errors name.
+	 */
 	async function request(
 		operation: Operation,
 		fields: Fields,
 		call: RequestOptions | undefined,
-	): Promise<{ response: Response; stopTimeout: () => void }> {
-		const path = pathOf(operation, fields);
+	): Promise<{ response: Response; stopTimeout: () => void; route: string }> {
+		const route = routeOf(operation, fields);
+		const path = pathOf(operation, route, fields);
 		// The more specific a header's source, the later it's set: the client, the operation,
 		// the request's header fields, and then the call.
 		const headers = new Headers(options.token === undefined ? {} : { authorization: `Bearer ${options.token}` });
@@ -521,7 +566,7 @@ export function createClient(options: ClientOptions = {}): Client {
 				if (call?.signal?.aborted) {
 					throw error;
 				}
-				throw new ApiConnectionError(operation.method, operation.route, error);
+				throw new ApiConnectionError(operation.method, route, error);
 			}
 			const wait = attempt < maxRetries && (response.status === 429 || response.status >= 500) ? retryDelayMs(response, attempt) : undefined;
 			if (wait !== undefined) {
@@ -537,26 +582,31 @@ export function createClient(options: ClientOptions = {}): Client {
 				stopTimeout();
 				throw error;
 			}
-			return { response, stopTimeout };
+			return { response, stopTimeout, route };
 		}
 	}
 
 	/** Reads a response's body, as a connection error when it breaks off, other than by the caller. */
-	async function read<T>(operation: Operation, call: RequestOptions | undefined, reader: () => Promise<T>): Promise<T> {
+	async function read<T>(
+		operation: Operation,
+		route: string,
+		call: RequestOptions | undefined,
+		reader: () => Promise<T>,
+	): Promise<T> {
 		try {
 			return await reader();
 		} catch (error) {
 			if (call?.signal?.aborted) {
 				throw error;
 			}
-			throw new ApiConnectionError(operation.method, operation.route, error);
+			throw new ApiConnectionError(operation.method, route, error);
 		}
 	}
 
 	async function envelope(operation: Operation, fields: Fields, call: RequestOptions | undefined): Promise<unknown> {
-		const { response, stopTimeout } = await request(operation, fields, call);
+		const { response, stopTimeout, route } = await request(operation, fields, call);
 		try {
-			return await readBody(operation, response, call, stopTimeout);
+			return await readBody(operation, route, response, call, stopTimeout);
 		} finally {
 			stopTimeout();
 		}
@@ -565,14 +615,15 @@ export function createClient(options: ClientOptions = {}): Client {
 	/** Reads a response as its operation says, under its timeout until `stopTimeout`. */
 	async function readBody(
 		operation: Operation,
+		route: string,
 		response: Response,
 		call: RequestOptions | undefined,
 		stopTimeout: () => void,
 	): Promise<unknown> {
 		const fail = (body: unknown, problem?: string): ApiError =>
-			new ApiError(response, body, operation.method, operation.route, problem);
+			new ApiError(response, body, operation.method, route, problem);
 		if (response.status < 200 || response.status > 299) {
-			const text = await read(operation, call, () => response.text());
+			const text = await read(operation, route, call, () => response.text());
 			throw fail(text === '' ? undefined : (jsonOf(text) ?? text));
 		}
 		const format = formatFor(operation, response);
@@ -591,13 +642,13 @@ export function createClient(options: ClientOptions = {}): Client {
 			}
 		};
 		if (format === 'bytes') {
-			const bytes = new Uint8Array(await read(operation, call, () => response.arrayBuffer()));
+			const bytes = new Uint8Array(await read(operation, route, call, () => response.arrayBuffer()));
 			if (saysJson(response)) {
 				check(new TextDecoder().decode(bytes));
 			}
 			return bytes;
 		}
-		const text = await read(operation, call, () => response.text());
+		const text = await read(operation, route, call, () => response.text());
 		if (format === 'none' || format === 'text') {
 			if (format === 'none' || saysJson(response)) {
 				check(text);
@@ -652,7 +703,7 @@ export function createClient(options: ClientOptions = {}): Client {
 			const { current, paged } = await readPage(operation, fields, call);
 			// Stopping here would look like an empty list.
 			if (!paged) {
-				throw new TypeError(`${operation.method} ${operation.route}: this response isn't a page, so read it with send`);
+				throw new TypeError(`${operation.method} ${routeOf(operation, fields)}: this response isn't a page, so read it with send`);
 			}
 			if (pagination.kind === 'cursor') {
 				// Only the cursor ends the list. An empty page can have more after it: KV

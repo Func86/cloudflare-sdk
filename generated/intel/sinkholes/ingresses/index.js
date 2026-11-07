@@ -3,5 +3,5 @@ export const create = {"method":"POST","route":"/zones/{zone_id}/intel/sinkholes
 const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/intel/sinkholes/{sinkhole_id}/ingresses/{ingress_id}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/zones/{zone_id}/intel/sinkholes/{sinkhole_id}/ingresses/{ingress_id}"};
-export const list = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/intel/sinkholes/{sinkhole_id}/ingresses"};
+export const list = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/intel/sinkholes/{sinkhole_id}/ingresses","accountOrZone":true};
 export const update = {"method":"PUT","route":"/zones/{zone_id}/intel/sinkholes/{sinkhole_id}/ingresses/{ingress_id}","body":"json"};

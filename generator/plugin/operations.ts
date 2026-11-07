@@ -5,6 +5,7 @@
 import type { Field, Method, Type } from '@cloudflare/forge/plugin';
 import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
+import { afterAccountOrZone } from '../../src/routes.ts';
 import { PAGINATION_OVERRIDES } from '../patches.ts';
 import { LITERAL_SLASHES } from '../spec.ts';
 
@@ -64,6 +65,11 @@ export interface ResolvedOperation {
 	availability: string | undefined;
 	deprecated: string | undefined;
 	permissions: string[];
+	/**
+	 * Whether the route starts with `/{account_or_zone}/{account_or_zone_id}`, which the
+	 * runtime fills from `account_id` or `zone_id`. `params` leaves the pair out.
+	 */
+	accountOrZone: boolean;
 	params: Param[];
 	joined: string[];
 	body: ResolvedBody | undefined;
@@ -268,6 +274,32 @@ function resolveParams(method: Method): { params: Param[]; joined: string[] } {
 		}
 	}
 	return { params, joined };
+}
+
+/**
+ * Whether the route runs against an account or a zone. The runtime fills its
+ * `/{account_or_zone}/{account_or_zone_id}` prefix from `account_id` or `zone_id`,
+ * so this throws for a pair it couldn't fill that way.
+ */
+export function readAccountOrZone(key: string, route: string, params: readonly Param[]): boolean {
+	const rest = afterAccountOrZone(route);
+	if (/\{account_or_zone(?:_id)?\}/.test(rest ?? route)) {
+		throw new Error(`${key}: the runtime fills {account_or_zone} and {account_or_zone_id} only as the route's first two segments`);
+	}
+	if (rest === undefined) {
+		return false;
+	}
+	const selector = params.find((param) => param.name === 'account_or_zone')?.type;
+	const target = selector === undefined ? undefined : strip(selector);
+	const values = target?.kind === 'enum' ? target.values.map(String).sort() : [];
+	if (values.join() !== 'accounts,zones') {
+		throw new Error(`${key}: {account_or_zone} should take accounts or zones, which the runtime picks by account_id or zone_id`);
+	}
+	const clash = params.find((param) => param.name === 'account_id' || param.name === 'zone_id');
+	if (clash) {
+		throw new Error(`${key}: the ${clash.in} parameter ${clash.name} would take the place of the route's account or zone`);
+	}
+	return true;
 }
 
 function resolveBody(method: Method): ResolvedBody | undefined {
@@ -512,7 +544,11 @@ function deprecationOf(method: Method): string | undefined {
 
 export function resolveOperation(method: Method, report: Report): ResolvedOperation {
 	const key = `${method.httpMethod} ${method.path}`;
-	const { params, joined } = resolveParams(method);
+	const resolved = resolveParams(method);
+	const accountOrZone = readAccountOrZone(key, method.path, resolved.params);
+	const params = accountOrZone
+		? resolved.params.filter((param) => param.name !== 'account_or_zone' && param.name !== 'account_or_zone_id')
+		: resolved.params;
 	const response = resolveResponse(method);
 	const permissions = method.extension('x-api-token-group');
 	const slashes = method.extension(LITERAL_SLASHES);
@@ -527,8 +563,9 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		availability: method.availability,
 		deprecated: deprecationOf(method),
 		permissions: Array.isArray(permissions) ? (permissions as string[]) : [],
+		accountOrZone,
 		params,
-		joined,
+		joined: resolved.joined,
 		body: resolveBody(method),
 		response,
 		page: resolvePagination(method, key, params, response, report),

@@ -4,7 +4,7 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/access/users/
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/access/users/{user_id}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/access/users","query":["name","email","search","page","per_page"],"page":{"kind":"page"}};
-export const revoke = {"method":"POST","route":"/{account_or_zone}/{account_or_zone_id}/access/organizations/revoke_user","query":["devices"],"body":"json"};
+export const revoke = {"method":"POST","route":"/{account_or_zone}/{account_or_zone_id}/access/organizations/revoke_user","accountOrZone":true,"query":["devices"],"body":"json"};
 export const update = {"method":"PUT","route":"/accounts/{account_id}/access/users/{user_id}","body":"json"};
 export * as activeSessions from "./active-sessions/index.js";
 export * as failedLogins from "./failed-logins/index.js";

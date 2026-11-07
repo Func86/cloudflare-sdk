@@ -7,6 +7,7 @@
  * pulling its runtime in. `generator/entry.ts` is the plugin's entry module.
  */
 import type { File, Forge, Group } from '@cloudflare/forge/plugin';
+import { afterAccountOrZone } from '../../src/routes.ts';
 import { type Report, type ResolvedOperation, resolveOperation } from './operations.ts';
 import { jsdoc, Models, namespaceOf, Printer, propertyKey } from './types.ts';
 
@@ -20,7 +21,7 @@ const RESERVED_WORDS = new Set(
 	),
 );
 /** The types a group's declarations import from the runtime, which its own names must not shadow. */
-const RUNTIME_TYPES = ['ItemOf', 'Operation', 'PagedOperation', 'RootItem'] as const;
+const RUNTIME_TYPES = ['AccountOrZone', 'ItemOf', 'Operation', 'PagedOperation', 'RootItem'] as const;
 
 function pascalName(name: string): string {
 	return name[0]!.toUpperCase() + name.slice(1);
@@ -46,6 +47,7 @@ function operationLiteral(operation: ResolvedOperation): Record<string, unknown>
 	return {
 		method: operation.method,
 		route: operation.route,
+		...(operation.accountOrZone ? { accountOrZone: true } : {}),
 		...(operation.slashes.length > 0 ? { slashes: operation.slashes } : {}),
 		...(query.length > 0 ? { query } : {}),
 		...(joined.length > 0 ? { joined } : {}),
@@ -70,7 +72,12 @@ function operationDoc(operation: ResolvedOperation): string {
 	if (lines.length > 0) {
 		lines.push('');
 	}
-	lines.push(`\`${operation.method} ${operation.route}\``);
+	const rest = operation.accountOrZone ? afterAccountOrZone(operation.route) : undefined;
+	lines.push(
+		rest === undefined
+			? `\`${operation.method} ${operation.route}\``
+			: `\`${operation.method} /accounts/{account_id}${rest}\` or \`${operation.method} /zones/{zone_id}${rest}\``,
+	);
 	if (operation.permissions.length > 0) {
 		lines.push('', `Token permissions (any one): ${operation.permissions.join(', ')}.`);
 	}
@@ -124,7 +131,11 @@ function requestType(operation: ResolvedOperation, printer: Printer): string {
 		}
 		out += `\tbody${body.required ? '' : '?'}: ${type};\n`;
 	}
-	return out === '' ? '{}' : `{\n${out}}`;
+	const fields = out === '' ? '{}' : `{\n${out}}`;
+	if (operation.accountOrZone) {
+		return out === '' ? 'AccountOrZone' : `AccountOrZone & ${fields}`;
+	}
+	return fields;
 }
 
 function resultType(operation: ResolvedOperation, printer: Printer): string {
@@ -155,7 +166,7 @@ function groupFiles(group: Group, operations: readonly ResolvedOperation[], mode
 	const typesPath = `${'../'.repeat(group.path.length)}_types`;
 	let script = PREAMBLE;
 	let declarations = '';
-	const runtime = new Set<string>();
+	const runtime = new Set<(typeof RUNTIME_TYPES)[number]>();
 	const names = new Set<string>();
 
 	for (const operation of operations) {
@@ -173,6 +184,9 @@ function groupFiles(group: Group, operations: readonly ResolvedOperation[], mode
 				? `export const ${name} = ${literal};\n`
 				: `const ${local} = ${literal};\nexport { ${local} as ${name} };\n`;
 
+		if (operation.accountOrZone) {
+			runtime.add('AccountOrZone');
+		}
 		declarations += `\nexport type ${typeName}Request = ${requestType(operation, printer)};\n`;
 		declarations += `export type ${typeName}Result = ${resultType(operation, printer)};\n`;
 		let declared: string;

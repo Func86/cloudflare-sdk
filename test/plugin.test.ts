@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Forge, Model, Type } from '@cloudflare/forge/plugin';
-import { checkOverride, flatFields, type ResolvedResponse } from '../generator/plugin/operations.ts';
+import { checkOverride, flatFields, type Param, readAccountOrZone, type ResolvedResponse } from '../generator/plugin/operations.ts';
 import { Models, Printer } from '../generator/plugin/types.ts';
 
 const binary: Type = { kind: 'scalar', scalar: 'binary' };
@@ -93,6 +93,38 @@ test('a pagination override must name an array of the result, as the types read 
 	const renamed = response(envelope(object(field('items', array(string)))));
 	assert.throws(() => checkOverride('GET /renamed', override, renamed), /GET \/renamed is stale.*no array at result\.events/);
 	assert.throws(() => checkOverride('GET /bare', override, response(envelope(events), 'json')), /no array at result\.events/);
+});
+
+test('an account-or-zone route is one the runtime can fill from account_id or zone_id', () => {
+	const string: Type = { kind: 'scalar', scalar: 'string' };
+	const param = (name: string, type: Type = string, location: Param['in'] = 'path'): Param => ({
+		name,
+		in: location,
+		required: true,
+		description: '',
+		type,
+	});
+	const scope = (...values: string[]): Param[] => [
+		param('account_or_zone', { kind: 'enum', values }),
+		param('account_or_zone_id'),
+	];
+	const route = '/{account_or_zone}/{account_or_zone_id}/things';
+	assert.equal(readAccountOrZone('GET /things', route, scope('zones', 'accounts')), true);
+	assert.equal(readAccountOrZone('GET /root', '/{account_or_zone}/{account_or_zone_id}', scope('accounts', 'zones')), true);
+	// The selector's values are read through models, and past a null.
+	const selector: Type = { kind: 'enum', values: ['accounts', 'zones'] };
+	const inModel = (type: Type): Type => ({ kind: 'model', model: model('scope', type) });
+	const nullable = { kind: 'union', members: [selector, { kind: 'scalar', scalar: 'null' }] } as unknown as Type;
+	for (const type of [inModel(selector), inModel(inModel(selector)), nullable, inModel(nullable)]) {
+		assert.equal(readAccountOrZone('GET /model', route, [param('account_or_zone', type), param('account_or_zone_id')]), true);
+	}
+	assert.equal(readAccountOrZone('GET /accounts', '/accounts/{account_id}/things', [param('account_id')]), false);
+	assert.throws(() => readAccountOrZone('GET /inner', '/users/{account_or_zone}/{account_or_zone_id}', scope('accounts', 'zones')), /first two segments/);
+	assert.throws(() => readAccountOrZone('GET /twice', `${route}/{account_or_zone_id}`, scope('accounts', 'zones')), /first two segments/);
+	assert.throws(() => readAccountOrZone('GET /users', route, scope('accounts', 'users')), /accounts or zones/);
+	assert.throws(() => readAccountOrZone('GET /untyped', route, [param('account_or_zone'), param('account_or_zone_id')]), /accounts or zones/);
+	const clash = [...scope('accounts', 'zones'), param('zone_id', string, 'query')];
+	assert.throws(() => readAccountOrZone('GET /clash', route, clash), /GET \/clash: the query parameter zone_id/);
 });
 
 test('generation stops if a model that holds a file is used where JSON is sent', () => {

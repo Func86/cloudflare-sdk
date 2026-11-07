@@ -27,6 +27,10 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
 
 - Field names are the wire names, with no renaming or runtime conversion.
 - A request is one object: path, query and header parameters, plus a `body` field for the payload.
+- An operation for an account or a zone, such as `rulesets.list`, takes `account_id` or `zone_id`: `{ zone_id }` sends it
+  to `/zones/{zone_id}/rulesets`. Its request type is `AccountOrZone & { ... }`, so a request with both or neither is a
+  compile error, and a `TypeError` without types. A type made from it with `Omit` or `Pick` loses that rule, as it does
+  for any union, so type a helper's scope as `AccountOrZone`.
 - `send` returns `undefined` when a success leaves out `result`, though result types don't say so. 1,280 of the 2,835
   success envelopes declare `result` optional, mostly through shared base schemas, and adding `| undefined` would make
   nearly half of all calls check for a case not seen live. The official SDK types it the same way.
@@ -92,6 +96,7 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 | `generator/conformance.ts` | Compares captured live response shapes with the spec |
 | `src/client.ts` | The hand-written runtime |
 | `src/media.ts` | How a media type is read, a rule the runtime and the generator share |
+| `src/routes.ts` | The account-or-zone route prefix, which the runtime and the generator share |
 | `eslint.config.mjs`, `knip.json` | Lint for simple mistakes, and for unused code and dependencies |
 
 ### What the generator decides
@@ -118,6 +123,12 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 - **A declared `Accept` or `Content-Type` parameter is a request field.** `r2.objects.put` takes the object's
   `Content-Type`, which otherwise defaults to the declared `application/octet-stream`, and 2 operations choose a format
   with `Accept`.
+- **An account-or-zone route takes `account_id` or `zone_id`.** The spec writes 78 routes, used by 134 operations, as
+  `/{account_or_zone}/{account_or_zone_id}/...`, with a selector and an ID. Their request types take the account's or the
+  zone's ID instead, as other operations do, and their docs show both routes. Each literal is marked `accountOrZone`, and
+  the runtime fills the prefix only for a marked operation, so a hand-written one can still give the pair. Generation
+  stops if the pair appears anywhere but at the start, if the selector takes anything but `accounts` and `zones`, or if
+  the operation has its own `account_id` or `zone_id`.
 - **A cursor list ends when its cursor does.** An empty page can have more after it: KV documents this for deleted
   keys, and R2 does it for keys grouped by a delimiter.
 - **A page list ends at the total `result_info` gives,** or at a short page when it states the page size. An offset
@@ -229,7 +240,7 @@ outside the usual shape, the order of headers and a cap on its own backoff, as t
 | `tsc` files, consumer with 7 calls | 1,146 | not measured | 170 |
 | `tsc` memory, same consumer | 231 MB | not measured | 68 MB |
 | Package, gzipped | 7.3 MB | 7.3 MB | 1.0 MB |
-| Package, files | 16,289 | 16,289 | 2,731 |
+| Package, files | 16,289 | 16,289 | 2,733 |
 
 Libreflare's hand-kept resource list already avoids the official client's worst cost, so the bundle and cold-start
 gains are modest in absolute terms. Coverage, correctness and not maintaining that list matter more.
