@@ -6,7 +6,7 @@ export type GetRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Application category ID. */
-	id: string;
+	id: number | string;
 };
 export type GetResult = $alexandria.Category;
 /**

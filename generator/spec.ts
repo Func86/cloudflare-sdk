@@ -11,6 +11,11 @@ export interface OpenApiDocument {
 
 /** The extension `prepare` adds for the plugin, naming the path parameters that keep their slashes. */
 export const LITERAL_SLASHES = 'x-sdk-literal-slashes';
+/**
+ * The extension a spec patch adds for the plugin: the operation's body is one of its alternatives
+ * only, as `oneOf` says, so a field one of them declares is absent from the others.
+ */
+export const EXCLUSIVE_BODY = 'x-sdk-exclusive-body';
 
 /** Reads the node at a JSON pointer, as `#/a/b` or `/a/b`. */
 export function pointerGet(doc: unknown, pointer: string): unknown {

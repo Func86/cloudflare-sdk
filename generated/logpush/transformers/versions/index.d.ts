@@ -6,7 +6,7 @@ export type ListRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** The transformer ID. */
-	transformer_id: string;
+	transformer_id: number | string;
 	/** Maximum number of versions to return. */
 	limit?: number;
 };

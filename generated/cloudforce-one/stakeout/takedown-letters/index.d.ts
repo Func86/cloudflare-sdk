@@ -3,7 +3,7 @@ import type { Operation } from "#runtime";
 
 export type CreateRequest = {
 	account_id: string;
-	notice_id: string;
+	notice_id: number | string;
 	body?: {
 		fields: {
 			discoveryDate?: string;
@@ -46,8 +46,8 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 
 export type DeleteRequest = {
 	account_id: string;
-	notice_id: string;
-	letter_id: string;
+	notice_id: number | string;
+	letter_id: number | string;
 };
 export type DeleteResult = {
 	message: string;
@@ -122,8 +122,8 @@ export declare const generate: Operation<GenerateRequest, GenerateResult>;
 
 export type GetRequest = {
 	account_id: string;
-	notice_id: string;
-	letter_id: string;
+	notice_id: number | string;
+	letter_id: number | string;
 };
 export type GetResult = {
 	createdAt: string | null;
@@ -146,8 +146,8 @@ export declare const get: Operation<GetRequest, GetResult>;
 
 export type GetPdfRequest = {
 	account_id: string;
-	notice_id: string;
-	letter_id: string;
+	notice_id: number | string;
+	letter_id: number | string;
 };
 export type GetPdfResult = Uint8Array;
 /**
@@ -163,7 +163,7 @@ export declare const getPdf: Operation<GetPdfRequest, GetPdfResult>;
 
 export type ListRequest = {
 	account_id: string;
-	notice_id: string;
+	notice_id: number | string;
 };
 export type ListResult = {
 	letters: ({

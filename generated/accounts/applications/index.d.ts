@@ -23,7 +23,7 @@ export type DeleteRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Application ID. */
-	id: string;
+	id: number | string;
 };
 export type DeleteResult = null;
 /**
@@ -42,7 +42,7 @@ export type GetRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Application ID. */
-	id: string;
+	id: number | string;
 };
 export type GetResult = $alexandria.Application;
 /**
@@ -203,7 +203,7 @@ export type UpdateRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Application ID. */
-	id: string;
+	id: number | string;
 	body: $alexandria.UpdateApplicationRequest;
 };
 export type UpdateResult = $alexandria.Application;

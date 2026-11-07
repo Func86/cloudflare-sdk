@@ -6,7 +6,7 @@ export type GetRequest = AccountOrZone & {
 	/** Name of the dataset. A list of supported datasets can be found on the [Developer Docs](https://developers.cloudflare.com/logs/reference/log-fields/). */
 	dataset_id: string;
 };
-export type GetResult = ($logpush.LogpushJob | null)[];
+export type GetResult = $logpush.LogpushJob[];
 /**
  * List Logpush jobs for a dataset
  *

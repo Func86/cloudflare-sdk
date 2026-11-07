@@ -1,6 +1,6 @@
 {
 	"name": "@libreflare/cloudflare-sdk",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"private": false,
 	"description": "A slim Cloudflare API client generated from Forge's openapi.forge.json.",
 	"type": "module",
@@ -26,12 +26,14 @@
 		}
 	},
 	"files": [
+		"CHANGELOG.md",
 		"dist",
 		"generated"
 	],
 	"scripts": {
 		"generate": "npm run generate:plugin && node generator/generate.ts",
 		"generate:plugin": "forge-plugin build generator/entry.ts -o generator/sdk.wasm",
+		"names": "node generator/names.ts",
 		"build": "tsc -p tsconfig.build.json",
 		"test": "node --test \"test/*.test.ts\"",
 		"check:type": "tsc -p tsconfig.json && tsc -p generator && tsc -p generator/plugin && tsc -p test && tsc -p tsconfig.generated.json",

@@ -59,8 +59,19 @@ export interface Operation<Req = unknown, Res = unknown> {
 	response?: 'none' | 'text' | 'bytes' | 'stream' | 'auto' | readonly ('text' | 'bytes' | 'stream')[];
 	/** The `Accept` header, when not `application/json`. */
 	accept?: string;
+	/** Whether a request with `dry_run: true` only validates, and its result is then `null`. */
+	dryRun?: true;
 	readonly __req?: (request: Req) => void;
 	readonly __res?: () => Res;
+}
+
+/**
+ * An operation that a request with `dry_run: true` only validates. `Res` includes the dry run's
+ * `null`, so it holds wherever the operation is an `Operation`, and `send` leaves the `null` out
+ * of a request that makes the change.
+ */
+export interface DryRunOperation<Req = unknown, Res = unknown> extends Operation<Req, Res> {
+	dryRun: true;
 }
 
 /** An operation that `page` and `paginate` accept. */
@@ -138,6 +149,13 @@ export interface RequestOptions {
 export interface ApiMessage {
 	code?: number | string;
 	message: string;
+	/** A page about this message. */
+	documentation_url?: string;
+	/**
+	 * What the message is about, such as `{ pointer: '/rules/0/action' }` for a field of the
+	 * request body, or `{ parameter: 'per_page' }` for a parameter.
+	 */
+	source?: { pointer?: string; [key: string]: unknown };
 	[key: string]: unknown;
 }
 
@@ -214,6 +232,22 @@ type WhenOptional<Req> = {} extends Req ? unknown : never;
  * parameter compile, and then be dropped.
  */
 export interface Client {
+	/** Sends a dry run, which only validates, so its `result` is `null`. */
+	send<Req, Res>(
+		operation: DryRunOperation<Req, Res>,
+		request: NoInfer<Req> & { dry_run: true },
+		options?: RequestOptions,
+	): Promise<null>;
+	/**
+	 * Sends a request that makes the change, whose `result` is never `null`. A `dry_run` that
+	 * may be `true`, such as an optional one or a `boolean`, falls to the next overloads, which
+	 * keep the `null`.
+	 */
+	send<Req, Res>(
+		operation: DryRunOperation<Req, Res>,
+		request: NoInfer<Req> & { dry_run?: false },
+		options?: RequestOptions,
+	): Promise<Exclude<Res, null>>;
 	/** Sends a request and returns the envelope's `result`, or the bare response of an operation without one. */
 	send<Req, Res>(
 		operation: Operation<Req, Res> & WhenOptional<Req>,
@@ -258,6 +292,27 @@ function isRecord(value: unknown): value is Fields {
 }
 
 /**
+ * An entry as an `ApiMessage`, leaving out a field it declares that the entry has in another
+ * type, such as a `documentation_url` of `null`, and keeping the rest. `ApiError.body` still
+ * has it as sent.
+ */
+function messageOf(entry: Fields, message: string): ApiMessage {
+	const { code, documentation_url: url, source, ...rest } = entry;
+	let typedSource: Fields | undefined;
+	if (isRecord(source)) {
+		const { pointer, ...others } = source;
+		typedSource = pointer === undefined || typeof pointer === 'string' ? source : others;
+	}
+	return {
+		...rest,
+		message,
+		...(typeof code === 'number' || typeof code === 'string' ? { code } : {}),
+		...(typeof url === 'string' ? { documentation_url: url } : {}),
+		...(typedSource === undefined ? {} : { source: typedSource }),
+	};
+}
+
+/**
  * Reads `errors` or `messages`, so that what the server said is never lost. Beside the
  * usual list of objects, the API declares strings, objects with no `message`, and a
  * lone object rather than a list.
@@ -270,7 +325,7 @@ function messageList(value: unknown): ApiMessage[] {
 			return { message: entry };
 		}
 		if (isRecord(entry)) {
-			return typeof entry['message'] === 'string' ? (entry as ApiMessage) : { ...entry, message: JSON.stringify(entry) };
+			return messageOf(entry, typeof entry['message'] === 'string' ? entry['message'] : JSON.stringify(entry));
 		}
 		return { message: JSON.stringify(entry) };
 	});

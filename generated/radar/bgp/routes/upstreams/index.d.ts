@@ -3,7 +3,7 @@ import type { Operation } from "#runtime";
 
 export type TimeseriesRequest = {
 	/** Single Autonomous System Number (ASN) as integer. */
-	asn: string;
+	asn: number | string;
 	/** Address family of the observed paths. Defaults to IPv4. */
 	ipVersion?: "IPv4" | "IPv6";
 	/** Start of the date range (inclusive). Alternative to `dateRange`; provide together with `dateEnd`. */

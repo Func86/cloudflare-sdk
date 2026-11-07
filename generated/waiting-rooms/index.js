@@ -4,8 +4,8 @@ const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/waiting_rooms/{wait
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}","body":"json"};
 export const get = {"method":"GET","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}"};
+export const list = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/waiting_rooms","accountOrZone":true,"query":["page","per_page"],"page":{"kind":"page"}};
 export const update = {"method":"PUT","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}","body":"json"};
-export * as accountWaitingRooms from "./account-waiting-rooms/index.js";
 export * as events from "./events/index.js";
 export * as page from "./page/index.js";
 export * as rules from "./rules/index.js";

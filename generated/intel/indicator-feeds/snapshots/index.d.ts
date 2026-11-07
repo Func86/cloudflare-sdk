@@ -6,7 +6,7 @@ export type UpdateRequest = {
 	/** Identifier */
 	account_id: string;
 	/** Indicator feed ID */
-	feed_id: string;
+	feed_id: number | string;
 	/**
 	 * Set to the literal value `1` to enqueue the upload and receive a
 	 * `202` response with a polling URL. Any other value uses the legacy

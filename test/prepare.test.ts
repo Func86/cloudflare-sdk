@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+	checkDryRuns,
 	checkPaginationOverrides,
+	joinCommaLists,
 	markLiteralSlashes,
 	normalizeFlags,
 	restateRequired,
 	selectOperations,
 } from '../generator/prepare.ts';
+import { byKey } from '../generator/patches.ts';
 import { LITERAL_SLASHES, type OpenApiDocument, type Schema } from '../generator/spec.ts';
 
 function document(paths: Record<string, Record<string, Schema>>): OpenApiDocument {
@@ -203,23 +206,117 @@ test('a path parameter that allows reserved characters is passed on, wherever it
 	assert.equal(doc.paths['/plain/{key}']?.['get']?.[LITERAL_SLASHES], undefined);
 });
 
-test('a rename applies to a hidden operation, and can move it to another group', () => {
-	const doc = document({
-		'/a': { post: hidden({ 'x-fern-sdk-group-name': 'x.y', 'x-fern-sdk-method-name': 'create' }) },
-		'/b': { post: hidden({ 'x-fern-sdk-group-name': 'x.y', 'x-fern-sdk-method-name': 'old' }) },
+test('a rename applies to any operation, hidden or not, and can move it to another group', () => {
+	const named = (group: string, method: string, extra: Schema = {}): Schema => ({
+		'x-fern-sdk-group-name': group,
+		'x-fern-sdk-method-name': method,
+		...extra,
 	});
-	selectOperations(doc, {}, { 'POST /a': { group: 'x', method: 'move-one' }, 'POST /b': { method: 'renamed' } });
-	assert.equal(doc.paths['/a']?.['post']?.['x-fern-sdk-group-name'], 'x');
-	assert.equal(doc.paths['/a']?.['post']?.['x-fern-sdk-method-name'], 'move-one');
-	assert.equal(doc.paths['/b']?.['post']?.['x-fern-sdk-group-name'], 'x.y');
-	assert.equal(doc.paths['/b']?.['post']?.['x-fern-sdk-method-name'], 'renamed');
+	const doc = document({
+		'/a': { post: hidden(named('x.y', 'create')) },
+		'/b': { post: named('x.account-y', 'old') },
+		'/c': { get: { 'x-fern-sdk-group-name': ['x', 'z'], 'x-fern-sdk-method-name': 'get' } },
+	});
+	const reason = 'A reason.';
+	selectOperations(doc, {}, {
+		'POST /a': { from: 'x.y.create', to: 'x.move-one', reason },
+		'POST /b': { from: 'x.account-y.old', to: 'x.y.renamed', reason },
+		'GET /c': { from: 'x.z.get', to: 'x.z.read', reason },
+	});
+	const name = (path: string, verb: string): string =>
+		`${String(doc.paths[path]?.[verb]?.['x-fern-sdk-group-name'])}.${String(doc.paths[path]?.[verb]?.['x-fern-sdk-method-name'])}`;
+	assert.equal(name('/a', 'post'), 'x.move-one');
+	assert.equal(name('/b', 'post'), 'x.y.renamed');
+	assert.equal(name('/c', 'get'), 'x.z.read');
 });
 
-test('an entry that no longer matches a hidden operation stops generation', () => {
+test('an entry that no longer matches stops generation', () => {
+	const reason = 'A reason.';
 	const gone = document({});
-	assert.throws(() => selectOperations(gone, { 'GET /gone': 'A reason.' }, {}), /GET \/gone/);
-	const nowVisible = document({ '/visible': { get: {} } });
-	assert.throws(() => selectOperations(nowVisible, {}, { 'GET /visible': { method: 'renamed' } }), /GET \/visible/);
+	assert.throws(() => selectOperations(gone, { 'GET /gone': reason }, {}), /GET \/gone/);
+	assert.throws(() => selectOperations(gone, {}, { 'GET /gone': { from: 'x.get', to: 'y.get', reason } }), /renames no longer match.*GET \/gone/);
 	const nowDeprecated = document({ '/old': { get: hidden({ deprecated: true }) } });
-	assert.throws(() => selectOperations(nowDeprecated, { 'GET /old': 'A reason.' }, {}), /GET \/old/);
+	assert.throws(() => selectOperations(nowDeprecated, { 'GET /old': reason }, {}), /GET \/old/);
+	// The spec fixed the name, or named it something else again.
+	const fixed = document({ '/jobs': { get: { 'x-fern-sdk-group-name': 'logpush.jobs', 'x-fern-sdk-method-name': 'list' } } });
+	assert.throws(
+		() => selectOperations(fixed, {}, { 'GET /jobs': { from: 'logpush.account-jobs.list', to: 'logpush.jobs.list', reason } }),
+		/The spec now names GET \/jobs logpush\.jobs\.list, not logpush\.account-jobs\.list/,
+	);
+});
+
+test('a rename whose operation is not generated, or that is not group.method, stops generation', () => {
+	const reason = 'A reason.';
+	const named = { 'x-fern-sdk-group-name': 'x.account-y', 'x-fern-sdk-method-name': 'list' };
+	// Renamed, then left out for describing no response, it would never go stale.
+	const undescribed = document({ '/y': { get: { ...named, responses: { '200': { description: 'OK' } } } } });
+	assert.throws(
+		() => selectOperations(undescribed, {}, { 'GET /y': { from: 'x.account-y.list', to: 'x.y.list', reason } }),
+		/renames no longer match a generated operation.*GET \/y/,
+	);
+	for (const [from, to] of [
+		['x.account-y.list', 'list'],
+		['list', 'x.y.list'],
+		['x.account-y.list', 'x..list'],
+		['x.account-y.list', 'x.y.'],
+	] as const) {
+		const doc = document({ '/y': { get: { ...named } } });
+		assert.throws(() => selectOperations(doc, {}, { 'GET /y': { from, to, reason } }), /as group\.method: GET \/y/);
+	}
+});
+
+test('a string described as a comma-separated list becomes a list, joined with commas', () => {
+	const ids = { name: 'ids', in: 'query', required: true, schema: { $ref: '#/components/schemas/ids' } };
+	const make = (description: string, extra: Schema = {}): OpenApiDocument => {
+		const doc = document({ '/builds': { get: { parameters: [{ $ref: '#/components/parameters/ids' }], ...extra } } });
+		doc.components.schemas['ids'] = { type: 'string', description };
+		doc.components['parameters'] = { ids };
+		return doc;
+	};
+	const doc = make('Comma-separated list of version UUIDs (max 20).');
+	joinCommaLists(doc, { 'GET /builds': ['ids'] });
+	assert.deepEqual(doc.paths['/builds']?.['get']?.['parameters'], [
+		{
+			...ids,
+			schema: {
+				type: 'array',
+				items: { type: 'string' },
+				description: 'Comma-separated list of version UUIDs (max 20). The list is sent joined with commas.',
+			},
+			explode: false,
+		},
+	]);
+	// The shared parameter is left as it was.
+	assert.deepEqual(doc.components['parameters']?.['ids'], ids);
+	const stale = /aren't strings described as comma-separated lists.*GET \/builds ids/;
+	assert.throws(() => joinCommaLists(make('A version UUID.'), { 'GET /builds': ['ids'] }), stale);
+	assert.throws(() => joinCommaLists(make('Comma-separated list.', hidden()), { 'GET /builds': ['ids'] }), stale);
+	assert.throws(() => joinCommaLists(make('Comma-separated list.'), { 'GET /builds': ['other'] }), /GET \/builds other/);
+	// The spec says it in other words too, in the parameter's description or its schema's.
+	for (const description of ['URL-encoded URLs separated by commas.', 'Comma delimited list of IDs.', 'Comma-separated SCIM attributes.']) {
+		joinCommaLists(make(description), { 'GET /builds': ['ids'] });
+	}
+	const described = make('Unrelated.');
+	described.components['parameters'] = { ids: { ...ids, description: 'A comma separated list of UUIDs.' } };
+	joinCommaLists(described, { 'GET /builds': ['ids'] });
+	assert.match(described.paths['/builds']?.['get']?.['parameters'][0].schema.description, /^A comma separated list of UUIDs\. /);
+	// One the path item declares becomes the operation's own, which overrides it.
+	const shared = document({ '/builds': { parameters: [{ $ref: '#/components/parameters/ids' }], get: {} } });
+	shared.components.schemas['ids'] = { type: 'string', description: 'Comma-separated list.' };
+	shared.components['parameters'] = { ids };
+	joinCommaLists(shared, { 'GET /builds': ['ids'] });
+	assert.equal(shared.paths['/builds']?.['get']?.['parameters'][0].explode, false);
+	assert.deepEqual(shared.paths['/builds']?.['parameters'], [{ $ref: '#/components/parameters/ids' }]);
+	// Once a list, as the spec may declare it later, it's stale too.
+	const listed = make('Comma-separated list.');
+	joinCommaLists(listed, { 'GET /builds': ['ids'] });
+	assert.throws(() => joinCommaLists(listed, { 'GET /builds': ['ids'] }), stale);
+});
+
+test('a dry run that is not generated stops generation, and so does a key given twice', () => {
+	const doc = document({ '/rulesets': { post: {} }, '/hidden': { post: hidden() } });
+	checkDryRuns(doc, ['POST /rulesets']);
+	assert.throws(() => checkDryRuns(doc, ['POST /rulesets', 'POST /hidden', 'POST /gone']), /aren't generated.*POST \/hidden, POST \/gone/);
+	assert.deepEqual(byKey('T', [['a', 1], ['b', 2]]), { a: 1, b: 2 });
+	assert.throws(() => byKey('OPERATION_RENAMES', [['GET /a', 1], ['GET /a', 2]]), /OPERATION_RENAMES gives GET \/a twice/);
 });

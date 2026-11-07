@@ -17,6 +17,7 @@ import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { type ManifestEntry, nameChanges, reportNameChanges } from './manifest.ts';
 import { prepare } from './prepare.ts';
 import type { OpenApiDocument } from './spec.ts';
 
@@ -107,11 +108,18 @@ const doc = await loadDocument(values.spec ?? process.env['FORGE_OPENAPI_BUNDLE'
 const { skipped, flags, restatedRequired } = prepare(doc);
 
 const out = values.out.replace(/[\\/]+$/, '');
+const manifestPath = join(out, '_meta', 'operations.json');
+const previous = existsSync(manifestPath) ? (JSON.parse(readFileSync(manifestPath, 'utf8')) as ManifestEntry[]) : undefined;
 // Beside it first, so a failure in Forge or the plugin leaves the last output whole.
 const partial = `${out}.partial`;
 rmSync(partial, { recursive: true, force: true });
 try {
 	await runForge(JSON.stringify(doc), plugin, partial);
+	// A plugin built before the generator's last change writes a report without what it reads.
+	const written = JSON.parse(readFileSync(join(partial, '_meta', 'report.json'), 'utf8')) as Record<string, unknown>;
+	if (typeof written['naming'] !== 'object' || written['naming'] === null) {
+		throw new Error(`${plugin} is older than the generator; run \`npm run generate\`, which builds the plugin first`);
+	}
 } catch (error) {
 	rmSync(partial, { recursive: true, force: true });
 	throw error;
@@ -119,18 +127,25 @@ try {
 rmSync(out, { recursive: true, force: true });
 renameSync(partial, out);
 
-const manifest = JSON.parse(readFileSync(join(out, '_meta', 'operations.json'), 'utf8')) as { page?: unknown }[];
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as (ManifestEntry & { page?: unknown })[];
 const report = JSON.parse(readFileSync(join(out, '_meta', 'report.json'), 'utf8')) as {
 	pagination: Record<string, string[]>;
+	naming: Record<string, string[]>;
 };
-const notPaginated = Object.entries(report.pagination)
-	.map(([reason, keys]) => `${reason}: ${keys.length}`)
-	.join('; ');
+const counts = (reasons: Record<string, string[]>): string =>
+	Object.entries(reasons)
+		.map(([reason, keys]) => `${reason}: ${keys.length}`)
+		.join('; ') || 'none';
 const megabytes = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 const total = sizes(out);
 console.log(`${manifest.length} operations, ${manifest.filter((operation) => operation.page).length} paginated`);
 console.log(`skipped before Forge: ${JSON.stringify(skipped)}`);
 console.log(`flags moved: ${JSON.stringify(flags)}; required restated: ${restatedRequired}`);
-console.log(`not paginated, needs a look: ${notPaginated}`);
+console.log(`not paginated, needs a look: ${counts(report.pagination)}`);
+console.log(`names that need a look, in _meta/report.json: ${counts(report.naming)}`);
+if (previous !== undefined) {
+	// Against a release instead, which a second run would lose: `npm run names -- <git ref>`.
+	console.log(reportNameChanges(nameChanges(previous, manifest), 'the last output').join('\n'));
+}
 console.log(`${total.files} files: ${megabytes(total.scripts)} js, ${megabytes(total.declarations)} d.ts`);
 console.log(`done in ${((performance.now() - started) / 1000).toFixed(1)} s`);

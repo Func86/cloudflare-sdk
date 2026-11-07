@@ -62,5 +62,6 @@
   "result has several arrays: buyers, data": [
    "GET /{account_or_zone}/{account_or_zone_id}/pay-per-use/usage-stats"
   ]
- }
+ },
+ "naming": {}
 }

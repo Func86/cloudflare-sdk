@@ -5,7 +5,7 @@ export type GetRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** The transformer ID. */
-	transformer_id: string;
+	transformer_id: number | string;
 	/** Specific version ID to retrieve. When omitted, the latest version is returned. */
 	version_id?: number;
 };

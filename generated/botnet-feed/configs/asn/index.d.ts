@@ -4,7 +4,7 @@ import type { Operation } from "#runtime";
 export type DeleteRequest = {
 	/** Identifier. */
 	account_id: string;
-	asn_id: string;
+	asn_id: number | string;
 };
 export type DeleteResult = {
 	asn?: number;

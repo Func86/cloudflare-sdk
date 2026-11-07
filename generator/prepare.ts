@@ -3,7 +3,15 @@
  * Forge has already dropped it or doesn't expose it by the time a plugin runs.
  */
 import type { Pagination } from '../src/client.ts';
-import { applyPatches, EXCLUDED_IGNORED, OPERATION_RENAMES, type OperationRename, PAGINATION_OVERRIDES } from './patches.ts';
+import {
+	applyPatches,
+	COMMA_LISTS,
+	DRY_RUNS,
+	EXCLUDED_IGNORED,
+	OPERATION_RENAMES,
+	type OperationRename,
+	PAGINATION_OVERRIDES,
+} from './patches.ts';
 import { LITERAL_SLASHES, type OpenApiDocument, type Schema, Spec } from './spec.ts';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
@@ -47,23 +55,40 @@ function servedElsewhere(doc: OpenApiDocument, pathItem: Schema, operation: Sche
 	return Array.isArray(servers) && servers.length > 0 && !servers.some((server: Schema) => base.has(server['url']));
 }
 
+/** An operation's name as the spec spells it, `group.method`. */
+function nameOf(operation: Schema): string {
+	const group: unknown = operation['x-fern-sdk-group-name'];
+	return `${(Array.isArray(group) ? group : [group]).join('.')}.${String(operation['x-fern-sdk-method-name'])}`;
+}
+
+/** A name as `group.method`, where the group can have several parts, as in `logpush.jobs.list`. */
+const OPERATION_NAME = /^[^.\s]+(\.[^.\s]+)+$/;
+
 /**
  * Decides which operations Forge sees. One marked `x-fern-ignore` is generated
  * unless it's deprecated or listed in `exclusions`; one for other audiences isn't.
  * Nor is one served from another host, or one that doesn't describe its response,
  * until a spec patch or Cloudflare does, apart from a DELETE, whose caller doesn't
- * depend on the body, and a HEAD, which has none. Returns how many were left out, by reason.
+ * depend on the body, and a HEAD, which has none. Then `renames` apply to what is
+ * left, whether an operation is hidden or not. Forge stops when two operations take
+ * one name, however either is spelled or through an alias, so a rename can't take
+ * another operation's name. Returns how many were left out, by reason.
  */
 export function selectOperations(
 	doc: OpenApiDocument,
 	exclusions: Readonly<Record<string, string>> = EXCLUDED_IGNORED,
 	renames: Readonly<Record<string, OperationRename>> = OPERATION_RENAMES,
 ): Record<string, number> {
+	const malformed = Object.entries(renames).filter(([, { from, to }]) => !OPERATION_NAME.test(from) || !OPERATION_NAME.test(to));
+	if (malformed.length > 0) {
+		throw new Error(`These renames don't name a group and a method, as group.method: ${malformed.map(([key]) => key).join(', ')}`);
+	}
 	const skipped: Record<string, number> = {};
 	const skip = (reason: string): void => {
 		skipped[reason] = (skipped[reason] ?? 0) + 1;
 	};
 	const applied = new Set<string>();
+	const renamed = new Set<string>();
 	const spec = new Spec(doc);
 	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
 		for (const verb of HTTP_METHODS) {
@@ -71,6 +96,7 @@ export function selectOperations(
 			if (!operation) {
 				continue;
 			}
+			const key = `${verb.toUpperCase()} ${route}`;
 			const audiences = operation['x-fern-audiences'];
 			if (Array.isArray(audiences) && !audiences.includes(SDK_AUDIENCE)) {
 				delete pathItem[verb];
@@ -82,21 +108,12 @@ export function selectOperations(
 					skip('deprecated');
 					continue;
 				}
-				const key = `${verb.toUpperCase()} ${route}`;
 				if (key in exclusions) {
 					applied.add(key);
 					skip('excluded');
 					continue;
 				}
 				delete operation['x-fern-ignore'];
-				const rename = renames[key];
-				if (rename) {
-					applied.add(key);
-					operation['x-fern-sdk-method-name'] = rename.method;
-					if (rename.group !== undefined) {
-						operation['x-fern-sdk-group-name'] = rename.group;
-					}
-				}
 			}
 			if (servedElsewhere(doc, pathItem, operation)) {
 				delete pathItem[verb];
@@ -106,12 +123,30 @@ export function selectOperations(
 			if (verb !== 'delete' && verb !== 'head' && lacksResponseSchema(spec, operation)) {
 				delete pathItem[verb];
 				skip('no response schema');
+				continue;
+			}
+			const rename = renames[key];
+			if (rename) {
+				const name = nameOf(operation);
+				if (name !== rename.from) {
+					throw new Error(
+						`The spec now names ${key} ${name}, not ${rename.from}, so check whether its rename is still needed, and update or remove it.`,
+					);
+				}
+				renamed.add(key);
+				const dot = rename.to.lastIndexOf('.');
+				operation['x-fern-sdk-group-name'] = rename.to.slice(0, dot);
+				operation['x-fern-sdk-method-name'] = rename.to.slice(dot + 1);
 			}
 		}
 	}
-	const stale = [...Object.keys(exclusions), ...Object.keys(renames)].filter((key) => !applied.has(key));
+	const stale = Object.keys(exclusions).filter((key) => !applied.has(key));
 	if (stale.length > 0) {
 		throw new Error(`These no longer match a hidden operation, so check them and remove them: ${stale.join(', ')}`);
+	}
+	const gone = Object.keys(renames).filter((key) => !renamed.has(key));
+	if (gone.length > 0) {
+		throw new Error(`These renames no longer match a generated operation, so check them and remove them: ${gone.join(', ')}`);
 	}
 	return skipped;
 }
@@ -342,10 +377,75 @@ export function checkPaginationOverrides(
 	}
 }
 
+/**
+ * Stops generation when an operation `DRY_RUNS` lists isn't generated. Run it after
+ * `selectOperations`. The plugin checks the rest: its `dry_run` and its `null` result.
+ */
+export function checkDryRuns(doc: OpenApiDocument, keys: readonly string[] = DRY_RUNS): void {
+	const stale = keys.filter((key) => {
+		const [method = '', route = ''] = key.split(' ');
+		const operation: Schema | undefined = doc.paths[route]?.[method.toLowerCase()];
+		return !operation || operation['x-fern-ignore'] === true;
+	});
+	if (stale.length > 0) {
+		throw new Error(`These dry runs aren't generated, so check them and remove them from DRY_RUNS: ${stale.join(', ')}`);
+	}
+}
+
+/** A description that says a string is a list joined with commas, in any of the spec's wordings. */
+const COMMA_SEPARATED = /comma[- ]?(?:separated|delimited)|separated by commas?/i;
+
+/**
+ * Makes the query parameters `lists` names lists of strings, sent joined with commas, as
+ * their descriptions say, whether the operation or its path item declares them. Stops
+ * generation when one isn't a string described so, or its operation isn't generated. Run it
+ * after `selectOperations`.
+ */
+export function joinCommaLists(doc: OpenApiDocument, lists: Readonly<Record<string, readonly string[]>> = COMMA_LISTS): void {
+	const spec = new Spec(doc);
+	const stale: string[] = [];
+	for (const [key, names] of Object.entries(lists)) {
+		const [method = '', route = ''] = key.split(' ');
+		const pathItem: Schema | undefined = doc.paths[route];
+		const operation: Schema | undefined = pathItem?.[method.toLowerCase()];
+		const generated = operation !== undefined && operation['x-fern-ignore'] !== true;
+		for (const name of names) {
+			const named = (parameter: Schema): boolean => spec.deref(parameter)['name'] === name && spec.deref(parameter)['in'] === 'query';
+			const own: Schema[] = generated ? (operation['parameters'] ?? []) : [];
+			const index = own.findIndex(named);
+			const declared = index === -1 ? ((generated ? (pathItem?.['parameters'] ?? []) : []) as Schema[]).find(named) : own[index];
+			const parameter = declared === undefined ? undefined : spec.deref(declared);
+			const schema = spec.deref(parameter?.['schema']);
+			const descriptions = [parameter?.['description'], schema['description']].filter((text) => typeof text === 'string');
+			if (
+				parameter === undefined ||
+				schema['type'] !== 'string' ||
+				parameter['explode'] !== undefined ||
+				!COMMA_SEPARATED.test(descriptions.join(' '))
+			) {
+				stale.push(`${key} ${name}`);
+				continue;
+			}
+			const description = `${descriptions[0]!} The list is sent joined with commas.`;
+			// A copy, as a referenced parameter can be shared, and the operation's own overrides
+			// the path item's.
+			const list = { ...parameter, schema: { type: 'array', items: { type: 'string' }, description }, explode: false };
+			operation!['parameters'] = index === -1 ? [...own, list] : own.with(index, list);
+		}
+	}
+	if (stale.length > 0) {
+		throw new Error(
+			`These aren't strings described as comma-separated lists, or their operations aren't generated: ${stale.join(', ')}. Check each, and remove one the spec now declares otherwise.`,
+		);
+	}
+}
+
 export function prepare(doc: OpenApiDocument): Prepared {
 	applyPatches(doc);
 	const skipped = selectOperations(doc);
 	checkPaginationOverrides(doc);
+	checkDryRuns(doc);
+	joinCommaLists(doc);
 	markLiteralSlashes(doc);
 	const flags = normalizeFlags(doc);
 	return { skipped, flags, restatedRequired: restateRequired(doc) };

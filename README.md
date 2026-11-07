@@ -34,11 +34,19 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
 - `send` returns `undefined` when a success leaves out `result`, though result types don't say so. 1,280 of the 2,835
   success envelopes declare `result` optional, mostly through shared base schemas, and adding `| undefined` would make
   nearly half of all calls check for a case not seen live. The official SDK types it the same way.
+- A ruleset write that takes `dry_run`, such as `rulesets.create`, returns what it changed, or `null` with
+  `dry_run: true`, which only validates. With a `dry_run` that may be either, such as an optional `true` or a
+  `boolean`, it's both. Such an operation is a `DryRunOperation`, listed in `DRY_RUNS` in `generator/patches.ts`. Its
+  result type, such as `CreateResult`, keeps the `null`, so it holds wherever the operation is passed as an
+  `Operation`; `send` leaves it out of a request whose `dry_run` is left out or `false`.
 - Types are importable from `@libreflare/cloudflare-sdk/types/<prefix>`, such as `types/workers`.
 - `paginate` only accepts paginated operations, so calling it on anything else is a compile error. It throws a
   `TypeError` on a response that isn't a page, such as CSV, rather than looking like an empty list.
 - Failures throw `ApiError` (with `status`, `errors`, `messages`) or `ApiConnectionError`. `errors` keeps what the server
-  said in any shape: strings, objects with no `message`, and a failure under `error`, `message` or `msg`.
+  said in any shape: strings, objects with no `message`, and a failure under `error`, `message` or `msg`. An entry's
+  `source.pointer` names the field a validation error is about, such as `/rules/0/action`. An entry leaves out a `code`
+  that isn't a number or a string, a `documentation_url` that isn't a string, a `source` that isn't an object, and a
+  `pointer` in it that isn't a string; `body` keeps the response as sent.
 - `ApiError` also covers a 2XX whose body should be JSON and isn't, such as a proxy's HTML page, and a failed envelope
   from an operation that answers in another format or with no content. `ApiConnectionError` also covers a response that
   breaks off or times out while it's read.
@@ -63,6 +71,9 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
   module's default export: `import zaraz from '.../zaraz'` gives only `zaraz.default`. Use `import * as` or a group's
   own path.
 - A stream can be a raw body, and isn't retried, because it can only be read once.
+- Names are the spec's, as cf's commands are, not the official SDK's. On the 2,531 routes both cover, 56% of names
+  match. Most differences are in the group, such as `browserRun` for its `browserRendering`, and some in the method,
+  such as `rulesets.rules.update` for its `rulesets.rules.edit`.
 
 ## Generating
 
@@ -88,11 +99,14 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 | --- | --- |
 | `generator/generate.ts` | Holds the pin, and pipes the document through `forge normalize` into the plugin |
 | `generator/prepare.ts` | Changes the document for what the plugin can't decide (see below) |
-| `generator/patches.ts` | Spec corrections with evidence, pagination overrides, hidden operations left out or renamed |
+| `generator/patches.ts` | Spec corrections with evidence, pagination overrides, hidden operations left out, renames, comma-separated lists |
 | `generator/entry.ts` | The plugin's entry module, which `forge-plugin build` compiles |
 | `generator/plugin/operations.ts` | Reads Forge's methods, including pagination inference |
 | `generator/plugin/types.ts` | Prints Forge's types as TypeScript, with separate read and write variants |
 | `generator/plugin/index.ts` | Writes each group's `index.js` and `index.d.ts`, and `_types/` |
+| `generator/plugin/names.ts` | Finds names that need a look, for `_meta/report.json` |
+| `generator/manifest.ts` | Lists the names a run changes against the last output |
+| `generator/names.ts` | Lists the names the output changes against a commit, for release notes |
 | `generator/conformance.ts` | Compares captured live response shapes with the spec |
 | `src/client.ts` | The hand-written runtime |
 | `src/media.ts` | How a media type is read, a rule the runtime and the generator share |
@@ -150,8 +164,40 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   aren't typed. Other operations with several body formats reach the same result through the one generated.
 - **An operation served from another host is left out.** K2's 9 data-plane operations declare
   `https://{stream_id}.k2.cloudflarestorage.com`, and the runtime would send them to the API's base URL.
+- **A numeric path parameter takes a number or its text.** Other path parameters are strings, whatever model names
+  them, but the 57 declared as integers or numbers, such as a Logpush `job_id`, also take the number the API sends as
+  the ID. Text keeps an int64 above 2^53, or a decimal such as a Magic connector event's timestamp, exact.
 - **Spec patches expire.** A patch whose defect has gone stops generation, so an upstream fix retires it. So does a
   pagination override whose operation is gone, now states its own pagination, or no longer has the array it names.
+  Besides those described elsewhere, patches require each ruleset rule's `action`, which the API rejects a rule
+  without and the spec names as the discriminator, apart from an update that only moves a rule, by its `position` with no
+  field of a rule beside it; take each rule's `action_parameters` from its action alone, as the API refuses any other
+  key; and add the 3 fields a Logpush job has undeclared and stop a listed job from being `null`. `RequestRule` lists
+  its variants so that each declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in
+  `generator/patches.ts` says: the six actions that take no parameters, such as `log`, have `action_parameters?:
+  never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule` or
+  `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it.
+- **A string described as a comma-separated list is a list,** sent joined with commas, where `COMMA_LISTS` in
+  `generator/patches.ts` names it: Builds' `version_ids` and `external_script_ids` for now. Of the 52 query strings
+  whose description says comma-separated, comma-delimited or separated by commas, each of the other 50 is added after
+  reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
+  `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
+  Builds splits, as a live check showed.
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name
+  3,631 of its 3,633 operations, and cf uses them too. They follow current product names, and a mistake in them shows
+  in Cloudflare's own CLI. A rename in `generator/patches.ts` fixes a mistake, with its reason, and stops generation once
+  the spec names the operation otherwise. 32 are renamed, to the official SDK's names where it has them: an `account-`
+  group from before account and zone routes were merged, such as `logpush.account-jobs` for `logpush.jobs`; Logpush
+  validations named `delete` and `create`; 4 hidden Cloudforce One methods that repeat their group, such as
+  `cloudforceOneRequestGet` for `get`, as a hidden operation's name is never shown; and the hidden Email Security move
+  described below. Forge stops when two operations take one name, so a rename can't take another's. Every name passes three rules, which
+  `npm test` checks: its verb is one its HTTP method does, apart from an RPC-style route such as `POST …/bulk/delete`
+  and a read by POST whose body says what to read, such as `ai-audit.robots.bulkGet`; an account-or-zone route has no
+  `account-` or `zone-` group; and a method doesn't repeat its group. `npm run generate` lists the names that break one
+  in `_meta/report.json`, and prints the names it renamed or removed against the last output, which break the calls
+  that import them. It compares names, so one that moves to another route is unchanged. A second run would print
+  nothing, so for release notes `npm run names -- <git ref>` compares the output with a commit's, such as the last
+  release's.
 
 ### What `prepare.ts` works around
 
@@ -240,7 +286,7 @@ outside the usual shape, the order of headers and a cap on its own backoff, as t
 | `tsc` files, consumer with 7 calls | 1,146 | not measured | 170 |
 | `tsc` memory, same consumer | 231 MB | not measured | 68 MB |
 | Package, gzipped | 7.3 MB | 7.3 MB | 1.0 MB |
-| Package, files | 16,289 | 16,289 | 2,733 |
+| Package, files | 16,289 | 16,289 | 2,722 |
 
 Libreflare's hand-kept resource list already avoids the official client's worst cost, so the bundle and cold-start
 gains are modest in absolute terms. Coverage, correctness and not maintaining that list matter more.
@@ -254,7 +300,8 @@ The generated types are only as right as the spec, so this is the main risk. 13 
 300 fields, by `generator/conformance.ts`:
 
 - 7 fields have the wrong nullability, such as `zones[].owner.id` and `accounts[].settings.abuse_contact_email`.
-- 27 fields are undeclared, such as `user.username`, `rulesets[].source` and a Logpush job's `filter`.
+- 27 fields are undeclared, such as `user.username` and `rulesets[].source`. A patch adds the 3 on a Logpush job,
+  such as `filter`, which leaves 24.
 - No required field was absent.
 - The official SDK has the same gaps on the fields looked up there.
 

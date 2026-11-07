@@ -5,7 +5,7 @@ import type * as $intel from "../../../_types/intel.js";
 export type ListRequest = {
 	/** Identifier. */
 	account_id: string;
-	asn: string;
+	asn: number | string;
 };
 export type ListResult = {
 	asn?: $intel.Asn;

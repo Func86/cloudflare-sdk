@@ -6,7 +6,7 @@ export * as subnets from "./subnets/index.js";
 export type GetRequest = {
 	/** Identifier. */
 	account_id: string;
-	asn: string;
+	asn: number | string;
 };
 export type GetResult = $intel.Asn;
 /**

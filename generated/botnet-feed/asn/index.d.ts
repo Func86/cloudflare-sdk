@@ -5,7 +5,7 @@ import type * as $botnet_feed_api from "../../_types/botnet-feed-api.js";
 export type DayReportRequest = {
 	/** Identifier. */
 	account_id: string;
-	asn_id: string;
+	asn_id: number | string;
 	date?: $botnet_feed_api.Timestamp;
 };
 export type DayReportResult = {
@@ -27,7 +27,7 @@ export declare const dayReport: Operation<DayReportRequest, DayReportResult>;
 export type FullReportRequest = {
 	/** Identifier. */
 	account_id: string;
-	asn_id: string;
+	asn_id: number | string;
 };
 export type FullReportResult = {
 	cidr?: string;

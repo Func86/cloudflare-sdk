@@ -6,8 +6,8 @@ export type GetRequest = {
 	/** Account identifier */
 	account_id: string;
 	connector_id: string;
-	event_t: string;
-	event_n: string;
+	event_t: number | string;
+	event_n: number | string;
 };
 export type GetResult = $mconn_telemetry.RecordedEvent;
 /**

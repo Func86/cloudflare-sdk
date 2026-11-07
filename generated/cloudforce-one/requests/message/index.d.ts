@@ -26,7 +26,7 @@ export type DeleteRequest = {
 	account_id: string;
 	/** UUID. */
 	request_id: string;
-	message_id: string;
+	message_id: number | string;
 };
 export type DeleteResult = $cloudforce_one_requests.ApiResponseCommon;
 /**
@@ -65,7 +65,7 @@ export type UpdateRequest = {
 	account_id: string;
 	/** UUID. */
 	request_id: string;
-	message_id: string;
+	message_id: number | string;
 	body: $cloudforce_one_requests.RequestMessageEdit;
 };
 export type UpdateResult = $cloudforce_one_requests.RequestMessageItem;

@@ -2,7 +2,7 @@
  * Compile-time checks, run by `npm run check:type`. Each `@ts-expect-error` is a
  * mistake the types must reject: tsc fails if one of them stops being an error.
  */
-import { createClient, type AccountOrZone, type ApiError } from '@libreflare/cloudflare-sdk';
+import { createClient, type AccountOrZone, type ApiError, type Operation } from '@libreflare/cloudflare-sdk';
 import { get as getEntitlements } from '@libreflare/cloudflare-sdk/accounts/entitlements';
 import { list as listModels } from '@libreflare/cloudflare-sdk/ai/models';
 import { create as createWatermark } from '@libreflare/cloudflare-sdk/stream/watermarks';
@@ -15,7 +15,7 @@ import { list as listListItems } from '@libreflare/cloudflare-sdk/rules/lists/it
 import type { Item as ListItem } from '@libreflare/cloudflare-sdk/types/lists';
 import { put as putKey } from '@libreflare/cloudflare-sdk/kv/keys';
 import { put as putObject } from '@libreflare/cloudflare-sdk/r2/objects';
-import { create as createRuleset } from '@libreflare/cloudflare-sdk/rulesets';
+import { create as createRuleset, type CreateResult as CreatedRuleset } from '@libreflare/cloudflare-sdk/rulesets';
 import { list as listShadowHosts } from '@libreflare/cloudflare-sdk/security-insights/partners/shadow-hosts';
 import { update as updateWorker } from '@libreflare/cloudflare-sdk/workers/legacy/scripts';
 import * as buildTriggers from '@libreflare/cloudflare-sdk/builds/triggers';
@@ -35,6 +35,12 @@ import type { GetResult as ZarazConfigs } from '@libreflare/cloudflare-sdk/zaraz
 import type { Operation as ApiShieldOperation } from '@libreflare/cloudflare-sdk/types/api-shield';
 import type { Project } from '@libreflare/cloudflare-sdk/types/pages';
 import type { Deployment, DeploymentInput } from '@libreflare/cloudflare-sdk/types/workers';
+import * as logpushJobs from '@libreflare/cloudflare-sdk/logpush/jobs';
+import { get as getLatestBuilds } from '@libreflare/cloudflare-sdk/builds/latest';
+import { get as getBuilds } from '@libreflare/cloudflare-sdk/builds/versions';
+import type { LogpushJob } from '@libreflare/cloudflare-sdk/types/logpush';
+import type { RequestRule, RequestRuleInput, ResponseRule } from '@libreflare/cloudflare-sdk/types/rulesets';
+import * as rules from '@libreflare/cloudflare-sdk/rulesets/rules';
 
 type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
 function assertType<_T extends true>(): void {}
@@ -230,4 +236,101 @@ export const origin: Pick<OverAccessOrigin, 'access_client_secret'> = {};
 
 export function isForbidden(error: ApiError): boolean {
 	return error.status === 403 && error.errors.some((entry) => entry.code === 10000);
+}
+
+// A validation error points at the field it's about, such as `/rules/0/action`.
+export function pointerOf(error: ApiError): string | undefined {
+	return error.errors[0]?.source?.pointer;
+}
+
+export async function logpushAndBuilds(): Promise<void> {
+	// A listed job isn't null, though a single job's result can be, and it has the filter the API sends.
+	const jobs = await cf.send(logpushJobs.list, { zone_id: 'z' });
+	assertType<Equal<typeof jobs, LogpushJob[]>>();
+	// A numeric path parameter takes the number the API sends as the job's ID, or its text.
+	const job = await cf.send(logpushJobs.get, { zone_id: 'z', job_id: jobs[0]?.id ?? 1 });
+	void job?.filter;
+	await cf.send(logpushJobs.get, { zone_id: 'z', job_id: '1' });
+	// @ts-expect-error Neither a number nor text.
+	await cf.send(logpushJobs.get, { zone_id: 'z', job_id: true });
+	// Version IDs and script tags are lists, sent joined with commas.
+	await cf.send(getBuilds, { account_id: 'a', version_ids: ['v1', 'v2'] });
+	// @ts-expect-error Not joined by hand.
+	await cf.send(getBuilds, { account_id: 'a', version_ids: 'v1,v2' });
+	await cf.send(getLatestBuilds, { account_id: 'a', external_script_ids: ['s1', 's2'] });
+	// @ts-expect-error Not joined by hand.
+	await cf.send(getLatestBuilds, { account_id: 'a', external_script_ids: 's1,s2' });
+}
+
+// A ruleset rule names its action, which tells the variants apart.
+assertType<Equal<undefined extends RequestRule['action'] ? true : false, false>>();
+// @ts-expect-error A rule needs an action.
+export const ruleWithoutAction: RequestRuleInput = { expression: 'true' };
+export function redirectTarget(rule: RequestRule): string | undefined {
+	return rule.action === 'redirect' ? rule.action_parameters?.from_value?.target_url?.value : undefined;
+}
+// A rule can be moved by its position alone, though otherwise an update is the whole rule.
+export async function moveRule(): Promise<void> {
+	const scope = { zone_id: 'z', ruleset_id: 'r' };
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: { position: { index: 1 } } });
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: { action: 'block', expression: 'true', position: { before: 'y' } } });
+	// @ts-expect-error Not another field alone.
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: { enabled: false } });
+	// A position beside any field of a rule makes it a whole rule, whether the body is written in
+	// the call or built before it.
+	// @ts-expect-error A whole rule needs its action.
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: { enabled: false, position: { index: 1 } } });
+	const invalid = { action: 'invalid', position: { index: 1 } };
+	// @ts-expect-error Not an action, and not a move only.
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: invalid });
+	const disabled = { enabled: false, position: { index: 1 } };
+	// @ts-expect-error A whole rule needs its action.
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: disabled });
+	const moved = { action: 'block' as const, expression: 'true', enabled: false, position: { index: 1 } };
+	await cf.send(rules.update, { ...scope, rule_id: 'x', body: moved });
+	// @ts-expect-error A new rule needs its action.
+	await cf.send(rules.create, { ...scope, body: { position: { index: 1 } } });
+}
+
+// A rule's action_parameters are its action's: the API refuses any other key, and an action that
+// takes none, such as log, takes none.
+// @ts-expect-error A block takes no redirect.
+export const blockWithRedirect: RequestRuleInput = { action: 'block', expression: 'true', action_parameters: { from_value: {} } };
+// @ts-expect-error A log takes no parameters.
+export const logWithParameters: RequestRuleInput = { action: 'log', expression: 'true', action_parameters: { x: 1 } };
+export const skipCurrent: RequestRuleInput = { action: 'skip', expression: 'true', action_parameters: { ruleset: 'current' } };
+// Any rule's parameters can be read, as a rule whose action takes none has none.
+export function parametersOf(rule: ResponseRule): unknown {
+	return rule.action_parameters;
+}
+
+// A ruleset write returns what it changed, and a dry run, which only validates, returns null.
+export async function dryRun(flag: boolean): Promise<void> {
+	const body = { name: 'n', kind: 'zone' as const, phase: 'http_request_firewall_custom' as const };
+	const created = await cf.send(createRuleset, { zone_id: 'z', body });
+	assertType<Equal<typeof created, NonNullable<CreatedRuleset>>>();
+	const kept = await cf.send(createRuleset, { zone_id: 'z', dry_run: false, body });
+	assertType<Equal<typeof kept, NonNullable<CreatedRuleset>>>();
+	const validated = await cf.send(createRuleset, { zone_id: 'z', dry_run: true, body });
+	assertType<Equal<typeof validated, null>>();
+	const either = await cf.send(createRuleset, { zone_id: 'z', dry_run: flag, body });
+	assertType<Equal<typeof either, CreatedRuleset | null>>();
+	// An optional true may be left out, which makes the change.
+	const optional = await cf.send(createRuleset, { zone_id: 'z', body, ...(flag ? { dry_run: true as const } : {}) });
+	assertType<Equal<typeof optional, CreatedRuleset>>();
+	assertType<Equal<null extends typeof optional ? true : false, true>>();
+	const deleted = await cf.send(rules.delete, { zone_id: 'z', ruleset_id: 'r', rule_id: 'x', dry_run: true });
+	assertType<Equal<typeof deleted, null>>();
+	// The result type keeps the dry run's null, so it holds where the operation is any operation.
+	assertType<Equal<null extends CreatedRuleset ? true : false, true>>();
+	const send = <Req, Res>(operation: Operation<Req, Res>, request: Req): Promise<Res> => cf.send(operation, request);
+	const wrapped = await send(createRuleset, { zone_id: 'z', dry_run: true, body });
+	assertType<Equal<typeof wrapped, CreatedRuleset>>();
+	// The request is checked as before.
+	// @ts-expect-error A misspelled parameter.
+	await cf.send(createRuleset, { zone_id: 'z', dryrun: true, body });
+	// @ts-expect-error Not a ruleset.
+	await cf.send(createRuleset, { zone_id: 'z', dry_run: true, body: {} });
+	// @ts-expect-error A whole rule needs its action, in a dry run too.
+	await cf.send(rules.update, { zone_id: 'z', ruleset_id: 'r', rule_id: 'x', dry_run: true, body: { enabled: false, position: { index: 1 } } });
 }

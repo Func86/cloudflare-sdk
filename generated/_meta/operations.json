@@ -3861,29 +3861,9 @@
   "response": "none"
  },
  {
-  "id": "cloudforce-one.requests.cloudforceOneRequestGet",
-  "method": "GET",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
-  "response": "envelope"
- },
- {
-  "id": "cloudforce-one.requests.cloudforceOneRequestList",
-  "method": "POST",
-  "route": "/accounts/{account_id}/cloudforce-one/requests",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "cloudforce-one.requests.cloudforceOneRequestNew",
+  "id": "cloudforce-one.requests.create",
   "method": "POST",
   "route": "/accounts/{account_id}/cloudforce-one/requests/new",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "cloudforce-one.requests.cloudforceOneRequestUpdate",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
   "response": "envelope",
   "body": "json"
  },
@@ -3892,6 +3872,12 @@
   "method": "DELETE",
   "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
   "response": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
+  "response": "envelope"
  },
  {
   "id": "cloudforce-one.requests.getRequestList",
@@ -3909,6 +3895,13 @@
   "response": "json"
  },
  {
+  "id": "cloudforce-one.requests.list",
+  "method": "POST",
+  "route": "/accounts/{account_id}/cloudforce-one/requests",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "cloudforce-one.requests.postRequestCreate",
   "method": "POST",
   "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}",
@@ -3920,6 +3913,13 @@
   "method": "PUT",
   "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}",
   "response": "json",
+  "body": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
+  "response": "envelope",
   "body": "json"
  },
  {
@@ -5872,26 +5872,45 @@
   "response": "envelope"
  },
  {
-  "id": "custom-pages.account-assets.create",
+  "id": "custom-pages.get",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/{identifier}",
+  "response": "envelope"
+ },
+ {
+  "id": "custom-pages.list",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages",
+  "response": "envelope"
+ },
+ {
+  "id": "custom-pages.update",
+  "method": "PUT",
+  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/{identifier}",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "custom-pages.assets.create",
   "method": "POST",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/assets",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "custom-pages.account-assets.delete",
+  "id": "custom-pages.assets.delete",
   "method": "DELETE",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/assets/{asset_name}",
   "response": "none"
  },
  {
-  "id": "custom-pages.account-assets.get",
+  "id": "custom-pages.assets.get",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/assets/{asset_name}",
   "response": "envelope"
  },
  {
-  "id": "custom-pages.account-assets.list",
+  "id": "custom-pages.assets.list",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/assets",
   "response": "envelope",
@@ -5900,33 +5919,14 @@
   }
  },
  {
-  "id": "custom-pages.account-assets.update",
+  "id": "custom-pages.assets.update",
   "method": "PUT",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/assets/{asset_name}",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "custom-pages.account-custom-pages.get",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/{identifier}",
-  "response": "envelope"
- },
- {
-  "id": "custom-pages.account-custom-pages.list",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages",
-  "response": "envelope"
- },
- {
-  "id": "custom-pages.account-custom-pages.update",
-  "method": "PUT",
-  "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/{identifier}",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "custom-pages.account-custom-pages.preview-tokens.create",
+  "id": "custom-pages.preview-tokens.create",
   "method": "POST",
   "route": "/{account_or_zone}/{account_or_zone_id}/custom_pages/preview_tokens",
   "response": "envelope",
@@ -8939,83 +8939,16 @@
   }
  },
  {
-  "id": "logpush.account-datasets.fields.get",
+  "id": "logpush.datasets.fields.get",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/logpush/datasets/{dataset_id}/fields",
   "response": "envelope"
  },
  {
-  "id": "logpush.account-datasets.jobs.get",
+  "id": "logpush.datasets.jobs.get",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/logpush/datasets/{dataset_id}/jobs",
   "response": "envelope"
- },
- {
-  "id": "logpush.account-jobs.create",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-jobs.delete",
-  "method": "DELETE",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
-  "response": "envelope"
- },
- {
-  "id": "logpush.account-jobs.get",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
-  "response": "envelope"
- },
- {
-  "id": "logpush.account-jobs.list",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs",
-  "response": "envelope"
- },
- {
-  "id": "logpush.account-jobs.update",
-  "method": "PUT",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-ownership.create",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/ownership",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-ownership.validate.create",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/ownership/validate",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-validate.destinationExistsDelete",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/destination/exists",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-validate.destination.delete",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/destination",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "logpush.account-validate.origin.create",
-  "method": "POST",
-  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/origin",
-  "response": "envelope",
-  "body": "json"
  },
  {
   "id": "logpush.edge.create",
@@ -9029,6 +8962,52 @@
   "method": "GET",
   "route": "/zones/{zone_id}/logpush/edge/jobs",
   "response": "envelope"
+ },
+ {
+  "id": "logpush.jobs.create",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "logpush.jobs.delete",
+  "method": "DELETE",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
+  "response": "envelope"
+ },
+ {
+  "id": "logpush.jobs.get",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
+  "response": "envelope"
+ },
+ {
+  "id": "logpush.jobs.list",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs",
+  "response": "envelope"
+ },
+ {
+  "id": "logpush.jobs.update",
+  "method": "PUT",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/jobs/{job_id}",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "logpush.ownership.create",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/ownership",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "logpush.ownership.validate",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/ownership/validate",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "logpush.transformers.create",
@@ -9080,6 +9059,27 @@
   "method": "GET",
   "route": "/accounts/{account_id}/logpush/transformers/{transformer_id}/versions",
   "response": "envelope"
+ },
+ {
+  "id": "logpush.validate.destination",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/destination",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "logpush.validate.destinationExists",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/destination/exists",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "logpush.validate.origin",
+  "method": "POST",
+  "route": "/{account_or_zone}/{account_or_zone_id}/logpush/validate/origin",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "logs.query",
@@ -10473,14 +10473,14 @@
   "response": "envelope"
  },
  {
-  "id": "monetization.account-eligibility.check",
+  "id": "monetization.eligibility.check",
   "method": "POST",
   "route": "/{account_or_zone}/{account_or_zone_id}/monetization",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "monetization.account-eligibility.get",
+  "id": "monetization.eligibility.get",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/monetization",
   "response": "envelope"
@@ -15910,26 +15910,6 @@
   "body": "json"
  },
  {
-  "id": "tags.account-resources.delete",
-  "method": "DELETE",
-  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
-  "response": "none",
-  "body": "json"
- },
- {
-  "id": "tags.account-resources.get",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
-  "response": "envelope"
- },
- {
-  "id": "tags.account-resources.update",
-  "method": "PUT",
-  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
-  "response": "envelope",
-  "body": "json"
- },
- {
   "id": "tags.keys.list",
   "method": "GET",
   "route": "/accounts/{account_id}/tags/keys",
@@ -15941,6 +15921,19 @@
   }
  },
  {
+  "id": "tags.resources.delete",
+  "method": "DELETE",
+  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
+  "response": "none",
+  "body": "json"
+ },
+ {
+  "id": "tags.resources.get",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
+  "response": "envelope"
+ },
+ {
   "id": "tags.resources.list",
   "method": "GET",
   "route": "/accounts/{account_id}/tags/resources",
@@ -15950,6 +15943,13 @@
    "param": "cursor",
    "next": "cursor"
   }
+ },
+ {
+  "id": "tags.resources.update",
+  "method": "PUT",
+  "route": "/{account_or_zone}/{account_or_zone_id}/tags",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "tags.summary.get",
@@ -16693,20 +16693,20 @@
   "response": "envelope"
  },
  {
-  "id": "waiting-rooms.update",
-  "method": "PUT",
-  "route": "/zones/{zone_id}/waiting_rooms/{waiting_room_id}",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "waiting-rooms.account-waiting-rooms.list",
+  "id": "waiting-rooms.list",
   "method": "GET",
   "route": "/{account_or_zone}/{account_or_zone_id}/waiting_rooms",
   "response": "envelope",
   "page": {
    "kind": "page"
   }
+ },
+ {
+  "id": "waiting-rooms.update",
+  "method": "PUT",
+  "route": "/zones/{zone_id}/waiting_rooms/{waiting_room_id}",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "waiting-rooms.events.create",

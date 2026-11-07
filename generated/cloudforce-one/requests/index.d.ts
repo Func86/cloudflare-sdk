@@ -12,47 +12,12 @@ export * as priority from "./priority/index.js";
 export * as types from "./types/index.js";
 export * as user from "./user/index.js";
 
-export type CloudforceOneRequestGetRequest = {
-	/** Identifier. */
-	account_id: string;
-	/** UUID. */
-	request_id: string;
-};
-export type CloudforceOneRequestGetResult = $cloudforce_one_requests.RequestItem;
-/**
- * Get a Request
- *
- * Retrieves details for a specific Cloudforce One intelligence request.
- *
- * `GET /accounts/{account_id}/cloudforce-one/requests/{request_id}`
- *
- * Token permissions (any one): Cloudforce One Write, Cloudforce One Read.
- */
-export declare const cloudforceOneRequestGet: Operation<CloudforceOneRequestGetRequest, CloudforceOneRequestGetResult>;
-
-export type CloudforceOneRequestListRequest = {
-	/** Identifier. */
-	account_id: string;
-	body: $cloudforce_one_requests.RequestList;
-};
-export type CloudforceOneRequestListResult = $cloudforce_one_requests.RequestListItem[];
-/**
- * List Requests
- *
- * Lists Cloudforce One intelligence requests with filtering and pagination.
- *
- * `POST /accounts/{account_id}/cloudforce-one/requests`
- *
- * Token permissions (any one): Cloudforce One Write.
- */
-export declare const cloudforceOneRequestList: Operation<CloudforceOneRequestListRequest, CloudforceOneRequestListResult>;
-
-export type CloudforceOneRequestNewRequest = {
+export type CreateRequest = {
 	/** Identifier. */
 	account_id: string;
 	body: $cloudforce_one_requests.RequestEdit;
 };
-export type CloudforceOneRequestNewResult = $cloudforce_one_requests.RequestItem;
+export type CreateResult = $cloudforce_one_requests.RequestItem;
 /**
  * Create a New Request.
  *
@@ -62,26 +27,7 @@ export type CloudforceOneRequestNewResult = $cloudforce_one_requests.RequestItem
  *
  * Token permissions (any one): Cloudforce One Write.
  */
-export declare const cloudforceOneRequestNew: Operation<CloudforceOneRequestNewRequest, CloudforceOneRequestNewResult>;
-
-export type CloudforceOneRequestUpdateRequest = {
-	/** Identifier. */
-	account_id: string;
-	/** UUID. */
-	request_id: string;
-	body: $cloudforce_one_requests.RequestEdit;
-};
-export type CloudforceOneRequestUpdateResult = $cloudforce_one_requests.RequestItem;
-/**
- * Update a Request
- *
- * Updating a request alters the request in the Cloudforce One queue. This API may be used to update any attributes of the request after the initial submission. Only fields that you choose to update need to be add to the request body.
- *
- * `PUT /accounts/{account_id}/cloudforce-one/requests/{request_id}`
- *
- * Token permissions (any one): Cloudforce One Write.
- */
-export declare const cloudforceOneRequestUpdate: Operation<CloudforceOneRequestUpdateRequest, CloudforceOneRequestUpdateResult>;
+export declare const create: Operation<CreateRequest, CreateResult>;
 
 export type DeleteRequest = {
 	/** Identifier. */
@@ -101,6 +47,24 @@ export type DeleteResult = $cloudforce_one_requests.ApiResponseCommon;
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
+
+export type GetRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** UUID. */
+	request_id: string;
+};
+export type GetResult = $cloudforce_one_requests.RequestItem;
+/**
+ * Get a Request
+ *
+ * Retrieves details for a specific Cloudforce One intelligence request.
+ *
+ * `GET /accounts/{account_id}/cloudforce-one/requests/{request_id}`
+ *
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read.
+ */
+export declare const get: Operation<GetRequest, GetResult>;
 
 export type GetRequestListRequest = {
 	/** Account ID. */
@@ -240,6 +204,23 @@ export type GetRequestReadResult = {
  * Token permissions (any one): Cloudforce One Write, Cloudforce One Read.
  */
 export declare const getRequestRead: Operation<GetRequestReadRequest, GetRequestReadResult>;
+
+export type ListRequest = {
+	/** Identifier. */
+	account_id: string;
+	body: $cloudforce_one_requests.RequestList;
+};
+export type ListResult = $cloudforce_one_requests.RequestListItem[];
+/**
+ * List Requests
+ *
+ * Lists Cloudforce One intelligence requests with filtering and pagination.
+ *
+ * `POST /accounts/{account_id}/cloudforce-one/requests`
+ *
+ * Token permissions (any one): Cloudforce One Write.
+ */
+export declare const list: Operation<ListRequest, ListResult>;
 
 export type PostRequestCreateRequest = {
 	/** Account ID. */
@@ -432,3 +413,22 @@ export type PutRequestUpdateResult = {
  * Token permissions (any one): Cloudforce One Write.
  */
 export declare const putRequestUpdate: Operation<PutRequestUpdateRequest, PutRequestUpdateResult>;
+
+export type UpdateRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** UUID. */
+	request_id: string;
+	body: $cloudforce_one_requests.RequestEdit;
+};
+export type UpdateResult = $cloudforce_one_requests.RequestItem;
+/**
+ * Update a Request
+ *
+ * Updating a request alters the request in the Cloudforce One queue. This API may be used to update any attributes of the request after the initial submission. Only fields that you choose to update need to be add to the request body.
+ *
+ * `PUT /accounts/{account_id}/cloudforce-one/requests/{request_id}`
+ *
+ * Token permissions (any one): Cloudforce One Write.
+ */
+export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -25,7 +25,7 @@ export type DeleteRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** The transformer ID. */
-	transformer_id: string;
+	transformer_id: number | string;
 };
 export type DeleteResult = {
 	/** The deleted transformer's ID. */
@@ -47,7 +47,7 @@ export type GetRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** The transformer ID. */
-	transformer_id: string;
+	transformer_id: number | string;
 };
 export type GetResult = $logpush.Transformer;
 /**
@@ -98,7 +98,7 @@ export type UpdateRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** The transformer ID. */
-	transformer_id: string;
+	transformer_id: number | string;
 	body: $logpush.TransformerUpdateRequest;
 };
 export type UpdateResult = $logpush.Transformer;

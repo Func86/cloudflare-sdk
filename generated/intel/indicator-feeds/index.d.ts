@@ -26,7 +26,7 @@ export type DataRequest = {
 	/** Identifier */
 	account_id: string;
 	/** Indicator feed ID */
-	feed_id: string;
+	feed_id: number | string;
 };
 export type DataResult = string;
 /**
@@ -44,7 +44,7 @@ export type GetRequest = {
 	/** Identifier */
 	account_id: string;
 	/** Indicator feed ID */
-	feed_id: string;
+	feed_id: number | string;
 };
 export type GetResult = $custom_indicator_feeds.IndicatorFeedMetadata;
 /**
@@ -78,7 +78,7 @@ export type UpdateRequest = {
 	/** Identifier */
 	account_id: string;
 	/** Indicator feed ID */
-	feed_id: string;
+	feed_id: number | string;
 	body: $custom_indicator_feeds.UpdatePublicFieldRequest;
 };
 export type UpdateResult = $custom_indicator_feeds.IndicatorFeedItem;

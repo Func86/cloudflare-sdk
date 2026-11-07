@@ -183,7 +183,7 @@ export class Models {
 	}
 }
 
-function parenthesize(text: string): string {
+export function parenthesize(text: string): string {
 	return /[|&]/.test(text) ? `(${text})` : text;
 }
 

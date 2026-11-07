@@ -388,8 +388,6 @@ export type SetCacheSettingsCustomCacheKeyHost = {
 export type Rule = {
 	/** The action to perform when the rule matches. */
 	action?: RuleAction;
-	/** The parameters configuring the rule's action. */
-	action_parameters?: { [key: string]: unknown };
 	/** The categories of the rule. */
 	categories?: RuleCategories;
 	/** An informative description of the rule. */
@@ -417,8 +415,6 @@ export type Rule = {
 export type RuleInput = {
 	/** The action to perform when the rule matches. */
 	action?: RuleAction;
-	/** The parameters configuring the rule's action. */
-	action_parameters?: { [key: string]: unknown };
 	/** The categories of the rule. */
 	categories?: RuleCategories;
 	/** An informative description of the rule. */
@@ -661,7 +657,7 @@ export type SetCacheSettingsCustomCacheKeyQueryString = {
 };
 
 export type BlockRule = Rule & {
-	action?: "block";
+	action: "block";
 	action_parameters?: {
 		/** The response to show when the block is applied. */
 		response?: {
@@ -677,7 +673,7 @@ export type BlockRule = Rule & {
 };
 
 export type BlockRuleInput = RuleInput & {
-	action?: "block";
+	action: "block";
 	action_parameters?: {
 		/** The response to show when the block is applied. */
 		response?: {
@@ -693,17 +689,17 @@ export type BlockRuleInput = RuleInput & {
 };
 
 export type ChallengeRule = Rule & {
-	action?: "challenge";
+	action: "challenge";
 	description?: string;
 };
 
 export type ChallengeRuleInput = RuleInput & {
-	action?: "challenge";
+	action: "challenge";
 	description?: string;
 };
 
 export type CompressResponseRule = Rule & ({
-	action?: "compress_response";
+	action: "compress_response";
 	action_parameters?: {
 		/** Custom order for compression algorithms. */
 		algorithms: ({
@@ -715,7 +711,7 @@ export type CompressResponseRule = Rule & ({
 });
 
 export type CompressResponseRuleInput = RuleInput & ({
-	action?: "compress_response";
+	action: "compress_response";
 	action_parameters?: {
 		/** Custom order for compression algorithms. */
 		algorithms: ({
@@ -727,17 +723,17 @@ export type CompressResponseRuleInput = RuleInput & ({
 });
 
 export type DDoSDynamicRule = Rule & {
-	action?: "ddos_dynamic";
+	action: "ddos_dynamic";
 	description?: string;
 };
 
 export type DDoSDynamicRuleInput = RuleInput & {
-	action?: "ddos_dynamic";
+	action: "ddos_dynamic";
 	description?: string;
 };
 
 export type ExecuteRule = Rule & ({
-	action?: "execute";
+	action: "execute";
 	action_parameters?: {
 		id: RulesetId & string;
 		/** The configuration to use for matched data logging. */
@@ -749,7 +745,7 @@ export type ExecuteRule = Rule & ({
 });
 
 export type ExecuteRuleInput = RuleInput & ({
-	action?: "execute";
+	action: "execute";
 	action_parameters?: {
 		id: RulesetId & string;
 		/** The configuration to use for matched data logging. */
@@ -761,27 +757,27 @@ export type ExecuteRuleInput = RuleInput & ({
 });
 
 export type ForceConnectionCloseRule = Rule & {
-	action?: "force_connection_close";
+	action: "force_connection_close";
 	description?: string;
 };
 
 export type ForceConnectionCloseRuleInput = RuleInput & {
-	action?: "force_connection_close";
+	action: "force_connection_close";
 	description?: string;
 };
 
 export type JsChallengeRule = Rule & {
-	action?: "js_challenge";
+	action: "js_challenge";
 	description?: string;
 };
 
 export type JsChallengeRuleInput = RuleInput & {
-	action?: "js_challenge";
+	action: "js_challenge";
 	description?: string;
 };
 
 export type LogCustomFieldRule = Rule & {
-	action?: "log_custom_field";
+	action: "log_custom_field";
 	action_parameters?: {
 		/** The cookie fields to log. */
 		cookie_fields?: LogCustomFieldCookieFields;
@@ -798,7 +794,7 @@ export type LogCustomFieldRule = Rule & {
 };
 
 export type LogCustomFieldRuleInput = RuleInput & {
-	action?: "log_custom_field";
+	action: "log_custom_field";
 	action_parameters?: {
 		/** The cookie fields to log. */
 		cookie_fields?: LogCustomFieldCookieFields;
@@ -815,27 +811,27 @@ export type LogCustomFieldRuleInput = RuleInput & {
 };
 
 export type LogRule = Rule & {
-	action?: "log";
+	action: "log";
 	description?: string;
 };
 
 export type LogRuleInput = RuleInput & {
-	action?: "log";
+	action: "log";
 	description?: string;
 };
 
 export type ManagedChallengeRule = Rule & {
-	action?: "managed_challenge";
+	action: "managed_challenge";
 	description?: string;
 };
 
 export type ManagedChallengeRuleInput = RuleInput & {
-	action?: "managed_challenge";
+	action: "managed_challenge";
 	description?: string;
 };
 
 export type RedirectRule = Rule & {
-	action?: "redirect";
+	action: "redirect";
 	action_parameters?: {
 		/** A redirect based on a bulk list lookup. */
 		from_list?: RedirectFromList;
@@ -846,7 +842,7 @@ export type RedirectRule = Rule & {
 };
 
 export type RedirectRuleInput = RuleInput & {
-	action?: "redirect";
+	action: "redirect";
 	action_parameters?: {
 		/** A redirect based on a bulk list lookup. */
 		from_list?: RedirectFromList;
@@ -856,9 +852,33 @@ export type RedirectRuleInput = RuleInput & {
 	description?: string;
 };
 
-export type RequestRule = BlockRule | ChallengeRule | CompressResponseRule | DDoSDynamicRule | ExecuteRule | ForceConnectionCloseRule | JsChallengeRule | LogRule | LogCustomFieldRule | ManagedChallengeRule | RedirectRule | RewriteRule | RouteRule | ScoreRule | ServeErrorRule | SetCacheControlRule | SetCacheSettingsRule | SetCacheTagsRule | SetConfigRule | SkipRule | TransformResponseHTMLRule;
+export type RequestRule = BlockRule | (ChallengeRule & {
+	action_parameters?: never;
+}) | CompressResponseRule | (DDoSDynamicRule & {
+	action_parameters?: never;
+}) | ExecuteRule | (ForceConnectionCloseRule & {
+	action_parameters?: never;
+}) | (JsChallengeRule & {
+	action_parameters?: never;
+}) | (LogRule & {
+	action_parameters?: never;
+}) | LogCustomFieldRule | (ManagedChallengeRule & {
+	action_parameters?: never;
+}) | RedirectRule | RewriteRule | RouteRule | ScoreRule | ServeErrorRule | SetCacheControlRule | SetCacheSettingsRule | SetCacheTagsRule | SetConfigRule | SkipRule | TransformResponseHTMLRule;
 
-export type RequestRuleInput = BlockRuleInput | ChallengeRuleInput | CompressResponseRuleInput | DDoSDynamicRuleInput | ExecuteRuleInput | ForceConnectionCloseRuleInput | JsChallengeRuleInput | LogRuleInput | LogCustomFieldRuleInput | ManagedChallengeRuleInput | RedirectRuleInput | RewriteRuleInput | RouteRuleInput | ScoreRuleInput | ServeErrorRuleInput | SetCacheControlRuleInput | SetCacheSettingsRuleInput | SetCacheTagsRuleInput | SetConfigRuleInput | SkipRuleInput | TransformResponseHTMLRuleInput;
+export type RequestRuleInput = BlockRuleInput | (ChallengeRuleInput & {
+	action_parameters?: never;
+}) | CompressResponseRuleInput | (DDoSDynamicRuleInput & {
+	action_parameters?: never;
+}) | ExecuteRuleInput | (ForceConnectionCloseRuleInput & {
+	action_parameters?: never;
+}) | (JsChallengeRuleInput & {
+	action_parameters?: never;
+}) | (LogRuleInput & {
+	action_parameters?: never;
+}) | LogCustomFieldRuleInput | (ManagedChallengeRuleInput & {
+	action_parameters?: never;
+}) | RedirectRuleInput | RewriteRuleInput | RouteRuleInput | ScoreRuleInput | ServeErrorRuleInput | SetCacheControlRuleInput | SetCacheSettingsRuleInput | SetCacheTagsRuleInput | SetConfigRuleInput | SkipRuleInput | TransformResponseHTMLRuleInput;
 
 export type ResponseRule = RequestRule & {
 	action: string;
@@ -869,7 +889,7 @@ export type ResponseRule = RequestRule & {
 };
 
 export type RewriteRule = Rule & {
-	action?: "rewrite";
+	action: "rewrite";
 	action_parameters?: {
 		/** A map of headers to rewrite. */
 		headers?: RewriteHeaders;
@@ -879,7 +899,7 @@ export type RewriteRule = Rule & {
 };
 
 export type RewriteRuleInput = RuleInput & {
-	action?: "rewrite";
+	action: "rewrite";
 	action_parameters?: {
 		/** A map of headers to rewrite. */
 		headers?: RewriteHeaders;
@@ -911,7 +931,7 @@ export type RewriteUriInput = ({
 };
 
 export type RouteRule = Rule & {
-	action?: "route";
+	action: "route";
 	action_parameters?: {
 		/** A value to rewrite the HTTP host header to. */
 		host_header?: RouteHostHeader;
@@ -924,7 +944,7 @@ export type RouteRule = Rule & {
 };
 
 export type RouteRuleInput = RuleInput & {
-	action?: "route";
+	action: "route";
 	action_parameters?: {
 		/** A value to rewrite the HTTP host header to. */
 		host_header?: RouteHostHeader;
@@ -937,7 +957,7 @@ export type RouteRuleInput = RuleInput & {
 };
 
 export type ScoreRule = Rule & {
-	action?: "score";
+	action: "score";
 	action_parameters?: {
 		/** A delta to change the score by, which can be either positive or negative. */
 		increment: ScoreIncrement;
@@ -946,7 +966,7 @@ export type ScoreRule = Rule & {
 };
 
 export type ScoreRuleInput = RuleInput & {
-	action?: "score";
+	action: "score";
 	action_parameters?: {
 		/** A delta to change the score by, which can be either positive or negative. */
 		increment: ScoreIncrement;
@@ -955,7 +975,7 @@ export type ScoreRuleInput = RuleInput & {
 };
 
 export type ServeErrorRule = Rule & ({
-	action?: "serve_error";
+	action: "serve_error";
 	action_parameters?: {
 		/** The content type header to set with the error response. */
 		content_type: ServeErrorContentType;
@@ -972,7 +992,7 @@ export type ServeErrorRule = Rule & ({
 });
 
 export type ServeErrorRuleInput = RuleInput & ({
-	action?: "serve_error";
+	action: "serve_error";
 	action_parameters?: {
 		/** The content type header to set with the error response. */
 		content_type: ServeErrorContentType;
@@ -989,7 +1009,7 @@ export type ServeErrorRuleInput = RuleInput & ({
 });
 
 export type SetCacheControlRule = Rule & {
-	action?: "set_cache_control";
+	action: "set_cache_control";
 	action_parameters?: {
 		/** A cache-control directive configuration. */
 		immutable?: SetCacheControlDirective;
@@ -1022,7 +1042,7 @@ export type SetCacheControlRule = Rule & {
 };
 
 export type SetCacheControlRuleInput = RuleInput & {
-	action?: "set_cache_control";
+	action: "set_cache_control";
 	action_parameters?: {
 		/** A cache-control directive configuration. */
 		immutable?: SetCacheControlDirective;
@@ -1055,7 +1075,7 @@ export type SetCacheControlRuleInput = RuleInput & {
 };
 
 export type SetCacheSettingsRule = Rule & {
-	action?: "set_cache_settings";
+	action: "set_cache_settings";
 	action_parameters?: {
 		/** A list of additional ports that caching should be enabled on. */
 		additional_cacheable_ports?: SetCacheSettingsAdditionalCacheablePorts;
@@ -1096,7 +1116,7 @@ export type SetCacheSettingsRule = Rule & {
 };
 
 export type SetCacheSettingsRuleInput = RuleInput & {
-	action?: "set_cache_settings";
+	action: "set_cache_settings";
 	action_parameters?: {
 		/** A list of additional ports that caching should be enabled on. */
 		additional_cacheable_ports?: SetCacheSettingsAdditionalCacheablePorts;
@@ -1137,7 +1157,7 @@ export type SetCacheSettingsRuleInput = RuleInput & {
 };
 
 export type SetCacheTagsRule = Rule & ({
-	action?: "set_cache_tags";
+	action: "set_cache_tags";
 	action_parameters?: {
 		operation: SetCacheTagsOperation & "add";
 		/** A list of cache tag values. */
@@ -1167,7 +1187,7 @@ export type SetCacheTagsRule = Rule & ({
 });
 
 export type SetCacheTagsRuleInput = RuleInput & ({
-	action?: "set_cache_tags";
+	action: "set_cache_tags";
 	action_parameters?: {
 		operation: SetCacheTagsOperation & "add";
 		/** A list of cache tag values. */
@@ -1197,7 +1217,7 @@ export type SetCacheTagsRuleInput = RuleInput & ({
 });
 
 export type SetConfigRule = Rule & ({
-	action?: "set_config";
+	action: "set_config";
 	action_parameters?: {
 		/** Whether to enable Automatic HTTPS Rewrites. */
 		automatic_https_rewrites?: boolean;
@@ -1261,7 +1281,7 @@ export type SetConfigRule = Rule & ({
 });
 
 export type SetConfigRuleInput = RuleInput & ({
-	action?: "set_config";
+	action: "set_config";
 	action_parameters?: {
 		/** Whether to enable Automatic HTTPS Rewrites. */
 		automatic_https_rewrites?: boolean;
@@ -1325,7 +1345,7 @@ export type SetConfigRuleInput = RuleInput & ({
 });
 
 export type SkipRule = Rule & {
-	action?: "skip";
+	action: "skip";
 	action_parameters?: {
 		/** A phase to skip the execution of. This option is only compatible with the products option. */
 		phase?: SkipPhase;
@@ -1344,7 +1364,7 @@ export type SkipRule = Rule & {
 };
 
 export type SkipRuleInput = RuleInput & {
-	action?: "skip";
+	action: "skip";
 	action_parameters?: {
 		/** A phase to skip the execution of. This option is only compatible with the products option. */
 		phase?: SkipPhase;
@@ -1363,7 +1383,7 @@ export type SkipRuleInput = RuleInput & {
 };
 
 export type TransformResponseHTMLRule = Rule & {
-	action?: "transform_response_html";
+	action: "transform_response_html";
 	action_parameters?: {
 		/** Enables the link maze transformation on the response. */
 		link_maze: { [key: string]: unknown };
@@ -1372,7 +1392,7 @@ export type TransformResponseHTMLRule = Rule & {
 };
 
 export type TransformResponseHTMLRuleInput = RuleInput & {
-	action?: "transform_response_html";
+	action: "transform_response_html";
 	action_parameters?: {
 		/** Enables the link maze transformation on the response. */
 		link_maze: { [key: string]: unknown };

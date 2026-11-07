@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Forge, Model, Type } from '@cloudflare/forge/plugin';
-import { checkOverride, flatFields, type Param, readAccountOrZone, type ResolvedResponse } from '../generator/plugin/operations.ts';
+import { exclusiveUnion } from '../generator/plugin/index.ts';
+import { namingProblems } from '../generator/plugin/names.ts';
+import {
+	alternativesOf,
+	checkOverride,
+	flatFields,
+	type Param,
+	readAccountOrZone,
+	readDryRun,
+	type ResolvedResponse,
+} from '../generator/plugin/operations.ts';
 import { Models, Printer } from '../generator/plugin/types.ts';
 
 const binary: Type = { kind: 'scalar', scalar: 'binary' };
@@ -134,4 +144,86 @@ test('generation stops if a model that holds a file is used where JSON is sent',
 	for (const used of [upload, wrapper]) {
 		assert.throws(() => printer.type({ kind: 'model', model: used }, 'read'), /holds a file/);
 	}
+});
+
+test('a name that says another verb, an account group on an account-or-zone route, or a repeated group needs a look', () => {
+	const json = { kind: 'json', formAlternative: false, exclusive: false, required: true, description: '', type: undefined } as const;
+	const at = (method: string, route: string, accountOrZone = false, body?: typeof json) => ({ method, route, accountOrZone, body });
+	const aoz = '/{account_or_zone}/{account_or_zone_id}';
+	assert.deepEqual(namingProblems(['logpush', 'account-validate', 'destination'], 'delete', at('POST', `${aoz}/logpush/validate/destination`, true)), [
+		'its name says a verb its HTTP method does not do',
+		'an account- or zone- group on a route that serves both',
+	]);
+	assert.deepEqual(namingProblems(['cloudforce-one', 'requests'], 'cloudforce-one-request-list', at('POST', '/accounts/{a}/cloudforce-one/requests')), [
+		'its name says a verb its HTTP method does not do',
+		'its method repeats its group',
+	]);
+	// An RPC-style route names its verb, and a route for accounts only can have an account group.
+	assert.deepEqual(namingProblems(['kv', 'bulk'], 'delete', at('POST', '/accounts/{a}/storage/kv/namespaces/{n}/bulk/delete')), []);
+	assert.deepEqual(namingProblems(['intel', 'permissions'], 'delete', at('PUT', '/accounts/{a}/intel/permissions/remove')), []);
+	assert.deepEqual(namingProblems(['dns', 'account-settings'], 'get', at('GET', '/accounts/{a}/dns_settings')), []);
+	assert.deepEqual(namingProblems(['logpush', 'jobs'], 'list', at('GET', `${aoz}/logpush/jobs`, true)), []);
+	assert.deepEqual(namingProblems(['rulesets', 'rules'], 'edit', at('PATCH', `${aoz}/rulesets/{r}/rules/{id}`, true)), []);
+	// A read by POST whose body says what to read, as a search or a bulk get does.
+	assert.deepEqual(namingProblems(['ai-audit', 'robots'], 'bulk-get', at('POST', '/zones/{z}/ai-audit/robots/bulk', false, json)), []);
+	assert.deepEqual(namingProblems(['cloudforce-one', 'requests'], 'list', at('POST', '/accounts/{a}/cloudforce-one/requests', false, json)), []);
+	// Not anything else by POST with a body, such as a validation.
+	assert.deepEqual(namingProblems(['logpush', 'validate'], 'delete', at('POST', `${aoz}/logpush/validate/destination`, true, json)), [
+		'its name says a verb its HTTP method does not do',
+	]);
+	// A word that names something every object has is a word like any other.
+	for (const method of ['find-constructor', 'toString', '__proto__']) {
+		assert.deepEqual(namingProblems(['x'], method, at('GET', '/x')), []);
+	}
+});
+
+test('an exclusive body reads its alternatives through models, and keeps null as one', () => {
+	const { models } = setup();
+	const printer = new Printer(models, undefined);
+	const string: Type = { kind: 'scalar', scalar: 'string' };
+	const nothing: Type = { kind: 'scalar', scalar: 'null' };
+	const union = (exclusive: boolean, ...members: Type[]): Type =>
+		({ kind: 'union', members, exclusive, discriminator: undefined }) as unknown as Type;
+	const a = object(field('a', string));
+	const b = object(field('b', string));
+	const nullable = [
+		union(true, a, b, nothing),
+		union(true, union(true, a, b), nothing),
+		{ kind: 'model', model: model('x_body', union(true, union(true, a, b), nothing)) } as Type,
+	];
+	for (const type of nullable) {
+		assert.deepEqual(alternativesOf(type), { members: [a, b], nullable: true, exclusive: true });
+		assert.equal(
+			exclusiveUnion(type, printer, 'write', '\t'),
+			'({\n\t\ta: string;\n\t} & {\n\t\tb?: never;\n\t}) | ({\n\t\tb: string;\n\t} & {\n\t\ta?: never;\n\t}) | null',
+		);
+	}
+	assert.equal(alternativesOf(union(true, a, b))?.nullable, false);
+	// An anyOf beside null is no oneOf, though Forge marks a type and null exclusive.
+	assert.equal(alternativesOf(union(true, union(false, a, b), nothing))?.exclusive, false);
+	assert.equal(alternativesOf(union(true, a, nothing)), undefined);
+});
+
+test('a listed dry run needs a boolean dry_run and a result that can be null', () => {
+	const key = 'POST /{account_or_zone}/{account_or_zone_id}/rulesets';
+	const ruleset = object(field('id', { kind: 'scalar', scalar: 'string' }));
+	const nothing: Type = { kind: 'scalar', scalar: 'null' };
+	const response = (result: Type): ResolvedResponse => ({
+		kind: 'envelope',
+		types: [result],
+		resultInfo: new Map(),
+		alternatives: [],
+		noContent: false,
+		jsonTypes: [],
+	});
+	const nullable = response({ kind: 'union', members: [ruleset, nothing], exclusive: true, discriminator: undefined } as unknown as Type);
+	const flag = (type: Type): Param[] => [{ name: 'dry_run', in: 'query', required: false, description: '', type }];
+	const boolean = flag({ kind: 'scalar', scalar: 'boolean' });
+	assert.equal(readDryRun(key, boolean, nullable), true);
+	// Not listed, so not one, though it has both.
+	assert.equal(readDryRun('POST /other', boolean, nullable), false);
+	const stale = /dry run of POST .*rulesets is stale/;
+	assert.throws(() => readDryRun(key, [], nullable), stale);
+	assert.throws(() => readDryRun(key, flag({ kind: 'scalar', scalar: 'string' }), nullable), stale);
+	assert.throws(() => readDryRun(key, boolean, response(ruleset)), stale);
 });

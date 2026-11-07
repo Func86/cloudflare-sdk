@@ -22,7 +22,7 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 export type DefineColumnsRequest = {
 	account_id: string;
 	dataset_id: string;
-	version: string;
+	version: number | string;
 	/** array of new columns to create for this dataset version. */
 	body: $dlp.NewDatasetColumn[];
 };
@@ -125,7 +125,7 @@ export declare const update: Operation<UpdateRequest, UpdateResult>;
 export type UploadRequest = {
 	account_id: string;
 	dataset_id: string;
-	version: string;
+	version: number | string;
 	/** Dataset. For custom wordlists this contains UTF-8 patterns separated by newline characters. */
 	body: BodyInit;
 };
@@ -147,7 +147,7 @@ export declare const upload: Operation<UploadRequest, UploadResult>;
 export type UploadColumnRequest = {
 	account_id: string;
 	dataset_id: string;
-	version: string;
+	version: number | string;
 	entry_id: string;
 	/** Dataset content. */
 	body: BodyInit;

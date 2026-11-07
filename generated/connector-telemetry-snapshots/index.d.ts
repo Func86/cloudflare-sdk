@@ -6,7 +6,7 @@ export type GetRequest = {
 	/** Account identifier */
 	account_id: string;
 	connector_id: string;
-	snapshot_t: string;
+	snapshot_t: number | string;
 };
 export type GetResult = $mconn_telemetry.Snapshot;
 /**

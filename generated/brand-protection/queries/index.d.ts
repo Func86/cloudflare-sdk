@@ -4,9 +4,9 @@ import type { Operation } from "#runtime";
 export type DismissRequest = {
 	account_id: string;
 	/** ID of the domain query that the match belongs to. */
-	query_id: string;
+	query_id: number | string;
 	/** ID of the matched domain, as returned in `domain_id` by List domain matches with `include_domain_id=true`. */
-	domain_id: string;
+	domain_id: number | string;
 };
 export type DismissResult = {
 	dismissed: boolean;
@@ -74,9 +74,9 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type UndismissRequest = {
 	account_id: string;
 	/** ID of the domain query that the match belongs to. */
-	query_id: string;
+	query_id: number | string;
 	/** ID of the matched domain, as returned in `domain_id` by List domain matches with `include_domain_id=true`. */
-	domain_id: string;
+	domain_id: number | string;
 };
 export type UndismissResult = {
 	dismissed: boolean;

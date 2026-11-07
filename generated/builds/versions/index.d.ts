@@ -5,8 +5,8 @@ import type * as $builds from "../../_types/builds.js";
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Comma-separated list of version UUIDs (max 20). */
-	version_ids: $builds.VersionIds;
+	/** Comma-separated list of version UUIDs (max 20). The list is sent joined with commas. */
+	version_ids: string[];
 };
 export type GetResult = $builds.BuildsByVersionResponse;
 /**

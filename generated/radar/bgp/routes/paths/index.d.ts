@@ -3,7 +3,7 @@ import type { Operation } from "#runtime";
 
 export type ListRequest = {
 	/** Single Autonomous System Number (ASN) as integer. */
-	asn: string;
+	asn: number | string;
 	/** Address family of the observed paths. Defaults to IPv4. */
 	ipVersion?: "IPv4" | "IPv6";
 	/** Scope to a single RouteViews collector (e.g. "route-views3"). Omit to merge across all active collectors (identical path segments are deduplicated, observation counts summed, and every contributing collector listed). */

@@ -34,7 +34,7 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 
 export type DeleteRequest = {
 	account_id: string;
-	notice_id: string;
+	notice_id: number | string;
 };
 export type DeleteResult = {
 	message: string;
@@ -54,7 +54,7 @@ export { delete_ as delete };
 
 export type GetRequest = {
 	account_id: string;
-	notice_id: string;
+	notice_id: number | string;
 };
 export type GetResult = {
 	createdAt: string | null;
@@ -140,7 +140,7 @@ export declare const lookup: Operation<LookupRequest, LookupResult>;
 
 export type UpdateRequest = {
 	account_id: string;
-	notice_id: string;
+	notice_id: number | string;
 	body?: {
 		domain?: string;
 		matchId?: number | null;

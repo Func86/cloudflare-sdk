@@ -28,7 +28,7 @@ export type DeleteRequest = {
 	/** Account ID */
 	account_id: string;
 	/** Domain ID */
-	id: string;
+	id: number | string;
 };
 export type DeleteResult = {
 	deleted: true;

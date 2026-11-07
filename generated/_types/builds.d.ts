@@ -75,12 +75,6 @@ export type CreateWorkerBuildSettingsInput = {
 	root_directory?: RootDirectory;
 };
 
-/** Comma-separated list of system-generated worker script tags (max 20). */
-export type ExternalScriptIds = string;
-
-/** Comma-separated list of version UUIDs (max 20). */
-export type VersionIds = string;
-
 /** Command to build the Worker. */
 export type BuildCommand = string;
 

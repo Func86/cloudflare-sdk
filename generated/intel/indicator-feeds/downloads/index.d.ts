@@ -6,7 +6,7 @@ export type GetRequest = {
 	/** Identifier */
 	account_id: string;
 	/** Indicator feed ID */
-	feed_id: string;
+	feed_id: number | string;
 };
 export type GetResult = $custom_indicator_feeds.UpdateFeed;
 /**

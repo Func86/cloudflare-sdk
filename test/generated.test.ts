@@ -221,6 +221,50 @@ test('an account-or-zone operation takes account_id or zone_id, and its declarat
 	assert.ok(marked > 100);
 });
 
+test('names the spec gets wrong are renamed, so every name passes the naming rules', () => {
+	// The official SDK's names, for an `account-` group on routes that serve zones too.
+	for (const id of ['logpush.jobs.list', 'logpush.validate.destination', 'logpush.validate.destinationExists', 'logpush.ownership.validate', 'waiting-rooms.list', 'custom-pages.list']) {
+		assert.ok(byId.has(id), id);
+	}
+	const scoped = manifest.filter((entry) => entry.route.startsWith('/{account_or_zone}/') && /(^|\.)(account|zone)s?-/.test(entry.id));
+	assert.deepEqual(scoped, []);
+	assert.ok(byId.has('cloudforce-one.requests.get'));
+	// Every name passes the naming rules: a spec update that breaks one needs a rename, or a better rule.
+	const report = JSON.parse(readFileSync('generated/_meta/report.json', 'utf8')) as { naming: Record<string, string[]> };
+	assert.deepEqual(report.naming, {});
+});
+
+test('the ruleset writes whose dry run returns null say so, and a write that answers 204 does not', async () => {
+	type Module = Record<string, Operation>;
+	const rulesets = (await import('../generated/rulesets/index.js')) as unknown as Module;
+	const rules = (await import('../generated/rulesets/rules/index.js')) as unknown as Module;
+	const entrypoint = (await import('../generated/rulesets/entrypoint/index.js')) as unknown as Module;
+	const marked = [rulesets['create'], rulesets['update'], rules['create'], rules['update'], rules['delete'], entrypoint['update']];
+	assert.deepEqual(marked.map((operation) => operation?.dryRun), [true, true, true, true, true, true]);
+	// A ruleset's DELETE answers 204, dry run or not.
+	assert.equal(rulesets['delete']?.dryRun, undefined);
+	const { cf } = client(() => Response.json({ success: true, errors: [], result: null }));
+	assert.equal(await cf.send(rulesets['create']!, { zone_id: 'z', dry_run: true, body: {} }), null);
+});
+
+test('a numeric path parameter is sent as given, and Builds lists are joined with commas', async () => {
+	type Module = { get: Operation<Record<string, unknown>, unknown> };
+	const jobs = (await import('../generated/logpush/jobs/index.js')) as unknown as Module;
+	const builds = (await import('../generated/builds/versions/index.js')) as unknown as Module;
+	const latest = (await import('../generated/builds/latest/index.js')) as unknown as Module;
+	const { cf, urls } = client(() => Response.json({ success: true, errors: [], result: null }));
+	await cf.send(jobs.get, { zone_id: 'z', job_id: 7 });
+	await cf.send(jobs.get, { zone_id: 'z', job_id: '9007199254740993' });
+	await cf.send(builds.get, { account_id: 'a', version_ids: ['v1', 'v2'] });
+	await cf.send(latest.get, { account_id: 'a', external_script_ids: ['s1', 's2'] });
+	assert.deepEqual(urls, [
+		'https://api.cloudflare.com/client/v4/zones/z/logpush/jobs/7',
+		'https://api.cloudflare.com/client/v4/zones/z/logpush/jobs/9007199254740993',
+		'https://api.cloudflare.com/client/v4/accounts/a/builds/builds?version_ids=v1%2Cv2',
+		'https://api.cloudflare.com/client/v4/accounts/a/builds/builds/latest?external_script_ids=s1%2Cs2',
+	]);
+});
+
 test('Images metadata filters are sent as the parameters they name', async () => {
 	const { list } = (await import('../generated/images/index.js')) as unknown as { list: Operation<Record<string, unknown>, unknown> };
 	const { cf, urls } = client(() => Response.json({ success: true, errors: [], result: { images: [] } }));

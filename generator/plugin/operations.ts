@@ -6,8 +6,8 @@ import type { Field, Method, Type } from '@cloudflare/forge/plugin';
 import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
 import { afterAccountOrZone } from '../../src/routes.ts';
-import { PAGINATION_OVERRIDES } from '../patches.ts';
-import { LITERAL_SLASHES } from '../spec.ts';
+import { DRY_RUNS, PAGINATION_OVERRIDES } from '../patches.ts';
+import { EXCLUSIVE_BODY, LITERAL_SLASHES } from '../spec.ts';
 
 /**
  * Headers the runtime or fetch sets, which a request field must not override. A declared
@@ -34,6 +34,8 @@ export interface ResolvedBody {
 	contentType?: string;
 	/** Whether a JSON body can also be sent as a form, which is then a `FormData`. */
 	formAlternative: boolean;
+	/** Whether the body is one of its alternatives only, so each excludes the fields only the others have. */
+	exclusive: boolean;
 	required: boolean;
 	description: string;
 	type: Type | undefined;
@@ -70,6 +72,8 @@ export interface ResolvedOperation {
 	 * runtime fills from `account_id` or `zone_id`. `params` leaves the pair out.
 	 */
 	accountOrZone: boolean;
+	/** Whether a request with `dry_run: true` only validates, and its result is then `null`. */
+	dryRun: boolean;
 	params: Param[];
 	joined: string[];
 	body: ResolvedBody | undefined;
@@ -96,6 +100,31 @@ function strip(type: Type): Type {
 		}
 	}
 	return type;
+}
+
+export interface Alternatives {
+	/** At least two, none of them `null`. */
+	members: Type[];
+	/** Whether `null` is an alternative too. */
+	nullable: boolean;
+	/** Whether the union is a `oneOf`, which Forge marks `exclusive`, rather than an `anyOf`. */
+	exclusive: boolean;
+}
+
+/** The alternatives of a union, through models and a `null` beside the union. */
+export function alternativesOf(type: Type, nullable = false): Alternatives | undefined {
+	if (type.kind === 'model') {
+		return alternativesOf(type.model.type, nullable);
+	}
+	if (type.kind !== 'union') {
+		return undefined;
+	}
+	const members = type.members.filter((member) => !isNull(member));
+	const withNull = nullable || members.length < type.members.length;
+	if (members.length === 1) {
+		return alternativesOf(members[0]!, withNull);
+	}
+	return { members, nullable: withNull, exclusive: type.exclusive };
 }
 
 function isUnknown(type: Type): boolean {
@@ -179,6 +208,24 @@ function mergeTypes(earlier: Type, later: Type): Type {
 		return { kind: 'intersection', members: [earlier, later] } as unknown as Type;
 	}
 	return later;
+}
+
+/** The names of the fields a type can have, through models, intersections and unions. */
+export function fieldNames(type: Type, into = new Set<string>(), depth = 0): Set<string> {
+	const resolved = strip(type);
+	if (depth > 16) {
+		return into;
+	}
+	if (resolved.kind === 'intersection' || resolved.kind === 'union') {
+		for (const member of resolved.members) {
+			fieldNames(member, into, depth + 1);
+		}
+	} else if (resolved.kind === 'object') {
+		for (const field of resolved.fields) {
+			into.add(field.wireName);
+		}
+	}
+	return into;
 }
 
 /**
@@ -308,7 +355,13 @@ function resolveBody(method: Method): ResolvedBody | undefined {
 		return undefined;
 	}
 	const form = body.contents.find((content) => content.mediaType === 'multipart/form-data');
-	const common = { required: body.required, description: body.description, formAlternative: false };
+	const exclusive = method.extension(EXCLUSIVE_BODY) === true;
+	// The mark says more than `oneOf` does, which a value with fields of two members can still
+	// match, but never less.
+	if (exclusive && (body.json === undefined || alternativesOf(body.json.type)?.exclusive !== true)) {
+		throw new Error(`${method.httpMethod} ${method.path}: ${EXCLUSIVE_BODY} marks a body that isn't a JSON oneOf`);
+	}
+	const common = { required: body.required, description: body.description, formAlternative: false, exclusive };
 	if (body.json) {
 		return {
 			...common,
@@ -529,6 +582,26 @@ function resolvePagination(
 	return { kind: 'offset', ...items };
 }
 
+/**
+ * Whether `DRY_RUNS` lists the operation, and stops generation when a listed one no longer
+ * takes a boolean `dry_run`, or its result can't be `null`. `prepare` checks that each is generated.
+ */
+export function readDryRun(key: string, params: readonly Param[], response: ResolvedResponse): boolean {
+	if (!DRY_RUNS.includes(key)) {
+		return false;
+	}
+	const dryRun = params.find((param) => param.in === 'query' && param.name === 'dry_run');
+	const flag = dryRun?.type === undefined ? undefined : strip(dryRun.type);
+	const nullable = (type: Type): boolean => {
+		const resolved = type.kind === 'model' ? type.model.type : type;
+		return resolved.kind === 'union' && resolved.members.some(isNull);
+	};
+	if (flag?.kind !== 'scalar' || flag.scalar !== 'boolean' || response.kind !== 'envelope' || !response.types.some(nullable)) {
+		throw new Error(`The dry run of ${key} is stale, so check it and remove it from DRY_RUNS: it has no boolean dry_run, or no null result`);
+	}
+	return true;
+}
+
 function deprecationOf(method: Method): string | undefined {
 	if (!method.deprecated && method.availability !== 'deprecated') {
 		return undefined;
@@ -564,6 +637,7 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		deprecated: deprecationOf(method),
 		permissions: Array.isArray(permissions) ? (permissions as string[]) : [],
 		accountOrZone,
+		dryRun: readDryRun(key, params, response),
 		params,
 		joined: resolved.joined,
 		body: resolveBody(method),

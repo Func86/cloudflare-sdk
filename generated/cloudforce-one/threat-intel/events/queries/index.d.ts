@@ -92,7 +92,7 @@ export type DeleteRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Event query ID */
-	query_id: string;
+	query_id: number | string;
 };
 export type DeleteResult = void;
 /**
@@ -111,7 +111,7 @@ export type GetRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Event query ID */
-	query_id: string;
+	query_id: number | string;
 };
 export type GetResult = {
 	/** Account ID */
@@ -235,7 +235,7 @@ export type ReplaceRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Event query ID */
-	query_id: string;
+	query_id: number | string;
 	body?: {
 		/**
 		 * Deprecated and ignored: saved-query alerting and rules were removed.
@@ -324,7 +324,7 @@ export type UpdateRequest = {
 	/** Account ID. */
 	account_id: string;
 	/** Event query ID */
-	query_id: string;
+	query_id: number | string;
 	body?: {
 		/**
 		 * Deprecated and ignored: saved-query alerting and rules were removed.

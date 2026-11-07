@@ -157,7 +157,12 @@ export type LogpushJob = {
 	name?: Name;
 	/** The structured replacement for `logpull_options`. When including this field, the `logpull_option` field will be ignored. */
 	output_options?: OutputOptions;
-} | null;
+	/** The filters to select the events to include and/or remove from your logs. For more information, refer to [Filters](https://developers.cloudflare.com/logs/reference/filters/). */
+	filter?: Filter;
+	logstream?: boolean;
+	/** When the job was created. */
+	time_created?: string;
+};
 
 export type Transformer = {
 	/** Logpush jobs that reference this transformer. */

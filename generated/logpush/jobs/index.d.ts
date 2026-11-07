@@ -48,7 +48,7 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 
 export type DeleteRequest = AccountOrZone & {
 	/** Unique id of the job. */
-	job_id: string;
+	job_id: number | string;
 };
 export type DeleteResult = {
 	/** Unique id of the job. */
@@ -68,7 +68,7 @@ export { delete_ as delete };
 
 export type GetRequest = AccountOrZone & {
 	/** Unique id of the job. */
-	job_id: string;
+	job_id: number | string;
 };
 export type GetResult = $logpush.LogpushJob | null;
 /**
@@ -83,7 +83,7 @@ export type GetResult = $logpush.LogpushJob | null;
 export declare const get: Operation<GetRequest, GetResult>;
 
 export type ListRequest = AccountOrZone;
-export type ListResult = ($logpush.LogpushJob | null)[];
+export type ListResult = $logpush.LogpushJob[];
 /**
  * List Logpush jobs
  *
@@ -97,7 +97,7 @@ export declare const list: Operation<ListRequest, ListResult>;
 
 export type UpdateRequest = AccountOrZone & {
 	/** Unique id of the job. */
-	job_id: string;
+	job_id: number | string;
 	body: {
 		/** Uniquely identifies a resource (such as an s3 bucket) where data. will be pushed. Additional configuration parameters supported by the destination may be included. */
 		destination_conf?: $logpush.DestinationConf;

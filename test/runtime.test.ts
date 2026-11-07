@@ -306,6 +306,25 @@ test('an entry with no message still says what the server said', async () => {
 	assert.match(usual.message, /failed with 400: not_found: Gone$/);
 });
 
+test('a field a message declares is left out when the server sends another type, and kept in body', async () => {
+	const body = {
+		success: false,
+		errors: [
+			{ code: 1000, message: 'typed', documentation_url: 'https://developers.cloudflare.com', source: { pointer: '/a' } },
+			{ code: { at: 1 }, message: 'untyped', documentation_url: null, source: 'body', extra: null },
+			{ message: 'pointer', source: { pointer: null, parameter: 'per_page' } },
+		],
+	};
+	const error = await failureOf(body);
+	assert.deepEqual(error.errors, [
+		body.errors[0],
+		{ message: 'untyped', extra: null },
+		// Only the pointer is of another type, so the rest of the source stays.
+		{ message: 'pointer', source: { parameter: 'per_page' } },
+	]);
+	assert.deepEqual(error.body, body);
+});
+
 test('a lone errors object is a list of one, and an empty one is nothing', async () => {
 	const lone = await failureOf({ success: false, errors: { code: 1, message: 'Lone' } });
 	assert.deepEqual(lone.errors, [{ code: 1, message: 'Lone' }]);

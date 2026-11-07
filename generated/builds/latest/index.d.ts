@@ -5,8 +5,8 @@ import type * as $builds from "../../_types/builds.js";
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Comma-separated list of system-generated worker script tags (max 20). */
-	external_script_ids: $builds.ExternalScriptIds;
+	/** Comma-separated list of system-generated worker script tags (max 20). The list is sent joined with commas. */
+	external_script_ids: string[];
 };
 export type GetResult = $builds.LatestBuildsResponse;
 /**

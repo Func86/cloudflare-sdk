@@ -3,7 +3,7 @@ import type { ItemOf, Operation, PagedOperation } from "#runtime";
 
 export type AsSetRequest = {
 	/** Retrieves all AS-SETs that the given AS is a member of. */
-	asn: string;
+	asn: number | string;
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
@@ -90,7 +90,7 @@ export declare const botnetThreatFeed: PagedOperation<BotnetThreatFeedRequest, B
 
 export type GetRequest = {
 	/** Single Autonomous System Number (ASN) as integer. */
-	asn: string;
+	asn: number | string;
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
@@ -226,7 +226,7 @@ export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
 export type RelRequest = {
 	/** Retrieves all ASNs with provider-customer or peering relationships with the given ASN. */
-	asn: string;
+	asn: number | string;
 	/** Retrieves the AS relationship of ASN2 with respect to the given ASN. */
 	asn2?: number;
 	/** Format in which results will be returned. */
