@@ -7,10 +7,15 @@ change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-08
+
 ### Added
 
-- `ApiError` can be made from a status and any headers, without a `Response`:
-  `new ApiError({ status: 403 }, body, 'GET', '/route')`, as a test needs.
+- `ApiError` can be made from a status and any headers, without a `Response`, a method or a path:
+  `new ApiError({ status: 403 }, body)`, as a test needs. Its message then starts `A request failed with 403`.
+- `@libreflare/cloudflare-sdk/testing` gives `createMockClient()`, a client for tests whose `.on(operation, handler)`
+  answers an operation from a handler typed from it, in place of the API. `withResultInfo` answers page by page. A
+  test no longer mocks `send` by hand, with a cast to `Client['send']`.
 
 ### Changed
 

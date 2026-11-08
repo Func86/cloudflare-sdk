@@ -1,14 +1,18 @@
 {
 	"name": "@libreflare/cloudflare-sdk",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"private": false,
 	"description": "A slim Cloudflare API client generated from Forge's openapi.forge.json.",
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/client.d.ts",
-			"default": "./dist/client.js"
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./testing": {
+			"types": "./dist/testing.d.ts",
+			"default": "./dist/testing.js"
 		},
 		"./types/*": {
 			"types": "./generated/_types/*.d.ts"

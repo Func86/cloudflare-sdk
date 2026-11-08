@@ -197,12 +197,15 @@ export class ApiError extends Error {
 	/** The parsed JSON body, or the text of a body that isn't JSON. */
 	readonly body: unknown;
 
-	/** `response` can also be its status and any headers alone, as a test that has no `Response` gives. */
+	/**
+	 * A test can give `response` as its status and any headers alone, and leave out `method` and
+	 * `path`, which its message then names as far as it can, such as `A POST request`.
+	 */
 	constructor(
 		response: { readonly status: number; readonly headers?: Headers },
 		body: unknown,
-		method: string,
-		path: string,
+		method?: string,
+		path?: string,
 		problem?: string,
 	) {
 		const envelope = isRecord(body) ? body : {};
@@ -219,7 +222,9 @@ export class ApiError extends Error {
 					return code === undefined ? textOf(entry) : `${code}: ${textOf(entry)}`;
 				})
 				.join('; ');
-		super(`${method} ${path} failed with ${response.status}${detail ? `: ${detail}` : ''}`);
+		const request =
+			method && path ? `${method} ${path}` : method ? `A ${method} request` : path ? `A request to ${path}` : 'A request';
+		super(`${request} failed with ${response.status}${detail ? `: ${detail}` : ''}`);
 		this.status = response.status;
 		this.errors = errors;
 		this.messages = entriesOf(envelope['messages']).map(messageOf);
@@ -301,7 +306,7 @@ export interface Client {
 	): AsyncIterable<Item>;
 }
 
-type Fields = Record<string, unknown>;
+export type Fields = Record<string, unknown>;
 
 const DEFAULT_BASE_URL = 'https://api.cloudflare.com/client/v4';
 const IDEMPOTENT = new Set(['GET', 'HEAD', 'PUT', 'DELETE']);
@@ -489,11 +494,35 @@ function retryDelayMs(response: Response, attempt: number): number | undefined {
 	return Math.min(500 * 2 ** attempt, MAX_BACKOFF_MS);
 }
 
-/** A signal that aborts after `ms`, as `AbortSignal.timeout` does, but whose timer can be stopped. */
+/**
+ * A signal that aborts after `ms`, as `AbortSignal.timeout` does, but whose timer can be stopped,
+ * and keeps Node running until then, as a request in flight does.
+ */
 function deadline(ms: number): { signal: AbortSignal; stop: () => void } {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(new DOMException('The operation timed out.', 'TimeoutError')), ms);
 	return { signal: controller.signal, stop: () => clearTimeout(timer) };
+}
+
+/**
+ * The signal that ends one attempt of a call: the caller's `signal`, or its timeout, whose
+ * timer `stop` ends once the response is read.
+ */
+export function callSignal(
+	call: RequestOptions | undefined,
+	timeoutMs: number | undefined,
+): { signal: AbortSignal | undefined; stop: () => void } {
+	const timer = timeoutMs === undefined ? undefined : deadline(timeoutMs);
+	const signals = [call?.signal, timer?.signal].filter((signal) => signal !== undefined);
+	return { signal: signals.length > 1 ? AbortSignal.any(signals) : signals[0], stop: () => timer?.stop() };
+}
+
+/**
+ * What a call that broke off throws: the caller's abort as it is, as `fetch` throws it, and
+ * anything else, such as its timeout, as a connection error.
+ */
+export function brokenOff(operation: Operation, route: string, call: RequestOptions | undefined, error: unknown): unknown {
+	return call?.signal?.aborted ? error : new ApiConnectionError(operation.method, route, error);
 }
 
 /** Waits, unless the caller cancels first. */
@@ -572,6 +601,18 @@ function isEnvelope(body: unknown): body is Fields {
 }
 
 /**
+ * Whether an operation answers in the Cloudflare envelope, as one in JSON does unless it says not.
+ */
+export function inEnvelope(operation: Operation): boolean {
+	return operation.envelope !== false && (operation.response === undefined || operation.response === 'auto');
+}
+
+/** Whether a body is text, bytes or a stream, as a response in a format other than JSON is read. */
+export function isUnparsed(body: unknown): boolean {
+	return typeof body === 'string' || body instanceof Uint8Array || body instanceof ReadableStream;
+}
+
+/**
  * Whether a page-number response says the page it just returned is the last. Only a page
  * size the API states counts: one that caps the size asked for would end the list early.
  */
@@ -587,6 +628,54 @@ function isLastPage(info: ResultInfo | undefined, page: number, count: number, s
 	return typeof perPage === 'number' && count < perPage;
 }
 
+/**
+ * The request an operation sends, as `fetch` takes it, with its path and query as `target`, and
+ * the route it takes, which errors name. It throws on a request that can't be sent, such as one
+ * missing a path parameter, or whose body JSON can't carry.
+ */
+export function requestOf(
+	operation: Operation,
+	fields: Fields,
+	call: RequestOptions | undefined,
+	options: ClientOptions,
+): { route: string; target: string; init: RequestInit } {
+	const route = routeOf(operation, fields);
+	const path = pathOf(operation, route, fields);
+	// The more specific a header's source, the later it's set: the client, the operation,
+	// the request's header fields, and then the call.
+	const headers = new Headers(options.token === undefined ? {} : { authorization: `Bearer ${options.token}` });
+	const assign = (from: HeadersInit | undefined): void => new Headers(from).forEach((value, key) => headers.set(key, value));
+	assign(options.headers);
+	headers.set('accept', operation.accept ?? 'application/json');
+	const init: RequestInit = { method: operation.method, headers };
+	const body = fields['body'];
+	if (operation.body !== undefined && body !== undefined) {
+		// Three operations take a form beside JSON, and JSON can't carry a FormData.
+		if (operation.body === 'form' || body instanceof FormData) {
+			init.body = formOf(body);
+		} else {
+			headers.set('content-type', operation.contentType ?? 'application/json');
+			init.body = operation.body === 'json' ? JSON.stringify(body) : (body as BodyInit);
+		}
+	}
+	for (const name of operation.headers ?? []) {
+		const value = fields[name];
+		if (value !== undefined && value !== null) {
+			headers.set(name, toParam(value));
+		}
+	}
+	assign(call?.headers);
+	if (init.body instanceof FormData) {
+		// fetch sets it with the boundary, which no content type given here can have.
+		headers.delete('content-type');
+	}
+	if (init.body instanceof ReadableStream) {
+		// Node's fetch requires this for a stream, and the DOM's types don't declare it.
+		(init as RequestInit & { duplex: 'half' }).duplex = 'half';
+	}
+	return { route, target: path + queryOf(operation, fields), init };
+}
+
 export function createClient(options: ClientOptions = {}): Client {
 	const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
 
@@ -599,62 +688,23 @@ export function createClient(options: ClientOptions = {}): Client {
 		fields: Fields,
 		call: RequestOptions | undefined,
 	): Promise<{ response: Response; stopTimeout: () => void; route: string }> {
-		const route = routeOf(operation, fields);
-		const path = pathOf(operation, route, fields);
-		// The more specific a header's source, the later it's set: the client, the operation,
-		// the request's header fields, and then the call.
-		const headers = new Headers(options.token === undefined ? {} : { authorization: `Bearer ${options.token}` });
-		const assign = (from: HeadersInit | undefined): void => new Headers(from).forEach((value, key) => headers.set(key, value));
-		assign(options.headers);
-		headers.set('accept', operation.accept ?? 'application/json');
-		const init: RequestInit = { method: operation.method, headers };
-		const body = fields['body'];
-		if (operation.body !== undefined && body !== undefined) {
-			// Three operations take a form beside JSON, and JSON can't carry a FormData.
-			if (operation.body === 'form' || body instanceof FormData) {
-				init.body = formOf(body);
-			} else {
-				headers.set('content-type', operation.contentType ?? 'application/json');
-				init.body = operation.body === 'json' ? JSON.stringify(body) : (body as BodyInit);
-			}
-		}
-		for (const name of operation.headers ?? []) {
-			const value = fields[name];
-			if (value !== undefined && value !== null) {
-				headers.set(name, toParam(value));
-			}
-		}
-		assign(call?.headers);
-		if (init.body instanceof FormData) {
-			// fetch sets it with the boundary, which no content type given here can have.
-			headers.delete('content-type');
-		}
-		const streamed = init.body instanceof ReadableStream;
-		if (streamed) {
-			// Node's fetch requires this for a stream, and the DOM's types don't declare it.
-			(init as RequestInit & { duplex: 'half' }).duplex = 'half';
-		}
-
-		const url = baseUrl + path + queryOf(operation, fields);
+		const { route, target, init } = requestOf(operation, fields, call, options);
+		const url = baseUrl + target;
 		const send = options.fetch ?? fetch;
 		const timeoutMs = call?.timeoutMs ?? options.timeoutMs;
+		const streamed = init.body instanceof ReadableStream;
 		const maxRetries = IDEMPOTENT.has(operation.method) && !streamed ? (call?.maxRetries ?? options.maxRetries ?? 0) : 0;
 		for (let attempt = 0; ; attempt++) {
-			const timer = timeoutMs === undefined ? undefined : deadline(timeoutMs);
-			const signals = [call?.signal, timer?.signal].filter((signal) => signal !== undefined);
-			if (signals.length > 0) {
-				init.signal = signals.length === 1 ? signals[0]! : AbortSignal.any(signals);
+			const { signal, stop: stopTimeout } = callSignal(call, timeoutMs);
+			if (signal !== undefined) {
+				init.signal = signal;
 			}
-			const stopTimeout = (): void => timer?.stop();
 			let response: Response;
 			try {
 				response = await send(url, init);
 			} catch (error) {
 				stopTimeout();
-				if (call?.signal?.aborted) {
-					throw error;
-				}
-				throw new ApiConnectionError(operation.method, route, error);
+				throw brokenOff(operation, route, call, error);
 			}
 			const wait = attempt < maxRetries && (response.status === 429 || response.status >= 500) ? retryDelayMs(response, attempt) : undefined;
 			if (wait !== undefined) {
@@ -684,17 +734,14 @@ export function createClient(options: ClientOptions = {}): Client {
 		try {
 			return await reader();
 		} catch (error) {
-			if (call?.signal?.aborted) {
-				throw error;
-			}
-			throw new ApiConnectionError(operation.method, route, error);
+			throw brokenOff(operation, route, call, error);
 		}
 	}
 
-	async function envelope(operation: Operation, fields: Fields, call: RequestOptions | undefined): Promise<unknown> {
+	async function transport(operation: Operation, fields: Fields, call: RequestOptions | undefined): Promise<{ body: unknown }> {
 		const { response, stopTimeout, route } = await request(operation, fields, call);
 		try {
-			return await readBody(operation, route, response, call, stopTimeout);
+			return { body: await readBody(operation, route, response, call, stopTimeout) };
 		} finally {
 			stopTimeout();
 		}
@@ -756,20 +803,36 @@ export function createClient(options: ClientOptions = {}): Client {
 		return body;
 	}
 
+	return clientWith(transport);
+}
+
+/**
+ * Sends an operation's request and reads its response's body, as the operation says: the parsed
+ * JSON, text, bytes or a stream, or undefined for no content. It throws what the call throws.
+ * `last` says the answer is the whole list, so `paginate` asks for no other page.
+ */
+export type Transport = (
+	operation: Operation,
+	fields: Fields,
+	call: RequestOptions | undefined,
+) => Promise<{ body: unknown; last?: boolean }>;
+
+/**
+ * A client whose requests `transport` answers: the API's, or a mock's for tests, which then
+ * reads results and walks pages as the client does.
+ */
+export function clientWith(transport: Transport): Client {
 	async function readPage(operation: PagedOperation, fields: Fields, call: RequestOptions | undefined) {
-		const body = await envelope(operation, fields, call);
-		const enveloped = operation.envelope !== false && isEnvelope(body);
+		const { body, last = false } = await transport(operation, fields, call);
+		const enveloped = inEnvelope(operation) && isEnvelope(body);
 		// Another format, or a bare branch of the JSON, is the result as it is, as for `send`.
 		const result = enveloped ? body['result'] : body;
 		const list = operation.page.items === undefined ? result : at(result, operation.page.items);
-		const bareJson =
-			operation.envelope === false &&
-			typeof body !== 'string' &&
-			!(body instanceof Uint8Array) &&
-			!(body instanceof ReadableStream);
+		const bareJson = operation.envelope === false && !isUnparsed(body);
 		return {
 			// No content is an empty page. The rest is what `paginate` can't read.
 			paged: body === undefined || enveloped || bareJson,
+			last,
 			current: {
 				// Some endpoints send `null` for an empty list, against their spec. A patch types each
 				// one seen, as for abuse reports, so `send` returns what its type says.
@@ -789,10 +852,14 @@ export function createClient(options: ClientOptions = {}): Client {
 		let seen = 0;
 		let previous: string | undefined;
 		for (;;) {
-			const { current, paged } = await readPage(operation, fields, call);
+			const { current, paged, last } = await readPage(operation, fields, call);
 			// Stopping here would look like an empty list.
 			if (!paged) {
 				throw new TypeError(`${operation.method} ${routeOf(operation, fields)}: this response isn't a page, so read it with send`);
+			}
+			if (last) {
+				yield* current.items;
+				return;
 			}
 			if (pagination.kind === 'cursor') {
 				// Only the cursor ends the list. An empty page can have more after it: KV
@@ -841,10 +908,9 @@ export function createClient(options: ClientOptions = {}): Client {
 
 	return {
 		async send(operation: Operation, fields?: Fields, call?: RequestOptions) {
-			const body = await envelope(operation, fields ?? {}, call);
-			const json = operation.response === undefined || operation.response === 'auto';
+			const { body } = await transport(operation, fields ?? {}, call);
 			// An envelope that leaves out `result` has none, as `page` reads it.
-			return json && operation.envelope !== false && isEnvelope(body) ? body['result'] : body;
+			return inEnvelope(operation) && isEnvelope(body) ? body['result'] : body;
 		},
 		async page(operation: PagedOperation, fields?: Fields, call?: RequestOptions) {
 			return (await readPage(operation, fields ?? {}, call)).current;

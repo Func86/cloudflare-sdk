@@ -278,12 +278,20 @@ test('a failure carries the status and the errors of the envelope', async () => 
 });
 
 test('an ApiError can be made from a status alone, as a test has no Response', () => {
-	const error = new ApiError({ status: 403 }, { success: false, errors: [{ code: 10000, message: 'nope' }] }, 'GET', '/a');
-	assert.equal(error.message, 'GET /a failed with 403: 10000: nope');
+	const error = new ApiError({ status: 403 }, { success: false, errors: [{ code: 10000, message: 'nope' }] });
+	assert.equal(error.message, 'A request failed with 403: 10000: nope');
+	assert.equal(new ApiError({ status: 403 }, undefined, 'GET', '/a').message, 'GET /a failed with 403');
+	assert.equal(new ApiError({ status: 500 }, undefined, 'POST').message, 'A POST request failed with 500');
+	assert.equal(new ApiError({ status: 500 }, undefined, undefined, '/zones').message, 'A request to /zones failed with 500');
+	assert.equal(new ApiError({ status: 500 }, undefined, '').message, 'A request failed with 500');
 	assert.equal(error.status, 403);
 	assert.deepEqual([...error.headers], []);
 	const headers = new Headers({ 'retry-after': '1' });
 	assert.equal(new ApiError({ status: 429, headers }, undefined, 'GET', '/a').headers, headers);
+});
+
+test("the package's entry gives the runtime's public names alone", async () => {
+	assert.deepEqual(Object.keys(await import('../src/index.ts')).sort(), ['ApiConnectionError', 'ApiError', 'createClient']);
 });
 
 test('a 200 whose envelope says success: false is a failure', async () => {

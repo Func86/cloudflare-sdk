@@ -1,8 +1,23 @@
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { relative, sep } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { nameChanges } from '../generator/manifest.ts';
 
 const entry = (id: string, method: string, route: string) => ({ id, method, route });
+
+/**
+ * The groups that one of the package's own subpaths, from its `exports`, would hide from their
+ * import path: `./testing` hides a group named `testing`, and `./types/*` each group under
+ * `types/`, though not one named `types`, which `./*` still reaches.
+ */
+function hiddenGroups(exports: Readonly<Record<string, unknown>>, groups: readonly string[]): string[] {
+	const own = Object.keys(exports)
+		.filter((key) => key !== '.' && key !== './*')
+		.map((key) => key.replace(/^\.\//, ''));
+	return groups.filter((group) => own.some((path) => (path.endsWith('/*') ? group.startsWith(path.slice(0, -1)) : group === path)));
+}
 
 test('a name change between outputs is a rename, a removal or an addition', () => {
 	const before = [
@@ -39,4 +54,22 @@ test('a name is compared by name: one that moves route is unchanged, and a lost 
 	assert.deepEqual(swapped, { renamed: [['y', 'z']], removed: [], added: [] });
 	const merged = nameChanges([entry('x', 'GET', '/r'), entry('y', 'GET', '/r')], [entry('z', 'GET', '/r')]);
 	assert.deepEqual(merged, { renamed: [['x, y', 'z']], removed: [], added: [] });
+});
+
+test("a group that one of the package's own subpaths would hide is found", () => {
+	const exports = { '.': {}, './testing': {}, './types/*': {}, './*': {}, './package.json': './package.json' };
+	assert.deepEqual(hiddenGroups(exports, ['rulesets', 'rulesets/rules', 'testing', 'testing/runs', 'types', 'types/foo']), [
+		'testing',
+		'types/foo',
+	]);
+});
+
+test("the package's own subpaths hide no generated group", () => {
+	const generated = fileURLToPath(new URL('../generated/', import.meta.url));
+	const groups = readdirSync(generated, { recursive: true, withFileTypes: true })
+		.filter((entry) => entry.isFile() && entry.name === 'index.js')
+		.map((entry) => relative(generated, entry.parentPath).split(sep).join('/'));
+	assert.ok(groups.includes('rulesets/rules'));
+	const { exports } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { exports: Record<string, unknown> };
+	assert.deepEqual(hiddenGroups(exports, groups), [], 'rename these groups, or the subpath');
 });

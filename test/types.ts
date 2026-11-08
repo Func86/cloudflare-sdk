@@ -2,7 +2,8 @@
  * Compile-time checks, run by `npm run check:type`. Each `@ts-expect-error` is a
  * mistake the types must reject: tsc fails if one of them stops being an error.
  */
-import { createClient, type AccountOrZone, type ApiError, type Operation } from '@libreflare/cloudflare-sdk';
+import { createClient, type AccountOrZone, type ApiError, type Client, type Operation } from '@libreflare/cloudflare-sdk';
+import { createMockClient, withResultInfo } from '@libreflare/cloudflare-sdk/testing';
 import { get as getEntitlements } from '@libreflare/cloudflare-sdk/accounts/entitlements';
 import { list as listModels } from '@libreflare/cloudflare-sdk/ai/models';
 import { create as createWatermark } from '@libreflare/cloudflare-sdk/stream/watermarks';
@@ -359,3 +360,31 @@ export async function dryRun(flag: boolean): Promise<void> {
 	// @ts-expect-error A whole rule needs its action, in a dry run too.
 	await cf.send(rules.update, { zone_id: 'z', ruleset_id: 'r', rule_id: 'x', dry_run: true, body: { enabled: false, position: { index: 1 } } });
 }
+
+// A mock client is keyed by the operation imported, and each handler is typed from it.
+export const mocked = createMockClient()
+	.on(deployments.list, (request) => {
+		assertType<Equal<typeof request.script_name, string>>();
+		return { deployments: [] };
+	})
+	.on(deployments.list, async () => withResultInfo({ deployments: [] }, { page: 1, total_pages: 2 }))
+	.on(createRuleset, () => null);
+// @ts-expect-error Not the operation's result.
+mocked.on(deployments.list, () => ({ deployments: 1 }));
+// @ts-expect-error Nor in a page.
+mocked.on(deployments.list, () => withResultInfo({ deployments: 1 }, {}));
+// @ts-expect-error A page is made by withResultInfo, not an object like it, which the mock would read as the result.
+mocked.on(deployments.list, () => ({ result: { deployments: [] }, resultInfo: {} }));
+// @ts-expect-error Nor a spread of one.
+mocked.on(deployments.list, () => ({ ...withResultInfo({ deployments: [] }, {}) }));
+mocked.on(deployments.list, (request) => {
+	// @ts-expect-error The request has no such field.
+	void request.nope;
+	return { deployments: [] };
+});
+// A handler typed loosely, as a test framework's mock function is, fits any operation.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- such as vitest's `vi.fn()`.
+declare const loose: (...args: any[]) => any;
+mocked.on(deployments.list, loose);
+// It's a client, with no cast.
+export const asClient: Client = mocked;

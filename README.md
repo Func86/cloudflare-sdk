@@ -49,8 +49,7 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
   shows it as JSON. An entry's `source.pointer` names the field a validation error is about, such as
   `/rules/0/action`. An entry leaves out a `message` or `documentation_url` that isn't a string, a `code` that isn't a
   number or a string, a `source` that isn't an object, and a `pointer` in it that isn't a string; `body` keeps the
-  response as sent. A test can make an `ApiError` from a status alone: `new ApiError({ status: 403 }, body, 'GET',
-  '/route')`.
+  response as sent. A test can make an `ApiError` from a status and body alone: `new ApiError({ status: 403 }, body)`.
 - `ApiError` also covers a 2XX whose body should be JSON and isn't, such as a proxy's HTML page, and a failed envelope
   from an operation that answers in another format or with no content. `ApiConnectionError` also covers a response that
   breaks off or times out while it's read.
@@ -78,6 +77,44 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
 - Names are the spec's, as cf's commands are, not the official SDK's. On the 2,531 routes both cover, 56% of names
   match. Most differences are in the group, such as `browserRun` for its `browserRendering`, and some in the method,
   such as `rulesets.rules.update` for its `rulesets.rules.edit`.
+
+### Testing
+
+`@libreflare/cloudflare-sdk/testing` gives a client that answers each operation from a handler, in place of the API:
+
+```ts
+import { ApiError } from '@libreflare/cloudflare-sdk';
+import * as rulesets from '@libreflare/cloudflare-sdk/rulesets';
+import { createMockClient, withResultInfo } from '@libreflare/cloudflare-sdk/testing';
+import * as zones from '@libreflare/cloudflare-sdk/zones';
+
+const cf = createMockClient()
+	.on(rulesets.get, (request) => ruleset(request.ruleset_id)) // typed from the operation
+	.on(zones.list, ({ page = 1 }) => withResultInfo(page === 1 ? [a, b] : [c], { page, total_pages: 2 }))
+	.on(rulesets.update, () => {
+		throw new ApiError({ status: 409 }, { success: false, errors: [{ code: 20200, message: 'conflict' }] });
+	});
+```
+
+- A handler is keyed by the operation object imported, and typed from its request and result. A mock function such as
+  vitest's `vi.fn()` fits any operation. The mock is a `Client`, so the code under test takes it with no cast.
+- The request is checked as the client checks it, whether or not a handler answers it, so a request with both
+  `account_id` and `zone_id`, or a body JSON can't carry, still throws `TypeError`. The answer is read and paged by
+  the client's own logic. Nothing goes over HTTP, so a call's `maxRetries` and `onResponse` do nothing, and its
+  `headers` are only checked. A handler runs as the call is made, as `fetch` would, and the call's `signal` and
+  `timeoutMs` end one still pending.
+- A handler gets a copy of the request's fields, so a caller changing its request later doesn't change what was
+  recorded. A nested `body` is still the caller's.
+- A result given as it is is the whole list to `paginate`, which calls its handler once. `withResultInfo` answers one
+  page, with the `result_info` that says whether another follows: a next cursor goes where the operation's `page.next`
+  says, such as `{ cursors: { after } }` for `rulesets.list`. The handler gets each page's `page`, `offset` or cursor
+  in its request. The first page is as the caller gave it, and each later one a number, even for the few operations
+  that declare it as text.
+- What a handler throws, the call throws as it is, such as an `ApiError` of any status, or an `ApiConnectionError`.
+- For an operation that can answer in another format, text or bytes is that format, so `paginate` refuses it as the
+  client refuses a CSV response.
+- A ruleset write's dry run answers `null`, and only a dry run does: another answer throws `TypeError`.
+- An operation with no handler fails, naming it, and says when a handler answers a copy of it instead.
 
 ## Generating
 
@@ -112,7 +149,9 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 | `generator/manifest.ts` | Lists the names a run changes against the last output |
 | `generator/names.ts` | Lists the names the output changes against a commit, for release notes |
 | `generator/conformance.ts` | Compares captured live response shapes with the spec |
+| `src/index.ts` | The package's entry: the runtime's public names |
 | `src/client.ts` | The hand-written runtime |
+| `src/testing.ts` | The mock client for tests, `@libreflare/cloudflare-sdk/testing` |
 | `src/media.ts` | How a media type is read, a rule the runtime and the generator share |
 | `src/routes.ts` | The account-or-zone route prefix, which the runtime and the generator share |
 | `eslint.config.mjs`, `knip.json` | Lint for simple mistakes, and for unused code and dependencies |
@@ -293,7 +332,7 @@ outside the usual shape, the order of headers and a cap on its own backoff, as t
 | `tsc` files, consumer with 7 calls | 1,146 | not measured | 170 |
 | `tsc` memory, same consumer | 231 MB | not measured | 68 MB |
 | Package, gzipped | 7.3 MB | 7.3 MB | 1.0 MB |
-| Package, files | 16,289 | 16,289 | 2,722 |
+| Package, files | 16,289 | 16,289 | 2,726 |
 
 Libreflare's hand-kept resource list already avoids the official client's worst cost, so the bundle and cold-start
 gains are modest in absolute terms. Coverage, correctness and not maintaining that list matter more.
