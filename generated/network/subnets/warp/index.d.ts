@@ -87,8 +87,6 @@ export type EditRequest = {
 		is_default_network?: $tunnel.SubnetIsDefaultNetwork;
 		/** A user-friendly name for the subnet. */
 		name?: $tunnel.SubnetName;
-		/** The private IPv4 or IPv6 range defining the subnet, in CIDR notation. */
-		network?: $tunnel.SubnetIpNetwork;
 	};
 };
 export type EditResult = $tunnel.Subnet;

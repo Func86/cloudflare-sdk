@@ -44,7 +44,7 @@ export type VideoCopyRequest = {
 	thumbnailTimestampPct?: ThumbnailTimestampPct;
 	/** A video's URL. The server must be publicly routable and support `HTTP HEAD` requests and `HTTP GET` range requests. The server should respond to `HTTP HEAD` requests with a `content-range` header that includes the size of the file. This field is deprecated in favor of `input`. */
 	url?: string;
-	watermark?: WatermarkAtUpload_2;
+	watermark?: WatermarkAtUpload;
 };
 
 /** Defines rules for fine-grained control over content than signed URL tokens alone. Access rules primarily make tokens conditionally valid based on user information. Access Rules are specified on token payloads as the `accessRules` property containing an array of Rule objects. */
@@ -503,7 +503,7 @@ export type DirectUploadRequest = {
 	scheduledDeletion?: ScheduledDeletion;
 	/** The timestamp for a thumbnail image calculated as a percentage value of the video's duration. To convert from a second-wise timestamp to a percentage, divide the desired timestamp by the total duration of the video.  If this value is not set, the default thumbnail image is taken from 0s of the video. */
 	thumbnailTimestampPct?: ThumbnailTimestampPct;
-	watermark?: WatermarkAtUpload_2;
+	watermark?: WatermarkAtUpload;
 };
 
 export type Downloads = {
@@ -732,11 +732,6 @@ export type WatermarkAtUpload = {
 	uid?: string;
 };
 
-export type WatermarkAtUpload_2 = {
-	/** The unique identifier for the watermark profile. */
-	uid?: string;
-};
-
 export type Watermarks = {
 	/** The date and a time a watermark profile was created. */
 	created?: WatermarkCreated;
@@ -764,5 +759,5 @@ export type Watermarks = {
 
 export type WebhookRequest = {
 	/** The URL where webhooks will be sent. */
-	notification_url?: string;
+	notificationUrl: string;
 };

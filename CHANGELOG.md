@@ -7,6 +7,73 @@ change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-12
+
+This release breaks calls: each breaking change below says how to update one.
+
+### Breaking
+
+- **58 operations are renamed by the spec,** now generated from Forge's `openapi@debf614f` rather than `07fc9fa4`.
+  Most names now follow their routes, and cf's commands take the same ones. Each moved to another import path,
+  another export, or both:
+
+  | Was | Now |
+  | --- | --- |
+  | `builds/logs`: `get` | `builds`: `logs` |
+  | `dns/zone-transfers/force-axfr`: `create` | `dns/zone-transfers`: `forceAxfr` |
+  | `dns/zone-transfers/outgoing/status`: `get` | `dns/zone-transfers/outgoing`: `status` |
+  | `queues/subscriptions`: `update` | `queues/subscriptions`: `edit` |
+  | `r2/buckets/sippy`: `delete`, `update` | `r2/buckets/sippy`: `disable`, `enable` |
+  | `workers-builds/workers`: `migrateToPreviews` | `builds/workers`: `migrateToPreviews` |
+  | `workers-builds/workers/previews`: `createBuild`, `edit`, `get`, `list`, `listBuilds` | `builds/previews`: the same, with `update` for `edit` |
+  | `summaryV2` and `timeseriesGroupsV2`, in the 10 `radar/*` groups that have them, such as `radar/http` | `summary` and `timeseriesGroups` |
+  | `radar/ai/timeseries-groups`: `summary` | `radar/ai/bots`: `summary` |
+  | `radar/annotations/outages`: `get` | `radar/annotations/outages`: `list` |
+  | `radar/as112/top`: `locations`, `dnssec`, `edns`, `ipVersion` | `get` in `radar/as112/top/locations` and its `dnssec`, `edns` and `ip-version` |
+  | `radar/bots/web-crawlers`: `summary`, `timeseriesGroups` | `radar/bots/crawlers`: the same |
+  | `radar/entities`: `get` | `radar/entities/ips`: `get` |
+  | `get` in `radar/http/ases`, `radar/http/locations` and the 8 groups inside each | The same under `radar/http/top`, with `http-version` for `http-method` |
+
+- **`builds.create` and `radar.traffic-anomalies.get` are other operations now.** `builds.create` starts a build for
+  a Worker by its `external_script_id`, and starting one from a trigger is `builds.triggers.createBuild`, with the
+  same request as before. `radar.traffic-anomalies.get` reads one anomaly by `uuid`, which was `getById`, and listing
+  them is `list`. A typed call to either under its old meaning no longer compiles, as each needs another path
+  parameter.
+- **`dns.domainconnect.getHeartbeat` is gone,** as the spec no longer has `GET /_heartbeat`.
+
+### Added
+
+- 20 operations, such as `builds.retry`, `builds.workers.purgeCache`, `browser-run.script.create`,
+  `d1.insights.queries`, `pipelines.sinks.update`, `tunnels.config.delete` and `zero-trust.region.get`.
+
+### Changed
+
+- Types follow the spec's other changes. Those that can break a call:
+  - `realtime.turn.keys.create` returns the key as `secret`, not `key`.
+  - `network.subnets.warp.edit` no longer takes `network`.
+  - The `zones.holds` operations return `include_subdomains` as a `boolean`, not a `string`.
+  - `zero-trust.casb.applications.list` takes only `'fedramp'` or `'standard'` as its `environment`.
+  - `realtime.kit.apps.update` no longer returns `cf_account_tag` or `is_org_on_kv`.
+  - `stream.webhooks.update` takes `notificationUrl`, the name Stream's docs send, in place of `notification_url`,
+    which the spec now hides from SDKs. Rename the field.
+  - `types/iam` no longer exports `AccountInput`, and `types/stream` no longer exports `WatermarkAtUpload_2`: use
+    `ComponentsSchemasAccountInput`, which `accounts.update` takes, and `WatermarkAtUpload`.
+  - `workers.legacy.scripts.content.get` and `workers-for-platforms.dispatch-namespaces.scripts.content.get` return a
+    `Uint8Array`, not a `string`. The spec now says what the API sends: `multipart/form-data` for a module Worker, one
+    part per module, which can be binary, such as WebAssembly, and `application/javascript` for a service-worker
+    script. Split the modules with `new Response(bytes, { headers: { 'content-type': type } }).formData()`, with `type`
+    taken from the response through `onResponse`, or decode a script with `new TextDecoder().decode(bytes)`.
+- Some results can hold values they couldn't, so an exhaustive `switch` over them needs more cases:
+  `alerting.policies.get` and `list` have 22 more `alert_type`s, `abuse-reports.mitigations.list` and `review` have
+  `'domain'` as an `entity_type`, `workflows.versions.graph` has `step_runner` and `step_dynamic` nodes, and an
+  `ai-search` instance's `type` can be `'d1'` in the results of `create`, `delete`, `get`, `list` and `update`.
+
+### Fixed
+
+- **The `dns.domainconnect` operations reach the API.** The spec leaves out the `/dns/domainconnect` their routes are
+  under, so `getDomainSettings`, `getProviderConfiguration` and `getProviderTemplate` failed with 404, "No route for
+  that URI". The new `postVerify` is sent to `v2/verify`, where the API serves it, rather than the spec's `v1`.
+
 ## [0.2.1] - 2026-11-08
 
 ### Added

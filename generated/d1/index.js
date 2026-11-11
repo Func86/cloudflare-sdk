@@ -13,4 +13,5 @@ export const query = {"method":"POST","route":"/accounts/{account_id}/d1/databas
 export const raw = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/raw","body":"json"};
 export const undelete = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/undelete","body":"json"};
 export const update = {"method":"PUT","route":"/accounts/{account_id}/d1/database/{database_id}","body":"json"};
+export * as insights from "./insights/index.js";
 export * as timeTravel from "./time-travel/index.js";

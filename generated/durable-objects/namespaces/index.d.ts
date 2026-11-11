@@ -3,6 +3,33 @@ import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $workers from "../../_types/workers.js";
 export * as objects from "./objects/index.js";
 
+export type ExportRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** ID of the namespace. */
+	id: string;
+	/** The Durable Object's ID. Required unless durable_object_name is given. */
+	durable_object_id?: string;
+	/** The name the Durable Object's ID was derived from. */
+	durable_object_name?: string;
+	/** The jurisdiction of a Durable Object selected by name. */
+	jurisdiction?: "fedramp" | "eu" | "none";
+};
+export type ExportResult = Uint8Array;
+/**
+ * Export a Durable Object's SQLite database
+ *
+ * Downloads a SQLite-backed Durable Object's database as a zip of main.sqlite and main.sqlite-wal, as of its last write to durable storage. If the export could not read all of the object's history, it holds the last state it could read and an INCOMPLETE.txt. Select the object by ID, or by name and jurisdiction.
+ *
+ * `GET /accounts/{account_id}/workers/durable_objects/namespaces/{id}/export`
+ *
+ * Token permissions (any one): Workers Scripts Write, Workers Scripts Read.
+ *
+ * @beta
+ */
+declare const export_: Operation<ExportRequest, ExportResult>;
+export { export_ as export };
+
 export type ListRequest = {
 	/** Identifier. */
 	account_id: string;

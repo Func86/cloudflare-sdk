@@ -690,7 +690,7 @@ test('one rule sorts media types, for the runtime and the generator alike, whate
 		['Text/Event-Stream; charset=utf-8', 'stream'],
 		['image/png', 'bytes'],
 		['application/octet-stream', 'bytes'],
-		// Not a media type. The spec's two uses of it are patched to text/plain.
+		// Not a media type, though the spec once declared a Worker's script source under it.
 		['string', 'bytes'],
 	] as const;
 	for (const [type, format] of cases) {

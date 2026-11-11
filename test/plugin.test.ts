@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Forge, Model, Type } from '@cloudflare/forge/plugin';
-import { exclusiveUnion } from '../generator/plugin/index.ts';
+import { exclusiveUnion, namedGroups } from '../generator/plugin/index.ts';
 import { namingProblems } from '../generator/plugin/names.ts';
 import {
 	alternativesOf,
@@ -33,7 +33,8 @@ function setup() {
 	const upload = model('files_upload', object(field('file', binary)));
 	const wrapper = model('files_wrapper', object(field('upload', { kind: 'model', model: upload })));
 	const plain = model('files_plain', object(field('name', { kind: 'scalar', scalar: 'string' })));
-	const models = new Models({ models: [upload, wrapper, plain], groups: [] } as unknown as Forge);
+	// Forge's root group holds the models more than one group uses.
+	const models = new Models({ groups: [{ models: [upload, wrapper, plain] }] } as unknown as Forge);
 	return { upload, wrapper, plain, models };
 }
 
@@ -226,4 +227,13 @@ test('a listed dry run needs a boolean dry_run and a result that can be null', (
 	assert.throws(() => readDryRun(key, [], nullable), stale);
 	assert.throws(() => readDryRun(key, flag({ kind: 'scalar', scalar: 'string' }), nullable), stale);
 	assert.throws(() => readDryRun(key, boolean, response(ruleset)), stale);
+});
+
+test("Forge's root group gets no files, and generation stops if it has methods", () => {
+	const root = { parent: undefined, methods: [] as unknown[] };
+	const zones = { parent: root, methods: [] };
+	const forge = { groups: [root, zones] } as unknown as Forge;
+	assert.deepEqual(namedGroups(forge), [zones]);
+	root.methods.push({ httpMethod: 'GET', path: '/zones/{zone_id}/settings/nel' });
+	assert.throws(() => namedGroups(forge), /in its root group, which has no import path: GET \/zones\/\{zone_id\}\/settings\/nel\. .*UNNAMED_OPERATIONS/);
 });

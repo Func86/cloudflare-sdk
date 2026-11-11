@@ -425,6 +425,8 @@ export type CloudflareTokenId = string;
 export type ConfigAutofillResponse = {
 	config_file?: string | null;
 	default_worker_name?: string | null;
+	/** Deployment CLI detected in the selected root directory. A Wrangler config takes precedence. `cf` requires `cloudflare.config.ts` and a `cf` dependency or dev dependency in `package.json`. */
+	deploy_tool?: "cf" | "wrangler" | null;
 	env_worker_names?: { [key: string]: string } | null;
 	/** Package manager inferred from repository lockfiles; defaults to npm when none is detected. */
 	package_manager?: PackageManager;

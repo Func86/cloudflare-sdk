@@ -9,6 +9,12 @@ export type K2StreamHttpInput = {
 	enabled: boolean;
 };
 
+/** Configures whether Workers bindings can produce records to the stream. */
+export type K2StreamWorkerBindingInput = {
+	/** Indicates whether Workers bindings can produce records to the stream. */
+	enabled: boolean;
+};
+
 /** Specifies the public ID of the K2 stream. */
 export type WorkersK2StreamId = string;
 
@@ -52,6 +58,7 @@ export type K2Stream = {
 	name: string;
 	/** Shows the configured record retention period from 1 hour (3600 seconds) to 30 days (2592000 seconds), inclusive. */
 	retention_seconds: number;
+	/** Configures whether Workers bindings can produce records to the stream. */
 	worker_binding: K2StreamWorkerBindingInput;
 };
 
@@ -60,15 +67,11 @@ export type K2StreamCorsOptions = {
 	origins?: string[];
 };
 
-export type K2StreamWorkerBindingInput = {
-	/** Indicates whether Workers bindings can produce records to the stream. */
-	enabled: boolean;
-};
-
 export type UpdateK2StreamRequest = {
 	/** Configures the HTTP endpoint. Disabling HTTP keeps `authentication` and `cors`, so enabling it again restores them. */
 	http?: K2StreamHttpInput;
 	/** Sets the record retention period from 1 hour (3600 seconds) to 30 days (2592000 seconds), inclusive. */
 	retention_seconds?: number;
+	/** Configures whether Workers bindings can produce records to the stream. */
 	worker_binding?: K2StreamWorkerBindingInput;
 };

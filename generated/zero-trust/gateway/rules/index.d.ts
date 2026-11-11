@@ -6,8 +6,8 @@ export type BulkEditRequest = {
 	/** Specify the Cloudflare account identifier. */
 	account_id: string;
 	body: {
-		/** Specify the rule description. */
-		description?: $zero_trust_gateway.Description2;
+		/** Update the rule description. If omitted, the description is unchanged. Set to an empty string to clear the description. */
+		description?: $zero_trust_gateway.PatchDescription;
 		/** Specify whether the rule is enabled. */
 		enabled?: $zero_trust_gateway.Enabled;
 		/** Identify the API resource with a UUID. */
@@ -91,8 +91,8 @@ export type EditRequest = {
 	/** Identify the API resource with a UUID. */
 	rule_id: string;
 	body: {
-		/** Specify the rule description. */
-		description?: $zero_trust_gateway.Description2;
+		/** Update the rule description. If omitted, the description is unchanged. Set to an empty string to clear the description. */
+		description?: $zero_trust_gateway.PatchDescription;
 		/** Specify whether the rule is enabled. */
 		enabled?: $zero_trust_gateway.Enabled;
 		/** Specify the rule name. */

@@ -72,7 +72,7 @@ export class Models {
 	readonly queue: { model: Model; mode: Mode }[] = [];
 
 	constructor(forge: Forge) {
-		const all = [...forge.models, ...forge.groups.flatMap((group) => group.models)].sort((a, b) =>
+		const all = forge.groups.flatMap((group) => group.models).sort((a, b) =>
 			a.schemaName < b.schemaName ? -1 : 1,
 		);
 		const taken = new Map<string, Set<string>>();

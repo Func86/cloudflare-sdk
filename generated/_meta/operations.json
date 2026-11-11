@@ -1445,6 +1445,13 @@
   }
  },
  {
+  "id": "ai-gateway.gateways.providers.test",
+  "method": "POST",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}/test",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "ai-gateway.gateways.providers.update",
   "method": "PUT",
   "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}",
@@ -3290,6 +3297,28 @@
   "response": "json"
  },
  {
+  "id": "browser-run.script.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/browser-rendering/script",
+  "response": "envelope",
+  "alternatives": [
+   "bytes",
+   "stream"
+  ],
+  "body": "json"
+ },
+ {
+  "id": "browser-run.script.execute",
+  "method": "POST",
+  "route": "/accounts/{account_id}/browser-rendering/script/{session_id}",
+  "response": "envelope",
+  "alternatives": [
+   "bytes",
+   "stream"
+  ],
+  "body": "json"
+ },
+ {
   "id": "builds.cancel",
   "method": "PUT",
   "route": "/accounts/{account_id}/builds/builds/{build_uuid}/cancel",
@@ -3298,7 +3327,7 @@
  {
   "id": "builds.create",
   "method": "POST",
-  "route": "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds",
+  "route": "/accounts/{account_id}/builds/workers/{external_script_id}/builds",
   "response": "envelope",
   "body": "json"
  },
@@ -3316,6 +3345,18 @@
   "page": {
    "kind": "page"
   }
+ },
+ {
+  "id": "builds.logs",
+  "method": "GET",
+  "route": "/accounts/{account_id}/builds/builds/{build_uuid}/logs",
+  "response": "envelope"
+ },
+ {
+  "id": "builds.retry",
+  "method": "POST",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/builds/{build_uuid}/retry",
+  "response": "envelope"
  },
  {
   "id": "builds.deploy-hooks.create",
@@ -3368,10 +3409,42 @@
   "response": "envelope"
  },
  {
-  "id": "builds.logs.get",
+  "id": "builds.previews.createBuild",
+  "method": "POST",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}/builds",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "builds.previews.get",
   "method": "GET",
-  "route": "/accounts/{account_id}/builds/builds/{build_uuid}/logs",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}",
   "response": "envelope"
+ },
+ {
+  "id": "builds.previews.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews",
+  "response": "envelope",
+  "page": {
+   "kind": "page"
+  }
+ },
+ {
+  "id": "builds.previews.listBuilds",
+  "method": "GET",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}/builds",
+  "response": "envelope",
+  "page": {
+   "kind": "page"
+  }
+ },
+ {
+  "id": "builds.previews.update",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "builds.repos.config-autofill.get",
@@ -3418,6 +3491,13 @@
   "id": "builds.triggers.create",
   "method": "POST",
   "route": "/accounts/{account_id}/builds/triggers",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "builds.triggers.createBuild",
+  "method": "POST",
+  "route": "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds",
   "response": "envelope",
   "body": "json"
  },
@@ -3488,6 +3568,19 @@
   "id": "builds.workers.get",
   "method": "GET",
   "route": "/accounts/{account_id}/builds/workers/{script_tag}",
+  "response": "envelope"
+ },
+ {
+  "id": "builds.workers.migrateToPreviews",
+  "method": "POST",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/migrate_to_previews",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "builds.workers.purgeCache",
+  "method": "POST",
+  "route": "/accounts/{account_id}/builds/workers/{script_tag}/purge_build_cache",
   "response": "envelope"
  },
  {
@@ -6010,6 +6103,18 @@
   "body": "json"
  },
  {
+  "id": "d1.insights.databases",
+  "method": "GET",
+  "route": "/accounts/{account_id}/d1/insights/databases",
+  "response": "envelope"
+ },
+ {
+  "id": "d1.insights.queries",
+  "method": "GET",
+  "route": "/accounts/{account_id}/d1/insights/queries",
+  "response": "envelope"
+ },
+ {
   "id": "d1.time-travel.getBookmark",
   "method": "GET",
   "route": "/accounts/{account_id}/d1/database/{database_id}/time_travel/bookmark",
@@ -6142,26 +6247,27 @@
  {
   "id": "dns.domainconnect.getDomainSettings",
   "method": "GET",
-  "route": "/v2/{domain}/settings",
+  "route": "/dns/domainconnect/v2/{domain}/settings",
   "response": "json"
- },
- {
-  "id": "dns.domainconnect.getHeartbeat",
-  "method": "GET",
-  "route": "/_heartbeat",
-  "response": "text"
  },
  {
   "id": "dns.domainconnect.getProviderConfiguration",
   "method": "GET",
-  "route": "/v2/provconf/{provider}/{service}/{account}",
+  "route": "/dns/domainconnect/v2/provconf/{provider}/{service}/{account}",
   "response": "json"
  },
  {
   "id": "dns.domainconnect.getProviderTemplate",
   "method": "GET",
-  "route": "/v2/domainTemplates/providers/{provider}/services/{service}",
+  "route": "/dns/domainconnect/v2/domainTemplates/providers/{provider}/services/{service}",
   "response": "json"
+ },
+ {
+  "id": "dns.domainconnect.postVerify",
+  "method": "POST",
+  "route": "/dns/domainconnect/v2/verify",
+  "response": "json",
+  "body": "json"
  },
  {
   "id": "dns.records.batch",
@@ -6340,6 +6446,12 @@
   "response": "envelope"
  },
  {
+  "id": "dns.zone-transfers.forceAxfr",
+  "method": "POST",
+  "route": "/zones/{zone_id}/secondary_dns/force_axfr",
+  "response": "envelope"
+ },
+ {
   "id": "dns.zone-transfers.acls.create",
   "method": "POST",
   "route": "/accounts/{account_id}/secondary_dns/acls",
@@ -6370,12 +6482,6 @@
   "route": "/accounts/{account_id}/secondary_dns/acls/{acl_id}",
   "response": "envelope",
   "body": "json"
- },
- {
-  "id": "dns.zone-transfers.force-axfr.create",
-  "method": "POST",
-  "route": "/zones/{zone_id}/secondary_dns/force_axfr",
-  "response": "envelope"
  },
  {
   "id": "dns.zone-transfers.incoming.create",
@@ -6441,17 +6547,17 @@
   "response": "envelope"
  },
  {
+  "id": "dns.zone-transfers.outgoing.status",
+  "method": "GET",
+  "route": "/zones/{zone_id}/secondary_dns/outgoing/status",
+  "response": "envelope"
+ },
+ {
   "id": "dns.zone-transfers.outgoing.update",
   "method": "PUT",
   "route": "/zones/{zone_id}/secondary_dns/outgoing",
   "response": "envelope",
   "body": "json"
- },
- {
-  "id": "dns.zone-transfers.outgoing.status.get",
-  "method": "GET",
-  "route": "/zones/{zone_id}/secondary_dns/outgoing/status",
-  "response": "envelope"
  },
  {
   "id": "dns.zone-transfers.peers.create",
@@ -6564,6 +6670,12 @@
   "method": "GET",
   "route": "/accounts/{account_id}/dns_firewall/{dns_firewall_id}/reverse_dns",
   "response": "envelope"
+ },
+ {
+  "id": "durable-objects.namespaces.export",
+  "method": "GET",
+  "route": "/accounts/{account_id}/workers/durable_objects/namespaces/{id}/export",
+  "response": "bytes"
  },
  {
   "id": "durable-objects.namespaces.list",
@@ -11754,6 +11866,12 @@
   }
  },
  {
+  "id": "pipelines.updateTables",
+  "method": "POST",
+  "route": "/accounts/{account_id}/pipelines/v1/pipelines/{pipeline_id}/update_tables",
+  "response": "envelope"
+ },
+ {
   "id": "pipelines.validateSql",
   "method": "POST",
   "route": "/accounts/{account_id}/pipelines/v1/validate_sql",
@@ -11787,6 +11905,13 @@
   "page": {
    "kind": "page"
   }
+ },
+ {
+  "id": "pipelines.sinks.update",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/pipelines/v1/sinks/{sink_id}",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "pipelines.streams.create",
@@ -11998,6 +12123,13 @@
   "response": "envelope"
  },
  {
+  "id": "queues.subscriptions.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "queues.subscriptions.get",
   "method": "GET",
   "route": "/accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}",
@@ -12011,13 +12143,6 @@
   "page": {
    "kind": "page"
   }
- },
- {
-  "id": "queues.subscriptions.update",
-  "method": "PATCH",
-  "route": "/accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}",
-  "response": "envelope",
-  "body": "json"
  },
  {
   "id": "r2.buckets.create",
@@ -12223,23 +12348,23 @@
   "response": "envelope"
  },
  {
-  "id": "r2.buckets.sippy.delete",
+  "id": "r2.buckets.sippy.disable",
   "method": "DELETE",
   "route": "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy",
   "response": "envelope"
+ },
+ {
+  "id": "r2.buckets.sippy.enable",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "r2.buckets.sippy.get",
   "method": "GET",
   "route": "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy",
   "response": "envelope"
- },
- {
-  "id": "r2.buckets.sippy.update",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy",
-  "response": "envelope",
-  "body": "json"
  },
  {
   "id": "r2.objects.bulkDelete",
@@ -12474,6 +12599,12 @@
   "response": "envelope"
  },
  {
+  "id": "radar.ai.bots.summary",
+  "method": "GET",
+  "route": "/radar/ai/bots/summary/{dimension}",
+  "response": "envelope"
+ },
+ {
   "id": "radar.ai.bots.timeseries",
   "method": "GET",
   "route": "/radar/ai/bots/timeseries",
@@ -12486,13 +12617,13 @@
   "response": "envelope"
  },
  {
-  "id": "radar.ai.inference.summaryV2",
+  "id": "radar.ai.inference.summary",
   "method": "GET",
   "route": "/radar/ai/inference/summary/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.ai.inference.timeseriesGroupsV2",
+  "id": "radar.ai.inference.timeseriesGroups",
   "method": "GET",
   "route": "/radar/ai/inference/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12507,12 +12638,6 @@
   "id": "radar.ai.markdown-for-agents.timeseries",
   "method": "GET",
   "route": "/radar/ai/markdown_for_agents/timeseries",
-  "response": "envelope"
- },
- {
-  "id": "radar.ai.timeseries-groups.summary",
-  "method": "GET",
-  "route": "/radar/ai/bots/summary/{dimension}",
   "response": "envelope"
  },
  {
@@ -12532,7 +12657,7 @@
   }
  },
  {
-  "id": "radar.annotations.outages.get",
+  "id": "radar.annotations.outages.list",
   "method": "GET",
   "route": "/radar/annotations/outages",
   "response": "envelope",
@@ -12548,7 +12673,7 @@
   "response": "envelope"
  },
  {
-  "id": "radar.as112.summaryV2",
+  "id": "radar.as112.summary",
   "method": "GET",
   "route": "/radar/as112/summary/{dimension}",
   "response": "envelope"
@@ -12560,37 +12685,37 @@
   "response": "envelope"
  },
  {
-  "id": "radar.as112.timeseriesGroupsV2",
+  "id": "radar.as112.timeseriesGroups",
   "method": "GET",
   "route": "/radar/as112/timeseries_groups/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.as112.top.dnssec",
-  "method": "GET",
-  "route": "/radar/as112/top/locations/dnssec/{dnssec}",
-  "response": "envelope"
- },
- {
-  "id": "radar.as112.top.edns",
-  "method": "GET",
-  "route": "/radar/as112/top/locations/edns/{edns}",
-  "response": "envelope"
- },
- {
-  "id": "radar.as112.top.ipVersion",
-  "method": "GET",
-  "route": "/radar/as112/top/locations/ip_version/{ip_version}",
-  "response": "envelope"
- },
- {
-  "id": "radar.as112.top.locations",
+  "id": "radar.as112.top.locations.get",
   "method": "GET",
   "route": "/radar/as112/top/locations",
   "response": "envelope"
  },
  {
-  "id": "radar.attacks.layer3.summaryV2",
+  "id": "radar.as112.top.locations.dnssec.get",
+  "method": "GET",
+  "route": "/radar/as112/top/locations/dnssec/{dnssec}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.as112.top.locations.edns.get",
+  "method": "GET",
+  "route": "/radar/as112/top/locations/edns/{edns}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.as112.top.locations.ip-version.get",
+  "method": "GET",
+  "route": "/radar/as112/top/locations/ip_version/{ip_version}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.attacks.layer3.summary",
   "method": "GET",
   "route": "/radar/attacks/layer3/summary/{dimension}",
   "response": "envelope"
@@ -12602,7 +12727,7 @@
   "response": "envelope"
  },
  {
-  "id": "radar.attacks.layer3.timeseriesGroupsV2",
+  "id": "radar.attacks.layer3.timeseriesGroups",
   "method": "GET",
   "route": "/radar/attacks/layer3/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12626,7 +12751,7 @@
   "response": "envelope"
  },
  {
-  "id": "radar.attacks.layer7.summaryV2",
+  "id": "radar.attacks.layer7.summary",
   "method": "GET",
   "route": "/radar/attacks/layer7/summary/{dimension}",
   "response": "envelope"
@@ -12638,7 +12763,7 @@
   "response": "envelope"
  },
  {
-  "id": "radar.attacks.layer7.timeseriesGroupsV2",
+  "id": "radar.attacks.layer7.timeseriesGroups",
   "method": "GET",
   "route": "/radar/attacks/layer7/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12824,13 +12949,13 @@
   "response": "envelope"
  },
  {
-  "id": "radar.bots.web-crawlers.summary",
+  "id": "radar.bots.crawlers.summary",
   "method": "GET",
   "route": "/radar/bots/crawlers/summary/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.bots.web-crawlers.timeseriesGroups",
+  "id": "radar.bots.crawlers.timeseriesGroups",
   "method": "GET",
   "route": "/radar/bots/crawlers/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12909,7 +13034,7 @@
   }
  },
  {
-  "id": "radar.dns.summaryV2",
+  "id": "radar.dns.summary",
   "method": "GET",
   "route": "/radar/dns/summary/{dimension}",
   "response": "envelope"
@@ -12921,7 +13046,7 @@
   "response": "envelope"
  },
  {
-  "id": "radar.dns.timeseriesGroupsV2",
+  "id": "radar.dns.timeseriesGroups",
   "method": "GET",
   "route": "/radar/dns/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12939,25 +13064,25 @@
   "response": "envelope"
  },
  {
-  "id": "radar.email.routing.summaryV2",
+  "id": "radar.email.routing.summary",
   "method": "GET",
   "route": "/radar/email/routing/summary/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.email.routing.timeseriesGroupsV2",
+  "id": "radar.email.routing.timeseriesGroups",
   "method": "GET",
   "route": "/radar/email/routing/timeseries_groups/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.email.security.summaryV2",
+  "id": "radar.email.security.summary",
   "method": "GET",
   "route": "/radar/email/security/summary/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.email.security.timeseriesGroupsV2",
+  "id": "radar.email.security.timeseriesGroups",
   "method": "GET",
   "route": "/radar/email/security/timeseries_groups/{dimension}",
   "response": "envelope"
@@ -12984,12 +13109,6 @@
   "id": "radar.email.security.top.tlds.spoof.get",
   "method": "GET",
   "route": "/radar/email/security/top/tlds/spoof/{spoof}",
-  "response": "envelope"
- },
- {
-  "id": "radar.entities.get",
-  "method": "GET",
-  "route": "/radar/entities/ip",
   "response": "envelope"
  },
  {
@@ -13037,6 +13156,12 @@
   "response": "envelope"
  },
  {
+  "id": "radar.entities.ips.get",
+  "method": "GET",
+  "route": "/radar/entities/ip",
+  "response": "envelope"
+ },
+ {
   "id": "radar.entities.locations.get",
   "method": "GET",
   "route": "/radar/entities/locations/{location}",
@@ -13069,7 +13194,7 @@
   }
  },
  {
-  "id": "radar.http.summaryV2",
+  "id": "radar.http.summary",
   "method": "GET",
   "route": "/radar/http/summary/{dimension}",
   "response": "envelope"
@@ -13081,133 +13206,133 @@
   "response": "envelope"
  },
  {
-  "id": "radar.http.timeseriesGroupsV2",
+  "id": "radar.http.timeseriesGroups",
   "method": "GET",
   "route": "/radar/http/timeseries_groups/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.get",
+  "id": "radar.http.top.ases.get",
   "method": "GET",
   "route": "/radar/http/top/ases",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.bot-class.get",
+  "id": "radar.http.top.ases.bot-class.get",
   "method": "GET",
   "route": "/radar/http/top/ases/bot_class/{bot_class}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.browser-family.get",
+  "id": "radar.http.top.ases.browser-family.get",
   "method": "GET",
   "route": "/radar/http/top/ases/browser_family/{browser_family}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.device-type.get",
+  "id": "radar.http.top.ases.device-type.get",
   "method": "GET",
   "route": "/radar/http/top/ases/device_type/{device_type}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.http-method.get",
-  "method": "GET",
-  "route": "/radar/http/top/ases/http_version/{http_version}",
-  "response": "envelope"
- },
- {
-  "id": "radar.http.ases.http-protocol.get",
+  "id": "radar.http.top.ases.http-protocol.get",
   "method": "GET",
   "route": "/radar/http/top/ases/http_protocol/{http_protocol}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.ip-version.get",
+  "id": "radar.http.top.ases.http-version.get",
+  "method": "GET",
+  "route": "/radar/http/top/ases/http_version/{http_version}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.http.top.ases.ip-version.get",
   "method": "GET",
   "route": "/radar/http/top/ases/ip_version/{ip_version}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.os.get",
+  "id": "radar.http.top.ases.os.get",
   "method": "GET",
   "route": "/radar/http/top/ases/os/{os}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.ases.tls-version.get",
+  "id": "radar.http.top.ases.tls-version.get",
   "method": "GET",
   "route": "/radar/http/top/ases/tls_version/{tls_version}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.get",
+  "id": "radar.http.top.locations.get",
   "method": "GET",
   "route": "/radar/http/top/locations",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.bot-class.get",
+  "id": "radar.http.top.locations.bot-class.get",
   "method": "GET",
   "route": "/radar/http/top/locations/bot_class/{bot_class}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.browser-family.get",
+  "id": "radar.http.top.locations.browser-family.get",
   "method": "GET",
   "route": "/radar/http/top/locations/browser_family/{browser_family}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.device-type.get",
+  "id": "radar.http.top.locations.device-type.get",
   "method": "GET",
   "route": "/radar/http/top/locations/device_type/{device_type}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.http-method.get",
-  "method": "GET",
-  "route": "/radar/http/top/locations/http_version/{http_version}",
-  "response": "envelope"
- },
- {
-  "id": "radar.http.locations.http-protocol.get",
+  "id": "radar.http.top.locations.http-protocol.get",
   "method": "GET",
   "route": "/radar/http/top/locations/http_protocol/{http_protocol}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.ip-version.get",
+  "id": "radar.http.top.locations.http-version.get",
+  "method": "GET",
+  "route": "/radar/http/top/locations/http_version/{http_version}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.http.top.locations.ip-version.get",
   "method": "GET",
   "route": "/radar/http/top/locations/ip_version/{ip_version}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.os.get",
+  "id": "radar.http.top.locations.os.get",
   "method": "GET",
   "route": "/radar/http/top/locations/os/{os}",
   "response": "envelope"
  },
  {
-  "id": "radar.http.locations.tls-version.get",
+  "id": "radar.http.top.locations.tls-version.get",
   "method": "GET",
   "route": "/radar/http/top/locations/tls_version/{tls_version}",
   "response": "envelope"
  },
  {
-  "id": "radar.leaked-credentials.summaryV2",
+  "id": "radar.leaked-credentials.summary",
   "method": "GET",
   "route": "/radar/leaked_credential_checks/summary/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.leaked-credentials.timeseriesGroupsV2",
+  "id": "radar.leaked-credentials.timeseriesGroups",
   "method": "GET",
   "route": "/radar/leaked_credential_checks/timeseries_groups/{dimension}",
   "response": "envelope"
  },
  {
-  "id": "radar.netflows.summaryV2",
+  "id": "radar.netflows.summary",
   "method": "GET",
   "route": "/radar/netflows/summary/{dimension}",
   "response": "envelope"
@@ -13421,18 +13546,18 @@
  {
   "id": "radar.traffic-anomalies.get",
   "method": "GET",
+  "route": "/radar/traffic_anomalies/{uuid}",
+  "response": "envelope"
+ },
+ {
+  "id": "radar.traffic-anomalies.list",
+  "method": "GET",
   "route": "/radar/traffic_anomalies",
   "response": "envelope",
   "page": {
    "kind": "offset",
    "items": "trafficAnomalies"
   }
- },
- {
-  "id": "radar.traffic-anomalies.getById",
-  "method": "GET",
-  "route": "/radar/traffic_anomalies/{uuid}",
-  "response": "envelope"
  },
  {
   "id": "radar.traffic-anomalies.locations.get",
@@ -16048,6 +16173,12 @@
   }
  },
  {
+  "id": "tunnels.config.delete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/cfd_tunnel/{tunnel_id}/configurations",
+  "response": "envelope"
+ },
+ {
   "id": "tunnels.config.get",
   "method": "GET",
   "route": "/accounts/{account_id}/cfd_tunnel/{tunnel_id}/configurations",
@@ -17247,7 +17378,7 @@
   "id": "workers.legacy.scripts.content.get",
   "method": "GET",
   "route": "/accounts/{account_id}/workers/scripts/{script_name}/content/v2",
-  "response": "text"
+  "response": "bytes"
  },
  {
   "id": "workers.legacy.scripts.content.update",
@@ -17586,51 +17717,6 @@
   "response": "envelope"
  },
  {
-  "id": "workers-builds.workers.migrateToPreviews",
-  "method": "POST",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/migrate_to_previews",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "workers-builds.workers.previews.createBuild",
-  "method": "POST",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}/builds",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "workers-builds.workers.previews.edit",
-  "method": "PATCH",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "workers-builds.workers.previews.get",
-  "method": "GET",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}",
-  "response": "envelope"
- },
- {
-  "id": "workers-builds.workers.previews.list",
-  "method": "GET",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews",
-  "response": "envelope",
-  "page": {
-   "kind": "page"
-  }
- },
- {
-  "id": "workers-builds.workers.previews.listBuilds",
-  "method": "GET",
-  "route": "/accounts/{account_id}/builds/workers/{script_tag}/previews/{preview_id}/builds",
-  "response": "envelope",
-  "page": {
-   "kind": "page"
-  }
- },
- {
   "id": "workers-for-platforms.dispatch-namespaces.create",
   "method": "POST",
   "route": "/accounts/{account_id}/workers/dispatch/namespaces",
@@ -17717,7 +17803,7 @@
   "id": "workers-for-platforms.dispatch-namespaces.scripts.content.get",
   "method": "GET",
   "route": "/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/content",
-  "response": "text"
+  "response": "bytes"
  },
  {
   "id": "workers-for-platforms.dispatch-namespaces.scripts.content.update",
@@ -20272,6 +20358,29 @@
   }
  },
  {
+  "id": "zero-trust.dex.notifications.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/dex/notifications",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "zero-trust.dex.notifications.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/dex/notifications",
+  "response": "envelope",
+  "page": {
+   "kind": "page",
+   "items": "notifications"
+  }
+ },
+ {
+  "id": "zero-trust.dex.notifications.outcomes.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/dex/notifications/{notification_id}/outcomes",
+  "response": "envelope"
+ },
+ {
   "id": "zero-trust.dex.overview.tests.list",
   "method": "GET",
   "route": "/accounts/{account_id}/dex/tests/overview",
@@ -21534,6 +21643,31 @@
   "route": "/accounts/{account_id}/access/organizations/trust_settings",
   "response": "envelope",
   "body": "json"
+ },
+ {
+  "id": "zero-trust.region.delete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/zerotrust/region",
+  "response": "envelope"
+ },
+ {
+  "id": "zero-trust.region.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/zerotrust/region",
+  "response": "envelope"
+ },
+ {
+  "id": "zero-trust.region.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/zerotrust/region",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "zero-trust.regions.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/zerotrust/regions",
+  "response": "envelope"
  },
  {
   "id": "zero-trust.risk-scoring.get",

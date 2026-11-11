@@ -114,6 +114,38 @@ export type DatabaseUpdateRequestBody = {
 
 export type DatabaseVersion = string;
 
+export type InsightsDatabaseUsage = {
+	/** D1 database identifier (UUID). */
+	database_id?: DatabaseIdentifier;
+	/** The database name recorded with its usage in the window. Null when no usage in the window recorded a name, for example usage before 2026-10-30. */
+	database_name?: string | null;
+	/** Number of queries (read and write) in the window. */
+	queries?: number;
+	/** Number of rows read in the window. */
+	rows_read?: number;
+	/** Number of rows written in the window. */
+	rows_written?: number;
+};
+
+export type InsightsQueryUsage = {
+	/** Average execution time, in milliseconds: `total_duration_ms` / `executions`. */
+	avg_duration_ms?: number;
+	/** D1 database identifier (UUID). */
+	database_id?: DatabaseIdentifier;
+	/** Estimated number of times the statement ran in the window. */
+	executions?: number;
+	/** The SQL statement text, as sent to the database (at most 4096 characters). */
+	query?: string;
+	/** Estimated number of rows read in the window. */
+	rows_read?: number;
+	/** Estimated number of rows returned in the window. */
+	rows_returned?: number;
+	/** Estimated number of rows written in the window. */
+	rows_written?: number;
+	/** Estimated total execution time in the window, in milliseconds. */
+	total_duration_ms?: number;
+};
+
 export type Params = string[];
 
 export type QueryMeta = {

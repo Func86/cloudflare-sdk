@@ -9,6 +9,7 @@ export const legacyGet = {"method":"GET","route":"/accounts/{account_id}/pipelin
 export const legacyList = {"method":"GET","route":"/accounts/{account_id}/pipelines","query":["search","page","per_page"],"envelope":false};
 export const legacyUpdate = {"method":"PUT","route":"/accounts/{account_id}/pipelines/{pipeline_name}","body":"json"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/pipelines/v1/pipelines","query":["page","per_page","name"],"page":{"kind":"page"}};
+export const updateTables = {"method":"POST","route":"/accounts/{account_id}/pipelines/v1/pipelines/{pipeline_id}/update_tables"};
 export const validateSql = {"method":"POST","route":"/accounts/{account_id}/pipelines/v1/validate_sql","body":"json"};
 export * as sinks from "./sinks/index.js";
 export * as streams from "./streams/index.js";

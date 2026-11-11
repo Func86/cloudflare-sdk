@@ -49,6 +49,34 @@ export type DeleteResult = $mq.EventSubscription;
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** A Resource identifier. */
+	account_id: string;
+	/** A Resource identifier. */
+	subscription_id: string;
+	body: {
+		/** Destination configuration for the subscription */
+		destination?: $mq.EventDestination;
+		/** Whether the subscription is active */
+		enabled?: boolean;
+		/** List of event types this subscription handles */
+		events?: string[];
+		/** Name of the subscription */
+		name?: string;
+	};
+};
+export type EditResult = $mq.EventSubscription;
+/**
+ * Update Event Subscription
+ *
+ * Updates an existing Queue event subscription.
+ *
+ * `PATCH /accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}`
+ *
+ * Token permissions (any one): Queues Write, Workers Scripts Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** A Resource identifier. */
 	account_id: string;
@@ -91,31 +119,3 @@ export type ListItem = RootItem<ListResult>;
  * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
-
-export type UpdateRequest = {
-	/** A Resource identifier. */
-	account_id: string;
-	/** A Resource identifier. */
-	subscription_id: string;
-	body: {
-		/** Destination configuration for the subscription */
-		destination?: $mq.EventDestination;
-		/** Whether the subscription is active */
-		enabled?: boolean;
-		/** List of event types this subscription handles */
-		events?: string[];
-		/** Name of the subscription */
-		name?: string;
-	};
-};
-export type UpdateResult = $mq.EventSubscription;
-/**
- * Update Event Subscription
- *
- * Updates an existing Queue event subscription.
- *
- * `PATCH /accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}`
- *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

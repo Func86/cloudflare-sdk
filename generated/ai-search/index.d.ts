@@ -27,6 +27,7 @@ export type ChatCompletionsRequest = {
 			};
 			reranking?: {
 				enabled?: boolean;
+				/** Minimum reranker relevance score a chunk must reach to be returned. When omitted, falls back to the instance-level score_threshold, then to 0.4. */
 				match_threshold?: number;
 				model?: string;
 			};
@@ -237,8 +238,16 @@ export type CreateRequest = {
 		rewrite_query?: boolean;
 		/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 		score_threshold?: number;
+		/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 		source?: string | null;
 		source_params?: {
+			/** D1 source configuration. Required when creating a d1 instance and ignored for other types. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+			d1?: {
+				/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+				query: string;
+				/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+				template?: "labelled" | "content_only" | "key_value" | "json";
+			};
 			/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 			exclude_items?: string[];
 			/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -283,8 +292,8 @@ export type CreateRequest = {
 		/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 		sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 		token_id?: string;
-		/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. */
-		type?: "r2" | "web-crawler" | null;
+		/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. d1 is never inferred; it indexes the rows returned by source_params.d1.query. */
+		type?: "r2" | "web-crawler" | "d1" | null;
 	};
 };
 export type CreateResult = {
@@ -387,8 +396,16 @@ export type CreateResult = {
 	rewrite_query?: boolean;
 	/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 	score_threshold?: number;
+	/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 	source?: string | null;
 	source_params?: {
+		/** D1 source configuration. Required when creating a d1 instance and ignored for other types. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+		d1?: {
+			/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+			query: string;
+			/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+			template?: "labelled" | "content_only" | "key_value" | "json";
+		};
 		/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 		exclude_items?: string[];
 		/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -434,8 +451,8 @@ export type CreateResult = {
 	/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 	sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 	token_id?: string;
-	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. */
-	type?: "r2" | "web-crawler" | null;
+	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. d1 is never inferred; it indexes the rows returned by source_params.d1.query. */
+	type?: "r2" | "web-crawler" | "d1" | null;
 };
 /**
  * Create an AI Search instance.
@@ -554,8 +571,16 @@ export type DeleteResult = {
 	rewrite_query?: boolean;
 	/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 	score_threshold?: number;
+	/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 	source?: string | null;
 	source_params?: {
+		/** D1 source configuration. Required when creating a d1 instance and ignored for other types. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+		d1?: {
+			/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+			query: string;
+			/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+			template?: "labelled" | "content_only" | "key_value" | "json";
+		};
 		/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 		exclude_items?: string[];
 		/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -601,8 +626,8 @@ export type DeleteResult = {
 	/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 	sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 	token_id?: string;
-	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. */
-	type?: "r2" | "web-crawler" | null;
+	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. d1 is never inferred; it indexes the rows returned by source_params.d1.query. */
+	type?: "r2" | "web-crawler" | "d1" | null;
 };
 /**
  * Delete an AI Search instance.
@@ -722,8 +747,16 @@ export type GetResult = {
 	rewrite_query?: boolean;
 	/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 	score_threshold?: number;
+	/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 	source?: string | null;
 	source_params?: {
+		/** D1 source configuration. Required when creating a d1 instance and ignored for other types. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+		d1?: {
+			/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+			query: string;
+			/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+			template?: "labelled" | "content_only" | "key_value" | "json";
+		};
 		/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 		exclude_items?: string[];
 		/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -769,8 +802,8 @@ export type GetResult = {
 	/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 	sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 	token_id?: string;
-	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. */
-	type?: "r2" | "web-crawler" | null;
+	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. d1 is never inferred; it indexes the rows returned by source_params.d1.query. */
+	type?: "r2" | "web-crawler" | "d1" | null;
 };
 /**
  * Get an AI Search instance.
@@ -891,6 +924,14 @@ export type ListResult = ({
 	score_threshold: number | null;
 	source: string | null;
 	source_params: {
+		/** D1 source configuration of a d1 instance. */
+		d1?: {
+			/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+			query?: string;
+			/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+			template?: string;
+			[key: string]: unknown;
+		};
 		exclude_items?: string[];
 		include_items?: string[];
 		prefix?: string;
@@ -931,7 +972,7 @@ export type ListResult = ({
 	system_prompt_index_summarization: string | null;
 	system_prompt_rewrite_query: string | null;
 	token_id: string | null;
-	type: "r2" | "web-crawler" | null;
+	type: "r2" | "web-crawler" | "d1" | null;
 })[];
 export type ListItem = RootItem<ListResult>;
 /**
@@ -987,6 +1028,7 @@ export type MultiChatCompletionsRequest = {
 			};
 			reranking?: {
 				enabled?: boolean;
+				/** Minimum reranker relevance score a chunk must reach to be returned. When omitted, falls back to the instance-level score_threshold, then to 0.4. */
 				match_threshold?: number;
 				model?: string;
 			};
@@ -1128,6 +1170,7 @@ export type MultiSearchRequest = {
 			};
 			reranking?: {
 				enabled?: boolean;
+				/** Minimum reranker relevance score a chunk must reach to be returned. When omitted, falls back to the instance-level score_threshold, then to 0.4. */
 				match_threshold?: number;
 				model?: string;
 			};
@@ -1265,6 +1308,7 @@ export type SearchRequest = {
 			};
 			reranking?: {
 				enabled?: boolean;
+				/** Minimum reranker relevance score a chunk must reach to be returned. When omitted, falls back to the instance-level score_threshold, then to 0.4. */
 				match_threshold?: number;
 				model?: string;
 			};
@@ -1489,8 +1533,16 @@ export type UpdateRequest = {
 		rewrite_query?: boolean;
 		/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 		score_threshold?: number;
+		/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 		source?: string | null;
 		source_params?: {
+			/** D1 source configuration of a d1 instance; ignored for other types. An omitted d1, query, or template keeps its stored value. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+			d1?: {
+				/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. Omit to keep the stored query. */
+				query?: string;
+				/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. Omit to keep the stored template. */
+				template?: "labelled" | "content_only" | "key_value" | "json";
+			};
 			/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 			exclude_items?: string[];
 			/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -1642,8 +1694,16 @@ export type UpdateResult = {
 	rewrite_query?: boolean;
 	/** Minimum similarity score a chunk must reach to be returned. Defaults to 0.4. */
 	score_threshold?: number;
+	/** The R2 bucket name for r2, the website URL for web-crawler, or the D1 database ID (UUID) for d1. A d1 instance also requires token_id, and the token needs D1 Read permission. The d1 database cannot be changed after creation. */
 	source?: string | null;
 	source_params?: {
+		/** D1 source configuration. Required when creating a d1 instance and ignored for other types. For d1, include_items and exclude_items match each row's item key, `<id>.md`; a submitted source_params replaces both lists (an omitted list is cleared), so omit source_params to keep them. */
+		d1?: {
+			/** Read-only SELECT query run against the D1 database. It must return an `id` column that uniquely identifies each row. Columns named `title` and `content` set the document title and body, and up to 5 `meta_*` columns become filterable custom metadata; any other column is indexed as a labelled field. Every sync reads the full result, up to 100,000 rows, with the instance's token, and those reads count against your D1 usage. Leading and trailing whitespace is trimmed before the query is stored. */
+			query: string;
+			/** How each row is rendered into the indexed document: labelled renders the title, the labelled fields, then the content; content_only renders the title and content (labelled fields only when there is no content); key_value renders every column as name: value; json renders every column as a JSON object. */
+			template?: "labelled" | "content_only" | "key_value" | "json";
+		};
 		/** List of path patterns to exclude. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /admin/** matches /admin/users and /admin/settings/advanced). Most accounts have a limit of 10 rules; contact support to raise it. */
 		exclude_items?: string[];
 		/** List of path patterns to include. Uses micromatch glob syntax: * matches within a path segment, ** matches across path segments (e.g., /blog/** matches /blog/post and /blog/2024/post). Most accounts have a limit of 10 rules; contact support to raise it. */
@@ -1689,8 +1749,8 @@ export type UpdateResult = {
 	/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 	sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 	token_id?: string;
-	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. */
-	type?: "r2" | "web-crawler" | null;
+	/** Source type. When omitted or null with a non-blank source, HTTP(S) URLs infer web-crawler and existing R2 bucket names infer r2. A missing or blank source without a type uses managed upload-only storage. d1 is never inferred; it indexes the rows returned by source_params.d1.query. */
+	type?: "r2" | "web-crawler" | "d1" | null;
 };
 /**
  * Update an AI Search instance.

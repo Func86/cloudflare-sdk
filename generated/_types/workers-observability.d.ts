@@ -447,8 +447,26 @@ export type AgentTraceSummary = TraceSummary & {
 	agents: string[];
 	/** Sorted distinct gen_ai.conversation.id values of authorized Agent invocations in the Trace within the effective window. Empty when none are recorded. */
 	conversationIds: string[];
+	/** Agent spans that recorded an error. */
+	errorCount?: number;
+	/** Distinct error messages from the Trace's Agent spans. */
+	errors?: string[];
 	/** Latest start of an authorized Agent invocation in the Trace within the effective window, as Unix epoch milliseconds. The Trace list is ordered by this value, newest first. */
 	lastActivityMs: number;
+	/** Name of the first Agent span in the Trace. */
+	rootSpanName?: string;
+	/** Transaction name of the first Agent span in the Trace. */
+	rootTransactionName?: string;
+	/** Worker services with Agent activity in the Trace. */
+	services?: string[];
+	/** Agent spans in the Trace. */
+	spans?: number;
+	/** Duration of the Trace's Agent activity, in milliseconds. */
+	traceDurationMs?: number;
+	/** End of the Trace's Agent activity, as Unix epoch milliseconds. */
+	traceEndMs?: number;
+	/** Start of the Trace's Agent activity, as Unix epoch milliseconds. */
+	traceStartMs?: number;
 };
 
 export type IssueOccurrence = {

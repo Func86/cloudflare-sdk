@@ -33,6 +33,9 @@ export type LastComplete = string | null;
 /** Records the last time the job failed. If not null, the job is currently. failing. If null, the job has either never failed or has run successfully at least once since last failure. See also the error_message field. */
 export type LastError = string | null;
 
+/** Sanitized destination descriptor with credentials removed. */
+export type DestinationName = string;
+
 /** The SQL transformer query. Maximum 32 KB. The query must contain a FROM clause referencing a valid logpush dataset. */
 export type TransformerCode = string;
 
@@ -129,6 +132,8 @@ export type LogpushJob = {
 	dataset?: Dataset;
 	/** Uniquely identifies a resource (such as an s3 bucket) where data. will be pushed. Additional configuration parameters supported by the destination may be included. */
 	destination_conf?: DestinationConf;
+	/** Sanitized destination descriptor with credentials removed. */
+	destination_name?: DestinationName;
 	/** Flag that indicates if the job is enabled. */
 	enabled?: Enabled;
 	/** If not null, the job is currently failing. Failures are usually. repetitive (example: no permissions to write to destination bucket). Only the last failure is recorded. On successful execution of a job the error_message and last_error are set to null. */

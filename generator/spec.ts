@@ -30,6 +30,11 @@ export function pointerGet(doc: unknown, pointer: string): unknown {
 	return current;
 }
 
+/** The JSON pointer to an operation, such as `/paths/~1zones/get` for `GET /zones`. */
+export function operationPointer(route: string, verb: string): string {
+	return `/paths/${route.replaceAll('~', '~0').replaceAll('/', '~1')}/${verb}`;
+}
+
 export class Spec {
 	readonly doc: OpenApiDocument;
 

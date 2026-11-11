@@ -14,6 +14,8 @@ export type CreateRequest = {
 	body: {
 		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
 		ai_config?: $realtimekit.AIConfig;
+		/** Lets phones and SIP systems dial in to the meeting. The response includes the SIP URI and credentials in `sip`. Ignored when replacing a meeting with `PUT`. */
+		enable_sip?: boolean;
 		/** Specifies if the meeting should start getting livestreamed on start. */
 		live_stream_on_start?: boolean | null;
 		/** If a meeting is set to persist_chat, meeting chat would remain for a week within the meeting space. */
@@ -138,6 +140,8 @@ export type ReplaceRequest = {
 	body: {
 		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
 		ai_config?: $realtimekit.AIConfig;
+		/** Lets phones and SIP systems dial in to the meeting. The response includes the SIP URI and credentials in `sip`. Ignored when replacing a meeting with `PUT`. */
+		enable_sip?: boolean;
 		/** Specifies if the meeting should start getting livestreamed on start. */
 		live_stream_on_start?: boolean | null;
 		/** If a meeting is set to persist_chat, meeting chat would remain for a week within the meeting space. */
@@ -193,6 +197,8 @@ export type UpdateRequest = {
 	body: {
 		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
 		ai_config?: $realtimekit.AIConfig;
+		/** Turns SIP dial-in on or off. Turning it off deletes the SIP URI and credentials; calls already in progress continue. Turning it on again creates a new SIP URI and credentials. */
+		enable_sip?: boolean;
 		/** Specifies if the meeting should start getting livestreamed on start. */
 		live_stream_on_start?: boolean;
 		/** If a meeting is updated to persist_chat, meeting chat would remain for a week within the meeting space. */

@@ -10,6 +10,8 @@ export * as dlp from "./dlp/index.js";
 export * as gateway from "./gateway/index.js";
 export * as identityProviders from "./identity-providers/index.js";
 export * as organization from "./organization/index.js";
+export * as region from "./region/index.js";
+export * as regions from "./regions/index.js";
 export * as riskScoring from "./risk-scoring/index.js";
 export * as seats from "./seats/index.js";
 export * as users from "./users/index.js";

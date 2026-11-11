@@ -137,6 +137,30 @@ export type ListItem = RootItem<ListResult>;
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
+export type TestRequest = {
+	account_id: string;
+	/** Unique identifier of the AI Gateway within the account. */
+	gateway_id: string;
+	id: string;
+	body?: { [key: string]: unknown };
+};
+export type TestResult = {
+	httpStatus: number | null;
+	providerSlug: string;
+	reason?: "unsupported_provider" | "missing_secret" | "provider_error" | "permission_denied" | "request_failed";
+	status: "valid" | "invalid" | "error";
+};
+/**
+ * Check stored provider credentials
+ *
+ * Checks whether stored credentials can list models through the provider implementation in AI Gateway. Requires AI Gateway content update permission. Does not run inference, check credits or inference permissions, or return provider response bodies. HTTP 401 from the model-list request is classified as invalid, as is AWS Bedrock HTTP 403 with an UnrecognizedClientException error type. Other failures are inconclusive, including other HTTP 400 or 403 responses; a 403 alone does not distinguish rejected credentials from insufficient permissions. Unsupported providers or credential formats also return an inconclusive result.
+ *
+ * `POST /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}/test`
+ *
+ * Token permissions (any one): Secrets Store Write.
+ */
+export declare const test: Operation<TestRequest, TestResult>;
+
 export type UpdateRequest = {
 	account_id: string;
 	/** Unique identifier of the AI Gateway within the account. */

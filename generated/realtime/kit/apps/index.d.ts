@@ -107,10 +107,8 @@ export type UpdateRequest = {
 };
 export type UpdateResult = {
 	data: {
-		cf_account_tag?: string | null;
 		created_at?: string;
 		id?: string;
-		is_org_on_kv?: boolean;
 		name?: string | null;
 	};
 	success: true;

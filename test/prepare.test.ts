@@ -9,23 +9,35 @@ import {
 	restateRequired,
 	selectOperations,
 } from '../generator/prepare.ts';
-import { byKey } from '../generator/patches.ts';
+import { byKey, SPEC_PATCHES } from '../generator/patches.ts';
 import { LITERAL_SLASHES, type OpenApiDocument, type Schema } from '../generator/spec.ts';
 
 function document(paths: Record<string, Record<string, Schema>>): OpenApiDocument {
 	return { paths, components: { schemas: {} } };
 }
 
-const hidden = (extra: Schema = {}): Schema => ({ 'x-fern-ignore': true, ...extra });
+/** An operation the spec names, as every one that reaches Forge must be. */
+const op = (extra: Schema = {}): Schema => ({ 'x-fern-sdk-group-name': 'g', 'x-fern-sdk-method-name': 'm', ...extra });
+const hidden = (extra: Schema = {}): Schema => op({ 'x-fern-ignore': true, ...extra });
+
+/** Selects with none of the real lists, apart from those given. */
+function select(
+	doc: OpenApiDocument,
+	exclusions: Parameters<typeof selectOperations>[1] = {},
+	renames: Parameters<typeof selectOperations>[2] = {},
+	unnamed: Parameters<typeof selectOperations>[3] = {},
+): Record<string, number> {
+	return selectOperations(doc, exclusions, renames, unnamed);
+}
 
 test('a hidden operation is included unless it is deprecated or excluded', () => {
 	const doc = document({
 		'/kept': { get: hidden() },
 		'/old': { get: hidden({ 'x-fern-availability': 'deprecated' }), post: hidden({ deprecated: true }) },
 		'/excluded': { get: hidden() },
-		'/visible': { get: {} },
+		'/visible': { get: op() },
 	});
-	const skipped = selectOperations(doc, { 'GET /excluded': 'A reason.' }, {});
+	const skipped = select(doc, { 'GET /excluded': 'A reason.' }, {});
 	assert.deepEqual(skipped, { deprecated: 2, excluded: 1 });
 	assert.equal(doc.paths['/kept']?.['get']?.['x-fern-ignore'], undefined);
 	assert.equal(doc.paths['/old']?.['get']?.['x-fern-ignore'], true);
@@ -35,26 +47,26 @@ test('a hidden operation is included unless it is deprecated or excluded', () =>
 test('an operation for another audience is removed, and one for the SDK is kept', () => {
 	const doc = document({
 		'/terraform': { get: hidden({ 'x-fern-audiences': ['terraform'] }), head: { 'x-fern-audiences': ['terraform'] } },
-		'/sdk': { get: { 'x-fern-audiences': ['sdk'] } },
+		'/sdk': { get: op({ 'x-fern-audiences': ['sdk'] }) },
 	});
-	assert.deepEqual(selectOperations(doc, {}, {}), { 'other audience': 2 });
+	assert.deepEqual(select(doc, {}, {}), { 'other audience': 2 });
 	assert.equal(doc.paths['/terraform']?.['get'], undefined);
 	assert.equal(doc.paths['/terraform']?.['head'], undefined);
 	assert.ok(doc.paths['/sdk']?.['get']);
 });
 
 test('an operation that does not describe its response is left out, apart from a DELETE or a HEAD', () => {
-	const bare = { responses: { '200': { description: 'A list.' }, '4XX': { description: 'An error.' } } };
+	const bare = op({ responses: { '200': { description: 'A list.' }, '4XX': { description: 'An error.' } } });
 	const doc = document({
 		'/bare': { get: bare, post: { responses: { '2XX': { description: 'Done.' } } }, delete: bare, head: bare },
-		'/empty': { post: { responses: { '204': { description: 'Done.' } } } },
-		'/described': { get: { responses: { '200': { content: { 'application/json': { schema: {} } } } } } },
-		'/referenced': { get: { responses: { '200': { $ref: '#/components/responses/ok' } } } },
-		'/undeclared': { get: {} },
+		'/empty': { post: op({ responses: { '204': { description: 'Done.' } } }) },
+		'/described': { get: op({ responses: { '200': { content: { 'application/json': { schema: {} } } } } }) },
+		'/referenced': { get: op({ responses: { '200': { $ref: '#/components/responses/ok' } } }) },
+		'/undeclared': { get: op() },
 		'/hidden': { get: hidden(bare) },
 	});
 	doc.components['responses'] = { ok: { content: { 'text/plain': {} } } };
-	assert.deepEqual(selectOperations(doc, {}, {}), { 'no response schema': 3 });
+	assert.deepEqual(select(doc, {}, {}), { 'no response schema': 3 });
 	assert.deepEqual(Object.keys(doc.paths['/bare'] ?? {}), ['delete', 'head']);
 	assert.deepEqual(Object.keys(doc.paths['/hidden'] ?? {}), []);
 	for (const route of ['/empty', '/described', '/referenced', '/undeclared']) {
@@ -66,15 +78,58 @@ test('an operation served from another host is left out, wherever its servers ar
 	const doc = document({
 		'/produce': { servers: [{ url: 'https://{stream_id}.k2.example' }], post: {} },
 		'/elsewhere': { get: { servers: [{ url: 'https://other.example' }] } },
-		'/base': { get: { servers: [{ url: 'https://api.example/v4' }] } },
-		'/plain': { get: {} },
+		'/base': { get: op({ servers: [{ url: 'https://api.example/v4' }] }) },
+		'/plain': { get: op() },
 	});
 	doc['servers'] = [{ url: 'https://api.example/v4' }];
-	assert.deepEqual(selectOperations(doc, {}, {}), { 'other server': 2 });
+	assert.deepEqual(select(doc, {}, {}), { 'other server': 2 });
 	assert.equal(doc.paths['/produce']?.['post'], undefined);
 	assert.equal(doc.paths['/elsewhere']?.['get'], undefined);
 	assert.ok(doc.paths['/base']?.['get']);
 	assert.ok(doc.paths['/plain']?.['get']);
+});
+
+test('an operation without a group or method name is left out when listed, and otherwise stops generation', () => {
+	const reason = 'A reason.';
+	const unnamed = (): OpenApiDocument =>
+		document({
+			'/named': { get: op() },
+			'/unnamed': { get: { operationId: 'nel-settings-get' }, patch: { 'x-fern-sdk-group-name': 'zones' } },
+			// Forge skips it, so it needs no name.
+			'/old': { get: { 'x-fern-ignore': true, deprecated: true } },
+		});
+	const both = { 'GET /unnamed': reason, 'PATCH /unnamed': reason };
+	const doc = unnamed();
+	assert.deepEqual(select(doc, {}, {}, both), { 'no name': 2, deprecated: 1 });
+	assert.deepEqual(Object.keys(doc.paths['/named'] ?? {}), ['get']);
+	assert.deepEqual(Object.keys(doc.paths['/unnamed'] ?? {}), []);
+	assert.deepEqual(Object.keys(doc.paths['/old'] ?? {}), ['get']);
+	assert.throws(() => select(unnamed(), {}, {}, { 'GET /unnamed': reason }), /UNNAMED_OPERATIONS with a reason: PATCH \/unnamed$/);
+	assert.throws(
+		() => select(unnamed(), {}, {}, { ...both, 'GET /named': reason }),
+		/no longer left out for having no name.*GET \/named/,
+	);
+	// Still without a name, but left out first for describing no response.
+	const undescribed = document({ '/nel': { get: { operationId: 'nel-settings-get', responses: { '200': { description: 'OK' } } } } });
+	assert.throws(
+		() => select(undescribed, {}, {}, { 'GET /nel': reason }),
+		/or another rule leaves them out first\. Check them and remove them: GET \/nel$/,
+	);
+});
+
+test('the Domain Connect patch stops applying once its routes move or declare their servers', () => {
+	const patch = SPEC_PATCHES.find(({ id }) => id === 'dns-domainconnect-routes')!;
+	const paths = (extra: Schema = {}): Schema => ({
+		'/v2/{domain}/settings': { get: op(), ...extra },
+		'/v2/provconf/{provider}/{service}/{account}': { get: op() },
+		'/v2/domainTemplates/providers/{provider}/services/{service}': { get: op() },
+		'/v1/verify': { post: op() },
+	});
+	assert.equal(patch.applies(paths()), true);
+	const servers = [{ url: 'https://api.cloudflare.com/client/v4/dns/domainconnect' }];
+	assert.equal(patch.applies(paths({ servers })), false);
+	assert.equal(patch.applies(paths({ get: { ...op(), servers } })), false);
+	assert.equal(patch.applies({ ...paths(), '/dns/domainconnect/v2/verify': { post: op() } }), false);
 });
 
 test('a property is nullable when one allOf branch allows null and the intersection would not', () => {
@@ -218,7 +273,7 @@ test('a rename applies to any operation, hidden or not, and can move it to anoth
 		'/c': { get: { 'x-fern-sdk-group-name': ['x', 'z'], 'x-fern-sdk-method-name': 'get' } },
 	});
 	const reason = 'A reason.';
-	selectOperations(doc, {}, {
+	select(doc, {}, {
 		'POST /a': { from: 'x.y.create', to: 'x.move-one', reason },
 		'POST /b': { from: 'x.account-y.old', to: 'x.y.renamed', reason },
 		'GET /c': { from: 'x.z.get', to: 'x.z.read', reason },
@@ -233,14 +288,14 @@ test('a rename applies to any operation, hidden or not, and can move it to anoth
 test('an entry that no longer matches stops generation', () => {
 	const reason = 'A reason.';
 	const gone = document({});
-	assert.throws(() => selectOperations(gone, { 'GET /gone': reason }, {}), /GET \/gone/);
-	assert.throws(() => selectOperations(gone, {}, { 'GET /gone': { from: 'x.get', to: 'y.get', reason } }), /renames no longer match.*GET \/gone/);
+	assert.throws(() => select(gone, { 'GET /gone': reason }, {}), /GET \/gone/);
+	assert.throws(() => select(gone, {}, { 'GET /gone': { from: 'x.get', to: 'y.get', reason } }), /renames no longer match.*GET \/gone/);
 	const nowDeprecated = document({ '/old': { get: hidden({ deprecated: true }) } });
-	assert.throws(() => selectOperations(nowDeprecated, { 'GET /old': reason }, {}), /GET \/old/);
+	assert.throws(() => select(nowDeprecated, { 'GET /old': reason }, {}), /no longer left out as hidden.*GET \/old/);
 	// The spec fixed the name, or named it something else again.
 	const fixed = document({ '/jobs': { get: { 'x-fern-sdk-group-name': 'logpush.jobs', 'x-fern-sdk-method-name': 'list' } } });
 	assert.throws(
-		() => selectOperations(fixed, {}, { 'GET /jobs': { from: 'logpush.account-jobs.list', to: 'logpush.jobs.list', reason } }),
+		() => select(fixed, {}, { 'GET /jobs': { from: 'logpush.account-jobs.list', to: 'logpush.jobs.list', reason } }),
 		/The spec now names GET \/jobs logpush\.jobs\.list, not logpush\.account-jobs\.list/,
 	);
 });
@@ -251,7 +306,7 @@ test('a rename whose operation is not generated, or that is not group.method, st
 	// Renamed, then left out for describing no response, it would never go stale.
 	const undescribed = document({ '/y': { get: { ...named, responses: { '200': { description: 'OK' } } } } });
 	assert.throws(
-		() => selectOperations(undescribed, {}, { 'GET /y': { from: 'x.account-y.list', to: 'x.y.list', reason } }),
+		() => select(undescribed, {}, { 'GET /y': { from: 'x.account-y.list', to: 'x.y.list', reason } }),
 		/renames no longer match a generated operation.*GET \/y/,
 	);
 	for (const [from, to] of [
@@ -261,7 +316,7 @@ test('a rename whose operation is not generated, or that is not group.method, st
 		['x.account-y.list', 'x.y.'],
 	] as const) {
 		const doc = document({ '/y': { get: { ...named } } });
-		assert.throws(() => selectOperations(doc, {}, { 'GET /y': { from, to, reason } }), /as group\.method: GET \/y/);
+		assert.throws(() => select(doc, {}, { 'GET /y': { from, to, reason } }), /as group\.method: GET \/y/);
 	}
 });
 

@@ -67,22 +67,7 @@ export type GetRequest = {
 	/** Specifies the publid ID of the sink. */
 	sink_id: string;
 };
-export type GetResult = {
-	/** Defines the configuration of the R2 Sink. */
-	config?: $cloudflare_pipelines.R2TablePublic | $cloudflare_pipelines.R2DataCatalogTablePublic;
-	created_at: string;
-	/** Defines the output data format of a sink. */
-	format?: $cloudflare_pipelines.SinkFormat;
-	/** Indicates a unique identifier for this sink. */
-	id: string;
-	modified_at: string;
-	/** Defines the name of the Sink. */
-	name: string;
-	/** Defines the schema of the events in the data stream. */
-	schema?: $cloudflare_pipelines.ConnectionSchema;
-	/** Specifies the type of sink. */
-	type: "r2" | "r2_data_catalog" | "basin_catalog";
-};
+export type GetResult = $cloudflare_pipelines.Sink;
 /**
  * Get Sink Details
  *
@@ -134,3 +119,23 @@ export type ListItem = RootItem<ListResult>;
  * Token permissions (any one): Pipelines Write, Pipelines Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
+
+export type UpdateRequest = {
+	/** Specifies the public ID of the account. */
+	account_id: string;
+	/** Specifies the publid ID of the sink. */
+	sink_id: string;
+	body: {
+		/** Defines the Sink configuration fields to change. At least one field is required; omitted fields keep their current values. */
+		config: $cloudflare_pipelines.R2TableUpdate | $cloudflare_pipelines.BasinCatalogTableUpdate;
+	};
+};
+export type UpdateResult = $cloudflare_pipelines.Sink;
+/**
+ * Update Sink
+ *
+ * Update a Sink's credentials or rolling policy, creating a new version of the Sink. Only `credentials` and `rolling_policy` (R2) or `token` and `rolling_policy` (Basin Catalog, including Sinks created with the legacy `r2_data_catalog` type) can be changed; omitted fields keep their current values. Secrets are never returned in responses. Pipelines that use the Sink keep their current version until they are moved to the latest one with Update Pipeline Tables.
+ *
+ * `PATCH /accounts/{account_id}/pipelines/v1/sinks/{sink_id}`
+ */
+export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -2,4 +2,3 @@
 export * as bots from "./bots/index.js";
 export * as inference from "./inference/index.js";
 export * as markdownForAgents from "./markdown-for-agents/index.js";
-export * as timeseriesGroups from "./timeseries-groups/index.js";

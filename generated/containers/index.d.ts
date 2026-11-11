@@ -13,7 +13,7 @@ export type UsageResult = $cc.AccountUsageResponse;
 /**
  * Get live account usage
  *
- * Get current live resource usage and maximum account limits for the authenticated Cloudchamber account. Usage includes active and assigned instances.
+ * Get current live resource usage and maximum limits for your account. Usage includes active and assigned instances.
  *
  * `GET /accounts/{account_id}/containers/usage`
  */

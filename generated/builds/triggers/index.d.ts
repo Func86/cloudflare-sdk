@@ -21,6 +21,25 @@ export type CreateResult = $builds.TriggerResponse;
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
+export type CreateBuildRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Trigger UUID. */
+	trigger_uuid: string;
+	body: $builds.CreateBuildRequest;
+};
+export type CreateBuildResult = $builds.BuildResponse;
+/**
+ * Start a Workers build
+ *
+ * Start a build for a branch or commit using the selected trigger.
+ *
+ * `POST /accounts/{account_id}/builds/triggers/{trigger_uuid}/builds`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const createBuild: Operation<CreateBuildRequest, CreateBuildResult>;
+
 export type DeleteRequest = {
 	/** Account identifier. */
 	account_id: string;

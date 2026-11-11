@@ -9,7 +9,7 @@ export type CreateRequest = {
 	body: {
 		/** Indicates whether the certificate is a CA or leaf certificate. */
 		ca: $tls_certificates_and_hostnames.Ca;
-		/** The uploaded root CA certificate. */
+		/** The uploaded root CA certificate. Responses return the certificates as Cloudflare stores them, re-encoded as PEM, not byte for byte as uploaded. Each certificate block ends with a newline, base64 lines are wrapped at 64 characters, text between blocks is dropped, and a chain may be reordered. Compare certificates by their decoded content rather than as strings. */
 		certificates: $tls_certificates_and_hostnames.Certificates2;
 		/** Optional unique name for the certificate. Only used for human readability. */
 		name?: $tls_certificates_and_hostnames.Name2;

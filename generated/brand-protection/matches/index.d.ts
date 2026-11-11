@@ -58,6 +58,8 @@ export type GetRequest = {
 	include_dismissed?: string;
 	/** Return only matches whose domain contains this text (case-insensitive). */
 	domain_search?: string;
+	/** Filter matches by quality. Options: 'high' or 'low' */
+	quality?: "high" | "low";
 	/** Field to sort by: `domain`, `first_seen`, or `registrar`. Defaults to `first_seen`. */
 	orderBy?: "domain" | "first_seen" | "registrar";
 	/** Sort direction: `asc` or `desc`. Defaults to `desc`. For single-query requests, `asc` applies only when `orderBy` is set. */
@@ -65,20 +67,27 @@ export type GetRequest = {
 };
 export type GetResult = {
 	matches: ({
+		ai_verdict: "confirmed" | "rejected" | "unavailable" | "not_sent" | null;
 		/** Whether the match is dismissed. Only present for single-query requests. For multi-query requests, use the dismissed field in each match_details entry. */
 		dismissed?: boolean;
 		/** The matched domain name. */
 		domain: string;
 		/** ID of the matched domain. Present only when `include_domain_id=true`. Use it with `query_id` to dismiss or undismiss the match. */
 		domain_id?: number;
+		edit_distance: number | null;
 		/** When the domain was matched. For multi-query requests, the most recent match time across the requested queries. */
 		first_seen: string;
+		match_category: string | null;
 		/** Per-match detail objects with query metadata and individual dismissed state. Only present when multiple query_ids are requested. */
 		match_details?: ({
+			ai_verdict: "confirmed" | "rejected" | "unavailable" | "not_sent" | null;
 			/** Individual dismissed state for this specific match. */
 			dismissed: boolean;
+			edit_distance: number | null;
+			match_category: string | null;
 			/** ID of the match. Accepted by the legacy `match_ids` format. */
 			match_id: number;
+			quality: "high" | "low";
 			/** ID of the domain query that produced this match. */
 			query_id: number;
 			/** Tag associated with the query, if one exists. */
@@ -87,6 +96,7 @@ export type GetResult = {
 		public_scans: {
 			submission_id: string;
 		} | null;
+		quality: "high" | "low";
 		/** Registrar of the matched domain, if known. */
 		registrar: string | null;
 		scan_status: string;

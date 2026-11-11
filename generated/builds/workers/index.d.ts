@@ -22,7 +22,7 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 export type DeleteRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** The Worker script tag (external script ID) */
+	/** Script tag of the Worker. */
 	script_tag: string;
 };
 export type DeleteResult = string;
@@ -41,7 +41,7 @@ export { delete_ as delete };
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** The Worker script tag (external script ID) */
+	/** Script tag of the Worker. */
 	script_tag: string;
 };
 export type GetResult = $builds.WorkerResponse;
@@ -56,10 +56,47 @@ export type GetResult = $builds.WorkerResponse;
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
+export type MigrateToPreviewsRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Script tag of the Worker. */
+	script_tag: string;
+	body: $builds.MigrateToPreviewsRequest;
+};
+export type MigrateToPreviewsResult = $builds.WorkerResponse;
+/**
+ * Migrate worker to previews
+ *
+ * Migrate a Worker's legacy non-production trigger to Previews. The legacy build settings become the Previews base config and the legacy trigger is removed.
+ *
+ * `POST /accounts/{account_id}/builds/workers/{script_tag}/migrate_to_previews`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const migrateToPreviews: Operation<MigrateToPreviewsRequest, MigrateToPreviewsResult>;
+
+export type PurgeCacheRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Script tag of the Worker. */
+	script_tag: string;
+};
+export type PurgeCacheResult = { [key: string]: unknown } | { [key: string]: unknown }[] | null;
+/**
+ * Purge a Worker's build cache
+ *
+ * Delete cached dependencies and build artifacts for a Worker's production and Preview builds.
+ *
+ * `POST /accounts/{account_id}/builds/workers/{script_tag}/purge_build_cache`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const purgeCache: Operation<PurgeCacheRequest, PurgeCacheResult>;
+
 export type UpdateRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** The Worker script tag (external script ID) */
+	/** Script tag of the Worker. */
 	script_tag: string;
 	/** Apply a previews_base_config patch to every existing Preview of the Worker as well as to the base config. */
 	patch_existing_previews?: "true" | "false";

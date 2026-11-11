@@ -2,6 +2,25 @@
 import type { Operation } from "#runtime";
 import type * as $tunnel from "../../_types/tunnel.js";
 
+export type DeleteRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** UUID of the tunnel. */
+	tunnel_id: string;
+};
+export type DeleteResult = $tunnel.Configuration | null;
+/**
+ * Reset Tunnel configuration
+ *
+ * Resets a remotely managed Cloudflare Tunnel to an empty configuration, removing ingress rules and origin request settings. The tunnel remains remotely managed, and private network routes continue to determine WARP routing. Publishes a new configuration version when the configuration changes. Repeated requests succeed without creating additional versions. If the tunnel or configuration is absent, returns a null result. Locally managed tunnels cannot be reset with this endpoint.
+ *
+ * `DELETE /accounts/{account_id}/cfd_tunnel/{tunnel_id}/configurations`
+ *
+ * Token permissions (any one): Cloudflare One Connectors Write, Cloudflare One Connector: cloudflared Write, Cloudflare Tunnel Write.
+ */
+declare const delete_: Operation<DeleteRequest, DeleteResult>;
+export { delete_ as delete };
+
 export type GetRequest = {
 	/** Identifier. */
 	account_id: string;

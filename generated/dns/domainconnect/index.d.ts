@@ -12,20 +12,9 @@ export type GetDomainSettingsResult = { [key: string]: unknown };
  *
  * Checks whether a domain is in Quicksilver and returns its settings.
  *
- * `GET /v2/{domain}/settings`
+ * `GET /dns/domainconnect/v2/{domain}/settings`
  */
 export declare const getDomainSettings: Operation<GetDomainSettingsRequest, GetDomainSettingsResult>;
-
-export type GetHeartbeatRequest = {};
-export type GetHeartbeatResult = string;
-/**
- * Heartbeat response
- *
- * Used by Kubernetes readiness and liveness probes, and CI builder by executing test/staging.sh.
- *
- * `GET /_heartbeat`
- */
-export declare const getHeartbeat: Operation<GetHeartbeatRequest, GetHeartbeatResult>;
 
 export type GetProviderConfigurationRequest = {
 	/** Provider ID. */
@@ -41,7 +30,7 @@ export type GetProviderConfigurationResult = $domain_connect.NeededByStratus;
  *
  * Provides Stratus with extra information about domain connect provider(s).
  *
- * `GET /v2/provconf/{provider}/{service}/{account}`
+ * `GET /dns/domainconnect/v2/provconf/{provider}/{service}/{account}`
  */
 export declare const getProviderConfiguration: Operation<GetProviderConfigurationRequest, GetProviderConfigurationResult>;
 
@@ -59,6 +48,19 @@ export type GetProviderTemplateResult = { [key: string]: unknown };
  *
  * Providers are the external parties that are configured to interact with Cloudflare.
  *
- * `GET /v2/domainTemplates/providers/{provider}/services/{service}`
+ * `GET /dns/domainconnect/v2/domainTemplates/providers/{provider}/services/{service}`
  */
 export declare const getProviderTemplate: Operation<GetProviderTemplateRequest, GetProviderTemplateResult>;
+
+export type PostVerifyRequest = {
+	body: $domain_connect.PostData;
+};
+export type PostVerifyResult = $domain_connect.HttpStatus;
+/**
+ * Request domain connect validation
+ *
+ * Validates a Domain Connect signed request using DNS TXT public keys.
+ *
+ * `POST /dns/domainconnect/v2/verify`
+ */
+export declare const postVerify: Operation<PostVerifyRequest, PostVerifyResult>;

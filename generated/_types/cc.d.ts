@@ -113,7 +113,11 @@ export type ContainersCreateScheduledApplicationRequest = {
 	/** Defines the deployment configuration for every deployment in this application. */
 	configuration: UserDeploymentConfiguration;
 	constraints?: ApplicationConstraints;
-	/** Optionally associates this scheduler-backed application with a Durable Object namespace. */
+	/**
+	 * Associates this scheduler-backed application with a Durable Object namespace. Required
+	 * for default scheduling on private-network-only accounts unless the account has a
+	 * temporary standalone-application exception.
+	 */
 	durable_objects?: DurableObjectsConfiguration;
 	/** The initial number of deployments to create. */
 	instances: number;
@@ -475,7 +479,7 @@ export type ContainersAccountRegistryToken = {
 /** Current durable preparation state for a container image. */
 export type ContainerImagePreparationStatus = "pending" | "ready" | "error";
 
-/** Current live usage, maximum limits, and utilization percentages for a Cloudchamber account. Usage includes active and assigned instances and is a current snapshot, not a historical or billable metric. */
+/** Current live usage, maximum limits, and utilization percentages for your account. Usage includes active and assigned instances and is a current snapshot, not a historical or billable metric. */
 export type AccountUsageResponse = {
 	/** Lists account limits for the resources reported in usage. */
 	maximum: AccountUsageMaximum;

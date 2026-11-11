@@ -89,6 +89,12 @@ export type IncludeSplitTunnelDescription = string;
 /** A description of the Split Tunnel item, displayed in the client UI. */
 export type SplitTunnelDescription = string;
 
+/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+export type IncludeSplitTunnelDescriptionRequest = string | null;
+
+/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+export type SplitTunnelDescriptionRequest = string | null;
+
 /** A description of the policy. */
 export type SchemasDescription = string;
 
@@ -232,6 +238,9 @@ export type CustomS2sInputRequest = {
 /** Determines if the operating system will register WARP's local interface IP with your on-premises DNS server. */
 export type RegisterInterfaceIpWithDns = boolean;
 
+/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+export type EnableNetbt = boolean;
+
 /** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 export type EnableDeviceCredentialAuthentication = boolean;
 
@@ -338,7 +347,7 @@ export type IntuneConfigRequest = {
 /** Intune S2S Input */
 export type IntuneInputRequest = {
 	/** Compliance Status. */
-	compliance_status: "compliant" | "noncompliant" | "unknown" | "notapplicable" | "ingraceperiod" | "error";
+	compliance_status: "compliant" | "noncompliant" | "unknown" | "notapplicable" | "ingraceperiod" | "error" | "conflict" | "configmanager";
 	/** Posture Integration ID. */
 	connection_id: string;
 };
@@ -373,13 +382,13 @@ export type Paths = string[];
 export type Exclude = SplitTunnel[];
 
 /** List of routes excluded in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
-export type ExcludeRequest = SplitTunnel[];
+export type ExcludeRequest = SplitTunnelRequest[];
 
 /** List of routes included in the WARP client's tunnel. */
 export type Include = SplitTunnelInclude[];
 
 /** List of routes included in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
-export type IncludeRequest = SplitTunnelInclude[];
+export type IncludeRequest = SplitTunnelIncludeRequest[];
 
 /** List of trust stores to check for client certificate. */
 export type TrustStores = TrustStoresEnum[];
@@ -535,6 +544,9 @@ export type IncludeSplitTunnelAddress = string;
 /** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Note that this field is omitted from the response if null or unset. */
 export type LanAllowMinutes = number;
 
+/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Set to null to unset. */
+export type LanAllowMinutesRequest = number | null;
+
 /** The amount of time in seconds to reconnect after having been disabled. */
 export type AutoConnect = number;
 
@@ -605,6 +617,9 @@ export type RegistrationType = "warp" | "browser_extension";
 
 /** The size of the subnet for the local access network. Note that this field is omitted from the response if null or unset. */
 export type LanAllowSubnetSize = number;
+
+/** The size of the subnet for the local access network. Set to null to unset. */
+export type LanAllowSubnetSizeRequest = number | null;
 
 /** The summary of a registration. */
 export type RegistrationDetails = {
@@ -743,6 +758,8 @@ export type DefaultDeviceSettingsPolicy = {
 	dns_search_suffixes?: DnsSearchSuffixes;
 	/** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 	enable_device_credential_authentication?: EnableDeviceCredentialAuthentication;
+	/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+	enable_netbt?: EnableNetbt;
 	/** Whether the policy will be applied to matching devices. */
 	enabled?: boolean;
 	/** List of routes excluded in the WARP client's tunnel. */
@@ -755,6 +772,10 @@ export type DefaultDeviceSettingsPolicy = {
 	global_acceleration?: GlobalAcceleration;
 	/** List of routes included in the WARP client's tunnel. */
 	include?: Include;
+	/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Note that this field is omitted from the response if null or unset. */
+	lan_allow_minutes?: LanAllowMinutes;
+	/** The size of the subnet for the local access network. Note that this field is omitted from the response if null or unset. */
+	lan_allow_subnet_size?: LanAllowSubnetSize;
 	policy_id?: SchemasUuid;
 	/** The client type to which the device settings profile applies. This field is set when the profile is created and cannot be changed. */
 	profile_type?: ProfileType;
@@ -876,6 +897,8 @@ export type DeviceSettingsPolicy = {
 	dns_search_suffixes?: DnsSearchSuffixes;
 	/** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 	enable_device_credential_authentication?: EnableDeviceCredentialAuthentication;
+	/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+	enable_netbt?: EnableNetbt;
 	/** Whether the policy will be applied to matching devices. */
 	enabled?: boolean;
 	/** List of routes excluded in the WARP client's tunnel. */
@@ -954,9 +977,23 @@ export type ExcludeSplitTunnelWithAddress = {
 	description?: SplitTunnelDescription;
 };
 
+export type ExcludeSplitTunnelWithAddressRequest = {
+	/** The address in CIDR format to exclude from the tunnel. If `address` is present, `host` must not be present. */
+	address: SplitTunnelAddress;
+	/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+	description?: SplitTunnelDescriptionRequest;
+};
+
 export type ExcludeSplitTunnelWithHost = {
 	/** A description of the Split Tunnel item, displayed in the client UI. */
 	description?: SplitTunnelDescription;
+	/** The domain name to exclude from the tunnel. If `host` is present, `address` must not be present. */
+	host: SplitTunnelHost;
+};
+
+export type ExcludeSplitTunnelWithHostRequest = {
+	/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+	description?: SplitTunnelDescriptionRequest;
 	/** The domain name to exclude from the tunnel. If `host` is present, `address` must not be present. */
 	host: SplitTunnelHost;
 };
@@ -990,9 +1027,23 @@ export type IncludeSplitTunnelWithAddress = {
 	description?: IncludeSplitTunnelDescription;
 };
 
+export type IncludeSplitTunnelWithAddressRequest = {
+	/** The address in CIDR format to include in the tunnel. If `address` is present, `host` must not be present. */
+	address: IncludeSplitTunnelAddress;
+	/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+	description?: IncludeSplitTunnelDescriptionRequest;
+};
+
 export type IncludeSplitTunnelWithHost = {
 	/** A description of the Split Tunnel item, displayed in the client UI. */
 	description?: IncludeSplitTunnelDescription;
+	/** The domain name to include in the tunnel. If `host` is present, `address` must not be present. */
+	host: IncludeSplitTunnelHost;
+};
+
+export type IncludeSplitTunnelWithHostRequest = {
+	/** A description of the Split Tunnel item, displayed in the client UI. Null is treated as an empty description. */
+	description?: IncludeSplitTunnelDescriptionRequest;
 	/** The domain name to include in the tunnel. If `host` is present, `address` must not be present. */
 	host: IncludeSplitTunnelHost;
 };
@@ -1091,6 +1142,10 @@ export type ServiceModeV2 = {
 export type SplitTunnel = ExcludeSplitTunnelWithAddress | ExcludeSplitTunnelWithHost;
 
 export type SplitTunnelInclude = IncludeSplitTunnelWithAddress | IncludeSplitTunnelWithHost;
+
+export type SplitTunnelIncludeRequest = IncludeSplitTunnelWithAddressRequest | IncludeSplitTunnelWithHostRequest;
+
+export type SplitTunnelRequest = ExcludeSplitTunnelWithAddressRequest | ExcludeSplitTunnelWithHostRequest;
 
 export type TargetDexTest = {
 	/** The id of the DEX test targeting this policy. */

@@ -4,3 +4,4 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/pipelines/v1/
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/pipelines/v1/sinks/{sink_id}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/pipelines/v1/sinks","query":["pipeline_id","name","order_by","direction","page","per_page"],"page":{"kind":"page"}};
+export const update = {"method":"PATCH","route":"/accounts/{account_id}/pipelines/v1/sinks/{sink_id}","body":"json"};

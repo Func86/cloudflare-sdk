@@ -60,33 +60,7 @@ export type GetRequest = {
 	/** Specifies the public ID of the pipeline. */
 	pipeline_id: string;
 };
-export type GetResult = {
-	created_at: string;
-	/** Indicates the reason for the failure of the Pipeline. */
-	failure_reason?: string;
-	/** Indicates a unique identifier for this pipeline. */
-	id: string;
-	modified_at: string;
-	/** Indicates the name of the Pipeline. */
-	name: string;
-	/** Specifies SQL for the Pipeline processing flow. */
-	sql: string;
-	/** Indicates the current status of the Pipeline. */
-	status: string;
-	/** List of streams and sinks used by this pipeline. */
-	tables: ({
-		/** Unique identifier for the connection (stream or sink). */
-		id: string;
-		/** Latest available version of the connection. */
-		latest: number;
-		/** Name of the connection. */
-		name: string;
-		/** Type of the connection. */
-		type: "stream" | "sink";
-		/** Current version of the connection used by this pipeline. */
-		version: number;
-	})[];
-};
+export type GetResult = $cloudflare_pipelines.PipelineExtended;
 /**
  * Get Pipeline Details
  *
@@ -327,6 +301,24 @@ export type ListItem = RootItem<ListResult>;
  * Token permissions (any one): Pipelines Write, Pipelines Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
+
+export type UpdateTablesRequest = {
+	/** Specifies the public ID of the account. */
+	account_id: string;
+	/** Specifies the public ID of the pipeline. */
+	pipeline_id: string;
+};
+export type UpdateTablesResult = $cloudflare_pipelines.PipelineExtended;
+/**
+ * Update Pipeline Tables
+ *
+ * Move a Pipeline to the latest version of every stream and sink it uses, such as after updating a Sink. A running Pipeline restarts on the latest versions from a final checkpoint; a paused or stopped Pipeline uses them once it starts.
+ *
+ * `POST /accounts/{account_id}/pipelines/v1/pipelines/{pipeline_id}/update_tables`
+ *
+ * Token permissions (any one): Pipelines Write.
+ */
+export declare const updateTables: Operation<UpdateTablesRequest, UpdateTablesResult>;
 
 export type ValidateSqlRequest = {
 	/** Specifies the public ID of the account. */

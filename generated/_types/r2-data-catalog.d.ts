@@ -79,6 +79,8 @@ export type CatalogCompactionConfig = {
 export type TableCompactionConfig = {
 	/** Earliest time when the scheduler can claim this operation. Null when disabled. */
 	next_eligible_at?: string | null;
+	/** Why the operation is not eligible to run before next_eligible_at. Returned by the per-table GET only, and absent from the update response. `held_after_user_error` means a customer-caused failure holds the lease until it expires. */
+	next_eligible_reason?: NextEligibleReason;
 	/** Specifies the state of maintenance operations. */
 	state: CatalogMaintenanceState;
 	/** Sets the target file size for compaction in megabytes. Defaults to "128". */
@@ -122,6 +124,8 @@ export type SnapshotExpirationConfig = {
 export type Catalog = {
 	/** Specifies the associated R2 bucket name. */
 	bucket: string;
+	/** Specifies the Iceberg REST catalog URI that clients use to connect to the catalog. */
+	catalog_uri?: string;
 	/** Shows the credential configuration status. */
 	credential_status?: CredentialStatus | null;
 	/** Use this to uniquely identify the catalog. */
@@ -183,6 +187,8 @@ export type TableMaintenanceUpdateRequest = {
 
 /** Contains response from activating an R2 bucket as a catalog. */
 export type CatalogActivationResponse = {
+	/** Specifies the Iceberg REST catalog URI that clients use to connect to the catalog. */
+	catalog_uri?: string;
 	/** Use this to uniquely identify the activated catalog. */
 	id: string;
 	/** Specifies the name of the activated catalog. */
@@ -314,6 +320,9 @@ export type TableCompactionUpdateParams = {
 	target_size_mb?: CatalogTargetFileSize;
 };
 
+/** Why the operation is not eligible to run before next_eligible_at. Returned by the per-table GET only, and absent from the update response. `held_after_user_error` means a customer-caused failure holds the lease until it expires. */
+export type NextEligibleReason = "disabled" | "held_after_user_error" | "running" | "no_credential" | "scheduled";
+
 export type MaintenanceRunOperation = {
 	duration_ms: number;
 	error_code?: number | null;
@@ -359,6 +368,8 @@ export type TableSnapshotExpirationConfig = {
 	min_snapshots_to_keep: number;
 	/** Earliest time when the scheduler can claim this operation. Null when disabled. */
 	next_eligible_at?: string | null;
+	/** Why the operation is not eligible to run before next_eligible_at. Returned by the per-table GET only, and absent from the update response. `held_after_user_error` means a customer-caused failure holds the lease until it expires. */
+	next_eligible_reason?: NextEligibleReason;
 	/** Specifies the state of maintenance operations. */
 	state: CatalogMaintenanceState;
 };

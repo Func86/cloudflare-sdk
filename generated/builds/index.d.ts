@@ -4,7 +4,7 @@ import type * as $builds from "../_types/builds.js";
 export * as deployHooks from "./deploy-hooks/index.js";
 export * as latest from "./latest/index.js";
 export * as limits from "./limits/index.js";
-export * as logs from "./logs/index.js";
+export * as previews from "./previews/index.js";
 export * as repos from "./repos/index.js";
 export * as tokens from "./tokens/index.js";
 export * as triggers from "./triggers/index.js";
@@ -14,7 +14,7 @@ export * as workers from "./workers/index.js";
 export type CancelRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Build UUID. */
+	/** UUID of the build, as returned by builds list. */
 	build_uuid: string;
 };
 export type CancelResult = $builds.CanceledBuildResponse;
@@ -32,17 +32,17 @@ export declare const cancel: Operation<CancelRequest, CancelResult>;
 export type CreateRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Trigger UUID. */
-	trigger_uuid: string;
+	/** Script tag of the Worker. */
+	external_script_id: string;
 	body: $builds.CreateBuildRequest;
 };
 export type CreateResult = $builds.BuildResponse;
 /**
- * Start a Workers build
+ * Start a Worker build
  *
- * Start a build for a branch or commit using the selected trigger.
+ * Start a production build for a branch or commit.
  *
- * `POST /accounts/{account_id}/builds/triggers/{trigger_uuid}/builds`
+ * `POST /accounts/{account_id}/builds/workers/{external_script_id}/builds`
  *
  * Token permissions (any one): Workers CI Write.
  */
@@ -51,7 +51,7 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Build UUID. */
+	/** UUID of the build, as returned by builds list. */
 	build_uuid: string;
 };
 export type GetResult = $builds.BuildResponse;
@@ -69,7 +69,7 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type ListRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** System-generated tag of the Worker. This is not the Worker name. */
+	/** Script tag of the Worker. */
 	external_script_id: string;
 	/** Page number for pagination */
 	page?: number;
@@ -81,10 +81,50 @@ export type ListItem = RootItem<ListResult>;
 /**
  * List builds for a Worker
  *
- * List paginated build records associated with a Worker tag.
+ * List paginated build records associated with a Worker.
  *
  * `GET /accounts/{account_id}/builds/workers/{external_script_id}/builds`
  *
  * Token permissions (any one): Workers CI Write, Workers CI Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
+
+export type LogsRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** UUID of the build, as returned by builds list. */
+	build_uuid: string;
+	/** Pagination cursor for log retrieval. */
+	cursor?: $builds.Cursor;
+};
+export type LogsResult = $builds.BuildLogsResponse;
+/**
+ * Get Workers build logs
+ *
+ * Retrieve cursor-paginated log lines for a build UUID.
+ *
+ * `GET /accounts/{account_id}/builds/builds/{build_uuid}/logs`
+ *
+ * Token permissions (any one): Workers CI Write, Workers CI Read.
+ */
+export declare const logs: Operation<LogsRequest, LogsResult>;
+
+export type RetryRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Script tag of the Worker. */
+	script_tag: string;
+	/** UUID of the build, as returned by builds list. */
+	build_uuid: string;
+};
+export type RetryResult = $builds.BuildResponse;
+/**
+ * Retry a Worker build
+ *
+ * Start a new build from the branch and commit of a stopped build.
+ *
+ * `POST /accounts/{account_id}/builds/workers/{script_tag}/builds/{build_uuid}/retry`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const retry: Operation<RetryRequest, RetryResult>;

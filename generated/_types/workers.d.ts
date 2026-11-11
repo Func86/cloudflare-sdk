@@ -822,6 +822,17 @@ export type NamespaceIdentifier = string;
 
 /** Observability settings for the Worker. */
 export type Observability = {
+	/** Agents observability settings for the Worker. */
+	agents?: {
+		/** A list of destinations where Agents observability data will be exported to. */
+		destinations?: string[];
+		/** Whether Agents observability is enabled for the Worker. */
+		enabled?: boolean;
+		/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
+		head_sampling_rate?: number;
+		/** Whether Agents observability data is persisted for the Worker. */
+		persist?: boolean;
+	} | null;
 	/** Whether observability is enabled for the Worker. */
 	enabled?: boolean;
 	/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -863,6 +874,17 @@ export type Observability = {
 
 /** Observability settings for the Worker. */
 export type Observability2 = {
+	/** Agents observability settings for the Worker. */
+	agents?: {
+		/** A list of destinations where Agents observability data will be exported to. */
+		destinations?: string[];
+		/** Whether Agents observability is enabled for the Worker. */
+		enabled?: boolean;
+		/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). Defaults to the root head_sampling_rate. */
+		head_sampling_rate?: number | null;
+		/** Whether Agents observability data is persisted for the Worker. */
+		persist?: boolean;
+	} | null;
 	/** Whether observability is enabled for the Worker. */
 	enabled: boolean;
 	/** The sampling rate for incoming requests. From 0 to 1 (1 = 100%, 0.1 = 10%). Default is 1. */
@@ -1757,6 +1779,17 @@ export type Preview = {
 	name: string;
 	/** Observability settings for the Preview. */
 	observability: {
+		/** Agents observability settings for the Preview. */
+		agents?: {
+			/** A list of destinations where Agents observability data will be exported to. */
+			destinations?: string[];
+			/** Whether Agents observability is enabled for the Preview. */
+			enabled?: boolean;
+			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
+			head_sampling_rate?: number;
+			/** Whether Agents observability data is persisted for the Preview. */
+			persist?: boolean;
+		} | null;
 		/** Whether observability is enabled for the Preview. */
 		enabled?: boolean;
 		/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -1849,6 +1882,17 @@ export type PreviewInput = {
 	name: string;
 	/** Observability settings for the Preview. */
 	observability: {
+		/** Agents observability settings for the Preview. */
+		agents?: {
+			/** A list of destinations where Agents observability data will be exported to. */
+			destinations?: string[];
+			/** Whether Agents observability is enabled for the Preview. */
+			enabled?: boolean;
+			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
+			head_sampling_rate?: number;
+			/** Whether Agents observability data is persisted for the Preview. */
+			persist?: boolean;
+		} | null;
 		/** Whether observability is enabled for the Preview. */
 		enabled?: boolean;
 		/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -2486,6 +2530,8 @@ export type VersionItemFull = VersionItemShort & ({
 			limits?: {
 				/** The amount of CPU time this Worker can use in milliseconds. */
 				cpu_ms?: number;
+				/** The number of subrequests this Worker can make per request. */
+				subrequests?: number;
 			};
 			/** The tag of the Durable Object migration that was most recently applied for this Worker. */
 			migration_tag?: string;
@@ -2568,6 +2614,8 @@ export type VersionItemUploaded = VersionItemFull & {
 			limits?: {
 				/** The amount of CPU time this Worker can use in milliseconds. */
 				cpu_ms?: number;
+				/** The number of subrequests this Worker can make per request. */
+				subrequests?: number;
 			};
 			/** The tag of the Durable Object migration that was most recently applied for this Worker. */
 			migration_tag?: string;
@@ -2590,6 +2638,17 @@ export type Worker = {
 	name: string;
 	/** Observability settings for the Worker. */
 	observability: {
+		/** Agents observability settings for the Worker. */
+		agents?: {
+			/** A list of destinations where Agents observability data will be exported to. */
+			destinations?: string[];
+			/** Whether Agents observability is enabled for the Worker. */
+			enabled?: boolean;
+			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
+			head_sampling_rate?: number;
+			/** Whether Agents observability data is persisted for the Worker. */
+			persist?: boolean;
+		} | null;
 		/** Whether observability is enabled for the Worker. */
 		enabled?: boolean;
 		/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -2719,6 +2778,17 @@ export type WorkerInput = {
 	name: string;
 	/** Observability settings for the Worker. */
 	observability: {
+		/** Agents observability settings for the Worker. */
+		agents?: {
+			/** A list of destinations where Agents observability data will be exported to. */
+			destinations?: string[];
+			/** Whether Agents observability is enabled for the Worker. */
+			enabled?: boolean;
+			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
+			head_sampling_rate?: number;
+			/** Whether Agents observability data is persisted for the Worker. */
+			persist?: boolean;
+		} | null;
 		/** Whether observability is enabled for the Worker. */
 		enabled?: boolean;
 		/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */

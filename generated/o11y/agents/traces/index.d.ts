@@ -21,7 +21,7 @@ export type EventsItem = RootItem<EventsResult>;
 /**
  * List Agent Trace events
  *
- * Returns a page of authorized canonical otel events for a Trace containing named Agent activity, using the existing events-query flow. Searches the full 7-day retention unless from or to narrow it. Events are ordered by event timestamp and ID, newest first. Continue with result_info.cursors.after; one page is not a complete span tree.
+ * Returns a page of a Trace's Agent spans (invoke_agent, chat, execute_tool) and their events, newest first. Trace and span IDs are the same as in the Worker's trace, and each span's parentSpanId links it into the Agent tree. Searches the full 7-day retention unless from or to narrow it. Continue with result_info.cursors.after; one page may not hold the whole tree.
  *
  * `GET /accounts/{account_id}/workers/observability/agents/traces/{traceId}/events`
  */
@@ -41,7 +41,7 @@ export type GetResult = $workers_observability.AgentTraceSummary;
 /**
  * Get an Agent Trace
  *
- * Returns the summary of one Trace containing named Agent activity, with the same fields as the Trace list. Searches the full 7-day retention unless from or to narrow it. List the Trace's events with /agents/traces/{traceId}/events.
+ * Returns the summary of one Trace with Agent activity, with the same fields as the Trace list. Searches the full 7-day retention unless from or to narrow it. List the Trace's Agent spans with /agents/traces/{traceId}/events.
  *
  * `GET /accounts/{account_id}/workers/observability/agents/traces/{traceId}`
  */
@@ -68,7 +68,7 @@ export type ListItem = RootItem<ListResult>;
 /**
  * List Agent Traces
  *
- * Lists Traces with a named Agent invocation in the window, ordered by lastActivityMs, newest first, including work without a Conversation ID. The window defaults to the last 24 hours. Summaries include the Agent names and Conversation IDs seen, authorized Trace duration, chat input/output/total tokens, models, providers, LLM/tool call counts and span-error counts within the effective window.
+ * Lists Traces with Agent activity in the window, newest activity first, including work without a Conversation ID. The window defaults to the last 24 hours. Each summary covers the Trace's Agent spans (invoke_agent, chat, execute_tool): the Agents and Conversation IDs seen, duration, token usage, models, providers, and LLM call, tool call and error counts.
  *
  * `GET /accounts/{account_id}/workers/observability/agents/traces`
  */

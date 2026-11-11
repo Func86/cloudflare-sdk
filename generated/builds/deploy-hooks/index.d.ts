@@ -5,7 +5,7 @@ import type * as $builds from "../../_types/builds.js";
 export type CreateRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Human-readable name of the worker. */
+	/** Name or script tag of the Worker. */
 	script_name: string;
 	body: $builds.CreateDeployHookRequest;
 };
@@ -24,9 +24,9 @@ export declare const create: Operation<CreateRequest, CreateResult>;
 export type DeleteRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Human-readable name of the worker. */
+	/** Name or script tag of the Worker. */
 	script_name: string;
-	/** Deploy hook UUID */
+	/** UUID of the deploy hook, as returned by deploy-hooks list. */
 	deploy_hook_uuid: string;
 };
 export type DeleteResult = $builds.DeployHookResponse;
@@ -45,9 +45,9 @@ export { delete_ as delete };
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Human-readable name of the worker. */
+	/** Name or script tag of the Worker. */
 	script_name: string;
-	/** Deploy hook UUID */
+	/** UUID of the deploy hook, as returned by deploy-hooks list. */
 	deploy_hook_uuid: string;
 };
 export type GetResult = $builds.DeployHookResponse;
@@ -65,7 +65,7 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type ListRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Human-readable name of the worker. */
+	/** Name or script tag of the Worker. */
 	script_name: string;
 };
 export type ListResult = $builds.DetailedDeployHookResponse[];
@@ -81,7 +81,7 @@ export type ListResult = $builds.DetailedDeployHookResponse[];
 export declare const list: Operation<ListRequest, ListResult>;
 
 export type TriggerRequest = {
-	/** Deploy hook UUID */
+	/** UUID of the deploy hook, as returned by deploy-hooks list. */
 	deploy_hook_uuid: string;
 };
 export type TriggerResult = $builds.TriggerDeployHookResponse;
@@ -97,9 +97,9 @@ export declare const trigger: Operation<TriggerRequest, TriggerResult>;
 export type UpdateRequest = {
 	/** Account identifier. */
 	account_id: string;
-	/** Human-readable name of the worker. */
+	/** Name or script tag of the Worker. */
 	script_name: string;
-	/** Deploy hook UUID */
+	/** UUID of the deploy hook, as returned by deploy-hooks list. */
 	deploy_hook_uuid: string;
 	body: $builds.CreateDeployHookRequest;
 };

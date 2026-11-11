@@ -3,4 +3,4 @@ import { definePlugin } from '@cloudflare/forge/plugin';
 import { generateFiles } from './plugin/index.ts';
 
 // eslint-disable-next-line @typescript-eslint/unbound-method -- Forge's documented entry; its methods don't use `this`.
-export const { generate, generateGroup } = definePlugin({ generate: generateFiles });
+export const { generate } = definePlugin({ generate: generateFiles });

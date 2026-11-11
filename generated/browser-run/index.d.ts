@@ -3,3 +3,4 @@ export * as crawl from "./crawl/index.js";
 export * as devtools from "./devtools/index.js";
 export * as quickAction from "./quick-action/index.js";
 export * as recording from "./recording/index.js";
+export * as script from "./script/index.js";

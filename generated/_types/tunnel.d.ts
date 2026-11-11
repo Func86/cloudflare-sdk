@@ -296,6 +296,9 @@ export type Hostname = string;
 /** The hostname route ID. */
 export type HostnameRouteId = string;
 
+/** The key of a Data Localization Suite region. */
+export type RegionKey = string;
+
 /** The private IPv4 or IPv6 range connected by the route, in CIDR notation. */
 export type IpNetwork = string;
 
@@ -373,6 +376,16 @@ export type VirtualNetworkId = string;
 /** UUID of the virtual network. */
 export type VirtualNetworkIdComputedOptional = string;
 
+export type AccountRegion = {
+	/** The key of a Data Localization Suite region. */
+	region_key: RegionKey;
+};
+
+export type ActiveAccountRegion = {
+	/** The key of the account's active Data Localization Suite region, or `null` if the account has not selected a region. */
+	region_key: string | null;
+};
+
 export type HostnameRoute = {
 	/** An optional description of the hostname route. */
 	comment?: HostnameComment;
@@ -430,6 +443,11 @@ export type MeshLocalConfig = {
 export type MeshVipEntry = {
 	/** Virtual IP address (IPv4 or IPv6). */
 	address: string;
+};
+
+export type PutAccountRegionBody = {
+	/** The key of a Data Localization Suite region. */
+	region_key: RegionKey;
 };
 
 export type Route = {

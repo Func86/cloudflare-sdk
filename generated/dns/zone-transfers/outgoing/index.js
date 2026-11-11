@@ -6,5 +6,5 @@ export const disable = {"method":"POST","route":"/zones/{zone_id}/secondary_dns/
 export const enable = {"method":"POST","route":"/zones/{zone_id}/secondary_dns/outgoing/enable"};
 export const forceNotify = {"method":"POST","route":"/zones/{zone_id}/secondary_dns/outgoing/force_notify"};
 export const get = {"method":"GET","route":"/zones/{zone_id}/secondary_dns/outgoing"};
+export const status = {"method":"GET","route":"/zones/{zone_id}/secondary_dns/outgoing/status"};
 export const update = {"method":"PUT","route":"/zones/{zone_id}/secondary_dns/outgoing","body":"json"};
-export * as status from "./status/index.js";

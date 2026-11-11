@@ -179,20 +179,30 @@ export type CreateResult = {
 		status?: "waiting" | "ready" | "stale" | "error";
 		tools: { [key: string]: unknown }[];
 		updated_prompts?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 		updated_tools?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 	})[];
 };
@@ -347,20 +357,30 @@ export type ListResult = ({
 		status?: "waiting" | "ready" | "stale" | "error";
 		tools: { [key: string]: unknown }[];
 		updated_prompts?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 		updated_tools?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 	})[];
 })[];
@@ -472,20 +492,30 @@ export type ReadResult = {
 		status?: "waiting" | "ready" | "stale" | "error";
 		tools: { [key: string]: unknown }[];
 		updated_prompts?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 		updated_tools?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 	})[];
 };
@@ -705,20 +735,30 @@ export type UpdateResult = {
 		status?: "waiting" | "ready" | "stale" | "error";
 		tools: { [key: string]: unknown }[];
 		updated_prompts?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 		updated_tools?: {
+			/** Effective availability of the capability: the portal-level value when set, otherwise the server-level value. */
 			enabled?: boolean;
 			name: string;
 			portal_alias?: string;
 			portal_description?: string;
+			/** Availability set on this portal. Absent when the portal does not set it. */
+			portal_enabled?: boolean;
 			server_alias?: string;
 			server_description?: string;
+			/** Availability set on the MCP server. Absent when the server does not set it. */
+			server_enabled?: boolean;
 		}[];
 	})[];
 };

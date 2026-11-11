@@ -69,12 +69,12 @@ export type TurnKeyObject = {
 export type TurnKeyWithKey = {
 	/** The date and time the item was created. */
 	created: Created;
-	/** Bearer token */
-	key: TurnKey;
 	/** The date and time the item was last modified. */
 	modified: Modified;
 	/** A short description of a TURN key, not shown to end users. */
 	name: TurnKeyName;
+	/** Bearer token */
+	secret: TurnKey;
 	/** A Cloudflare-generated unique identifier for a item. */
 	uid: Identifier;
 };

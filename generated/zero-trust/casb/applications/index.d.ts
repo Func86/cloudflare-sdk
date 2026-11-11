@@ -9,6 +9,8 @@ export type GetRequest = {
 	account_id: string;
 	/** Application/vendor identifier. */
 	application_id: "ANTHROPIC" | "AWS" | "BITBUCKET" | "BOX" | "CONFLUENCE" | "DROPBOX" | "GITHUB" | "GOOGLE_CLOUD_PLATFORM" | "GOOGLE_WORKSPACE" | "JIRA" | "MICROSOFT_INTERNAL" | "OPENAI" | "SALESFORCE" | "SERVICENOW" | "SLACK" | "ZOOM";
+	/** Environment to request (standard, fedramp). The result follows the account's FedRAMP entitlement: FedRAMP-enabled accounts always receive FedRAMP applications and other accounts receive standard applications. Any other non-empty value returns 400. */
+	environment?: "fedramp" | "standard";
 };
 export type GetResult = $one.ApplicationDetail;
 /**
@@ -23,8 +25,8 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type ListRequest = {
 	/** Cloudflare account identifier. */
 	account_id: string;
-	/** Filter by supported environment (standard, fedramp). */
-	environment?: string;
+	/** Environment to request (standard, fedramp). The result follows the account's FedRAMP entitlement: FedRAMP-enabled accounts always receive FedRAMP applications and other accounts receive standard applications. Any other non-empty value returns 400. */
+	environment?: "fedramp" | "standard";
 	/** A page number within the paginated result set. */
 	page?: number;
 	/** Number of results to return per page. */

@@ -36,7 +36,8 @@
    "GET /accounts/{account_id}/pay-per-use/enabled-domains",
    "GET /accounts/{account_id}/r2-catalog/{bucket_name}/namespaces/{namespace}/tables/{table_name}/maintenance-runs",
    "GET /accounts/{account_id}/stream",
-   "GET /accounts/{account_id}/vectorize/v2/indexes/{index_name}/list"
+   "GET /accounts/{account_id}/vectorize/v2/indexes/{index_name}/list",
+   "GET /accounts/{account_id}/dex/notifications/{notification_id}/outcomes"
   ],
   "result has several arrays: details, namespace_uuids, namespaces": [
    "GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces",

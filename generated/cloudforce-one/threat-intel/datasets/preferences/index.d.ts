@@ -12,6 +12,8 @@ export type DeleteResult = {
 	account: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -29,6 +31,8 @@ export type DeleteResult = {
 	user: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -58,6 +62,8 @@ export type GetResult = {
 	account: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -75,6 +81,8 @@ export type GetResult = {
 	user: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -98,7 +106,7 @@ export type UpdateRequest = {
 	/** Account ID. */
 	account_id: string;
 	body?: {
-		/** The dataset UUIDs to use when a request omits `datasetId`: 1 to 50 datasets you can read. Duplicates are ignored. */
+		/** The dataset UUIDs to use when a request omits `datasetId`: 1 to 50 datasets you can read, either all analytics datasets or all intelligence datasets. Duplicates are ignored. */
 		datasetIds: string[];
 		/** `user` sets your own default datasets. `account` sets the default datasets for everyone in the account who has not set their own, and requires permission to edit the account's Cloudforce One settings. */
 		scope: "user" | "account";
@@ -109,6 +117,8 @@ export type UpdateResult = {
 	account: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -126,6 +136,8 @@ export type UpdateResult = {
 	user: {
 		/** The saved dataset UUIDs. */
 		datasetIds: string[];
+		/** True when the saved datasets mix analytics and intelligence datasets, for example after a dataset's analytics setting changed. Such a preference is skipped. */
+		mixesDatasetKinds: boolean;
 		/** Saved datasets that you can no longer read or that were deleted. While this list is not empty, the preference is skipped. */
 		unresolvableDatasetIds: string[];
 		/** When the preference was last set. */
@@ -137,7 +149,7 @@ export type UpdateResult = {
 /**
  * Set default datasets
  *
- * Sets the datasets to use when a request omits `datasetId`, for you (`scope` `user`) or for the account (`scope` `account`). Your own default datasets take precedence over the account's. Every dataset must exist and be readable by the account.
+ * Sets the datasets to use when a request omits `datasetId`, for you (`scope` `user`) or for the account (`scope` `account`). Your own default datasets take precedence over the account's. Every dataset must exist and be readable by the account, and the list cannot mix analytics and intelligence datasets.
  *
  * `PUT /accounts/{account_id}/cloudforce-one/events/datasets/preferences`
  *

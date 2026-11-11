@@ -109,7 +109,7 @@ export type MitigationStatus = "pending" | "active" | "in_review" | "cancelled" 
 export type AppealType = "counter_notice" | "content_removed";
 
 /** The type of entity targeted by a mitigation. */
-export type MitigatedEntityType = "url_pattern" | "account" | "zone" | "custom_expression";
+export type MitigatedEntityType = "url_pattern" | "account" | "zone" | "domain" | "custom_expression";
 
 /** The type of mitigation applied to a reported entity. */
 export type MitigationType = string;

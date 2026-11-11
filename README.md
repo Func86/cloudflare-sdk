@@ -55,9 +55,9 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
   breaks off or times out while it's read.
 - An operation that can answer in several formats returns a union, so narrow it: `screenshot` gives a `Uint8Array` for
   an image. A call's `headers` can ask for a format, such as `{ accept: 'text/csv' }`.
-- Server-sent events, which `queues.metrics.get` sends when asked for `text/event-stream`, come back as a
-  `ReadableStream` to read as they arrive. `timeoutMs` stops applying once it's returned, and the call's `signal` ends
-  it.
+- Server-sent events, which `queues.metrics.get` sends when asked for `text/event-stream` and a Browser Run script
+  can return, come back as a `ReadableStream` to read as they arrive. `timeoutMs` stops applying once it's returned,
+  and the call's `signal` ends it.
 - Headers apply from least to most specific: the client's, then the operation's `accept` and content type, then the
   request's header fields, then the call's `headers`. A form always leaves its content type to `fetch`, which adds the
   boundary.
@@ -140,7 +140,7 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 | --- | --- |
 | `generator/generate.ts` | Holds the pin, and pipes the document through `forge normalize` into the plugin |
 | `generator/prepare.ts` | Changes the document for what the plugin can't decide (see below) |
-| `generator/patches.ts` | Spec corrections with evidence, pagination overrides, hidden operations left out, renames, comma-separated lists |
+| `generator/patches.ts` | Spec corrections with evidence, pagination overrides, hidden and unnamed operations left out, renames, comma-separated lists |
 | `generator/entry.ts` | The plugin's entry module, which `forge-plugin build` compiles |
 | `generator/plugin/operations.ts` | Reads Forge's methods, including pagination inference |
 | `generator/plugin/types.ts` | Prints Forge's types as TypeScript, with separate read and write variants |
@@ -160,16 +160,18 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 
 - **Pagination is inferred from the response shape.** Only 2 operations state it with `x-fern-pagination`. A GET
   with page, cursor or offset parameters paginates over `result`, or over the one array inside it. Anything
-  ambiguous isn't paginated and is listed in `generated/_meta/report.json` (44 operations today).
+  ambiguous isn't paginated and is listed in `generated/_meta/report.json` (45 operations today).
 - **`readOnly` fields get a separate input type,** `FooInput`, where they're optional. A value read from the API can
   still be sent back.
-- **An operation with several formats is read by each response's content type.** 15 operations declare JSON and
-  something else, so their result is a union. The 3 with a binary format send `Accept: */*`, as operations with no JSON
-  do. The 11 with a text format and the 1 with server-sent events keep `application/json`, because some choose by
-  `Accept`, such as CSV. The 15 SCIM operations ask for `application/scim+json`, the only JSON they declare. One
-  operation declares several formats and no JSON, `cloudforce-one.threat-signals.feeds.getRaw`: it's read the same way,
-  as `Uint8Array | string` for its XML and text, and a response with no content type, or with JSON, is read as XML is.
-  The runtime and the generator sort media types by one rule, in `src/media.ts`.
+- **An operation with several formats is read by each response's content type.** 17 operations declare JSON and
+  something else, so their result is a union. The 5 with a binary format send `Accept: */*`, as operations with no JSON
+  do, including Browser Run's 2 script operations, which a patch lets return server-sent events too, as a script's
+  `Response` keeps its content type. The 11 with a text format and the 1 other with server-sent events keep
+  `application/json`, because some choose by `Accept`, such as CSV. The 15 SCIM operations ask for
+  `application/scim+json`, the only JSON they declare. One operation declares several formats and no JSON,
+  `cloudforce-one.threat-signals.feeds.getRaw`: it's read the same way, as `Uint8Array | string` for its XML and text,
+  and a response with no content type, or with JSON, is read as XML is. The runtime and the generator sort media types
+  by one rule, in `src/media.ts`.
 - **A field declared in several `allOf` branches keeps what each says.** Envelopes often declare `result` more than
   once: a generic one never replaces a concrete one, and concrete ones combine. `images.list` keeps the base's
   `continuation_token` beside its `images`, and `rules.lists.*` keeps its list types over the base's "any object or
@@ -216,8 +218,10 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   without and the spec names as the discriminator, apart from an update that only moves a rule, by its `position` with no
   field of a rule beside it; take each rule's `action_parameters` from its action alone, as the API refuses any other
   key; let a ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds keys builds by the
-  version ID asked for; and add the 3 fields a Logpush job has undeclared and stop a listed job from being `null`.
-  `RequestRule` lists
+  version ID asked for; let a Browser Run script's result hold nested arrays; put Domain Connect's routes under
+  `/dns/domainconnect`, where the API serves them, and its `verify` at `v2`; add the 3 fields a Logpush job has
+  undeclared and stop a listed job from being `null`; and declare the `notificationUrl` that Stream's webhook body
+  requires but leaves undeclared, as the spec hides the `notification_url` it declares from SDKs. `RequestRule` lists
   its variants so that each declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in
   `generator/patches.ts` says: the six actions that take no parameters, such as `log`, have `action_parameters?:
   never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule` or
@@ -229,21 +233,23 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
   `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
   Builds splits, as a live check showed.
-- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name
-  3,631 of its 3,633 operations, and cf uses them too. They follow current product names, and a mistake in them shows
-  in Cloudflare's own CLI. A rename in `generator/patches.ts` fixes a mistake, with its reason, and stops generation once
-  the spec names the operation otherwise. 32 are renamed, to the official SDK's names where it has them: an `account-`
-  group from before account and zone routes were merged, such as `logpush.account-jobs` for `logpush.jobs`; Logpush
-  validations named `delete` and `create`; 4 hidden Cloudforce One methods that repeat their group, such as
-  `cloudforceOneRequestGet` for `get`, as a hidden operation's name is never shown; and the hidden Email Security move
-  described below. Forge stops when two operations take one name, so a rename can't take another's. Every name passes three rules, which
-  `npm test` checks: its verb is one its HTTP method does, apart from an RPC-style route such as `POST …/bulk/delete`
-  and a read by POST whose body says what to read, such as `ai-audit.robots.bulkGet`; an account-or-zone route has no
-  `account-` or `zone-` group; and a method doesn't repeat its group. `npm run generate` lists the names that break one
-  in `_meta/report.json`, and prints the names it renamed or removed against the last output, which break the calls
-  that import them. It compares names, so one that moves to another route is unchanged. A second run would print
-  nothing, so for release notes `npm run names -- <git ref>` compares the output with a commit's, such as the last
-  release's.
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,651
+  of its 3,653 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
+  Cloudflare's own CLI. Forge would name the other 2, for the NEL setting, by their `operationId`, outside any group, so
+  `UNNAMED_OPERATIONS` in `generator/patches.ts` leaves them out, as `zones.settings.get` and `edit` reach them with
+  `setting_id: 'nel'`. Another operation without a name stops generation. A rename in `generator/patches.ts` fixes a
+  mistake, with its reason, and stops generation once the spec names the operation otherwise. 32 are renamed, to the
+  official SDK's names where it has them: an `account-` group from before account and zone routes were merged, such as
+  `logpush.account-jobs` for `logpush.jobs`; Logpush validations named `delete` and `create`; 4 hidden Cloudforce One
+  methods that repeat their group, such as `cloudforceOneRequestGet` for `get`, as a hidden operation's name is never
+  shown; and the hidden Email Security move described below. Forge stops when two operations take one name, so a rename
+  can't take another's. Every name passes three rules, which `npm test` checks: its verb is one its HTTP method does,
+  apart from an RPC-style route such as `POST …/bulk/delete` and a read by POST whose body says what to read, such as
+  `ai-audit.robots.bulkGet`; an account-or-zone route has no `account-` or `zone-` group; and a method doesn't repeat
+  its group. `npm run generate` lists the names that break one in `_meta/report.json`, and prints the names it renamed
+  or removed against the last output, which break the calls that import them. It compares names, so one that moves to
+  another route is unchanged. A second run would print nothing, so for release notes `npm run names -- <git ref>`
+  compares the output with a commit's, such as the last release's.
 
 ### What `prepare.ts` works around
 
@@ -252,8 +258,8 @@ output with a direct reading of the spec. No type check catches them, because th
 
 | In the spec | What Forge does | What `prepare.ts` does |
 | --- | --- | --- |
-| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (249 names) |
-| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (592 properties) |
+| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (251 names) |
+| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (597 properties) |
 | `writeOnly` | Has no such flag | Stops requiring the field (14), so responses don't promise it |
 | `nullable` in one `allOf` branch, such as Pages' `latest_deployment` | Drops it, or intersects it away | Makes the `allOf` nullable (9 that reach a type, and an error body), whether a property, an item or a map's values, as the official SDK types Pages' |
 
@@ -272,7 +278,7 @@ Forge also has no `allowReserved`, which R2 object keys declare because the spec
 
 ### Hidden operations
 
-The spec marks 522 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
+The spec marks 540 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
 unless there's a concrete reason not to, because the mark doesn't mean an operation is broken: Libreflare calls
 `POST /secrets_store/stores`, which is one of them.
 
@@ -295,9 +301,9 @@ be unfinished.
 
 ### Operations with no declared response
 
-28 operations, hidden or not, answer with a status like 200 and declare no content, only a description such as
+29 operations, hidden or not, answer with a status like 200 and declare no content, only a description such as
 `"200": { "description": "List of PIRs" }`. No type exists to generate, and the official SDK has none either. Only a
-captured response could provide one, and nothing here uses them, so they're left out. They include 19 under
+captured response could provide one, and nothing here uses them, so they're left out. They include 21 under
 `cloudforce-one`, such as `priority-intelligence` and `requests/{project_type}/quota`.
 
 `DELETE`s are the exception: 13 stay in as `void`, because a caller doesn't depend on the body and a failure still throws
@@ -306,7 +312,8 @@ a spec patch does, since patches run first.
 
 ## Findings
 
-Measured on 2026-11-07, against `cloudflare` 7.1.0 and 7.4.0, spec `07fc9fa4` and Forge `0d187743`.
+Measured on 2026-11-07, against `cloudflare` 7.1.0 and 7.4.0, spec `07fc9fa4` and Forge `0d187743`, unless an entry
+gives its own date.
 
 ### Why not the official SDK
 
@@ -369,6 +376,12 @@ Expect to write patches.
   `GET /builds/builds/not-a-uuid` fails with `error` rather than `errors`. `builds.versions.get` with 10 version IDs
   keys each build by the version ID asked for, and no build has a `worker_version_id`. An empty list is `[]` from Rules
   Lists, account Logpush jobs and Builds triggers, and `{ reports: null }` from abuse reports, which a patch types.
+- Read-only on the live API on 2026-11-12, against spec `debf614f`: Domain Connect answers under `/dns/domainconnect`,
+  and the spec's routes get 404. Its `verify` there is at `v2`, which reads the spec's body: a made-up `domain`,
+  `hash` and `sig` got 403, "unknown public key domain". A module Worker's content is `multipart/form-data`, which
+  `formData()` splits into its modules.
+- Browser Run scripts on a test account on 2026-11-12: nested arrays come back as returned, and a `Response` keeps its
+  content type, as an image did.
 - Ruleset writes on a test zone: dry runs refuse a rule without its `action` and an unknown key in
   `action_parameters`, and read a `position` alone as a move. A saved rule drops `action_parameters: {}`. An empty
   ruleset leaves out `rules`, and every ruleset read has its `version` and `last_updated`.
@@ -379,6 +392,10 @@ Expect to write patches.
 
 ### Not verified
 
+- `dns.domainconnect.postVerify`'s result, as no validly signed request was tried.
+- A service-worker script's content as `application/javascript`, as the test account has only module Workers.
+- Server-sent events from a Browser Run script. Their patch rests on an image keeping its content type, as the tool
+  used for live checks hides headers.
 - 23 operations this paginates and the official SDK doesn't. 6 where the spec declares a cursor and the SDK uses page
   numbers.
 - Any write operation against the live API other than those ruleset writes.
@@ -394,6 +411,8 @@ Expect to write patches.
 - That literal slashes matter. A `GET` of an existing R2 key worked live both with them and with `%2F`, as far as that
   tool passes a path unchanged. They're kept because the spec requires them. `PUT` and `DELETE` weren't tried.
 - `artifacts.namespaces.repos.raw.get`. Its two spec patches rest on its descriptions, as the test account gets a 403.
+- `notificationUrl` on `stream.webhooks.update`. Its spec patch rests on Stream's docs, as the test account has no
+  Stream.
 - That every cursor ends. A cursor list has no request limit, because a limit would silently cut it short. Most cursor
   endpoints weren't tried, and one that always sent a new cursor would never finish.
 - String entries in `errors` and `messages`. The spec declares them on 184 operations, but the responses tried had objects
@@ -408,24 +427,23 @@ Expect to write patches.
   literal `properties` key.
 - **The official SDK reaches 130 endpoints this doesn't:** 96 deprecated, 18 not in the spec, 7 for Terraform alone, 4
   with no declared response (including `POST /stream`), 3 left out above, and 2 with no group name
-  (`/zones/{zone_id}/settings/nel`).
+  (`/zones/{zone_id}/settings/nel`), which `zones.settings.get` and `edit` reach with `setting_id: 'nel'`.
 
 ## Forge dependencies
 
-Forge is early. Its plugin interface is pre-1.0 (WIT 0.3.0), and it says breaking changes will bump the minor version.
+Forge is early. Its plugin interface is pre-1.0 (WIT 0.4.0), and it says breaking changes will bump the minor version.
 Pinning it by commit means nothing moves until the pin does, and a change in the spec's extensions reaches this code
 through `forge normalize`. Aliases replace the name they rename, so the output has `o11y.*` and not `observability.*`,
 as cf does.
 
 ## Why not Forge's built-in `--target ts`
 
-- It fails on the pinned spec: `schemas "stream_watermarkAtUpload" and "stream_watermark_at_upload" have the same name`.
-
-From its source, once that's fixed:
+It runs on the pinned spec, which no longer names two schemas alike as the earlier `07fc9fa4` did. From its source and
+its output:
 
 - It decodes `date-time` to `Temporal.Instant` and rethrows the `ReferenceError` when `Temporal` is missing, which it
   is on `workerd`.
-- It skips non-JSON operations (58 by its rule), including Worker uploads.
+- It skips operations that don't use JSON, including Worker uploads.
 - It renames fields to camelCase through runtime codecs, which adds weight this design avoids.
 
 Cloudflare says official Forge-based SDKs are coming, with no date. Keeping application code to `send` and `paginate`

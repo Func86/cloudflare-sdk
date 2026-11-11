@@ -9,7 +9,7 @@ export type CreateRequest = {
 	body: {
 		/** Optional specification of how often to re-alert from the same incident, not support on all alert types. */
 		alert_interval?: $aaa.AlertInterval;
-		/** Refers to which event will trigger a Notification dispatch. You can use the endpoint to get available alert types which then will give you a list of possible values. */
+		/** Refers to which event will trigger a Notification dispatch. You can use the endpoint to get available alert types which then will give you a list of possible values. This enum lists every alert type, not the ones a given account can create, since some types depend on entitlements or account type. To get the alert types an account can create, call `GET /accounts/{account_id}/alerting/v3/available_alerts`. */
 		alert_type: $aaa.AlertType;
 		/** Optional description for the Notification policy. */
 		description?: $aaa.SchemasDescription;
@@ -128,7 +128,7 @@ export type UpdateRequest = {
 	body: {
 		/** Optional specification of how often to re-alert from the same incident, not support on all alert types. */
 		alert_interval?: $aaa.AlertInterval;
-		/** Refers to which event will trigger a Notification dispatch. You can use the endpoint to get available alert types which then will give you a list of possible values. */
+		/** Refers to which event will trigger a Notification dispatch. You can use the endpoint to get available alert types which then will give you a list of possible values. This enum lists every alert type, not the ones a given account can create, since some types depend on entitlements or account type. To get the alert types an account can create, call `GET /accounts/{account_id}/alerting/v3/available_alerts`. */
 		alert_type?: $aaa.AlertType;
 		/** Optional description for the Notification policy. */
 		description?: $aaa.SchemasDescription;

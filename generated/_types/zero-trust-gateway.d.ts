@@ -699,6 +699,9 @@ export type Slug = string;
 /** Unique URL to download the PAC file. */
 export type Url = string;
 
+/** Update the rule description. If omitted, the description is unchanged. Set to an empty string to clear the description. */
+export type PatchDescription = string;
+
 export type AccountLogOptions = {
 	/** Specify whether to log all requests to this service. */
 	log_all?: boolean;

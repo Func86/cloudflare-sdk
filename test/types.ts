@@ -7,6 +7,8 @@ import { createMockClient, withResultInfo } from '@libreflare/cloudflare-sdk/tes
 import { get as getEntitlements } from '@libreflare/cloudflare-sdk/accounts/entitlements';
 import { list as listModels } from '@libreflare/cloudflare-sdk/ai/models';
 import { create as createWatermark } from '@libreflare/cloudflare-sdk/stream/watermarks';
+import { update as updateWebhook } from '@libreflare/cloudflare-sdk/stream/webhooks';
+import type { CreateResult as ScriptResult, ExecuteResult as SessionScriptResult } from '@libreflare/cloudflare-sdk/browser-run/script';
 import { get as getRawFile } from '@libreflare/cloudflare-sdk/artifacts/namespaces/repos/raw';
 import { screenshot } from '@libreflare/cloudflare-sdk/browser-run/quick-action';
 import { create as createImage, list as listImages } from '@libreflare/cloudflare-sdk/images';
@@ -160,6 +162,11 @@ export async function checks(): Promise<void> {
 	// @ts-expect-error This operation only takes JSON.
 	await cf.send(deployments.create, { ...scope, body: new FormData() });
 
+	// A spec patch declares the webhook URL under the name SDKs send.
+	await cf.send(updateWebhook, { account_id: 'a', body: { notificationUrl: 'https://example.com/hook' } });
+	// @ts-expect-error The spec hides `notification_url` from SDKs, so it's an unknown field even beside `notificationUrl`.
+	await cf.send(updateWebhook, { account_id: 'a', body: { notificationUrl: 'https://example.com/hook', notification_url: 'https://example.com/hook' } });
+
 	// A bare branch of a union is part of the result, and doesn't change the items.
 	const models = await cf.send(listModels, { account_id: 'a' });
 	// @ts-expect-error It may be the bare `{ data }`, which isn't an array.
@@ -222,6 +229,10 @@ assertType<Equal<null extends Project['latest_deployment'] ? true : false, true>
 assertType<Equal<null extends ZarazConfigs[string] ? true : false, true>>();
 // Except where a spec patch says the branch's `nullable` isn't about the whole.
 assertType<Equal<null extends ApiShieldOperation ? true : false, false>>();
+
+// Spec patches let a Browser Run script's result hold nested arrays, or be server-sent events from its `Response`.
+assertType<Equal<number[][] extends ScriptResult & SessionScriptResult ? true : false, true>>();
+assertType<Equal<ReadableStream<Uint8Array> extends ScriptResult & SessionScriptResult ? true : false, true>>();
 
 // A method named with a reserved word is exported only under its name, as in index.js.
 // @ts-expect-error The local `delete_` isn't exported.

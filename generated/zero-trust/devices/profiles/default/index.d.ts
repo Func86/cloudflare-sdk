@@ -38,6 +38,8 @@ export type UpdateRequest = {
 		dns_search_suffixes?: $teams_devices.DnsSearchSuffixes;
 		/** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 		enable_device_credential_authentication?: $teams_devices.EnableDeviceCredentialAuthentication;
+		/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+		enable_netbt?: $teams_devices.EnableNetbt;
 		/** List of routes excluded in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
 		exclude?: $teams_devices.ExcludeRequest;
 		/** Whether to add Microsoft IPs to Split Tunnel exclusions. */
@@ -46,10 +48,10 @@ export type UpdateRequest = {
 		global_acceleration?: $teams_devices.GlobalAcceleration;
 		/** List of routes included in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
 		include?: $teams_devices.IncludeRequest;
-		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Note that this field is omitted from the response if null or unset. */
-		lan_allow_minutes?: $teams_devices.LanAllowMinutes;
-		/** The size of the subnet for the local access network. Note that this field is omitted from the response if null or unset. */
-		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSize;
+		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Set to null to unset. */
+		lan_allow_minutes?: $teams_devices.LanAllowMinutesRequest;
+		/** The size of the subnet for the local access network. Set to null to unset. */
+		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSizeRequest;
 		/** Determines if the operating system will register WARP's local interface IP with your on-premises DNS server. */
 		register_interface_ip_with_dns?: $teams_devices.RegisterInterfaceIpWithDns;
 		/** Determines whether the WARP client indicates to SCCM that it is inside a VPN boundary. (Windows only). */

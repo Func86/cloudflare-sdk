@@ -35,7 +35,7 @@ export declare const get: Operation<GetRequest, GetResult>;
 
 export type UpdateRequest = {
 	account_id: string;
-	body: $teams_devices.SplitTunnel[];
+	body: $teams_devices.SplitTunnelRequest[];
 };
 export type UpdateResult = $teams_devices.SplitTunnel[];
 /**

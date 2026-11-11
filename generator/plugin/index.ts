@@ -309,13 +309,32 @@ function modelFiles(models: Models): File[] {
 	});
 }
 
+/**
+ * The groups that get files: all but Forge's root, which holds the methods without a group
+ * name and has no import path. Stops if the root has any.
+ */
+export function namedGroups(forge: Forge): Group[] {
+	const named: Group[] = [];
+	for (const group of forge.groups) {
+		if (group.parent !== undefined) {
+			named.push(group);
+		} else if (group.methods.length > 0) {
+			const routes = group.methods.map((method) => `${method.httpMethod} ${method.path}`);
+			throw new Error(
+				`Forge put these operations in its root group, which has no import path: ${routes.join(', ')}. An operation without a name stops generation in generator/prepare.ts, or is left out through UNNAMED_OPERATIONS, so these got a method name without a group some other way, such as through an alias.`,
+			);
+		}
+	}
+	return named;
+}
+
 export function generateFiles(forge: Forge): File[] {
 	const report: Report = {};
 	const naming: Report = {};
 	const models = new Models(forge);
 	const files: File[] = [];
 	const manifest: unknown[] = [];
-	for (const group of forge.groups) {
+	for (const group of namedGroups(forge)) {
 		const operations = group.methods.map((method) => resolveOperation(method, report));
 		const groups = group.path.map((name) => name.kebab());
 		group.methods.forEach((method, index) => {

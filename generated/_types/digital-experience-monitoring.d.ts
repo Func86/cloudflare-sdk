@@ -210,6 +210,27 @@ export type AggregateTimeSlot = {
 	timestamp: string;
 };
 
+export type ClientNotification = {
+	/** Time at which the notification sendout was created. */
+	created_at: TimestampDatetime;
+	/** Unique identifier for the notification sendout. */
+	id: Uuid;
+	/** Plain-text notification message. */
+	message: string;
+	/** Weighted delivery outcome counts derived from sampled delivery events. */
+	outcome_counts?: NotificationOutcomeCounts;
+	/** Number of targeted device registrations. Omitted for account-wide notifications. */
+	recipient_count?: number;
+	/** Whether the notification was sent account-wide or to selected device registrations. */
+	scope: "account" | "device";
+	/** Dispatch status indicating whether the notification was accepted for delivery, not a device delivery outcome. */
+	status: "pending" | "sent" | "failed";
+	/** URL supplied to recipients for additional information. */
+	support_url?: string;
+	/** Plain-text notification title. */
+	title: string;
+};
+
 export type CommandsDevicesResponse = {
 	/** List of eligible devices */
 	devices?: {
@@ -240,6 +261,17 @@ export type CpuPctByApp = {
 	cpu_pct?: number | null;
 	/** Application name. */
 	name?: string | null;
+};
+
+export type CreateNotificationRequest = {
+	/** Plain-text notification message. */
+	message: string;
+	/** Device registration IDs to notify. Omit to send an account-wide notification. */
+	registration_ids?: Uuid[];
+	/** URL supplied to recipients for additional information. Required when registration_ids is set. */
+	support_url?: string;
+	/** Plain-text notification title. */
+	title: string;
 };
 
 export type CreateRuleBody = {
@@ -439,6 +471,16 @@ export type GetCommandsResponse = {
 	})[];
 };
 
+export type GetNotificationOutcomesResponse = {
+	/** Observed notification outcomes ordered from newest to oldest. */
+	outcomes: NotificationOutcome[];
+};
+
+export type GetNotificationsResponse = {
+	/** Notification sendouts ordered from newest to oldest. */
+	notifications: ClientNotification[];
+};
+
 export type HttpDetailsPercentilesResponse = {
 	dnsResponseTimeMs?: Percentiles;
 	resourceFetchTimeMs?: Percentiles;
@@ -504,6 +546,30 @@ export type LiveStat = {
 	/** Number of unique devices */
 	uniqueDevicesTotal?: UniqueDevicesTotal;
 	value?: string;
+};
+
+export type NotificationOutcome = {
+	/** Active notification duration in milliseconds. Expired outcomes report zero. */
+	duration_ms: number;
+	/** Registration ID of the device that produced the outcome. */
+	registration_id: string;
+	/** Sampling interval for this event. Values above one indicate a sampled result. */
+	sample_interval: number;
+	/** Observed notification delivery status. */
+	status: "delivered" | "failed" | "expired";
+	/** Time when the outcome was observed. */
+	timestamp: TimestampDatetime;
+};
+
+export type NotificationOutcomeCounts = {
+	/** Number of delivered outcomes. */
+	delivered: number;
+	/** Whether these weighted counts may be affected by equitable sampling before full-resolution storage. */
+	estimated: boolean;
+	/** Number of expired outcomes. */
+	expired: number;
+	/** Number of failed outcomes. */
+	failed: number;
 };
 
 export type PatchRuleBody = {

@@ -4,4 +4,4 @@ export const list = {"method":"GET","route":"/radar/bots","query":["limit","offs
 export const summary = {"method":"GET","route":"/radar/bots/summary/{dimension}","query":["name","dateRange","dateStart","dateEnd","asn","location","continent","limitPerGroup","bot","botOperator","botCategory","botKind","botVerificationStatus","format"]};
 export const timeseries = {"method":"GET","route":"/radar/bots/timeseries","query":["aggInterval","name","dateRange","dateStart","dateEnd","asn","location","continent","bot","botOperator","botCategory","botKind","botVerificationStatus","format"]};
 export const timeseriesGroups = {"method":"GET","route":"/radar/bots/timeseries_groups/{dimension}","query":["aggInterval","name","dateRange","dateStart","dateEnd","asn","location","continent","limitPerGroup","bot","botOperator","botCategory","botKind","botVerificationStatus","format"]};
-export * as webCrawlers from "./web-crawlers/index.js";
+export * as crawlers from "./crawlers/index.js";

@@ -513,6 +513,8 @@ export type Preset = {
 		can_accept_production_requests: boolean;
 		can_change_participant_permissions: boolean;
 		can_edit_display_name: boolean;
+		/** Allows renaming the meeting for the current session */
+		can_edit_meeting_title?: boolean;
 		can_livestream: boolean;
 		can_record: boolean;
 		can_spotlight: boolean;
@@ -699,6 +701,16 @@ export type PresetListItem = {
 	updated_at?: string;
 };
 
+/** SIP dial-in details. `null` if SIP is not enabled for the meeting. */
+export type MeetingSip = {
+	/** Password for SIP digest authentication. Keep it secret. */
+	password: string;
+	/** SIP URI to dial. Configure it in your SIP provider or PBX. */
+	sip_uri: string;
+	/** Username for SIP digest authentication. */
+	username: string;
+} | null;
+
 /** SessionParticipant */
 export type SessionParticipant = {
 	created_at: string;
@@ -870,6 +882,8 @@ export type UpdatePreset = {
 		can_accept_production_requests?: boolean;
 		can_change_participant_permissions?: boolean;
 		can_edit_display_name?: boolean;
+		/** Allows renaming the meeting for the current session */
+		can_edit_meeting_title?: boolean;
 		can_livestream?: boolean;
 		can_record?: boolean;
 		can_spotlight?: boolean;
@@ -1108,6 +1122,8 @@ export type Meeting = {
 	recording_config?: RecordingConfig;
 	/** Time in seconds, for which a session remains active, after the last participant has left the meeting. */
 	session_keep_alive_time_in_secs?: number;
+	/** SIP dial-in details. `null` if SIP is not enabled for the meeting. */
+	sip?: MeetingSip;
 	/** Whether the meeting is `ACTIVE` or `INACTIVE`. Users will not be able to join an `INACTIVE` meeting. */
 	status?: "ACTIVE" | "INACTIVE";
 	/** Automatically generate summary of meetings using transcripts. Requires Transcriptions to be enabled, and can be retrieved via Webhooks or summary API. */

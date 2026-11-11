@@ -30,20 +30,23 @@ export type CreateRequest = {
 		dns_search_suffixes?: $teams_devices.DnsSearchSuffixes;
 		/** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 		enable_device_credential_authentication?: $teams_devices.EnableDeviceCredentialAuthentication;
+		/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+		enable_netbt?: $teams_devices.EnableNetbt;
 		/** Whether the policy will be applied to matching devices. */
 		enabled?: boolean;
 		/** List of routes excluded in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
 		exclude?: $teams_devices.ExcludeRequest;
 		/** Whether to add Microsoft IPs to Split Tunnel exclusions. */
 		exclude_office_ips?: $teams_devices.ExcludeOfficeIps;
+		fallback_domains?: $teams_devices.FallbackDomains;
 		/** Global Acceleration settings for China. When configured, WARP clients connect to the Global Accelerator addresses instead of the default ones. Please contact your account representative to enable this feature on your account. See https://developers.cloudflare.com/china-network/concepts/global-acceleration/. */
 		global_acceleration?: $teams_devices.GlobalAcceleration;
 		/** List of routes included in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
 		include?: $teams_devices.IncludeRequest;
-		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Note that this field is omitted from the response if null or unset. */
-		lan_allow_minutes?: $teams_devices.LanAllowMinutes;
-		/** The size of the subnet for the local access network. Note that this field is omitted from the response if null or unset. */
-		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSize;
+		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Set to null to unset. */
+		lan_allow_minutes?: $teams_devices.LanAllowMinutesRequest;
+		/** The size of the subnet for the local access network. Set to null to unset. */
+		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSizeRequest;
 		/** The wirefilter expression to match devices. Available values: "identity.email", "identity.groups.id", "identity.groups.name", "identity.groups.email", "identity.service_token_uuid", "identity.saml_attributes", "network", "os.name", "os.version", "device.tags". */
 		match?: $teams_devices.SchemasMatch;
 		/** The name of the device settings profile. */
@@ -153,6 +156,8 @@ export type UpdateRequest = {
 		dns_search_suffixes?: $teams_devices.DnsSearchSuffixes;
 		/** Determines whether the WARP client can silently reauthenticate the user with device credentials (Microsoft Entra) instead of prompting for browser-based reauthentication. */
 		enable_device_credential_authentication?: $teams_devices.EnableDeviceCredentialAuthentication;
+		/** Determines whether NetBIOS over TCP/IP (NetBT) is enabled on the WARP tunnel interface. (Windows only). NetBT is disabled by default for security reasons. */
+		enable_netbt?: $teams_devices.EnableNetbt;
 		/** Whether the policy will be applied to matching devices. */
 		enabled?: boolean;
 		/** List of routes excluded in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
@@ -163,10 +168,10 @@ export type UpdateRequest = {
 		global_acceleration?: $teams_devices.GlobalAcceleration;
 		/** List of routes included in the WARP client's tunnel. Both 'exclude' and 'include' cannot be set in the same request. */
 		include?: $teams_devices.IncludeRequest;
-		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Note that this field is omitted from the response if null or unset. */
-		lan_allow_minutes?: $teams_devices.LanAllowMinutes;
-		/** The size of the subnet for the local access network. Note that this field is omitted from the response if null or unset. */
-		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSize;
+		/** The amount of time in minutes a user is allowed access to their LAN. A value of 0 will allow LAN access until the next WARP reconnection, such as a reboot or a laptop waking from sleep. Set to null to unset. */
+		lan_allow_minutes?: $teams_devices.LanAllowMinutesRequest;
+		/** The size of the subnet for the local access network. Set to null to unset. */
+		lan_allow_subnet_size?: $teams_devices.LanAllowSubnetSizeRequest;
 		/** The wirefilter expression to match devices. Available values: "identity.email", "identity.groups.id", "identity.groups.name", "identity.groups.email", "identity.service_token_uuid", "identity.saml_attributes", "network", "os.name", "os.version", "device.tags". */
 		match?: $teams_devices.SchemasMatch;
 		/** The name of the device settings profile. */

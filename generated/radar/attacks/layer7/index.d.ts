@@ -2,7 +2,7 @@
 import type { Operation } from "#runtime";
 export * as top from "./top/index.js";
 
-export type SummaryV2Request = {
+export type SummaryRequest = {
 	/** Specifies the attribute by which to group the results. */
 	dimension: "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
 	/** Array of names used to label the series in the response. */
@@ -32,7 +32,7 @@ export type SummaryV2Request = {
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
-export type SummaryV2Result = {
+export type SummaryResult = {
 	/** Metadata for the results. */
 	meta: {
 		confidenceInfo: {
@@ -79,7 +79,7 @@ export type SummaryV2Result = {
  *
  * Token permissions (any one): User Details Write, User Details Read.
  */
-export declare const summaryV2: Operation<SummaryV2Request, SummaryV2Result>;
+export declare const summary: Operation<SummaryRequest, SummaryResult>;
 
 export type TimeseriesRequest = {
 	/** Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals). Refer to [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/). When omitted, the interval is auto-selected from the requested date range; finer intervals are only available for shorter ranges. If the requested interval is too granular for the date range, the request is rejected. */
@@ -165,7 +165,7 @@ export type TimeseriesResult = {
  */
 export declare const timeseries: Operation<TimeseriesRequest, TimeseriesResult>;
 
-export type TimeseriesGroupsV2Request = {
+export type TimeseriesGroupsRequest = {
 	/** Specifies the attribute by which to group the results. */
 	dimension: "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
 	/** Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals). Refer to [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/). When omitted, the interval is auto-selected from the requested date range; finer intervals are only available for shorter ranges. If the requested interval is too granular for the date range, the request is rejected. */
@@ -199,7 +199,7 @@ export type TimeseriesGroupsV2Request = {
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
-export type TimeseriesGroupsV2Result = {
+export type TimeseriesGroupsResult = {
 	/** Metadata for the results. */
 	meta: {
 		/** Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals). Refer to [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/). */
@@ -251,4 +251,4 @@ export type TimeseriesGroupsV2Result = {
  *
  * Token permissions (any one): User Details Write, User Details Read.
  */
-export declare const timeseriesGroupsV2: Operation<TimeseriesGroupsV2Request, TimeseriesGroupsV2Result>;
+export declare const timeseriesGroups: Operation<TimeseriesGroupsRequest, TimeseriesGroupsResult>;

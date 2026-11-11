@@ -613,7 +613,7 @@ export type Type3 = "custom" | "gateway_managed" | "access_managed";
 /** The unique identifier for a certificate_pack. */
 export type CertificatePackIdentifier = string;
 
-/** The uploaded root CA certificate. */
+/** The uploaded root CA certificate. Responses return the certificates as Cloudflare stores them, re-encoded as PEM, not byte for byte as uploaded. Each certificate block ends with a newline, base64 lines are wrapped at 64 characters, text between blocks is dropped, and a chain may be reordered. Compare certificates by their decoded content rather than as strings. */
 export type Certificates2 = string;
 
 /** The validity period in days for the certificates ordered via Total TLS. Not returned when Total TLS is disabled. */
@@ -820,7 +820,7 @@ export type CertificateObject2 = {
 export type CertificateObject3 = {
 	/** Indicates whether the certificate is a CA or leaf certificate. */
 	ca?: Ca;
-	/** The uploaded root CA certificate. */
+	/** The uploaded root CA certificate. Responses return the certificates as Cloudflare stores them, re-encoded as PEM, not byte for byte as uploaded. Each certificate block ends with a newline, base64 lines are wrapped at 64 characters, text between blocks is dropped, and a chain may be reordered. Compare certificates by their decoded content rather than as strings. */
 	certificates?: Certificates2;
 	/** When the certificate expires. */
 	expires_on?: ExpiresOn2;
@@ -843,7 +843,7 @@ export type CertificateObject3 = {
 export type CertificateObjectPost = {
 	/** Indicates whether the certificate is a CA or leaf certificate. */
 	ca?: Ca;
-	/** The uploaded root CA certificate. */
+	/** The uploaded root CA certificate. Responses return the certificates as Cloudflare stores them, re-encoded as PEM, not byte for byte as uploaded. Each certificate block ends with a newline, base64 lines are wrapped at 64 characters, text between blocks is dropped, and a chain may be reordered. Compare certificates by their decoded content rather than as strings. */
 	certificates?: Certificates2;
 	/** When the certificate expires. */
 	expires_on?: ExpiresOn2;

@@ -9,7 +9,7 @@ export type ListRequest = {
 	application_id: "ANTHROPIC" | "AWS" | "BITBUCKET" | "BOX" | "CONFLUENCE" | "DROPBOX" | "GITHUB" | "GOOGLE_CLOUD_PLATFORM" | "GOOGLE_WORKSPACE" | "JIRA" | "MICROSOFT_INTERNAL" | "OPENAI" | "SALESFORCE" | "SERVICENOW" | "SLACK" | "ZOOM";
 	/** Filter by auth method id. Get available ids from GET /v2/applications. */
 	auth_method?: string;
-	/** Filter by environment. */
+	/** Environment to request (standard, fedramp). The result follows the account's FedRAMP entitlement: FedRAMP-enabled accounts always receive FedRAMP applications and other accounts receive standard applications. Any other non-empty value returns 400. */
 	environment?: "fedramp" | "standard";
 	/** A page number within the paginated result set. */
 	page?: number;

@@ -15,7 +15,7 @@ export type CreateRequest = {
 export type CreateResult = {
 	hold?: boolean;
 	hold_after?: string;
-	include_subdomains?: string;
+	include_subdomains?: boolean;
 };
 /**
  * Create Zone Hold
@@ -43,7 +43,7 @@ export type DeleteRequest = {
 export type DeleteResult = {
 	hold?: boolean;
 	hold_after?: string;
-	include_subdomains?: string;
+	include_subdomains?: boolean;
 };
 /**
  * Remove Zone Hold
@@ -84,7 +84,7 @@ export type EditRequest = {
 export type EditResult = {
 	hold?: boolean;
 	hold_after?: string;
-	include_subdomains?: string;
+	include_subdomains?: boolean;
 };
 /**
  * Update Zone Hold
@@ -108,7 +108,7 @@ export type GetRequest = {
 export type GetResult = {
 	hold?: boolean;
 	hold_after?: string;
-	include_subdomains?: string;
+	include_subdomains?: boolean;
 };
 /**
  * Get Zone Hold

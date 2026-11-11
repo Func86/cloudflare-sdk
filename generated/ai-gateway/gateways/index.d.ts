@@ -948,7 +948,7 @@ export type UpdateResult = {
 /**
  * Update a gateway
  *
- * Updates the configuration of an AI Gateway, such as its caching, rate limiting, logging, and authentication settings.
+ * Updates the configuration of an AI Gateway, such as its caching, rate limiting, spend limits, logging, and authentication settings.
  *
  * `PUT /accounts/{account_id}/ai-gateway/gateways/{id}`
  *

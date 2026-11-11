@@ -2,7 +2,7 @@
 import type { Operation } from "#runtime";
 import type * as $r2 from "../../../_types/r2.js";
 
-export type DeleteRequest = {
+export type DisableRequest = {
 	/** Cloudflare account ID that owns the R2 resource. */
 	account_id: string;
 	/** Name of the bucket. */
@@ -10,7 +10,7 @@ export type DeleteRequest = {
 	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
 	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
 };
-export type DeleteResult = {
+export type DisableResult = {
 	enabled?: false;
 };
 /**
@@ -22,8 +22,26 @@ export type DeleteResult = {
  *
  * Token permissions (any one): Workers R2 Storage Write.
  */
-declare const delete_: Operation<DeleteRequest, DeleteResult>;
-export { delete_ as delete };
+export declare const disable: Operation<DisableRequest, DisableResult>;
+
+export type EnableRequest = {
+	/** Cloudflare account ID that owns the R2 resource. */
+	account_id: string;
+	/** Name of the bucket. */
+	bucket_name: string;
+	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
+	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
+	body: $r2.EnableSippyAws | $r2.EnableSippyGcs | $r2.EnableSippyS3 | $r2.EnableSippyAzure;
+};
+export type EnableResult = $r2.Sippy;
+/**
+ * Enable Sippy
+ *
+ * Configures and enables Sippy on-demand migration for an R2 bucket. When a requested object is missing from R2, Sippy serves it from the configured source storage provider and copies it to R2.
+ *
+ * `PUT /accounts/{account_id}/r2/buckets/{bucket_name}/sippy`
+ */
+export declare const enable: Operation<EnableRequest, EnableResult>;
 
 export type GetRequest = {
 	/** Cloudflare account ID that owns the R2 resource. */
@@ -42,22 +60,3 @@ export type GetResult = $r2.Sippy;
  * `GET /accounts/{account_id}/r2/buckets/{bucket_name}/sippy`
  */
 export declare const get: Operation<GetRequest, GetResult>;
-
-export type UpdateRequest = {
-	/** Cloudflare account ID that owns the R2 resource. */
-	account_id: string;
-	/** Name of the bucket. */
-	bucket_name: string;
-	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
-	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
-	body: $r2.EnableSippyAws | $r2.EnableSippyGcs | $r2.EnableSippyS3 | $r2.EnableSippyAzure;
-};
-export type UpdateResult = $r2.Sippy;
-/**
- * Enable Sippy
- *
- * Configures and enables Sippy on-demand migration for an R2 bucket. When a requested object is missing from R2, Sippy serves it from the configured source storage provider and copies it to R2.
- *
- * `PUT /accounts/{account_id}/r2/buckets/{bucket_name}/sippy`
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -32,6 +32,27 @@ export type SinkJsonFormat = JsonFormat & {
 	type: "json";
 };
 
+/** Mutable configuration of a Basin Catalog Sink, including Sinks created with the legacy `r2_data_catalog` type. Omitted fields keep their current values. */
+export type BasinCatalogTableUpdate = {
+	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
+	rolling_policy?: SinkRollingPolicy;
+	/** Authentication token */
+	token?: string;
+};
+
+/** Mutable configuration of an R2 Sink. Omitted fields keep their current values. */
+export type R2TableUpdate = {
+	/** R2 credentials to change. Omitted fields keep their current values. */
+	credentials?: {
+		/** R2 Access Key ID */
+		access_key_id?: string;
+		/** R2 Secret Access Key */
+		secret_access_key?: string;
+	};
+	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
+	rolling_policy?: SinkRollingPolicy;
+};
+
 /** Parquet */
 export type SinkParquetFormat = ParquetFormat & {
 	type: "parquet";
@@ -46,14 +67,7 @@ export type R2DataCatalogTable = {
 	/** Table namespace */
 	namespace?: string;
 	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
-	rolling_policy?: {
-		/** Files will be rolled after reaching this number of bytes */
-		file_size_bytes?: number;
-		/** Number of seconds of inactivity to wait before rolling over to a new file */
-		inactivity_seconds?: number;
-		/** Number of seconds to wait before rolling over to a new file */
-		interval_seconds?: number;
-	};
+	rolling_policy?: SinkRollingPolicy;
 	/** Table name */
 	table_name: string;
 	/** Authentication token */
@@ -69,14 +83,7 @@ export type R2DataCatalogTablePublic = {
 	/** Table namespace */
 	namespace?: string;
 	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
-	rolling_policy?: {
-		/** Files will be rolled after reaching this number of bytes */
-		file_size_bytes?: number;
-		/** Number of seconds of inactivity to wait before rolling over to a new file */
-		inactivity_seconds?: number;
-		/** Number of seconds to wait before rolling over to a new file */
-		interval_seconds?: number;
-	};
+	rolling_policy?: SinkRollingPolicy;
 	/** Table name */
 	table_name: string;
 };
@@ -112,14 +119,7 @@ export type R2Table = {
 	/** Subpath within the bucket to write to */
 	path?: string;
 	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
-	rolling_policy?: {
-		/** Files will be rolled after reaching this number of bytes */
-		file_size_bytes?: number;
-		/** Number of seconds of inactivity to wait before rolling over to a new file */
-		inactivity_seconds?: number;
-		/** Number of seconds to wait before rolling over to a new file */
-		interval_seconds?: number;
-	};
+	rolling_policy?: SinkRollingPolicy;
 };
 
 /** R2 Sink public configuration. */
@@ -147,14 +147,17 @@ export type R2TablePublic = {
 	/** Subpath within the bucket to write to */
 	path?: string;
 	/** Rolling policy for file sinks (when & why to close a file and open a new one). */
-	rolling_policy?: {
-		/** Files will be rolled after reaching this number of bytes */
-		file_size_bytes?: number;
-		/** Number of seconds of inactivity to wait before rolling over to a new file */
-		inactivity_seconds?: number;
-		/** Number of seconds to wait before rolling over to a new file */
-		interval_seconds?: number;
-	};
+	rolling_policy?: SinkRollingPolicy;
+};
+
+/** Rolling policy for file sinks (when & why to close a file and open a new one). */
+export type SinkRollingPolicy = {
+	/** Files will be rolled after reaching this number of bytes */
+	file_size_bytes?: number;
+	/** Number of seconds of inactivity to wait before rolling over to a new file */
+	inactivity_seconds?: number;
+	/** Number of seconds to wait before rolling over to a new file */
+	interval_seconds?: number;
 };
 
 /** Specifies the compression applied to JSON sink output. */
@@ -275,11 +278,71 @@ export type PipelineEdge = {
 	value_type: string;
 };
 
+export type PipelineExtended = {
+	created_at: string;
+	/** Indicates the reason for the failure of the Pipeline. */
+	failure_reason?: string;
+	/** Indicates a unique identifier for this pipeline. */
+	id: string;
+	modified_at: string;
+	/** Indicates the name of the Pipeline. */
+	name: string;
+	/** Indicates that a stream or sink has a newer version than the one this pipeline uses. Update Pipeline Tables moves the pipeline to the latest versions. */
+	outdated: boolean;
+	/** Specifies SQL for the Pipeline processing flow. */
+	sql: string;
+	/** Indicates the current status of the Pipeline. */
+	status: string;
+	/** List of streams and sinks used by this pipeline. */
+	tables: ({
+		/** Unique identifier for the connection (stream or sink). */
+		id: string;
+		/** Latest available version of the connection. */
+		latest: number;
+		/** Name of the connection. */
+		name: string;
+		/** Type of the connection. */
+		type: "stream" | "sink";
+		/** Current version of the connection used by this pipeline. */
+		version: number;
+	})[];
+};
+
 export type PipelineNode = {
 	description: string;
 	node_id: number;
 	operator: string;
 	parallelism: number;
+};
+
+export type Sink = {
+	/** Defines the configuration of the R2 Sink. */
+	config?: R2TablePublic | R2DataCatalogTablePublic;
+	created_at: string;
+	/** Defines the output data format of a sink. */
+	format?: SinkFormat;
+	/** Indicates a unique identifier for this sink. */
+	id: string;
+	/** Indicates the latest version of this sink. */
+	latest: number;
+	modified_at: string;
+	/** Defines the name of the Sink. */
+	name: string;
+	/** Defines the schema of the events in the data stream. */
+	schema?: ConnectionSchema;
+	/** Specifies the type of sink. */
+	type: "r2" | "r2_data_catalog" | "basin_catalog";
+	/** Lists the pipelines that use this sink. Omitted when no pipeline uses it. */
+	used_by?: {
+		/** Indicates the API URL of the pipeline. */
+		href: string;
+		/** Indicates the unique identifier of the pipeline. */
+		id: string;
+		/** Indicates the type of resource using this sink. */
+		type: "pipeline";
+	}[];
+	/** Indicates the version of this sink. */
+	version: number;
 };
 
 export type SourceField = FieldType & ({

@@ -1164,7 +1164,7 @@ export type Account = {
 		/** Indicates whether the parent Organization hierarchy should be displayed */
 		should_display_parent_orgs?: boolean;
 	};
-	/** Account name */
+	/** Account name. When creating or updating an account, the name is limited to 65 UTF-8 bytes. */
 	name: string;
 	/** Account settings */
 	settings?: {
@@ -1179,7 +1179,16 @@ export type Account = {
 	type: AccountType;
 };
 
-export type AccountInput = {
+export type AccountType = "standard" | "enterprise";
+
+export type ApiResponseSingle = {
+	errors: Messages;
+	messages: Messages;
+	/** Whether the API call was successful. */
+	success: true;
+};
+
+export type ComponentsSchemasAccountInput = {
 	/** Timestamp for the creation of the account */
 	created_on?: string;
 	/** Identifier */
@@ -1207,7 +1216,7 @@ export type AccountInput = {
 		/** Indicates whether the parent Organization hierarchy should be displayed */
 		should_display_parent_orgs?: boolean;
 	};
-	/** Account name */
+	/** Account name. When creating or updating an account, the name is limited to 65 UTF-8 bytes. */
 	name: string;
 	/** Account settings */
 	settings?: {
@@ -1220,20 +1229,6 @@ export type AccountInput = {
 		enforce_twofactor?: boolean;
 	};
 	type?: AccountType;
-};
-
-export type AccountType = "standard" | "enterprise";
-
-export type ApiResponseSingle = {
-	errors: Messages;
-	messages: Messages;
-	/** Whether the API call was successful. */
-	success: true;
-};
-
-export type ComponentsSchemasAccountInput = AccountInput & {
-	/** Account name, limited to 65 UTF-8 bytes. */
-	name?: string;
 };
 
 export type Condition = {
@@ -1399,7 +1394,7 @@ export type SchemasAccount = {
 		/** Indicates whether the parent Organization hierarchy should be displayed */
 		should_display_parent_orgs?: boolean;
 	};
-	/** Account name */
+	/** Account name. When creating or updating an account, the name is limited to 65 UTF-8 bytes. */
 	name: string;
 	/** Account settings */
 	settings?: {

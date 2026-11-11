@@ -10,7 +10,7 @@ export type GetRequest = {
 	/** Name of the script. */
 	script_name: string;
 };
-export type GetResult = string;
+export type GetResult = Uint8Array;
 /**
  * Get Workers for Platforms Script Content
  *

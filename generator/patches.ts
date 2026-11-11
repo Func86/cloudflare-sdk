@@ -5,7 +5,7 @@
  * the patch rather than leaving it to rot. Paths are JSON pointers.
  */
 import type { Pagination } from '../src/client.ts';
-import { EXCLUSIVE_BODY, type OpenApiDocument, pointerGet, type Schema } from './spec.ts';
+import { EXCLUSIVE_BODY, type OpenApiDocument, operationPointer, pointerGet, type Schema } from './spec.ts';
 
 export interface SpecPatch {
 	id: string;
@@ -19,7 +19,23 @@ export interface SpecPatch {
 
 /** The prefix of an account-or-zone route. */
 const AOZ = '/{account_or_zone}/{account_or_zone_id}';
-const ARTIFACTS_RAW = '/paths/~1accounts~1{account_id}~1artifacts~1namespaces~1{namespace}~1repos~1{name}~1raw~1{ref}~1{path}';
+const ARTIFACTS_RAW = operationPointer('/accounts/{account_id}/artifacts/namespaces/{namespace}/repos/{name}/raw/{ref}/{path}', 'get');
+
+/** Domain Connect's routes as the spec writes them, and where the API serves them. */
+const DOMAIN_CONNECT_ROUTES: Readonly<Record<string, string>> = {
+	'/v2/{domain}/settings': '/dns/domainconnect/v2/{domain}/settings',
+	'/v2/provconf/{provider}/{service}/{account}': '/dns/domainconnect/v2/provconf/{provider}/{service}/{account}',
+	'/v2/domainTemplates/providers/{provider}/services/{service}':
+		'/dns/domainconnect/v2/domainTemplates/providers/{provider}/services/{service}',
+	'/v1/verify': '/dns/domainconnect/v2/verify',
+};
+
+/** Whether a path item, or an operation in it, declares servers of its own. */
+function declaresServers(pathItem: Schema): boolean {
+	return [pathItem, ...Object.values<unknown>(pathItem)].some(
+		(node) => typeof node === 'object' && node !== null && !Array.isArray(node) && (node as Schema)['servers'] !== undefined,
+	);
+}
 
 /** What a Logpush job has that its model leaves out. */
 const LOGPUSH_JOB_FIELDS: readonly [string, Schema][] = [
@@ -72,17 +88,43 @@ function ruleActionBranches(schemas: Schema): Schema[] {
 	});
 }
 
-/** A response declared under the media type `string`, which isn't one, for a Worker's script source. */
-function scriptSourceAsText(id: string, path: string): SpecPatch {
+/** The 200 of a Browser Run dynamic script, which declares less than a script can return. */
+function scriptOutput(path: string): string {
+	return `${operationPointer(path, 'post')}/responses/200/content`;
+}
+
+/** The array branch of a dynamic script's `result`. */
+function arrayBranch(result: Schema): Schema | undefined {
+	return (result['anyOf'] as Schema[] | undefined)?.find((branch) => branch['type'] === 'array');
+}
+
+/** A dynamic script's `result`, whose array items leave out arrays. */
+function scriptNestedArrays(id: string, path: string): SpecPatch {
 	return {
 		id,
 		evidence:
-			'"string" isn\'t a media type. The schema is a string whose example is a Worker\'s JavaScript, so it\'s text, as the generator read it before. The Content-Type the API sends wasn\'t checked.',
-		pointer: `/paths/${path.replaceAll('/', '~1')}/get/responses/200/content`,
-		applies: (node) => node['string'] !== undefined && node['text/plain'] === undefined,
+			'A script returning [[1], [2, [3]], "x"] got it back as its result on the playground account, 2026-11-12, as the result\'s description says. Its array items leave out arrays.',
+		pointer: `${scriptOutput(path)}/application~1json/schema/properties/result`,
+		applies: (node) =>
+			(arrayBranch(node)?.['items']?.['anyOf'] as Schema[] | undefined)?.every((branch) => branch['type'] !== 'array') === true,
 		apply: (node) => {
-			node['text/plain'] = node['string'];
-			delete node['string'];
+			(arrayBranch(node)!['items']['anyOf'] as Schema[]).push({ nullable: true, type: 'array', items: {} });
+		},
+	};
+}
+
+/** A dynamic script's 200, which a `Response` the script returns answers in its own content type. */
+function scriptEventStream(id: string, path: string): SpecPatch {
+	return {
+		id,
+		evidence:
+			"A Response a script returned as image/png came back as an image on the playground account, 2026-11-12, as the 200's description says a Response keeps its content type. So one returned as text/event-stream should be server-sent events, which the runtime reads as a stream. Not seen, as the tool used hides headers.",
+		pointer: scriptOutput(path),
+		applies: (node) => node['text/event-stream'] === undefined && node['application/octet-stream'] !== undefined,
+		apply: (node) => {
+			node['text/event-stream'] = {
+				schema: { description: 'Server-sent events, from a script that returns them as a `Response`.', type: 'string' },
+			};
 		},
 	};
 }
@@ -92,8 +134,7 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		id: 'abuse-reports-list-null-reports',
 		evidence:
 			'GET /accounts/{id}/abuse-reports?per_page=1 returned {"reports":null} for an account with no reports, 2026-11-07.',
-		pointer:
-			'/paths/~1accounts~1{account_id}~1abuse-reports/get/responses/200/content/application~1json/schema/properties/result/properties/reports',
+		pointer: `${operationPointer('/accounts/{account_id}/abuse-reports', 'get')}/responses/200/content/application~1json/schema/properties/result/properties/reports`,
 		applies: (node) => node['type'] === 'array' && node['nullable'] !== true,
 		apply: (node) => {
 			node['nullable'] = true;
@@ -103,7 +144,7 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		id: 'artifacts-raw-path-slashes',
 		evidence:
 			'Its description says "File path. May contain slashes.", so it needs the allowReserved that R2 object keys declare. Not called: the test account gets a 403 from Artifacts, 2026-11-07.',
-		pointer: `${ARTIFACTS_RAW}/get/parameters/3`,
+		pointer: `${ARTIFACTS_RAW}/parameters/3`,
 		applies: (node) => node['name'] === 'path' && node['in'] === 'path' && node['allowReserved'] !== true,
 		apply: (node) => {
 			node['allowReserved'] = true;
@@ -113,7 +154,7 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		id: 'artifacts-raw-always-bytes',
 		evidence:
 			'The response says "File bytes with sniffed Content-Type", so its media types are what a file can be, and a JSON file is still a file. Its application/json schema is a plain string. Not called, as above.',
-		pointer: `${ARTIFACTS_RAW}/get/responses/200/content`,
+		pointer: `${ARTIFACTS_RAW}/responses/200/content`,
 		applies: (node) => node['application/json']?.schema?.type === 'string' && node['application/octet-stream'] !== undefined,
 		apply: (node) => {
 			for (const mediaType of Object.keys(node)) {
@@ -133,6 +174,10 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 			delete node['nullable'];
 		},
 	},
+	scriptNestedArrays('browser-run-script-create-nested-arrays', '/accounts/{account_id}/browser-rendering/script'),
+	scriptNestedArrays('browser-run-script-execute-nested-arrays', '/accounts/{account_id}/browser-rendering/script/{session_id}'),
+	scriptEventStream('browser-run-script-create-event-stream', '/accounts/{account_id}/browser-rendering/script'),
+	scriptEventStream('browser-run-script-execute-event-stream', '/accounts/{account_id}/browser-rendering/script/{session_id}'),
 	{
 		id: 'builds-by-version-key',
 		evidence:
@@ -141,6 +186,23 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		applies: (node) => node['description'] === undefined && node['additionalProperties'] !== undefined,
 		apply: (node) => {
 			node['description'] = "Each build under the ID of the Worker version it was asked for, as a build doesn't name its version.";
+		},
+	},
+	{
+		id: 'dns-domainconnect-routes',
+		evidence:
+			'Under /dns/domainconnect, which the API gives as its urlAPI, GET v2/setuna.top/settings returned its settings and made-up providers and templates got "unknown provider" and "unknown template", 2026-11-12. The spec\'s routes got 404, "No route for that URI", and so did v1/verify under the prefix. v2/verify reads v1\'s body: made-up domain, hash and sig got 403, "unknown public key domain", and the same without sig got 400, "POST data is incomplete".',
+		pointer: '/paths',
+		// Not once a route declares servers, which would be a fix too, and would leave the moved operations out.
+		applies: (node) =>
+			Object.entries(DOMAIN_CONNECT_ROUTES).every(
+				([from, to]) => node[from] !== undefined && node[to] === undefined && !declaresServers(node[from] as Schema),
+			),
+		apply: (node) => {
+			for (const [from, to] of Object.entries(DOMAIN_CONNECT_ROUTES)) {
+				node[to] = node[from];
+				delete node[from];
+			}
 		},
 	},
 	{
@@ -225,7 +287,7 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 	{
 		id: 'rulesets-rule-move-only',
 		evidence: MOVE_RULE,
-		pointer: `/paths/${`${AOZ}/rulesets/{ruleset_id}/rules/{rule_id}`.replaceAll('/', '~1')}/patch`,
+		pointer: operationPointer(`${AOZ}/rulesets/{ruleset_id}/rules/{rule_id}`, 'patch'),
 		applies: (node) => node['requestBody']?.['$ref'] === '#/components/requestBodies/rulesets_Rule',
 		apply: (node) => {
 			node['requestBody'] = { $ref: '#/components/requestBodies/rulesets_RuleUpdate' };
@@ -241,11 +303,25 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		'rulesets-ruleset-or-dry-run-rules-optional',
 		'/components/responses/rulesets_RulesetOrDryRun/content/application~1json/schema/allOf/1/properties/result/oneOf/0/allOf/1',
 	),
-	scriptSourceAsText('worker-script-content-text', '/accounts/{account_id}/workers/scripts/{script_name}/content/v2'),
-	scriptSourceAsText(
-		'dispatch-script-content-text',
-		'/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/content',
-	),
+	{
+		id: 'stream-webhook-notification-url',
+		evidence:
+			"The body requires notificationUrl or notification_url but declares only notification_url, which the spec hides from SDKs. Stream's webhook docs send notificationUrl, and the response declares it. Not called: the playground account has no Stream, 2026-11-12.",
+		pointer: '/components/schemas/stream_webhook_request',
+		applies: (node) =>
+			node['properties']?.['notificationUrl'] === undefined &&
+			node['properties']?.['notification_url']?.['x-stainless-skip'] === true &&
+			(node['anyOf'] as Schema[] | undefined)?.some((branch) => branch['required']?.includes('notificationUrl')) === true,
+		apply: (node) => {
+			const field = structuredClone(node['properties']['notification_url'] as Schema);
+			delete field['x-fern-ignore'];
+			delete field['x-stainless-skip'];
+			node['properties']['notificationUrl'] = field;
+			// The SDK spelling is the only one left, so it's the one required.
+			node['required'] = [...((node['required'] as string[] | undefined) ?? []), 'notificationUrl'];
+			delete node['anyOf'];
+		},
+	},
 ];
 
 /** Applies the patches, and stops when one of them no longer applies. */
@@ -323,6 +399,20 @@ export const EXCLUDED_IGNORED: Readonly<Record<string, string>> = {
 	'GET /accounts/{account_id}/email/domains/{email_domain_id}': PILOT_ONLY,
 	'DELETE /accounts/{account_id}/email/domains/{email_domain_id}': PILOT_ONLY,
 	'POST /accounts/{account_id}/email/domains/{email_domain_id}/verify': PILOT_ONLY,
+};
+
+const SETTING_ID_REACHES_IT =
+	"The spec names neither the group nor the method. zones.settings.get and edit reach the same URL with setting_id 'nel', as their setting_id takes any string.";
+
+/**
+ * Operations the spec gives no group or method name that stay out, by `METHOD /path`, each
+ * with the reason. Forge would name such an operation by its `operationId` outside any
+ * group, which has no import path, so one that isn't listed stops generation, and so does
+ * an entry that no longer matches one.
+ */
+export const UNNAMED_OPERATIONS: Readonly<Record<string, string>> = {
+	'GET /zones/{zone_id}/settings/nel': SETTING_ID_REACHES_IT,
+	'PATCH /zones/{zone_id}/settings/nel': SETTING_ID_REACHES_IT,
 };
 
 export interface OperationRename {

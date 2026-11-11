@@ -11,6 +11,7 @@ import {
 	OPERATION_RENAMES,
 	type OperationRename,
 	PAGINATION_OVERRIDES,
+	UNNAMED_OPERATIONS,
 } from './patches.ts';
 import { LITERAL_SLASHES, type OpenApiDocument, type Schema, Spec } from './spec.ts';
 
@@ -69,15 +70,19 @@ const OPERATION_NAME = /^[^.\s]+(\.[^.\s]+)+$/;
  * unless it's deprecated or listed in `exclusions`; one for other audiences isn't.
  * Nor is one served from another host, or one that doesn't describe its response,
  * until a spec patch or Cloudflare does, apart from a DELETE, whose caller doesn't
- * depend on the body, and a HEAD, which has none. Then `renames` apply to what is
- * left, whether an operation is hidden or not. Forge stops when two operations take
- * one name, however either is spelled or through an alias, so a rename can't take
- * another operation's name. Returns how many were left out, by reason.
+ * depend on the body, and a HEAD, which has none. One with no group or method name
+ * stays out only when listed in `unnamed`, and otherwise stops generation, as Forge
+ * would name it by its `operationId` outside any group, which has no import path.
+ * Then `renames` apply to what is left, whether an operation is hidden or not. Forge
+ * stops when two operations take one name, however either is spelled or through an
+ * alias, so a rename can't take another operation's name. Returns how many were left
+ * out, by reason.
  */
 export function selectOperations(
 	doc: OpenApiDocument,
 	exclusions: Readonly<Record<string, string>> = EXCLUDED_IGNORED,
 	renames: Readonly<Record<string, OperationRename>> = OPERATION_RENAMES,
+	unnamed: Readonly<Record<string, string>> = UNNAMED_OPERATIONS,
 ): Record<string, number> {
 	const malformed = Object.entries(renames).filter(([, { from, to }]) => !OPERATION_NAME.test(from) || !OPERATION_NAME.test(to));
 	if (malformed.length > 0) {
@@ -89,6 +94,8 @@ export function selectOperations(
 	};
 	const applied = new Set<string>();
 	const renamed = new Set<string>();
+	const leftUnnamed = new Set<string>();
+	const unlisted: string[] = [];
 	const spec = new Spec(doc);
 	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
 		for (const verb of HTTP_METHODS) {
@@ -125,6 +132,16 @@ export function selectOperations(
 				skip('no response schema');
 				continue;
 			}
+			if (!operation['x-fern-sdk-group-name'] || !operation['x-fern-sdk-method-name']) {
+				if (key in unnamed) {
+					leftUnnamed.add(key);
+				} else {
+					unlisted.push(key);
+				}
+				delete pathItem[verb];
+				skip('no name');
+				continue;
+			}
 			const rename = renames[key];
 			if (rename) {
 				const name = nameOf(operation);
@@ -140,15 +157,31 @@ export function selectOperations(
 			}
 		}
 	}
-	const stale = Object.keys(exclusions).filter((key) => !applied.has(key));
-	if (stale.length > 0) {
-		throw new Error(`These no longer match a hidden operation, so check them and remove them: ${stale.join(', ')}`);
+	if (unlisted.length > 0) {
+		throw new Error(
+			`These have no group or method name, so Forge would name them by their operationId outside any group. List each in UNNAMED_OPERATIONS with a reason: ${unlisted.join(', ')}`,
+		);
 	}
-	const gone = Object.keys(renames).filter((key) => !renamed.has(key));
-	if (gone.length > 0) {
-		throw new Error(`These renames no longer match a generated operation, so check them and remove them: ${gone.join(', ')}`);
-	}
+	throwIfUnmatched(
+		unnamed,
+		leftUnnamed,
+		'These are no longer left out for having no name, as the spec names or removes them, or another rule leaves them out first.',
+	);
+	throwIfUnmatched(
+		exclusions,
+		applied,
+		'These are no longer left out as hidden, as the spec shows or removes them, or another rule leaves them out first.',
+	);
+	throwIfUnmatched(renames, renamed, 'These renames no longer match a generated operation.');
 	return skipped;
+}
+
+/** Stops generation when a listed entry matched nothing, as what it was listed for has gone. */
+function throwIfUnmatched(list: Readonly<Record<string, unknown>>, matched: ReadonlySet<string>, problem: string): void {
+	const unmatched = Object.keys(list).filter((key) => !matched.has(key));
+	if (unmatched.length > 0) {
+		throw new Error(`${problem} Check them and remove them: ${unmatched.join(', ')}`);
+	}
 }
 
 /**

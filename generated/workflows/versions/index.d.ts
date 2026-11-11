@@ -137,6 +137,41 @@ export type GraphResult = {
 				timestamp: string;
 				type: "step_sleep_until";
 			} | {
+				/** Configuration for a step (retries and timeout). */
+				config: {
+					/** Retry policy for a step. */
+					retries: {
+						/** Backoff strategy for step retries. */
+						backoff: "constant" | "linear" | "exponential";
+						/** Duration as milliseconds (number) or human-readable string. */
+						delay: number | string;
+						limit: number;
+					};
+					/** Duration as milliseconds (number) or human-readable string. */
+					timeout: number | string;
+				};
+				name: string;
+				/** Statically known step.runner() options. A null field is not statically known (a non-literal value, an options object passed as a variable, or a field a spread may set). */
+				options: {
+					allow_failure: boolean | null;
+					command: string | null;
+					image: string | null;
+					instance_size: string | null;
+					outputs: string[];
+				};
+				resolves?: number;
+				starts?: number;
+				type: "step_runner";
+			} | {
+				entrypoint: string | null;
+				isolation_key: string | null;
+				name: string;
+				/** Child nodes (recursive). */
+				nodes: { [key: string]: unknown }[];
+				resolves?: number;
+				starts?: number;
+				type: "step_dynamic";
+			} | {
 				/** Child nodes (recursive). */
 				nodes: { [key: string]: unknown }[];
 				type: "loop";

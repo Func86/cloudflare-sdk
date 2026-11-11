@@ -3,6 +3,7 @@ export * as colos from "./colos/index.js";
 export * as commands from "./commands/index.js";
 export * as devices from "./devices/index.js";
 export * as isps from "./isps/index.js";
+export * as notifications from "./notifications/index.js";
 export * as overview from "./overview/index.js";
 export * as rules from "./rules/index.js";
 export * as testResults from "./test-results/index.js";

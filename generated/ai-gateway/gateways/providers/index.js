@@ -4,4 +4,5 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/ai-gateway/ga
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs","query":["page","per_page"],"page":{"kind":"page"}};
+export const test = {"method":"POST","route":"/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}/test","body":"json"};
 export const update = {"method":"PUT","route":"/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}","body":"json"};
