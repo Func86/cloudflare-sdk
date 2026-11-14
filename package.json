@@ -55,7 +55,7 @@
 		"@cloudflare/forge": "https://pkg.pr.new/cloudflare/forge/@cloudflare/forge@45c005a259a5507763d866e12d1e907af6ce745d",
 		"@eslint/js": "^10.0.1",
 		"@types/node": "^24.19.2",
-		"eslint": "^10.14.0",
+		"eslint": "^10.15.0",
 		"knip": "^6.44.2",
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.72.1"
