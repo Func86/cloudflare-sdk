@@ -104,16 +104,6 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type ListRequest = {
 	/** Identifier. */
 	zone_id: string;
-	/** Fully qualified domain name to match against. This parameter cannot be used with the 'id', 'hostname.exact', 'hostname.contain', or 'hostname.startsWith' parameters. */
-	hostname?: string;
-	/** Fully qualified domain name to match against. This parameter cannot be used with the 'id', 'hostname', 'hostname.contain', or 'hostname.startsWith' parameters. */
-	"hostname.exact"?: string;
-	/** Filters hostnames by a prefix match on the hostname value. This parameter cannot be used with the 'id', 'hostname', 'hostname.exact', or 'hostname.contain' parameters. */
-	"hostname.startsWith"?: string;
-	/** Filters hostnames by a substring match on the hostname value. This parameter cannot be used with the 'id', 'hostname', 'hostname.exact', or 'hostname.startsWith' parameters. */
-	"hostname.contain"?: string;
-	/** Hostname ID to match against. This ID was generated and returned during the initial custom_hostname creation. This parameter cannot be used with the 'hostname', 'hostname.exact', 'hostname.contain', or 'hostname.startsWith' parameters. */
-	id?: string;
 	/** Page number of paginated results. */
 	page?: number;
 	/** Number of hostnames per page. */
@@ -134,7 +124,42 @@ export type ListRequest = {
 	custom_origin_server?: string;
 	/** Whether to filter hostnames based on if they have SSL enabled. */
 	ssl?: 0 | 1;
-};
+} & ({
+	/** Fully qualified domain name to match against. This parameter cannot be used with the 'id', 'hostname.exact', 'hostname.contain', or 'hostname.startsWith' parameters. */
+	hostname?: string;
+	"hostname.exact"?: never;
+	"hostname.startsWith"?: never;
+	"hostname.contain"?: never;
+	id?: never;
+} | {
+	/** Fully qualified domain name to match against. This parameter cannot be used with the 'id', 'hostname', 'hostname.contain', or 'hostname.startsWith' parameters. */
+	"hostname.exact"?: string;
+	hostname?: never;
+	"hostname.startsWith"?: never;
+	"hostname.contain"?: never;
+	id?: never;
+} | {
+	/** Filters hostnames by a prefix match on the hostname value. This parameter cannot be used with the 'id', 'hostname', 'hostname.exact', or 'hostname.contain' parameters. */
+	"hostname.startsWith"?: string;
+	hostname?: never;
+	"hostname.exact"?: never;
+	"hostname.contain"?: never;
+	id?: never;
+} | {
+	/** Filters hostnames by a substring match on the hostname value. This parameter cannot be used with the 'id', 'hostname', 'hostname.exact', or 'hostname.startsWith' parameters. */
+	"hostname.contain"?: string;
+	hostname?: never;
+	"hostname.exact"?: never;
+	"hostname.startsWith"?: never;
+	id?: never;
+} | {
+	/** Hostname ID to match against. This ID was generated and returned during the initial custom_hostname creation. This parameter cannot be used with the 'hostname', 'hostname.exact', 'hostname.contain', or 'hostname.startsWith' parameters. */
+	id?: string;
+	hostname?: never;
+	"hostname.exact"?: never;
+	"hostname.startsWith"?: never;
+	"hostname.contain"?: never;
+});
 export type ListResult = $tls_certificates_and_hostnames.CustomHostname[];
 export type ListItem = RootItem<ListResult>;
 /**

@@ -21,8 +21,9 @@ interface Entry {
 		items?: string;
 		param?: string;
 		next?: string;
-		cursors?: { param: string; next: string }[];
+		cursors?: { param: string; next: string; excludes?: string[] }[];
 		offsetWins?: true;
+		excludes?: string[];
 	};
 	aliasOf?: string;
 }
@@ -63,10 +64,18 @@ test('DNS records page by number, and by the cursor a caller sends, as the API r
 	assert.deepEqual(pageOf('dns.records.list'), {
 		kind: 'page',
 		cursors: [
-			{ param: 'cursor', next: 'cursor' },
-			{ param: 'prev_cursor', next: 'prev_cursor' },
+			{ param: 'cursor', next: 'cursor', excludes: ['page', 'prev_cursor'] },
+			{ param: 'prev_cursor', next: 'prev_cursor', excludes: ['page', 'cursor'] },
 		],
+		excludes: ['cursor', 'prev_cursor'],
 	});
+});
+
+test('paginate knows what the API refuses beside the page number or cursor it moves on', () => {
+	assert.deepEqual(pageOf('zero-trust.dex.isps.list'), { kind: 'page', items: 'isps', excludes: ['cursor'] });
+	assert.deepEqual(pageOf('workflows.instances.list'), { kind: 'cursor', param: 'cursor', next: 'cursor', excludes: ['page'] });
+	// Variants that don't govern its page number change nothing.
+	assert.deepEqual(pageOf('custom-hostnames.list'), { kind: 'page' });
 });
 
 test('an offset moves on only where the spec says it wins over the page number', () => {

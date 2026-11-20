@@ -62,8 +62,8 @@ change something few callers rely on; its entry says how to update a call.
 - Types follow the spec's other changes. Those that can break a call:
   - `tags.resources.delete` takes `resource_id`, `resource_type` and `worker_id` beside `account_id` or `zone_id`,
     sent in the query, and no longer takes a `body`. Move the fields out of `body`. `types/resource-tagging` no longer
-    exports `DeleteTagsRequestAccountLevel`, its body's type. As for `tags.resources.get`, the type no longer requires
-    `worker_id` for a `worker_version`, which the API still does.
+    exports `DeleteTagsRequestAccountLevel`, its body's type. It still requires `worker_id` for a `worker_version`,
+    and no other resource takes one, as below.
   - `alerting.destinations.webhooks.update` takes only `name`, as the spec now says `url` and `secret` can't be
     changed. To change them, delete the webhook and create another.
   - `security-txt.update` requires `contact` and `expires`, and `security-txt.get` always returns them.
@@ -71,6 +71,23 @@ change something few callers rely on; its entry says how to update a call.
   - Workers' observability settings no longer have `agents.destinations`, wherever they're sent or read, such as in
     `workers.previews.update`.
   - `zaraz.config.update` takes a `ZarazConfigBodyInput`, and `types/zaraz` no longer exports `ZarazConfigBody`.
+- Request types reject query parameters the API refuses together, so such a call fails to compile, not with a 400.
+  Send one of them:
+  - `dns.records.list`: one of `page`, `cursor` and `prev_cursor`. `zero-trust.dex.isps.list` and
+    `workflows.instances.list`: one of `page` and `cursor`.
+  - `custom-hostnames.list`: one of `hostname`, `hostname.exact`, `hostname.startsWith`, `hostname.contain` and `id`.
+  - `zero-trust.identity-providers.scim.users.list` and `groups.list`: `cf_resource_id`, `idp_resource_id`, or the
+    other filters.
+  - 7 Radar operations: `dateRange`, or both `dateStart` and `dateEnd`. They're the `list` of `radar.annotations`,
+    `radar.annotations.outages`, `radar.bgp.hijacks.events`, `radar.bgp.leaks.events` and `radar.traffic-anomalies`,
+    and `radar.annotations.outages.locations` and `radar.traffic-anomalies.locations.get`.
+  - `tags.resources.get` and `delete`: `worker_id` for a `worker_version`, and for no other resource. A
+    `resource_type` typed as the whole `AccountResourceType` fits neither, so narrow it first:
+    `type === 'worker_version' ? { resource_type: type, worker_id } : { resource_type: type }`.
+- `paginate` throws a `TypeError`, before sending anything, for a request that sets what the API refuses beside the page
+  number or cursor it moves on: a `cursor` for `zero-trust.dex.isps.list`, `page` for `workflows.instances.list`, or
+  `page` beside a cursor for `dns.records.list`. It does so whatever the list's length, and the message says which
+  parameter to leave out, or to read one page with `client.page`.
 - Some results can hold values they couldn't:
   - A resource's `type` can be `'app_library_application'` in the results of `tags.resources.get`, `list` and
     `update`.

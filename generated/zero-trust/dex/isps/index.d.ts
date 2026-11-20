@@ -7,12 +7,8 @@ export type ListRequest = {
 	account_id: string;
 	/** Device-specific ID, given as UUID. */
 	device_id: string;
-	/** Page number of paginated results. Mutually exclusive with cursor. */
-	page?: number;
 	/** Number of items per page */
 	per_page: number;
-	/** Cursor for cursor-based pagination. Mutually exclusive with page. */
-	cursor?: string;
 	/** The field to sort results by. */
 	sort_by?: "time_start";
 	/** The order to sort results. */
@@ -21,7 +17,15 @@ export type ListRequest = {
 	from?: string;
 	/** End time for the query in ISO 8601 format. */
 	to?: string;
-};
+} & ({
+	/** Page number of paginated results. Mutually exclusive with cursor. */
+	page?: number;
+	cursor?: never;
+} | {
+	/** Cursor for cursor-based pagination. Mutually exclusive with page. */
+	cursor?: string;
+	page?: never;
+});
 export type ListResult = $digital_experience_monitoring.DeviceIspsResponse;
 export type ListItem = ItemOf<ListResult, "isps">;
 /**

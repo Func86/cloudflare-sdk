@@ -6324,12 +6324,24 @@
    "cursors": [
     {
      "param": "cursor",
-     "next": "cursor"
+     "next": "cursor",
+     "excludes": [
+      "page",
+      "prev_cursor"
+     ]
     },
     {
      "param": "prev_cursor",
-     "next": "prev_cursor"
+     "next": "prev_cursor",
+     "excludes": [
+      "page",
+      "cursor"
+     ]
     }
+   ],
+   "excludes": [
+    "cursor",
+    "prev_cursor"
    ]
   }
  },
@@ -18100,7 +18112,10 @@
   "page": {
    "kind": "cursor",
    "param": "cursor",
-   "next": "cursor"
+   "next": "cursor",
+   "excludes": [
+    "page"
+   ]
   }
  },
  {
@@ -20440,7 +20455,10 @@
   "response": "envelope",
   "page": {
    "kind": "page",
-   "items": "isps"
+   "items": "isps",
+   "excludes": [
+    "cursor"
+   ]
   }
  },
  {

@@ -3,7 +3,7 @@ export const create = {"method":"POST","route":"/accounts/{account_id}/workflows
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}","query":["simple","order"]};
-export const list = {"method":"GET","route":"/accounts/{account_id}/workflows/{workflow_name}/instances","query":["page","per_page","cursor","direction","status","date_start","date_end"],"page":{"kind":"cursor","param":"cursor","next":"cursor"}};
+export const list = {"method":"GET","route":"/accounts/{account_id}/workflows/{workflow_name}/instances","query":["page","per_page","cursor","direction","status","date_start","date_end"],"page":{"kind":"cursor","param":"cursor","next":"cursor","excludes":["page"]}};
 export const pause = {"method":"PATCH","route":"/accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status","body":"json"};
 export const restart = {"method":"PATCH","route":"/accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status","body":"json"};
 export const resume = {"method":"PATCH","route":"/accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status","body":"json"};

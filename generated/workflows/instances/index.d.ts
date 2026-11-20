@@ -171,11 +171,7 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type ListRequest = {
 	account_id: string;
 	workflow_name: string;
-	/** Deprecated: use `cursor` for pagination instead. */
-	page?: number;
 	per_page?: number;
-	/** Opaque token for cursor-based pagination. Mutually exclusive with `page`. */
-	cursor?: string;
 	/** Defines the direction for cursor-based pagination. */
 	direction?: "asc" | "desc";
 	status?: "queued" | "running" | "paused" | "errored" | "terminated" | "complete" | "waitingForPause" | "waiting" | "rollingBack";
@@ -183,7 +179,15 @@ export type ListRequest = {
 	date_start?: string;
 	/** Accepts ISO 8601 with no timezone offsets and in UTC. */
 	date_end?: string;
-};
+} & ({
+	/** Deprecated: use `cursor` for pagination instead. */
+	page?: number;
+	cursor?: never;
+} | {
+	/** Opaque token for cursor-based pagination. Mutually exclusive with `page`. */
+	cursor?: string;
+	page?: never;
+});
 export type ListResult = ({
 	created_on: string;
 	ended_on: string | null;

@@ -48,6 +48,11 @@ export type ListRequest = {
 	account_id: string;
 	/** UUID. */
 	identity_provider_id: string;
+	/** Page number of results. */
+	page?: number;
+	/** Number of results per page. */
+	per_page?: number;
+} & ({
 	/**
 	 * The unique Cloudflare-generated Id of the SCIM User resource; also known as the "Id".
 	 * Pass once for a single lookup (`?cf_resource_id=A`) or repeat the parameter
@@ -56,6 +61,11 @@ export type ListRequest = {
 	 * `name`, `search_contains`, and `search_starts_with`.
 	 */
 	cf_resource_id?: $access.CfResourceId2;
+	idp_resource_id?: never;
+	username?: never;
+	email?: never;
+	name?: never;
+} | {
 	/**
 	 * The IdP-generated Id of the SCIM User resource; also known as the "external Id".
 	 * Pass once for a single lookup (`?idp_resource_id=A`) or repeat the parameter
@@ -64,17 +74,20 @@ export type ListRequest = {
 	 * `name`, `search_contains`, and `search_starts_with`.
 	 */
 	idp_resource_id?: $access.IdpResourceId2;
+	cf_resource_id?: never;
+	username?: never;
+	email?: never;
+	name?: never;
+} | {
 	/** The username of the SCIM User resource. */
 	username?: $access.Username;
 	/** The email address of the SCIM User resource. */
 	email?: $access.Email;
 	/** The name of the SCIM User resource. */
 	name?: $access.Name5;
-	/** Page number of results. */
-	page?: number;
-	/** Number of results per page. */
-	per_page?: number;
-};
+	cf_resource_id?: never;
+	idp_resource_id?: never;
+});
 export type ListResult = $access.Users[];
 export type ListItem = RootItem<ListResult>;
 /**

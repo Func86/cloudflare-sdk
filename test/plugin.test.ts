@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Forge, Model, Type } from '@cloudflare/forge/plugin';
-import { exclusiveUnion, namedGroups } from '../generator/plugin/index.ts';
+import { exclusiveUnion, namedGroups, variantUnion } from '../generator/plugin/index.ts';
 import { namingProblems } from '../generator/plugin/names.ts';
 import {
 	alternativesOf,
@@ -10,8 +10,11 @@ import {
 	type Param,
 	readAccountOrZone,
 	readDryRun,
+	readVariants,
 	type ResolvedResponse,
+	withExcludes,
 } from '../generator/plugin/operations.ts';
+import type { EnumValue, RequestVariant } from '../generator/patches.ts';
 import { Models, Printer } from '../generator/plugin/types.ts';
 
 const binary: Type = { kind: 'scalar', scalar: 'binary' };
@@ -221,6 +224,83 @@ test('an exclusive body reads its alternatives through models, and keeps null as
 	// An anyOf beside null is no oneOf, though Forge marks a type and null exclusive.
 	assert.equal(alternativesOf(union(true, union(false, a, b), nothing))?.exclusive, false);
 	assert.equal(alternativesOf(union(true, a, nothing)), undefined);
+});
+
+test('request variants name parameters the operation takes, and values its enums have', () => {
+	const string: Type = { kind: 'scalar', scalar: 'string' };
+	const query = (name: string, type: Type = string, required = false): Param => ({ name, in: 'query', required, description: '', type });
+	const dns = 'GET /zones/{zone_id}/dns_records';
+	const cursors = [query('page'), query('cursor'), query('prev_cursor')];
+	assert.equal(readVariants('GET /unlisted', cursors), undefined);
+	assert.equal(readVariants(dns, cursors)?.length, 3);
+	assert.throws(() => readVariants(dns, cursors.slice(0, 2)), /dns_records are stale.*no prev_cursor parameter/);
+	const tags = 'GET /{account_or_zone}/{account_or_zone_id}/tags';
+	const types = (...values: EnumValue[]): Type => ({ kind: 'enum', values }) as unknown as Type;
+	const tagged = (type: Type, workerRequired = false) => [query('resource_type', type, true), query('worker_id', string, workerRequired)];
+	assert.equal(readVariants(tags, tagged(types('worker', 'worker_version')))?.length, 2);
+	assert.throws(() => readVariants(tags, tagged(types('worker'))), /resource_type has no value "worker_version"/);
+	assert.throws(() => readVariants(tags, tagged(string)), /limits resource_type, which it doesn't take as an enum/);
+	// A variant can't leave out a parameter the operation requires.
+	assert.throws(() => readVariants(tags, tagged(types('worker', 'worker_version'), true)), /leaves out worker_id/);
+	const limited = (values: NonNullable<RequestVariant['values']>): RequestVariant[] => [
+		{ takes: ['resource_type'], values },
+		{ takes: ['worker_id'] },
+	];
+	assert.throws(() => readVariants(tags, tagged(types('worker')), limited({ resource_type: { only: [] } })), /lists no values of resource_type/);
+	assert.throws(() => readVariants(tags, tagged(types('worker')), limited({ resource_type: { not: [] } })), /lists no values of resource_type/);
+	// A number or boolean enum can be limited, by its values as they are.
+	const numbered = [query('ssl', types(0, 1)), query('id')];
+	const ssl = (value: EnumValue): RequestVariant[] => [{ takes: ['ssl'], values: { ssl: { only: [value] } } }, { takes: ['id'] }];
+	assert.equal(readVariants(tags, numbered, ssl(1))?.length, 2);
+	assert.throws(() => readVariants(tags, numbered, ssl('1')), /ssl has no value "1"/);
+	// A template names keys that a variant can't give `?: never`.
+	const meta = [query('meta.<field>[<operator>]'), query('id')];
+	assert.throws(
+		() => readVariants(tags, meta, [{ takes: ['meta.<field>[<operator>]'] }, { takes: ['id'] }]),
+		/meta\.<field>\[<operator>\] is a template, whose keys a variant can't forbid/,
+	);
+});
+
+test("request variants print as a union that gives each the others' parameters as never", () => {
+	const { models } = setup();
+	const printer = new Printer(models, undefined);
+	const string: Type = { kind: 'scalar', scalar: 'string' };
+	const query = (name: string, type: Type = string): Param => ({ name, in: 'query', required: false, description: '', type });
+	const kinds = { kind: 'enum', values: ['a', 'b'] } as unknown as Type;
+	const params = [query('kind', kinds), query('id'), query('from'), query('to')];
+	assert.equal(
+		variantUnion(
+			[{ takes: ['kind', 'id'], requires: ['id'], values: { kind: { only: ['a'] } } }, { takes: ['kind'], values: { kind: { not: ['a'] } } }],
+			params,
+			printer,
+		),
+		'{\n\tkind?: "a";\n\tid: string;\n} | {\n\tkind?: Exclude<"a" | "b", "a">;\n\tid?: never;\n}',
+	);
+	assert.equal(
+		variantUnion([{ takes: ['from', 'to'], requires: ['from', 'to'] }, { takes: ['id'] }], params, printer),
+		'{\n\tfrom: string;\n\tto: string;\n\tid?: never;\n} | {\n\tid?: string;\n\tfrom?: never;\n\tto?: never;\n}',
+	);
+	// What the API refuses beside each parameter paginate moves on.
+	const exclusive = [{ takes: ['page'] }, { takes: ['cursor'] }, { takes: ['prev_cursor'] }];
+	const cursors = [{ param: 'cursor', next: 'cursor' }];
+	assert.deepEqual(withExcludes('GET /a', { kind: 'page', cursors }, exclusive), {
+		kind: 'page',
+		cursors: [{ param: 'cursor', next: 'cursor', excludes: ['page', 'prev_cursor'] }],
+		excludes: ['cursor', 'prev_cursor'],
+	});
+	assert.deepEqual(withExcludes('GET /a', { kind: 'cursor', param: 'cursor', next: 'cursor' }, exclusive.slice(0, 2)), {
+		kind: 'cursor',
+		param: 'cursor',
+		next: 'cursor',
+		excludes: ['page'],
+	});
+	// Variants that don't govern what it moves on change nothing.
+	assert.deepEqual(withExcludes('GET /a', { kind: 'offset' }, exclusive), { kind: 'offset' });
+	assert.deepEqual(withExcludes('GET /a', { kind: 'page' }, undefined), { kind: 'page' });
+	// paginate checks no excludes for an offset that takes precedence over page.
+	const offsets = [{ takes: ['offset'] }, { takes: ['cursor'] }];
+	assert.deepEqual(withExcludes('GET /a', { kind: 'page' }, offsets), { kind: 'page' });
+	assert.throws(() => withExcludes('GET /a', { kind: 'page', offsetWins: true }, offsets), /GET \/a say what offset excludes/);
 });
 
 test('a listed dry run needs a boolean dry_run and a result that can be null', () => {

@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
 	checkDryRuns,
 	checkPaginationOverrides,
+	checkRequestVariants,
 	joinCommaLists,
 	markLiteralSlashes,
 	normalizeFlags,
@@ -368,10 +369,12 @@ test('a string described as a comma-separated list becomes a list, joined with c
 	assert.throws(() => joinCommaLists(listed, { 'GET /builds': ['ids'] }), stale);
 });
 
-test('a dry run that is not generated stops generation, and so does a key given twice', () => {
+test('a dry run or request variants that are not generated stop generation, and so does a key given twice', () => {
 	const doc = document({ '/rulesets': { post: {} }, '/hidden': { post: hidden() } });
 	checkDryRuns(doc, ['POST /rulesets']);
 	assert.throws(() => checkDryRuns(doc, ['POST /rulesets', 'POST /hidden', 'POST /gone']), /aren't generated.*POST \/hidden, POST \/gone/);
+	checkRequestVariants(doc, ['POST /rulesets']);
+	assert.throws(() => checkRequestVariants(doc, ['POST /hidden', 'POST /gone']), /REQUEST_VARIANTS: POST \/hidden, POST \/gone/);
 	assert.deepEqual(byKey('T', [['a', 1], ['b', 2]]), { a: 1, b: 2 });
 	assert.throws(() => byKey('OPERATION_RENAMES', [['GET /a', 1], ['GET /a', 2]]), /OPERATION_RENAMES gives GET \/a twice/);
 });

@@ -6,7 +6,7 @@ import type { Field, Method, Type } from '@cloudflare/forge/plugin';
 import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
 import { afterAccountOrZone } from '../../src/routes.ts';
-import { DRY_RUNS, PAGINATION_OVERRIDES } from '../patches.ts';
+import { DRY_RUNS, PAGINATION_OVERRIDES, REQUEST_VARIANTS, type RequestVariant } from '../patches.ts';
 import { EXCLUSIVE_BODY, LITERAL_SLASHES } from '../spec.ts';
 
 /**
@@ -85,6 +85,8 @@ export interface ResolvedOperation {
 	body: ResolvedBody | undefined;
 	response: ResolvedResponse;
 	page: Pagination | undefined;
+	/** The ways `REQUEST_VARIANTS` says the query parameters can be given, when it lists the operation. */
+	variants: readonly RequestVariant[] | undefined;
 }
 
 /** What needs a person's attention, by reason. */
@@ -622,6 +624,104 @@ export function readDryRun(key: string, params: readonly Param[], response: Reso
 	return true;
 }
 
+/**
+ * The variants `REQUEST_VARIANTS` gives the operation, if any, and stops generation when one
+ * names a parameter the operation doesn't take or one named as a template, leaves out one it
+ * requires, requires one it doesn't take, or limits one that isn't an enum, to no values or to a
+ * value it doesn't have. `prepare` checks that each is generated.
+ */
+export function readVariants(
+	key: string,
+	params: readonly Param[],
+	variants: readonly RequestVariant[] | undefined = REQUEST_VARIANTS[key]?.variants,
+): readonly RequestVariant[] | undefined {
+	if (variants === undefined) {
+		return undefined;
+	}
+	const query = new Map(params.filter((param) => param.in === 'query').map((param) => [param.name, param]));
+	const problems = new Set<string>();
+	if (variants.length < 2) {
+		problems.add('it has fewer than 2 variants');
+	}
+	const group = new Set(variants.flatMap((variant) => variant.takes));
+	// A variant would forbid the template's name, not the keys it matches.
+	for (const name of [...group].filter((name) => /<[^>]+>/.test(name))) {
+		problems.add(`${name} is a template, whose keys a variant can't forbid`);
+	}
+	for (const variant of variants) {
+		for (const name of [...group].filter((name) => query.get(name)?.required === true && !variant.takes.includes(name))) {
+			problems.add(`a variant leaves out ${name}, which the operation requires`);
+		}
+		for (const name of variant.takes.filter((taken) => !query.has(taken))) {
+			problems.add(`it has no ${name} parameter`);
+		}
+		for (const name of (variant.requires ?? []).filter((required) => !variant.takes.includes(required))) {
+			problems.add(`a variant requires ${name} without taking it`);
+		}
+		for (const [name, values] of Object.entries(variant.values ?? {})) {
+			const type = query.get(name)?.type;
+			const resolved = type === undefined ? undefined : strip(type);
+			if (!variant.takes.includes(name) || resolved?.kind !== 'enum') {
+				problems.add(`a variant limits ${name}, which it doesn't take as an enum`);
+				continue;
+			}
+			const listed = 'only' in values ? values.only : values.not;
+			if (listed.length === 0) {
+				problems.add(`a variant lists no values of ${name}`);
+			}
+			for (const value of listed.filter((value) => !resolved.values.includes(value))) {
+				problems.add(`${name} has no value ${JSON.stringify(value)}`);
+			}
+		}
+	}
+	if (problems.size > 0) {
+		throw new Error(
+			`The request variants of ${key} are stale, so check them and remove them from REQUEST_VARIANTS: ${[...problems].join('; ')}`,
+		);
+	}
+	return variants;
+}
+
+/** The parameters of the variants' group that no variant taking `name` also takes. */
+function excludedBy(variants: readonly RequestVariant[], name: string): string[] | undefined {
+	const taking = variants.filter((variant) => variant.takes.includes(name));
+	if (taking.length === 0) {
+		return undefined;
+	}
+	const allowed = new Set(taking.flatMap((variant) => variant.takes));
+	const excludes = [...new Set(variants.flatMap((variant) => variant.takes))].filter((other) => !allowed.has(other));
+	return excludes.length === 0 ? undefined : excludes;
+}
+
+/**
+ * The pagination with what the API refuses beside each parameter it moves on, from the
+ * variants, so `paginate` can refuse a request it would send such a pair in. It stops generation
+ * for variants that say what an offset taking precedence over page excludes, which `paginate`
+ * doesn't check.
+ */
+export function withExcludes(key: string, page: Pagination, variants: readonly RequestVariant[] | undefined): Pagination {
+	if (variants === undefined) {
+		return page;
+	}
+	if (page.kind === 'page' && page.offsetWins === true && excludedBy(variants, 'offset') !== undefined) {
+		throw new Error(
+			`The request variants of ${key} say what offset excludes, which paginate doesn't refuse where offset takes precedence over page, so make paginate check them, or remove them from REQUEST_VARIANTS`,
+		);
+	}
+	const marked = <T extends object>(value: T, name: string): T => {
+		const excludes = excludedBy(variants, name);
+		return excludes === undefined ? value : { ...value, excludes };
+	};
+	if (page.kind === 'cursor') {
+		return marked(page, page.param);
+	}
+	if (page.kind === 'offset') {
+		return marked(page, 'offset');
+	}
+	const cursors = page.cursors?.map((cursor) => marked(cursor, cursor.param));
+	return marked({ ...page, ...(cursors === undefined ? {} : { cursors }) }, 'page');
+}
+
 function deprecationOf(method: Method): string | undefined {
 	if (!method.deprecated && method.availability !== 'deprecated') {
 		return undefined;
@@ -643,6 +743,8 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		? resolved.params.filter((param) => param.name !== 'account_or_zone' && param.name !== 'account_or_zone_id')
 		: resolved.params;
 	const response = resolveResponse(method);
+	const variants = readVariants(key, params);
+	const page = resolvePagination(method, key, params, response, report);
 	const permissions = method.extension('x-api-token-group');
 	const slashes = method.extension(LITERAL_SLASHES);
 	return {
@@ -662,6 +764,7 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		joined: resolved.joined,
 		body: resolveBody(method),
 		response,
-		page: resolvePagination(method, key, params, response, report),
+		page: page === undefined ? undefined : withExcludes(key, page, variants),
+		variants,
 	};
 }

@@ -11,6 +11,7 @@ import {
 	OPERATION_RENAMES,
 	type OperationRename,
 	PAGINATION_OVERRIDES,
+	REQUEST_VARIANTS,
 	UNNAMED_OPERATIONS,
 } from './patches.ts';
 import { LITERAL_SLASHES, type OpenApiDocument, type Schema, Spec } from './spec.ts';
@@ -415,14 +416,30 @@ export function checkPaginationOverrides(
  * `selectOperations`. The plugin checks the rest: its `dry_run` and its `null` result.
  */
 export function checkDryRuns(doc: OpenApiDocument, keys: readonly string[] = DRY_RUNS): void {
-	const stale = keys.filter((key) => {
+	const stale = ungenerated(doc, keys);
+	if (stale.length > 0) {
+		throw new Error(`These dry runs aren't generated, so check them and remove them from DRY_RUNS: ${stale.join(', ')}`);
+	}
+}
+
+/**
+ * Stops generation when an operation `REQUEST_VARIANTS` lists isn't generated. Run it after
+ * `selectOperations`. The plugin checks the rest: the parameters and values each variant names.
+ */
+export function checkRequestVariants(doc: OpenApiDocument, keys: readonly string[] = Object.keys(REQUEST_VARIANTS)): void {
+	const stale = ungenerated(doc, keys);
+	if (stale.length > 0) {
+		throw new Error(`These request variants aren't generated, so check them and remove them from REQUEST_VARIANTS: ${stale.join(', ')}`);
+	}
+}
+
+/** The keys, as `METHOD /path`, of operations that aren't generated. */
+function ungenerated(doc: OpenApiDocument, keys: readonly string[]): string[] {
+	return keys.filter((key) => {
 		const [method = '', route = ''] = key.split(' ');
 		const operation: Schema | undefined = doc.paths[route]?.[method.toLowerCase()];
 		return !operation || operation['x-fern-ignore'] === true;
 	});
-	if (stale.length > 0) {
-		throw new Error(`These dry runs aren't generated, so check them and remove them from DRY_RUNS: ${stale.join(', ')}`);
-	}
 }
 
 /** A description that says a string is a list joined with commas, in any of the spec's wordings. */
@@ -478,6 +495,7 @@ export function prepare(doc: OpenApiDocument): Prepared {
 	const skipped = selectOperations(doc);
 	checkPaginationOverrides(doc);
 	checkDryRuns(doc);
+	checkRequestVariants(doc);
 	joinCommaLists(doc);
 	markLiteralSlashes(doc);
 	const flags = normalizeFlags(doc);

@@ -21,19 +21,24 @@ export type ListRequest = {
 	minConfidence?: number;
 	/** Filters events by maximum confidence score (1-4 low, 5-7 mid, 8+ high). */
 	maxConfidence?: number;
-	/** Filters results by a relative date range ending at the current time. Use `<n>d` for days (up to `364d`) or `<n>w` for weeks (up to `52w`), e.g. `7d`. Append `control` to request the equivalent previous period for comparison: the comparison window is shifted back by the current window's length rounded up to a whole number of weeks, so it keeps the same weekday alignment and does not overlap the current window (e.g. `3dcontrol` covers days -10 to -7, `7dcontrol` covers days -14 to -7, `28dcontrol` covers days -56 to -28, and `10dcontrol` covers days -24 to -14). Mutually exclusive with `dateStart`/`dateEnd`. */
-	dateRange?: string;
-	/** Start of the date range (inclusive). Alternative to `dateRange`; provide together with `dateEnd`. */
-	dateStart?: string;
-	/** End of the date range (inclusive). Alternative to `dateRange`; provide together with `dateStart`. */
-	dateEnd?: string;
 	/** Sorts results by the specified field. */
 	sortBy?: "ID" | "TIME" | "CONFIDENCE";
 	/** Sort order. */
 	sortOrder?: "ASC" | "DESC";
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
-};
+} & ({
+	/** Filters results by a relative date range ending at the current time. Use `<n>d` for days (up to `364d`) or `<n>w` for weeks (up to `52w`), e.g. `7d`. Append `control` to request the equivalent previous period for comparison: the comparison window is shifted back by the current window's length rounded up to a whole number of weeks, so it keeps the same weekday alignment and does not overlap the current window (e.g. `3dcontrol` covers days -10 to -7, `7dcontrol` covers days -14 to -7, `28dcontrol` covers days -56 to -28, and `10dcontrol` covers days -24 to -14). Mutually exclusive with `dateStart`/`dateEnd`. */
+	dateRange?: string;
+	dateStart?: never;
+	dateEnd?: never;
+} | {
+	/** Start of the date range (inclusive). Alternative to `dateRange`; provide together with `dateEnd`. */
+	dateStart: string;
+	/** End of the date range (inclusive). Alternative to `dateRange`; provide together with `dateStart`. */
+	dateEnd: string;
+	dateRange?: never;
+});
 export type ListResult = {
 	asn_info: {
 		asn: number;

@@ -600,3 +600,109 @@ export const PAGINATION_OVERRIDES: Readonly<Record<string, Pagination>> = {
 		],
 	},
 };
+
+/** A value an enum can have. */
+export type EnumValue = string | number | boolean;
+
+/** One way to call an operation: the parameters of its group it takes, and which of them it needs. */
+export interface RequestVariant {
+	takes: readonly string[];
+	requires?: readonly string[];
+	/** The values an enum parameter takes this way, as `only`, or doesn't, as `not`. */
+	values?: Readonly<Record<string, { only: readonly EnumValue[] } | { not: readonly EnumValue[] }>>;
+}
+
+export interface RequestVariants {
+	/** What was observed, and when, or what the spec says where it wasn't tried. */
+	evidence: string;
+	variants: readonly RequestVariant[];
+}
+
+/** Variants that each take one group of parameters, optionally, and none of the others. */
+function exclusive(evidence: string, ...groups: (readonly string[])[]): RequestVariants {
+	return { evidence, variants: groups.map((takes) => ({ takes })) };
+}
+
+const RADAR_DATES: RequestVariants = {
+	evidence:
+		'GET /radar/annotations with dateRange beside dateStart and dateEnd got 400, 2001, "dateRange cannot be used together with dateStart and dateEnd", and with dateStart alone 400, "The dateEnd must be after dateStart", 2026-11-20. Each listed operation says dateRange is mutually exclusive with dateStart and dateEnd, which go together.',
+	variants: [{ takes: ['dateRange'] }, { takes: ['dateStart', 'dateEnd'], requires: ['dateStart', 'dateEnd'] }],
+};
+
+const WORKER_VERSION_TAGS: RequestVariants = {
+	evidence:
+		'GET /accounts/{id}/tags for a worker_version without worker_id got 400, 444, "invalid request", and so did a worker with one, on the playground account, 2026-11-20. The version with its worker_id was read. The delete takes the same query.',
+	variants: [
+		{ takes: ['resource_type', 'worker_id'], requires: ['worker_id'], values: { resource_type: { only: ['worker_version'] } } },
+		{ takes: ['resource_type'], values: { resource_type: { not: ['worker_version'] } } },
+	],
+};
+
+const SCIM_IDS = (others: string): string =>
+	`Each of cf_resource_id and idp_resource_id says it's mutually exclusive with the other, ${others}. Not called: the playground account has no Access, 2026-11-20.`;
+
+/**
+ * Query parameters that exclude or require each other, by `METHOD /path`, with the evidence. A
+ * parameter that a variant names is in the operation's group, and the request type is a union of
+ * the variants, each giving the group's other parameters `?: never`. `paginate` refuses a request
+ * that sets a parameter the one it moves on excludes, before sending it. An entry whose operation
+ * isn't generated, or that names a parameter it doesn't take or an enum value it doesn't have,
+ * stops generation.
+ */
+export const REQUEST_VARIANTS: Readonly<Record<string, RequestVariants>> = byKey('REQUEST_VARIANTS', [
+	[
+		'GET /accounts/{account_id}/access/identity_providers/{identity_provider_id}/scim/groups',
+		exclusive(SCIM_IDS('and with name'), ['cf_resource_id'], ['idp_resource_id'], ['name']),
+	],
+	[
+		'GET /accounts/{account_id}/access/identity_providers/{identity_provider_id}/scim/users',
+		exclusive(SCIM_IDS('and with username, email and name'), ['cf_resource_id'], ['idp_resource_id'], ['username', 'email', 'name']),
+	],
+	[
+		'GET /accounts/{account_id}/dex/devices/{device_id}/isps',
+		exclusive(
+			'page and cursor each say they are mutually exclusive with the other, and result_info declares no cursor to follow. Not called: the playground account has no DEX, 2026-11-20.',
+			['page'],
+			['cursor'],
+		),
+	],
+	[
+		'GET /accounts/{account_id}/workflows/{workflow_name}/instances',
+		exclusive(
+			'cursor says it is mutually exclusive with page, which is deprecated. Not called: the playground account has no workflows, 2026-11-20.',
+			['page'],
+			['cursor'],
+		),
+	],
+	...[
+		'/radar/annotations',
+		'/radar/annotations/outages',
+		'/radar/annotations/outages/locations',
+		'/radar/bgp/hijacks/events',
+		'/radar/bgp/leaks/events',
+		'/radar/traffic_anomalies',
+		'/radar/traffic_anomalies/locations',
+	].map((path) => [`GET ${path}`, RADAR_DATES] as const),
+	[
+		'GET /zones/{zone_id}/custom_hostnames',
+		exclusive(
+			"Each of hostname, hostname.exact, hostname.startsWith, hostname.contain and id says it can't be used with the others. Not called: the playground zone has no SSL for SaaS, 403, 1404, 2026-11-20.",
+			['hostname'],
+			['hostname.exact'],
+			['hostname.startsWith'],
+			['hostname.contain'],
+			['id'],
+		),
+	],
+	[
+		'GET /zones/{zone_id}/dns_records',
+		exclusive(
+			'A page number beside cursor or prev_cursor got 400, 9241, "Supply either cursor or a nonempty prev_cursor once, without page.", on the playground zone, 2026-11-20. Each says it is mutually exclusive with the others.',
+			['page'],
+			['cursor'],
+			['prev_cursor'],
+		),
+	],
+	[`GET ${AOZ}/tags`, WORKER_VERSION_TAGS],
+	[`DELETE ${AOZ}/tags`, WORKER_VERSION_TAGS],
+]);

@@ -298,6 +298,49 @@ test('a list paged by number follows the cursor the caller sends instead, forwar
 	);
 });
 
+test('paginate refuses, before any request, one that sets what the API refuses beside what it moves on', async () => {
+	const { client, calls } = mock(() => envelope([1], { total_pages: 2, cursor: 'c2' }));
+	const refused = (operation: PagedOperation, request: Record<string, unknown>, message: RegExp) =>
+		assert.rejects(collect(client.paginate(operation, request as never)), { name: 'TypeError', message });
+	// A list paged by number, given a cursor it has no next one of, as DEX ISPs.
+	const numbered: PagedOperation = { method: 'GET', route: '/isps', query: ['page', 'cursor'], page: { kind: 'page', excludes: ['cursor'] } };
+	await refused(
+		numbered,
+		{ cursor: 'c1' },
+		/^GET \/isps: paginate moves page on, which the API refuses beside cursor, so leave out cursor, or read one page with client\.page$/,
+	);
+	// A cursor list, given a page number, as workflow instances.
+	const cursored: PagedOperation = {
+		method: 'GET',
+		route: '/instances',
+		query: ['page', 'cursor'],
+		page: { kind: 'cursor', param: 'cursor', next: 'cursor', excludes: ['page'] },
+	};
+	await refused(cursored, { page: 2 }, /paginate moves cursor on, which the API refuses beside page/);
+	// A cursor that a list paged by number follows, beside a page number, as DNS records from plain JS.
+	const both: PagedOperation = {
+		method: 'GET',
+		route: '/records',
+		query: ['page', 'cursor'],
+		page: { kind: 'page', cursors: [{ param: 'cursor', next: 'cursor', excludes: ['page'] }], excludes: ['cursor'] },
+	};
+	// Even one page of it would send the pair.
+	await refused(both, { cursor: '', page: 1 }, /^GET \/records: the API refuses cursor beside page, so give one of them$/);
+	assert.equal(calls.length, 0);
+	// What it doesn't move on beside, it takes.
+	assert.deepEqual(await collect(client.paginate(numbered, { page: 2 })), [1]);
+	// The mock sends the same cursor back, which ends the list.
+	assert.deepEqual(await collect(client.paginate(both, { cursor: '' })), [1, 1]);
+	// A null isn't sent, as an absent field isn't, so it's no clash.
+	const sent = calls.length;
+	assert.deepEqual(await collect(client.paginate(both, { page: 1, cursor: null } as never)), [1, 1]);
+	assert.deepEqual(await collect(client.paginate(cursored, { cursor: 'c1', page: null } as never)), [1, 1]);
+	assert.deepEqual(
+		calls.slice(sent).map(({ url }) => url.search),
+		['?page=1', '?page=2', '?cursor=c1', '?cursor=c2'],
+	);
+});
+
 test('send unwraps the envelope and leaves a bare response alone', async () => {
 	const wrapped: Operation<object, number> = { method: 'GET', route: '/a' };
 	const bare: Operation<object, { data: number }> = { method: 'GET', route: '/a', envelope: false };

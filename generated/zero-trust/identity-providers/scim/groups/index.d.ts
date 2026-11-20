@@ -48,6 +48,11 @@ export type ListRequest = {
 	account_id: string;
 	/** UUID. */
 	identity_provider_id: string;
+	/** Page number of results. */
+	page?: number;
+	/** Number of results per page. */
+	per_page?: number;
+} & ({
 	/**
 	 * The unique Cloudflare-generated Id of the SCIM Group resource; also known as the "Id".
 	 * Pass once for a single lookup (`?cf_resource_id=A`) or repeat the parameter
@@ -56,6 +61,9 @@ export type ListRequest = {
 	 * `search_contains`, and `search_starts_with`.
 	 */
 	cf_resource_id?: $access.CfResourceId;
+	idp_resource_id?: never;
+	name?: never;
+} | {
 	/**
 	 * The IdP-generated Id of the SCIM Group resource; also known as the "external Id".
 	 * Pass once for a single lookup (`?idp_resource_id=A`) or repeat the parameter
@@ -64,13 +72,14 @@ export type ListRequest = {
 	 * `search_contains`, and `search_starts_with`.
 	 */
 	idp_resource_id?: $access.IdpResourceId;
+	cf_resource_id?: never;
+	name?: never;
+} | {
 	/** The display name of the SCIM Group resource. */
 	name?: $access.Name4;
-	/** Page number of results. */
-	page?: number;
-	/** Number of results per page. */
-	per_page?: number;
-};
+	cf_resource_id?: never;
+	idp_resource_id?: never;
+});
 export type ListResult = $access.Groups[];
 export type ListItem = RootItem<ListResult>;
 /**

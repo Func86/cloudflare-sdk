@@ -188,6 +188,17 @@ ones its dependencies declare.
   schemas.
 - **A query parameter named as a template is a pattern.** Images' `meta.<field>[<operator>]` is typed as any key
   matching `` `meta.${string}[${string}]` ``, such as `meta.status[eq]`, and each one given is sent.
+- **Query parameters that exclude or require each other are a union,** where `REQUEST_VARIANTS` in
+  `generator/patches.ts` names them, 15 operations for now. `dns.records.list` takes one of `page`, `cursor` and
+  `prev_cursor`; `zero-trust.dex.isps.list` and `workflows.instances.list` one of `page` and `cursor`;
+  `custom-hostnames.list` one hostname filter or `id`; SCIM's user and group lists one kind of lookup; 7 Radar
+  operations, 5 of them lists, take `dateRange` or both `dateStart` and `dateEnd`; and `tags.resources.get` and
+  `delete` take `worker_id` for a `worker_version`, and only then. Each variant gives the others' parameters
+  `?: never`. `paginate` refuses, before sending anything and whatever the list's length, a request that sets a
+  parameter the API refuses beside the page number or cursor it moves on, such as a cursor for
+  `zero-trust.dex.isps.list`, which it pages by number; `client.page` reads one page of it. Each entry is added after
+  reading its descriptions: a search for wordings such as "mutually exclusive" finds about as many parameters that
+  exclude nothing, and Radar's other 93 generated operations with `dateRange` don't say theirs do.
 - **A declared `Accept` or `Content-Type` parameter is a request field.** `r2.objects.put` takes the object's
   `Content-Type`, which otherwise defaults to the declared `application/octet-stream`, and 2 operations choose a format
   with `Accept`.
@@ -225,22 +236,23 @@ ones its dependencies declare.
   the ID. Text keeps an int64 above 2^53, or a decimal such as a Magic connector event's timestamp, exact.
 - **Spec patches expire.** A patch whose defect has gone stops generation, so an upstream fix retires it. So does a
   pagination override whose operation is gone, now states its own pagination, or no longer has the page parameter, the
-  array or a cursor it names. Besides those described elsewhere, patches require each ruleset rule's `action`, which the
-  API rejects a rule without and the spec names as the discriminator, apart from an update that only moves a rule, by
-  its `position` with no field of a rule beside it; take each rule's `action_parameters` from its action alone, as the
-  API refuses any other key; let a ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds
-  keys builds by the version ID asked for; let a Browser Run script's result hold nested arrays; put Domain Connect's
-  routes under `/dns/domainconnect`, where the API serves them, and its `verify` at `v2`; add the 3 fields a Logpush job
-  has undeclared and stop a listed job from being `null`; declare the `notificationUrl` that Stream's webhook body
-  requires but leaves undeclared, as the spec hides the `notification_url` it declares from SDKs; give a patch of a
-  Worker's latest version a body of its own, whose `env` entries can be `null` to remove one binding, as creating a
-  version shares the body; and make temporary R2 credentials take exactly one of `permission` and `actions`, as the API
-  refuses neither and both. `RequestRule` and R2's `TempAccessCredsRequest` list their variants so that each declares
-  `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in `generator/patches.ts` says. The six rule actions
-  that take no parameters, such as `log`, have `action_parameters?: never`, though the API also accepts `{}`. Code can
-  read `action_parameters` on any `RequestRule` or `ResponseRule`, but not on `Rule`, the base every variant shares,
-  which no longer declares it. One action's rule is `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's
-  parameters.
+  array or a cursor it names. So does a `REQUEST_VARIANTS` entry whose operation isn't generated, or that names a
+  parameter it doesn't take, leaves out one it requires, or limits an enum to a value it doesn't have. Besides those
+  described elsewhere, patches require each ruleset rule's `action`, which the API rejects a rule without and the spec
+  names as the discriminator, apart from an update that only moves a rule, by its `position` with no field of a rule
+  beside it; take each rule's `action_parameters` from its action alone, as the API refuses any other key; let a
+  ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds keys builds by the version ID asked
+  for; let a Browser Run script's result hold nested arrays; put Domain Connect's routes under `/dns/domainconnect`,
+  where the API serves them, and its `verify` at `v2`; add the 3 fields a Logpush job has undeclared and stop a listed
+  job from being `null`; declare the `notificationUrl` that Stream's webhook body requires but leaves undeclared, as the
+  spec hides the `notification_url` it declares from SDKs; give a patch of a Worker's latest version a body of its own,
+  whose `env` entries can be `null` to remove one binding, as creating a version shares the body; and make temporary R2
+  credentials take exactly one of `permission` and `actions`, as the API refuses neither and both. `RequestRule` and
+  R2's `TempAccessCredsRequest` list their variants so that each declares `?: never` for the fields only others have, as
+  `EXCLUSIVE_MODELS` in `generator/patches.ts` says. The six rule actions that take no parameters, such as `log`, have
+  `action_parameters?: never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule`
+  or `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it. One action's rule is
+  `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's parameters.
 - **A string described as a comma-separated list is a list,** sent joined with commas, where `COMMA_LISTS` in
   `generator/patches.ts` names it: Builds' `version_ids` and `external_script_ids` for now. Of the 52 query strings
   whose description says comma-separated, comma-delimited or separated by commas, each of the other 50 is added after
@@ -400,6 +412,8 @@ Expect to write patches.
 - Writes on a test account on 2026-11-20: patching a Worker's latest version with a `null` entry in `env` removed that
   binding and kept the other. Temporary R2 credentials asked for with neither `permission` nor `actions`, or both, got
   400, 10040, and either alone got past that.
+- Query parameters on a test account on 2026-11-20: Radar refuses `dateRange` beside `dateStart` and `dateEnd`, 2001,
+  and `dateStart` alone. Tags refuse a `worker_version` without `worker_id`, and a `worker` with one, 444.
 - Browser Run scripts on a test account on 2026-11-12: nested arrays come back as returned, and a `Response` keeps its
   content type, as an image did.
 - Ruleset writes on a test zone: dry runs refuse a rule without its `action` and an unknown key in
@@ -422,6 +436,8 @@ Expect to write patches.
 - An offset winning over the page number on the 4 lists whose spec says so. That rests on the spec, and on the mTLS and
   origin TLS certificate lists, which are empty on the test account, answering `offset: 0` with `page: 2` as page 1 on
   2026-11-20.
+- The query parameters of custom hostnames, SCIM users and groups, DEX ISPs and workflow instances that exclude each
+  other. Those variants rest on the spec, as the test account has none of those products.
 - Bundlers other than esbuild.
 - `Accept: */*` on binary operations, and `application/scim+json` on SCIM's. The tool used for live checks can't set
   headers, so neither these nor the earlier `application/json` were tried on the API.

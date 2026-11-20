@@ -8,7 +8,7 @@ import { ACCOUNT_OR_ZONE, afterAccountOrZone } from './routes.ts';
 
 /** Where a paginated operation keeps its items, and how it picks the next page. */
 export type Pagination =
-	| {
+	| ({
 			kind: 'page';
 			/** The array's key in `result`; `result` itself is the array when absent. */
 			items?: string;
@@ -17,25 +17,31 @@ export type Pagination =
 			 * an empty string, as the API refuses a page number beside one. `next` is as for a
 			 * cursor list. One can go back, as DNS records' `prev_cursor` does.
 			 */
-			cursors?: readonly { param: string; next: string }[];
+			cursors?: readonly ({ param: string; next: string } & Excludes)[];
 			/**
 			 * Whether an `offset` the request sets wins over the page number, as the spec says
 			 * of a few lists, so that the offset moves on instead.
 			 */
 			offsetWins?: true;
-	  }
-	| {
+	  } & Excludes)
+	| ({
 			kind: 'offset';
 			items?: string;
-	  }
-	| {
+	  } & Excludes)
+	| ({
 			kind: 'cursor';
 			items?: string;
 			/** The query parameter that takes the cursor. */
 			param: string;
 			/** The dotted path of the next cursor in `result_info`. */
 			next: string;
-	  };
+	  } & Excludes);
+
+/** What the API refuses beside the parameter a list moves on: `page`, `offset` or its cursor. */
+interface Excludes {
+	/** Parameters that `paginate` won't take with it, as it would send them beside the next one. */
+	excludes?: readonly string[];
+}
 
 /** What an operation sends and how its response is read. `Req` and `Res` are type-only. */
 export interface Operation<Req = unknown, Res = unknown> {
@@ -607,7 +613,7 @@ function at(value: unknown, path: string): unknown {
 }
 
 /** The cursor `paginate` follows: a cursor list's, or the one a list paged by number takes that the request sets. */
-function cursorOf(pagination: Pagination, request: Fields): { param: string; next: string } | undefined {
+function cursorOf(pagination: Pagination, request: Fields): ({ param: string; next: string } & Excludes) | undefined {
 	if (pagination.kind === 'cursor') {
 		return pagination;
 	}
@@ -871,6 +877,22 @@ export function clientWith(transport: Transport): Client {
 		const byOffset =
 			pagination.kind === 'offset' ||
 			(pagination.kind === 'page' && pagination.offsetWins === true && typeof request['offset'] === 'number');
+		// A later page would send what it moves on beside a parameter the API refuses with it.
+		const moving = cursor ?? (pagination.kind === 'page' && byOffset ? undefined : pagination);
+		// The query leaves out a null as it does an absent field, though it sends an empty string.
+		const given = (name: string): boolean => request[name] !== undefined && request[name] !== null;
+		const clash = moving?.excludes?.find(given);
+		if (clash !== undefined) {
+			const name = cursor?.param ?? (pagination.kind === 'cursor' ? pagination.param : pagination.kind);
+			const where = `${operation.method} ${routeOf(operation, request)}`;
+			// Then even the first request has the pair, and so would one page of it.
+			if (given(name)) {
+				throw new TypeError(`${where}: the API refuses ${name} beside ${clash}, so give one of them`);
+			}
+			throw new TypeError(
+				`${where}: paginate moves ${name} on, which the API refuses beside ${clash}, so leave out ${clash}, or read one page with client.page`,
+			);
+		}
 		let fields = request;
 		// A few operations declare `page` as a string. Their "all" isn't a number, and has no next page.
 		let number = Number(request['page'] ?? 1);

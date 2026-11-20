@@ -39,6 +39,12 @@ import type { Operation as ApiShieldOperation } from '@libreflare/cloudflare-sdk
 import type { Project } from '@libreflare/cloudflare-sdk/types/pages';
 import type { Deployment, DeploymentInput, VersionInput, VersionPatchInput } from '@libreflare/cloudflare-sdk/types/workers';
 import type { TempAccessCredsRequest } from '@libreflare/cloudflare-sdk/types/r2';
+import type { ListRequest as DnsRecordsRequest } from '@libreflare/cloudflare-sdk/dns/records';
+import type { DeleteRequest as DeleteTagsRequest, GetRequest as GetTagsRequest } from '@libreflare/cloudflare-sdk/tags/resources';
+import { list as listAnnotations, type ListRequest as AnnotationsRequest } from '@libreflare/cloudflare-sdk/radar/annotations';
+import type { ListRequest as CustomHostnamesRequest } from '@libreflare/cloudflare-sdk/custom-hostnames';
+import type { ListRequest as ScimUsersRequest } from '@libreflare/cloudflare-sdk/zero-trust/identity-providers/scim/users';
+import type { ListRequest as InstancesRequest } from '@libreflare/cloudflare-sdk/workflows/instances';
 import * as logpushJobs from '@libreflare/cloudflare-sdk/logpush/jobs';
 import { get as getLatestBuilds } from '@libreflare/cloudflare-sdk/builds/latest';
 import { get as getBuilds } from '@libreflare/cloudflare-sdk/builds/versions';
@@ -386,6 +392,49 @@ export const bothSelectors: TempAccessCredsRequest = { ...credentials, permissio
 export const removeBinding: VersionPatchInput = { env: { OLD: null, NEW: { type: 'plain_text', text: 'x' } } };
 // @ts-expect-error Only a patch removes a binding.
 export const newWithout: VersionInput = { env: { OLD: null } };
+
+// Query parameters that exclude each other take one of them, or none.
+const zone = { zone_id: 'z' };
+export const byPage: DnsRecordsRequest = { ...zone, page: 2, per_page: 10 };
+export const byCursor: DnsRecordsRequest = { ...zone, cursor: '', per_page: 10 };
+export const back: DnsRecordsRequest = { ...zone, prev_cursor: 'p' };
+export const noPaging: DnsRecordsRequest = zone;
+// @ts-expect-error The API refuses a page number beside a cursor.
+export const pageAndCursor: DnsRecordsRequest = { ...zone, page: 1, cursor: '' };
+// @ts-expect-error Or both cursors.
+export const bothCursors: DnsRecordsRequest = { ...zone, cursor: 'c', prev_cursor: 'p' };
+export const byInstanceCursor: InstancesRequest = { account_id: 'a', workflow_name: 'w', cursor: 'c' };
+// @ts-expect-error A cursor list's deprecated page number, beside its cursor.
+export const instances: InstancesRequest = { account_id: 'a', workflow_name: 'w', page: 1, cursor: 'c' };
+export const oneFilter: CustomHostnamesRequest = { ...zone, 'hostname.contain': 'app' };
+export const oneHostname: CustomHostnamesRequest = { ...zone, hostname: 'a.example.com' };
+export const oneId: CustomHostnamesRequest = { ...zone, id: 'x' };
+// @ts-expect-error One hostname filter at most, and not beside an ID.
+export const twoFilters: CustomHostnamesRequest = { ...zone, hostname: 'a.example.com', id: 'x' };
+const idp = { account_id: 'a', identity_provider_id: 'i' };
+export const byNameAndEmail: ScimUsersRequest = { ...idp, name: 'n', email: 'e' };
+export const byId: ScimUsersRequest = { ...idp, cf_resource_id: ['x'] };
+// @ts-expect-error An ID lookup takes no other filter.
+export const idAndName: ScimUsersRequest = { ...idp, cf_resource_id: ['x'], name: 'n' };
+
+// Radar's dateStart and dateEnd go together, and not beside dateRange.
+export const relative: AnnotationsRequest = { dateRange: '7d' };
+export const absolute: AnnotationsRequest = { dateStart: '2026-11-01T00:00:00Z', dateEnd: '2026-11-08T00:00:00Z' };
+// @ts-expect-error Not beside dateRange.
+export const rangeAndStart: AnnotationsRequest = { dateRange: '7d', dateStart: '2026-11-01T00:00:00Z', dateEnd: '2026-11-08T00:00:00Z' };
+// @ts-expect-error Not one without the other.
+export const startOnly: AnnotationsRequest = { dateStart: '2026-11-01T00:00:00Z' };
+// A request of only optional fields is still optional.
+export const annotations = cf.send(listAnnotations);
+
+// A worker version's tags need its worker_id, which no other resource takes.
+const account = { account_id: 'a' };
+export const versionTags: GetTagsRequest = { ...account, resource_type: 'worker_version', resource_id: 'v', worker_id: 'w' };
+export const workerTags: DeleteTagsRequest = { ...account, resource_type: 'worker', resource_id: 'w' };
+// @ts-expect-error A worker version without its worker_id.
+export const versionWithout: GetTagsRequest = { ...account, resource_type: 'worker_version', resource_id: 'v' };
+// @ts-expect-error A worker with one.
+export const workerWith: DeleteTagsRequest = { ...account, resource_type: 'worker', resource_id: 'w', worker_id: 'w' };
 
 // A mock client is keyed by the operation imported, and each handler is typed from it.
 export const mocked = createMockClient()

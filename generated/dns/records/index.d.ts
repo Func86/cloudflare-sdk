@@ -336,12 +336,6 @@ export type ListRequest = {
 	search?: $dns_records.Search;
 	/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. The legacy `tag-match` parameter is an alias for this parameter. */
 	tag_match?: $dns_records.TagMatch;
-	/** Opaque token for cursor pagination, obtained from `result_info.cursor` of the previous response. An empty value starts cursor pagination. Mutually exclusive with `page` and `prev_cursor`. */
-	cursor?: string;
-	/** Opaque token for requesting the previous page in cursor pagination, obtained from `result_info.prev_cursor` of the previous response. Mutually exclusive with `page` and `cursor`. */
-	prev_cursor?: string;
-	/** Page number for offset pagination. */
-	page?: $dns_records.Page;
 	/** Number of DNS records per page. */
 	per_page?: $dns_records.PerPage;
 	/** Field to order DNS records by. */
@@ -354,7 +348,22 @@ export type ListRequest = {
 	shadowed_by_name?: string;
 	/** Returns NS records that shadow the given name, searching at the name itself and each of its ancestor names within the zone, excluding the zone apex. The value must be a subdomain of the zone; the zone apex is not accepted. See [Shadowed records](https://developers.cloudflare.com/dns/manage-dns-records/reference/shadowed-records). */
 	shadowing_name?: string;
-};
+} & ({
+	/** Page number for offset pagination. */
+	page?: $dns_records.Page;
+	cursor?: never;
+	prev_cursor?: never;
+} | {
+	/** Opaque token for cursor pagination, obtained from `result_info.cursor` of the previous response. An empty value starts cursor pagination. Mutually exclusive with `page` and `prev_cursor`. */
+	cursor?: string;
+	prev_cursor?: never;
+	page?: never;
+} | {
+	/** Opaque token for requesting the previous page in cursor pagination, obtained from `result_info.prev_cursor` of the previous response. Mutually exclusive with `page` and `cursor`. */
+	prev_cursor?: string;
+	cursor?: never;
+	page?: never;
+});
 export type ListResult = $dns_records.DnsRecordResponse[];
 export type ListItem = RootItem<ListResult>;
 /**
