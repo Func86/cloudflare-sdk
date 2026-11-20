@@ -2,6 +2,70 @@
 import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $workers_kv from "../../_types/workers-kv.js";
 
+export type BulkDeleteRequest = {
+	/** ID of the Cloudflare account that owns the Workers KV namespaces. */
+	account_id: string;
+	/** ID of the Workers KV namespace. */
+	namespace_id: string;
+	body: $workers_kv.BulkDelete;
+};
+export type BulkDeleteResult = $workers_kv.BulkResult;
+/**
+ * Delete multiple key-value pairs
+ *
+ * Deletes up to 10,000 key-value pairs from the specified Workers KV namespace. Send a JSON array of the key names to delete. The result reports the number of successful deletions and any keys that failed and should be retried.
+ *
+ * `POST /accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk/delete`
+ *
+ * Token permissions (any one): Workers KV Storage Write.
+ */
+export declare const bulkDelete: Operation<BulkDeleteRequest, BulkDeleteResult>;
+
+export type BulkGetRequest = {
+	/** ID of the Cloudflare account that owns the Workers KV namespaces. */
+	account_id: string;
+	/** ID of the Workers KV namespace. */
+	namespace_id: string;
+	body: {
+		/** Array of keys to retrieve (maximum of 100). */
+		keys: $workers_kv.KeyNameBulk[];
+		/** Return values as strings with `text`, or parse stored JSON values with `json`. */
+		type?: "text" | "json";
+		/** Whether to include metadata in the response. */
+		withMetadata?: boolean;
+	};
+};
+export type BulkGetResult = $workers_kv.BulkGetResult | $workers_kv.BulkGetResultWithMetadata;
+/**
+ * Get multiple key-value pairs
+ *
+ * Retrieves the text-based values of up to 100 keys from the specified Workers KV namespace. The result maps each requested key to its value. Set `type` to `json` to parse JSON values instead of returning strings, and set `withMetadata` to `true` to include metadata with each value. Binary values are not supported by this operation.
+ *
+ * `POST /accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk/get`
+ *
+ * Token permissions (any one): Workers KV Storage Write, Workers KV Storage Read.
+ */
+export declare const bulkGet: Operation<BulkGetRequest, BulkGetResult>;
+
+export type BulkPutRequest = {
+	/** ID of the Cloudflare account that owns the Workers KV namespaces. */
+	account_id: string;
+	/** ID of the Workers KV namespace. */
+	namespace_id: string;
+	body: $workers_kv.BulkWrite;
+};
+export type BulkPutResult = $workers_kv.BulkResult;
+/**
+ * Write multiple key-value pairs
+ *
+ * Writes up to 10,000 key-value pairs to the specified Workers KV namespace from a JSON array, with optional metadata and expiration settings for each pair. Existing values and expirations are overwritten. If neither `expiration` nor `expiration_ttl` is specified, the key-value pair will not expire. If both are set, `expiration_ttl` takes precedence. The entire request must be 100 megabytes or less. The result reports the number of successful writes and any keys that failed and should be retried.
+ *
+ * `PUT /accounts/{account_id}/storage/kv/namespaces/{namespace_id}/bulk`
+ *
+ * Token permissions (any one): Workers KV Storage Write.
+ */
+export declare const bulkPut: Operation<BulkPutRequest, BulkPutResult>;
+
 export type DeleteRequest = {
 	/** ID of the Cloudflare account that owns the Workers KV namespaces. */
 	account_id: string;

@@ -36,7 +36,9 @@ export type UpdateResult = $security_center.PartnerSettings;
 /**
  * Updates Partner Integration Settings
  *
- * Enables or disables the selected partner integration for the account. Enabling the integration for the first time also schedules an account scan for that partner.
+ * Enables or disables the selected partner integration for the account.
+ * Enabling the integration for the first time also schedules an account scan for that partner.
+ * Disabling the integration will purge all partner integration-related data, including partner insights, shadow zones, and shadow hosts.
  *
  * `POST /accounts/{account_id}/security-center/partners/{partner}/settings`
  *

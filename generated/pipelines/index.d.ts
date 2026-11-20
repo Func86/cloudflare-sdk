@@ -179,7 +179,7 @@ export type LegacyListRequest = {
 	/** Specifies which page to retrieve. */
 	page?: string;
 	/** Specifies the number of pipelines per page. */
-	per_page?: string;
+	per_page?: number;
 };
 export type LegacyListResult = {
 	result_info: {

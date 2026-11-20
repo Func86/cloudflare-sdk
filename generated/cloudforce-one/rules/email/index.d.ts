@@ -141,41 +141,6 @@ export type UpdateResult = $cloudforce_one.RulePreview | $cloudforce_one.Approva
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;
 
-export type UpdatePendingApprovalRequest = {
-	/** Cloudflare account ID. */
-	account_id: string;
-	/** The unique identifier for the approval. */
-	id: string;
-	/** Structured rule module. */
-	module?: "eml";
-	body?: {
-		/** Nested condition groups support up to 10 levels of depth. */
-		condition: $cloudforce_one.EmailRuleConditionGroup;
-		description?: string;
-		enabled?: boolean;
-		meta?: $cloudforce_one.MetaInputEntry[];
-		name: string;
-		/** Disposition for matching email. This emits status metadata with the selected value. */
-		status?: "silent" | "blocking";
-		strings?: ({
-			identifier: string;
-			match_type?: "text" | "hex" | "regex";
-			modifiers?: ("nocase" | "wide" | "ascii" | "fullword")[];
-			type: "string_match";
-			value: string;
-		})[];
-	};
-};
-export type UpdatePendingApprovalResult = $cloudforce_one.EditApprovalResponse;
-/**
- * Update a pending structured email rule approval
- *
- * Validate, compile, and replace the proposed structured email rule on a pending approval. Only the original requester may update it.
- *
- * `PUT /accounts/{account_id}/cloudforce-one/rules/structured/approvals/{id}`
- */
-export declare const updatePendingApproval: Operation<UpdatePendingApprovalRequest, UpdatePendingApprovalResult>;
-
 export type ValidateRequest = {
 	/** Cloudflare account ID. */
 	account_id: string;

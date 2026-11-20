@@ -387,7 +387,7 @@ export type PTRRecord = DnsRecordSharedFields & {
 	type?: "PTR";
 };
 
-/** Page number of paginated results. */
+/** Page number for offset pagination. */
 export type Page = number;
 
 /** Record type. */
@@ -637,7 +637,7 @@ export type Proxied = boolean;
 /** Whether to match all search requirements or at least one (any). If set to `all`, acts like a logical AND between filters. If set to `any`, acts like a logical OR instead. Note that the interaction between tag filters is controlled by the `tag-match` parameter instead. */
 export type Match = "any" | "all";
 
-/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. */
+/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. The legacy `tag-match` parameter is an alias for this parameter. */
 export type TagMatch = "any" | "all";
 
 export type DnsRecordBatchDelete = {

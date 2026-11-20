@@ -389,7 +389,7 @@ export type EnvironmentVariable = {
 	value: EnvironmentVariableValue;
 };
 
-/** An event within a Placement or a Job. */
+/** An event within a Placement. */
 export type PlacementEvent = {
 	details: { [key: string]: unknown };
 	id: string;
@@ -963,7 +963,7 @@ export type ApplicationHealth = {
 };
 
 export type ApplicationHealthError = {
-	/** An event within a Placement or a Job. */
+	/** An event within a Placement. */
 	event: PlacementEvent;
 	/** An instance ID represents an identifier of an instance configuration that maintains an underlying placement. */
 	instance_id: InstanceID;

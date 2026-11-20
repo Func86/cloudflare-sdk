@@ -7,6 +7,79 @@ change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
 
+### Breaking
+
+- **27 operations are renamed by the spec,** now generated from Forge's `openapi@3dc49274` rather than `debf614f`. cf's
+  commands take the same names, apart from 3 that its older pin hasn't renamed yet: `user.load-balancers.pools.edit`
+  and `bulkEdit`, and `network.subnets.initial-resolved-ip.replace`. Each keeps its request and result:
+
+  | Was | Now |
+  | --- | --- |
+  | `builds/repos/connections`: `upsert` | `builds/repos/connections`: `replace` |
+  | `builds/triggers`: `update` | `builds/triggers`: `edit` |
+  | `builds/triggers/environment-variables`: `upsert` | `builds/triggers/environment-variables`: `edit` |
+  | `builds/workers`: `update` | `builds/workers`: `edit` |
+  | `cloudforce-one/rules/email`: `updatePendingApproval` | `cloudforce-one/rules/email/approvals`: `replace` |
+  | `dns/records`: `batch` | `dns/records`: `bulkApply` |
+  | `email-routing/addresses`: `update` | `email-routing/addresses`: `edit` |
+  | `email-routing/settings`: `apply`, `update` | `email-routing/settings`: `replace`, `edit` |
+  | `batch` in the 7 `email-security/*` groups that have it, such as `email-security/domains` | `bulkApply`, or `bulkDelete` in `email-security/sending-domain-restrictions`, which only deletes |
+  | `hyperdrive`: `update` | `hyperdrive`: `edit` |
+  | `kv/bulk`: `delete`, `get`, `put` | `kv/keys`: `bulkDelete`, `bulkGet`, `bulkPut` |
+  | `network/subnets/initial-resolved-ip`: `edit` | `network/subnets/initial-resolved-ip`: `replace` |
+  | `user/load-balancers/pools/edit/pools`: `pool`, `pools` | `user/load-balancers/pools`: `edit`, `bulkEdit` |
+  | `bulk` in `workers/secrets` and `workers-for-platforms/dispatch-namespaces/scripts/secrets` | `bulkEdit` |
+  | `zero-trust/access/targets/bulk`: `replaceTags`, `update` | `zero-trust/access/targets`: `bulkReplaceTags`, `bulkCreate` |
+
+- **`types/registrar-api` and `types/registrar-api-sandbox` are `types/registrar` and `types/registrar-sandbox`,** with
+  the same types. Change the import path.
+- **`ai-gateway.billing.topup.eligibility`, `limits` and `config.get` are gone,** as the spec deprecates them. Read the
+  eligibility with `ai-gateway.billing.topup.getEligibility`, a GET without a body, which returns another type.
+  `types/aig-billing` no longer exports `GetTopupEligibilityResult`, `GetTopupLimitsResult`, `GetTopupConfigResult`
+  or `GetAuthoritativeTopupEligibilityResult`. Use `GetTopupEligibilityV2Result`, the new operation's result.
+
+### Added
+
+- 11 operations: `tunnels.hostnames.create`, `delete`, `edit`, `get` and `list`,
+  `ai-gateway.billing.topup.getEligibility`, `cloudforce-one.priority-intelligence.topics.list` and
+  `cloudforce-one.requests.quota.get`, whose responses the spec now describes, and `createLegacy`, `deleteLegacy` and
+  `listLegacy` in `r2.buckets.domains.custom`, for the deprecated `custom_domains` route.
+- 8 list operations are paginated, so `paginate` and `page` take them, and they take `page` and `per_page`:
+  `network.virtual-networks.list`, `pages.domains.list`, `queues.list`, `ssl.keyless-certificates.list`,
+  `ssl.mtls-certificates.list`, `ssl.origin-tls-client-auth.hostname-certificates.list`,
+  `ssl.origin-tls-client-auth.zone-certificates.list` and `zones.hostnames.settings.tls.get`. `send` returns what it
+  did. Given an `offset`, `paginate` moves it on for the last 4, as their spec says an offset wins over the page
+  number.
+- `dns.records.list` takes `cursor` and `prev_cursor`, which page by cursor: an empty `cursor` starts. `paginate` pages
+  it by number, as the API does without a cursor, and by cursor when given a `cursor`, even an empty one. Given a
+  `prev_cursor`, it goes back to the first page, so earlier pages come later.
+- Worker versions have `env`, their bindings as a map by name, beside `bindings`. In `workers.versions.latest.edit`,
+  whose body is now a `VersionPatchInput`, an entry set to `null` removes that binding and keeps the others.
+- `r2.temporary-credentials.create` takes S3 `actions` in place of a `permission`. Its type takes exactly one of them.
+
+### Changed
+
+- Types follow the spec's other changes. Those that can break a call:
+  - `tags.resources.delete` takes `resource_id`, `resource_type` and `worker_id` beside `account_id` or `zone_id`,
+    sent in the query, and no longer takes a `body`. Move the fields out of `body`. `types/resource-tagging` no longer
+    exports `DeleteTagsRequestAccountLevel`, its body's type. As for `tags.resources.get`, the type no longer requires
+    `worker_id` for a `worker_version`, which the API still does.
+  - `alerting.destinations.webhooks.update` takes only `name`, as the spec now says `url` and `secret` can't be
+    changed. To change them, delete the webhook and create another.
+  - `security-txt.update` requires `contact` and `expires`, and `security-txt.get` always returns them.
+  - `pipelines.list` takes `per_page` as a number, not a string.
+  - Workers' observability settings no longer have `agents.destinations`, wherever they're sent or read, such as in
+    `workers.previews.update`.
+  - `zaraz.config.update` takes a `ZarazConfigBodyInput`, and `types/zaraz` no longer exports `ZarazConfigBody`.
+- Some results can hold values they couldn't:
+  - A resource's `type` can be `'app_library_application'` in the results of `tags.resources.get`, `list` and
+    `update`.
+  - A CNI from `network-interconnects.cnis.create`, `get` and `update` can have `null` as its `bgp` and `bgp_mode`.
+  - A `browser-run.crawl.get` record can have `null` as its `html`, `markdown` and `json`, and its `json` can be an
+    array or a string.
+  - `radar.entities.asns.get` returns `confidenceLevel` only when asked with `includeConfidenceLevel: true`.
+  - A step in `workflows.instances.get` can leave out `end`.
+
 ## [0.3.0] - 2026-11-12
 
 This release breaks calls: each breaking change below says how to update one.

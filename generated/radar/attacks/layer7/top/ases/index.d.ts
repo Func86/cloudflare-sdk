@@ -24,6 +24,8 @@ export type OriginRequest = {
 	httpMethod?: ("GET" | "POST" | "DELETE" | "PUT" | "HEAD" | "PURGE" | "OPTIONS" | "PROPFIND" | "MKCOL" | "PATCH" | "ACL" | "BCOPY" | "BDELETE" | "BMOVE" | "BPROPFIND" | "BPROPPATCH" | "CHECKIN" | "CHECKOUT" | "CONNECT" | "COPY" | "LABEL" | "LOCK" | "MERGE" | "MKACTIVITY" | "MKWORKSPACE" | "MOVE" | "NOTIFY" | "ORDERPATCH" | "POLL" | "PROPPATCH" | "REPORT" | "SEARCH" | "SUBSCRIBE" | "TRACE" | "UNCHECKOUT" | "UNLOCK" | "UNSUBSCRIBE" | "UPDATE" | "VERSIONCONTROL" | "BASELINECONTROL" | "XMSENUMATTS" | "RPC_OUT_DATA" | "RPC_IN_DATA" | "JSON" | "COOK" | "TRACK")[];
 	/** Filters the results by layer 7 mitigation product. */
 	mitigationProduct?: ("DDOS" | "WAF" | "BOT_MANAGEMENT" | "ACCESS_RULES" | "IP_REPUTATION" | "API_SHIELD" | "DATA_LOSS_PREVENTION")[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };

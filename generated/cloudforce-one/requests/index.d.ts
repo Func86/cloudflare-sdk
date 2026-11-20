@@ -9,6 +9,7 @@ export * as message from "./message/index.js";
 export * as messages from "./messages/index.js";
 export * as metadata from "./metadata/index.js";
 export * as priority from "./priority/index.js";
+export * as quota from "./quota/index.js";
 export * as types from "./types/index.js";
 export * as user from "./user/index.js";
 

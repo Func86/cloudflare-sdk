@@ -139,6 +139,16 @@ export type AuthMethod = {
 	supported_environments: string[];
 };
 
+/** Authorization settings to use instead of the defaults when a feature is selected. */
+export type FeatureAuthOverride = {
+	/** Full OAuth authorization URL with query parameters. */
+	authorization_url: string | null;
+	/** OAuth client ID to authorize with. */
+	client_id: string | null;
+	/** Feature identifier that triggers this override. */
+	feature: string;
+};
+
 /** Detailed auth method info including credentials schema and instructions. */
 export type AuthMethodDetail = {
 	/** Human-readable auth method name. */
@@ -249,6 +259,8 @@ export type AuthConfig = {
 	authorization_url: string | null;
 	/** OAuth client ID. */
 	client_id: string | null;
+	/** Per-feature authorization overrides. When a listed feature is selected, authorize with the override's client ID and URL instead of the defaults above. */
+	feature_overrides: FeatureAuthOverride[];
 	/** Whether PKCE is required. */
 	requires_pkce: boolean;
 	/** OAuth scopes to request. */
@@ -274,8 +286,26 @@ export type Permission = {
 	severity: "low" | "medium" | "high" | "critical";
 };
 
+/** Selected GitLab groups and projects returned by the API. */
+export type SelectedGitLabIntegrationConfiguration = {
+	/** Selected top-level GitLab groups. */
+	groups: SelectedGitLabResource[];
+	/** Selected GitLab projects. */
+	projects: SelectedGitLabResource[];
+};
+
+/** Selected GitLab groups and projects. */
+export type GitLabIntegrationConfigurationRequest = {
+	/** Selected top-level GitLab group IDs as string-encoded positive integers. */
+	group_ids?: string[];
+	/** Selected GitLab project IDs as string-encoded positive integers. */
+	project_ids?: string[];
+};
+
 /** Serializer for v2 integration PATCH requests. */
 export type PatchedUpdateIntegrationV2Request = {
+	/** Vendor-specific integration configuration. */
+	config?: UpdateIntegrationConfigRequest;
 	/** Partial credential fields to merge with existing. */
 	credentials?: { [key: string]: unknown };
 	/** List of DLP profile IDs to associate with the integration. */
@@ -335,6 +365,8 @@ export type IntegrationV2Detail = {
 		components: { [key: string]: unknown } | null;
 		link: string | null;
 	} | null;
+	/** Vendor-specific integration configuration. */
+	config: IntegrationConfig;
 	/** When the integration was created. */
 	created: string;
 	/** Credentials expiry time. */
@@ -367,6 +399,8 @@ export type IntegrationV2ListItem = {
 		display_name: string;
 		id: string;
 	} | null;
+	/** Vendor-specific integration configuration. */
+	config: IntegrationConfig;
 	/** When the integration was created. */
 	created: string;
 	/** Integration ID. */
@@ -399,4 +433,25 @@ export type SetupFlow = {
 	steps: SetupFlowStep[];
 	/** Environments this auth method supports (standard, fedramp). */
 	supported_environments: string[];
+};
+
+/** Vendor-specific integration configuration accepted during updates. */
+export type UpdateIntegrationConfigRequest = {
+	/** GitLab-specific configuration. Accepted only for GitLab integrations. */
+	gitlab?: GitLabIntegrationConfigurationRequest;
+};
+
+/** Vendor-specific integration configuration returned by the API. */
+export type IntegrationConfig = {
+	/** GitLab-specific configuration. Present only for GitLab integrations. */
+	gitlab?: SelectedGitLabIntegrationConfiguration;
+};
+
+export type SelectedGitLabResource = {
+	/** Human-readable GitLab resource name. */
+	display_name: string;
+	/** GitLab resource ID as a string-encoded positive integer. */
+	id: string;
+	/** Full GitLab resource path. */
+	path: string;
 };

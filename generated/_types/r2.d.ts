@@ -242,6 +242,13 @@ export type R2PutObjectResult = {
 /** Storage class for newly uploaded objects, unless specified otherwise. */
 export type StorageClass = "Standard" | "InfrequentAccess";
 
+export type AddCustomDomainLegacyRequest = {
+	/** Name of the custom domain to be added. */
+	domain: string;
+	/** Zone ID of the custom domain. */
+	zoneId: string;
+};
+
 export type AddCustomDomainRequest = {
 	/** An allowlist of ciphers for TLS termination. These ciphers must be in the BoringSSL format. */
 	ciphers?: string[];
@@ -305,6 +312,11 @@ export type CorsRule = {
 	id?: string;
 	/** Specifies the amount of time (in seconds) browsers are allowed to cache CORS preflight responses. Browsers may limit this to 2 hours or less, even if the maximum value (86400) is specified. */
 	maxAgeSeconds?: number;
+};
+
+export type CustomDomainLegacyResponse = {
+	/** Name of the custom domain. */
+	domain: string;
 };
 
 export type EditCustomDomainRequest = {
@@ -528,6 +540,27 @@ export type LifecycleStorageTransition = {
 	storageClass: "InfrequentAccess";
 };
 
+export type ListCustomDomainsLegacyResponse = {
+	domains: ({
+		/** An allowlist of ciphers for TLS termination. These ciphers must be in the BoringSSL format. */
+		ciphers?: string[];
+		/** Domain name of the custom domain. */
+		domain: string;
+		/** Minimum TLS Version the custom domain will accept for incoming connections. If not set, defaults to 1.0. */
+		minTLS?: "1.0" | "1.1" | "1.2" | "1.3";
+		status: {
+			/** Ownership status of the domain. */
+			ownership: "pending" | "active" | "deactivated" | "blocked" | "error" | "unknown";
+			/** SSL certificate status. */
+			ssl: "initializing" | "pending" | "active" | "deactivated" | "error" | "unknown";
+		};
+		/** Zone ID of the custom domain. */
+		zoneId?: string;
+		/** Zone that the custom domain resides in. */
+		zoneName?: string;
+	})[];
+};
+
 export type ListCustomDomainsResponse = {
 	domains: ({
 		/** An allowlist of ciphers for TLS termination. These ciphers must be in the BoringSSL format. */
@@ -629,20 +662,37 @@ export type Sippy = {
 	};
 };
 
-export type TempAccessCredsRequest = {
+export type TempAccessCredsRequest = (({
 	/** Name of the R2 bucket. */
 	bucket: string;
 	/** Optional object paths to scope the credentials to. */
 	objects?: string[];
 	/** Access key ID of the parent R2 API token. The temporary credentials cannot exceed this token's permissions. */
 	parentAccessKeyId: string;
-	/** Permissions allowed on the credentials. */
-	permission: "admin-read-write" | "admin-read-only" | "object-read-write" | "object-read-only";
 	/** Optional prefix paths to scope the credentials to. */
 	prefixes?: string[];
 	/** Lifetime of the temporary credentials in seconds, up to 604800 seconds (7 days). */
 	ttlSeconds: number;
-};
+	/** Permissions allowed on the credentials. Exactly one of `permission` or `actions` must be provided. */
+	permission: "admin-read-write" | "admin-read-only" | "object-read-write" | "object-read-only";
+}) & {
+	actions?: never;
+}) | (({
+	/** Name of the R2 bucket. */
+	bucket: string;
+	/** Optional object paths to scope the credentials to. */
+	objects?: string[];
+	/** Access key ID of the parent R2 API token. The temporary credentials cannot exceed this token's permissions. */
+	parentAccessKeyId: string;
+	/** Optional prefix paths to scope the credentials to. */
+	prefixes?: string[];
+	/** Lifetime of the temporary credentials in seconds, up to 604800 seconds (7 days). */
+	ttlSeconds: number;
+	/** S3 actions allowed on the credentials; requests for any other action are denied. For example, `["GetObject", "HeadObject"]` allows reading objects without listing them. Exactly one of `permission` or `actions` must be provided. The parent token must have Object Read & Write permission if any action writes, and Object Read otherwise. */
+	actions: ("HeadBucket" | "HeadObject" | "GetObject" | "GetBucketLocation" | "ListObjectsV1" | "ListObjectsV2" | "ListMultipartUploads" | "ListParts" | "PutObject" | "DeleteObject" | "DeleteObjects" | "DeleteObjectsByPrefix" | "CopyObject" | "CreateMultipartUpload" | "UploadPart" | "UploadPartCopy" | "AbortMultipartUpload" | "CompleteMultipartUpload")[];
+}) & {
+	permission?: never;
+});
 
 export type TempAccessCredsResponse = {
 	/** ID for new access key. */

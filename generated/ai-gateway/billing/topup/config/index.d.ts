@@ -15,6 +15,8 @@ export type CreateRequest = {
 		amount: number;
 		/** Version of the off-session auto-top-up consent accepted by the user. */
 		consent_version: string;
+		/** Set to 2 to pin auto top-up to this card instead of the default. Read when card setup starts; completion follows the setup. */
+		contract_version?: 2;
 		/** Card to authenticate for future automatic top-ups. */
 		payment_method_id: string;
 		/** Client-generated UUID that makes payment-method setup safe to retry. */
@@ -53,19 +55,3 @@ export type DeleteResult = $aig_billing.DeleteTopupConfigResult;
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
-
-export type GetRequest = {
-	/** Cloudflare account ID. */
-	account_id: string;
-};
-export type GetResult = $aig_billing.GetTopupConfigResult;
-/**
- * Get auto top-up configuration
- *
- * Retrieve the current auto top-up threshold, amount, and any error state.
- *
- * `GET /accounts/{account_id}/ai-gateway/billing/topup/config`
- *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
- */
-export declare const get: Operation<GetRequest, GetResult>;

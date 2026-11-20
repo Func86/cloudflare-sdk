@@ -98,6 +98,9 @@ export type OfframpWarpEnabled = boolean;
 /** A flag to enable the ICMP proxy for the account network. */
 export type IcmpProxyEnabled = boolean;
 
+/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
+export type TunnelHostnameValue = string;
+
 /** A user-friendly name for a tunnel. */
 export type TunnelName = string;
 
@@ -126,7 +129,7 @@ export type Configuration = {
 	/** Indicates if this is a locally or remotely configured tunnel. If `local`, manage the tunnel using a YAML file on the origin machine. If `cloudflare`, manage the tunnel's configuration on the Zero Trust dashboard. */
 	source?: ConfigSrc2;
 	/** UUID of the tunnel. */
-	tunnel_id?: TunnelId2;
+	tunnel_id?: TunnelId3;
 	/** The version of the Tunnel Configuration. */
 	version?: ConfigVersion2;
 };
@@ -361,6 +364,9 @@ export type ClientIdInput = string;
 /** UUID of the route. */
 export type RouteId = string;
 
+/** UUID of the tunnel hostname. */
+export type TunnelHostnameId = string;
+
 /** UUID of the tunnel. */
 export type TunnelId = string;
 
@@ -375,6 +381,9 @@ export type VirtualNetworkId = string;
 
 /** UUID of the virtual network. */
 export type VirtualNetworkIdComputedOptional = string;
+
+/** Whether this is the canonical hostname for the tunnel. */
+export type TunnelHostnameCanonical = boolean;
 
 export type AccountRegion = {
 	/** The key of a Data Localization Suite region. */
@@ -399,7 +408,7 @@ export type HostnameRoute = {
 	id?: HostnameRouteId;
 	tun_type?: TunnelType & ("cfd_tunnel" | "warp_connector");
 	/** UUID of the tunnel. */
-	tunnel_id?: TunnelId3;
+	tunnel_id?: TunnelId2;
 	/** A user-friendly name for a tunnel. */
 	tunnel_name?: TunnelName2;
 };
@@ -428,7 +437,7 @@ export type MeshConfigurationResponse = {
 	/** High-availability mode for the Mesh node. `none` means HA is enabled but no provider is configured yet (newly created nodes default to this). `disabled` means HA is explicitly turned off. `aws` uses AWS ENI move for failover. `local` uses virtual IPs (VIPs) on the local interface. */
 	ha_mode: MeshHaMode;
 	/** UUID of the tunnel. */
-	tunnel_id: TunnelId2;
+	tunnel_id: TunnelId3;
 	/** Timestamp of the last update. Null if never updated. */
 	updated_at?: UpdatedAt;
 };
@@ -443,6 +452,23 @@ export type MeshLocalConfig = {
 export type MeshVipEntry = {
 	/** Virtual IP address (IPv4 or IPv6). */
 	address: string;
+};
+
+export type PatchTunnelHostnameBody = {
+	/** Makes this hostname canonical. `false` is not accepted; make a different hostname canonical to unset this one. */
+	canonical?: true;
+	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
+	hostname?: TunnelHostnameValue;
+};
+
+export type PostTunnelHostnameBody = {
+	/**
+	 * Set to `true` to make the new hostname canonical, replacing any existing canonical hostname.
+	 * If `false` or omitted, the new hostname is canonical only if the tunnel has no active hostnames.
+	 */
+	canonical?: boolean;
+	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
+	hostname: TunnelHostnameValue;
 };
 
 export type PutAccountRegionBody = {
@@ -545,6 +571,19 @@ export type Teamnet = {
 };
 
 export type Timestamp = string;
+
+export type TunnelHostname = {
+	/** Whether this is the canonical hostname for the tunnel. */
+	canonical: TunnelHostnameCanonical;
+	/** Timestamp of when the resource was created. */
+	created_at: CreatedAt;
+	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
+	hostname: TunnelHostnameValue;
+	/** UUID of the tunnel hostname. */
+	id: TunnelHostnameId;
+	/** UUID of the tunnel. */
+	tunnel_id: TunnelId2;
+};
 
 export type VirtualNetwork = {
 	/** Optional remark describing the virtual network. */

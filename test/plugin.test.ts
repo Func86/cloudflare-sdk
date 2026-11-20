@@ -98,12 +98,24 @@ test('a pagination override must name an array of the result, as the types read 
 	// The bases' `result`: any object, array or string, declared after the operation's.
 	const generic = { kind: 'union', members: [object(), array(object()), string] } as unknown as Type;
 	const override = { kind: 'page', items: 'events' } as const;
-	checkOverride('GET /events', override, response(envelope(events)));
-	checkOverride('GET /enveloped', override, response(both(envelope(events), envelope(generic))));
-	checkOverride('GET /root', { kind: 'page' }, response(envelope(array(string))));
+	const paged = new Set(['page']);
+	checkOverride('GET /events', override, response(envelope(events)), paged);
+	checkOverride('GET /enveloped', override, response(both(envelope(events), envelope(generic))), paged);
+	checkOverride('GET /root', { kind: 'page' }, response(envelope(array(string))), paged);
 	const renamed = response(envelope(object(field('items', array(string)))));
-	assert.throws(() => checkOverride('GET /renamed', override, renamed), /GET \/renamed is stale.*no array at result\.events/);
-	assert.throws(() => checkOverride('GET /bare', override, response(envelope(events), 'json')), /no array at result\.events/);
+	assert.throws(() => checkOverride('GET /renamed', override, renamed, paged), /GET \/renamed is stale.*no array at result\.events/);
+	assert.throws(() => checkOverride('GET /bare', override, response(envelope(events), 'json'), paged), /no array at result\.events/);
+	// A list paged by number must still take a page number.
+	assert.throws(() => checkOverride('GET /events', override, response(envelope(events)), new Set()), /no page parameter/);
+	// A cursor the caller can send must still be a parameter, and still come back in result_info.
+	const cursored = { kind: 'page', cursors: [{ param: 'cursor', next: 'cursor' }] } as const;
+	const withCursor = { ...response(envelope(array(string))), resultInfo: new Map([['cursor', field('cursor', string)]]) };
+	checkOverride('GET /records', cursored, withCursor as ResolvedResponse, new Set(['cursor', 'page']));
+	assert.throws(() => checkOverride('GET /records', cursored, withCursor as ResolvedResponse, new Set(['page'])), /no cursor parameter/);
+	assert.throws(
+		() => checkOverride('GET /records', cursored, response(envelope(array(string))), new Set(['cursor', 'page'])),
+		/no result_info\.cursor/,
+	);
 });
 
 test('an account-or-zone route is one the runtime can fill from account_id or zone_id', () => {
@@ -168,6 +180,12 @@ test('a name that says another verb, an account group on an account-or-zone rout
 	// A read by POST whose body says what to read, as a search or a bulk get does.
 	assert.deepEqual(namingProblems(['ai-audit', 'robots'], 'bulk-get', at('POST', '/zones/{z}/ai-audit/robots/bulk', false, json)), []);
 	assert.deepEqual(namingProblems(['cloudforce-one', 'requests'], 'list', at('POST', '/accounts/{a}/cloudforce-one/requests', false, json)), []);
+	// A bulk change by POST whose body lists what it acts on, as a bulk delete does, but not without a body.
+	const batch = '/accounts/{a}/email-security/settings/sending_domain_restrictions/batch';
+	assert.deepEqual(namingProblems(['email-security', 'sending-domain-restrictions'], 'bulk-delete', at('POST', batch, false, json)), []);
+	assert.deepEqual(namingProblems(['email-security', 'sending-domain-restrictions'], 'bulk-delete', at('POST', batch)), [
+		'its name says a verb its HTTP method does not do',
+	]);
 	// Not anything else by POST with a body, such as a validation.
 	assert.deepEqual(namingProblems(['logpush', 'validate'], 'delete', at('POST', `${aoz}/logpush/validate/destination`, true, json)), [
 		'its name says a verb its HTTP method does not do',

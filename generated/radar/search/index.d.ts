@@ -16,16 +16,43 @@ export type GlobalRequest = {
 	format?: "JSON" | "CSV";
 };
 export type GlobalResult = {
-	search: {
+	search: ({
 		code: string;
+		/** Matched entity: an AS for `asn` results, a geolocation for `adm1` and `adm2`. Null for other types. */
+		entity?: {
+			/** Alternative name of the AS. */
+			aka: string | null;
+			/** AS number. */
+			asn: number;
+			/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+			category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
+			/** Alpha-2 code of the country or territory where the AS is registered. */
+			country: string | null;
+			/** AS name. */
+			name: string | null;
+		} | {
+			/** GeoNames ID of the geolocation. */
+			geoId: string;
+			/** Localized name of the geolocation. */
+			name: string;
+			/** Parent geolocation (country for `adm1`, `adm1` for `adm2`). */
+			parent: {
+				/** Code of the parent: alpha-2 code for a country, subdivision code for an `adm1`. */
+				code: string | null;
+				/** Localized name of the parent geolocation. */
+				name: string;
+				/** Type of the parent geolocation, such as `COUNTRY` or `ADM1`. */
+				type: string;
+			} | null;
+		} | null;
 		name: string;
 		type: string;
-	}[];
+	})[];
 };
 /**
  * Search for locations, ASes, reports, and more
  *
- * Searches for locations, autonomous systems, reports, bots, bot operators, certificate logs, certificate authorities, industries and verticals. Location names can be localized by sending an `Accept-Language` HTTP header with a BCP 47 language tag (e.g., `Accept-Language: pt-PT`). The full quality-value chain is supported (e.g., `pt-PT,pt;q=0.9,en;q=0.8`).
+ * Searches for locations, autonomous systems, reports, bots, bot operators, certificate logs, certificate authorities, industries and verticals. Location names can be localized by sending an `Accept-Language` HTTP header with a BCP 47 language tag (e.g., `Accept-Language: pt-PT`). The full quality-value chain is supported (e.g., `pt-PT,pt;q=0.9,en;q=0.8`). ASN, ADM1 and ADM2 results include an `entity` with details about the matched entity.
  *
  * `GET /radar/search/global`
  *

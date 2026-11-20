@@ -3,5 +3,5 @@ export const create = {"method":"POST","route":"/accounts/{account_id}/pages/pro
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}"};
-export const list = {"method":"GET","route":"/accounts/{account_id}/pages/projects/{project_name}/domains"};
+export const list = {"method":"GET","route":"/accounts/{account_id}/pages/projects/{project_name}/domains","query":["page","per_page"],"page":{"kind":"page"}};
 export * as validation from "./validation/index.js";

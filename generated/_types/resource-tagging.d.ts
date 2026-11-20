@@ -154,7 +154,7 @@ export type TaggedResourceObjectZoneLevelBase = {
 export type Tags = { [key: string]: string };
 
 /** Enum for base account-level resource types (those with no extra required fields). */
-export type AccountResourceTypeBaseEnum = "access_application" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "cloudflared_tunnel" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer_monitor" | "load_balancer_pool" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker";
+export type AccountResourceTypeBaseEnum = "access_application" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "app_library_application" | "cloudflared_tunnel" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer_monitor" | "load_balancer_pool" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker";
 
 /** Enum for worker_version resource type. */
 export type AccountResourceTypeWorkerVersionEnum = "worker_version";
@@ -166,10 +166,10 @@ export type ResourceName = string;
 export type Identifier = string;
 
 /** Identifies the type of account-level resource. */
-export type AccountResourceType = "access_application" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "cloudflared_tunnel" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer_monitor" | "load_balancer_pool" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker" | "worker_version";
+export type AccountResourceType = "access_application" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "app_library_application" | "cloudflared_tunnel" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer_monitor" | "load_balancer_pool" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker" | "worker_version";
 
 /** Identifies the type of resource. */
-export type ResourceType = "access_application" | "access_application_policy" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "api_gateway_operation" | "cloudflared_tunnel" | "custom_certificate" | "custom_hostname" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "dns_record" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "healthcheck" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer" | "load_balancer_monitor" | "load_balancer_pool" | "managed_client_certificate" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker" | "worker_route" | "worker_version" | "zone" | "zone_ruleset";
+export type ResourceType = "access_application" | "access_application_policy" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "api_gateway_operation" | "app_library_application" | "cloudflared_tunnel" | "custom_certificate" | "custom_hostname" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "dns_record" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "healthcheck" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer" | "load_balancer_monitor" | "load_balancer_pool" | "managed_client_certificate" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker" | "worker_route" | "worker_version" | "zone" | "zone_ruleset";
 
 /** Identifies the unique resource. */
 export type ResourceId = string;
@@ -181,9 +181,6 @@ export type DeleteTagsRequestAccountLevelBase = {
 	/** Enum for base account-level resource types (those with no extra required fields). */
 	resource_type: AccountResourceTypeBaseEnum;
 };
-
-/** Request body schema for deleting tags from account-level resources. Use /zones/{zone_id}/tags for zone-level resources. */
-export type DeleteTagsRequestAccountLevel = DeleteTagsRequestAccountLevelWorkerVersion | DeleteTagsRequestAccountLevelBase;
 
 /** Request body schema for deleting tags from worker_version resources. */
 export type DeleteTagsRequestAccountLevelWorkerVersion = {
@@ -269,6 +266,11 @@ export type TaggedResourceObjectAlertingWebhook = {
 export type TaggedResourceObjectApiGatewayOperation = {
 	type: "api_gateway_operation";
 } & TaggedResourceObjectZoneLevelBase;
+
+/** Response for app_library_application resources */
+export type TaggedResourceObjectAppLibraryApplication = {
+	type: "app_library_application";
+} & TaggedResourceObjectAccountLevelBase;
 
 /** Response for cloudflared_tunnel resources */
 export type TaggedResourceObjectCloudflaredTunnel = {
@@ -460,4 +462,4 @@ export type TagKeySummary = {
 	values: string[];
 };
 
-export type TaggedResourceObject = TaggedResourceObjectAccessApplication | TaggedResourceObjectAccessApplicationPolicy | TaggedResourceObjectAccessGroup | TaggedResourceObjectAccessServiceToken | TaggedResourceObjectAccount | TaggedResourceObjectAccountRuleset | TaggedResourceObjectAiGateway | TaggedResourceObjectAiSearchInstance | TaggedResourceObjectAiSearchNamespace | TaggedResourceObjectAlertingPolicy | TaggedResourceObjectAlertingWebhook | TaggedResourceObjectApiGatewayOperation | TaggedResourceObjectCloudflaredTunnel | TaggedResourceObjectCustomCertificate | TaggedResourceObjectCustomHostname | TaggedResourceObjectCwsDeployment | TaggedResourceObjectCwsPolicy | TaggedResourceObjectCwsPolicySet | TaggedResourceObjectCwsWorkload | TaggedResourceObjectD1Database | TaggedResourceObjectDevice | TaggedResourceObjectDnsRecord | TaggedResourceObjectDurableObjectNamespace | TaggedResourceObjectGatewayList | TaggedResourceObjectGatewayRule | TaggedResourceObjectHealthcheck | TaggedResourceObjectImage | TaggedResourceObjectInfrastructureTarget | TaggedResourceObjectKvNamespace | TaggedResourceObjectLoadBalancer | TaggedResourceObjectLoadBalancerMonitor | TaggedResourceObjectLoadBalancerPool | TaggedResourceObjectManagedClientCertificate | TaggedResourceObjectNamespaceWorker | TaggedResourceObjectPagesProject | TaggedResourceObjectQueue | TaggedResourceObjectR2Bucket | TaggedResourceObjectResourceShare | TaggedResourceObjectStreamLiveInput | TaggedResourceObjectStreamVideo | TaggedResourceObjectVectorizeIndex | TaggedResourceObjectWorker | TaggedResourceObjectWorkerRoute | TaggedResourceObjectWorkerVersion | TaggedResourceObjectZone | TaggedResourceObjectZoneRuleset;
+export type TaggedResourceObject = TaggedResourceObjectAccessApplication | TaggedResourceObjectAccessApplicationPolicy | TaggedResourceObjectAccessGroup | TaggedResourceObjectAccessServiceToken | TaggedResourceObjectAccount | TaggedResourceObjectAccountRuleset | TaggedResourceObjectAiGateway | TaggedResourceObjectAiSearchInstance | TaggedResourceObjectAiSearchNamespace | TaggedResourceObjectAlertingPolicy | TaggedResourceObjectAlertingWebhook | TaggedResourceObjectApiGatewayOperation | TaggedResourceObjectAppLibraryApplication | TaggedResourceObjectCloudflaredTunnel | TaggedResourceObjectCustomCertificate | TaggedResourceObjectCustomHostname | TaggedResourceObjectCwsDeployment | TaggedResourceObjectCwsPolicy | TaggedResourceObjectCwsPolicySet | TaggedResourceObjectCwsWorkload | TaggedResourceObjectD1Database | TaggedResourceObjectDevice | TaggedResourceObjectDnsRecord | TaggedResourceObjectDurableObjectNamespace | TaggedResourceObjectGatewayList | TaggedResourceObjectGatewayRule | TaggedResourceObjectHealthcheck | TaggedResourceObjectImage | TaggedResourceObjectInfrastructureTarget | TaggedResourceObjectKvNamespace | TaggedResourceObjectLoadBalancer | TaggedResourceObjectLoadBalancerMonitor | TaggedResourceObjectLoadBalancerPool | TaggedResourceObjectManagedClientCertificate | TaggedResourceObjectNamespaceWorker | TaggedResourceObjectPagesProject | TaggedResourceObjectQueue | TaggedResourceObjectR2Bucket | TaggedResourceObjectResourceShare | TaggedResourceObjectStreamLiveInput | TaggedResourceObjectStreamVideo | TaggedResourceObjectVectorizeIndex | TaggedResourceObjectWorker | TaggedResourceObjectWorkerRoute | TaggedResourceObjectWorkerVersion | TaggedResourceObjectZone | TaggedResourceObjectZoneRuleset;

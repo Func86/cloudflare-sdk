@@ -20,6 +20,8 @@ export type AggregateRelevanceResult = {
 			low: number;
 			medium: number;
 		};
+		/** Beta. How many of the articles counted in articles have stale scores, from before a change to the account's Priority Intelligence Requirements, organization profile, or the article's content. They are counted by those scores; see the article list's relevance_coverage. */
+		stale_articles: number;
 	};
 	/** Beta. Each active PIR, including PIRs the matcher paused, ordered by ID. Drafts and deleted PIRs are excluded. */
 	priorities: {
@@ -79,6 +81,8 @@ export type AggregateSeverityResult = {
 		/** Active Priority Intelligence Requirement ID. */
 		id: string;
 	}[];
+	/** Beta. How many of the articles counted in articles have stale scores, from before a change to the account's Priority Intelligence Requirements, organization profile, or the article's content. They are counted by those scores; see the article list's relevance_coverage. */
+	stale_articles: number;
 };
 /**
  * Count Threat Signals articles by severity band
@@ -148,8 +152,12 @@ export type GetResult = {
 			/** Beta. How relevant the article is to a Priority Intelligence Requirement: high, medium, or low. Cloudflare may change the scores behind each band as relevance scoring is calibrated. */
 			band: "low" | "medium" | "high";
 			pir_id: string;
+			/** Beta. current: scored against the PIR's current requirement. saved: the PIR's structured definition no longer generates a valid requirement, for example because its topic was retired, so the requirement from its last save was scored instead. */
+			requirement_basis: "current" | "saved";
 		})[];
 	} | null;
+	/** Beta. Whether relevance and severity reflect the account's current Priority Intelligence Requirements, organization profile, and the article's current content. current: they do. stale: they were scored before a change; articles fetched in the last 7 days are being rescored, older articles keep these scores. pending: not scored yet, fetched in the last 7 days. unavailable: not scored, and will not be scored automatically, because it was fetched more than 7 days ago or processing failed. Updates to managed topics can take up to a day to mark scores stale. Null when the account has no active PIRs or none of its articles has been scored yet. */
+	relevance_coverage: "current" | "stale" | "pending" | "unavailable" | null;
 	/** Beta. Intrinsic article severity band, from informational to critical, independent of any organisation or Priority Intelligence Requirement. Null when the account has no active Priority Intelligence Requirements, scoring has not completed, or a historic article has not entered an automatic rescore window. */
 	severity: "informational" | "low" | "medium" | "high" | "critical" | null;
 	skill_version?: string | null;
@@ -268,8 +276,12 @@ export type ListResult = {
 				/** Beta. How relevant the article is to a Priority Intelligence Requirement: high, medium, or low. Cloudflare may change the scores behind each band as relevance scoring is calibrated. */
 				band: "low" | "medium" | "high";
 				pir_id: string;
+				/** Beta. current: scored against the PIR's current requirement. saved: the PIR's structured definition no longer generates a valid requirement, for example because its topic was retired, so the requirement from its last save was scored instead. */
+				requirement_basis: "current" | "saved";
 			})[];
 		} | null;
+		/** Beta. Whether relevance and severity reflect the account's current Priority Intelligence Requirements, organization profile, and the article's current content. current: they do. stale: they were scored before a change; articles fetched in the last 7 days are being rescored, older articles keep these scores. pending: not scored yet, fetched in the last 7 days. unavailable: not scored, and will not be scored automatically, because it was fetched more than 7 days ago or processing failed. Updates to managed topics can take up to a day to mark scores stale. Null when the account has no active PIRs or none of its articles has been scored yet. */
+		relevance_coverage: "current" | "stale" | "pending" | "unavailable" | null;
 		/** Beta. Intrinsic article severity band, from informational to critical, independent of any organisation or Priority Intelligence Requirement. Null when the account has no active Priority Intelligence Requirements, scoring has not completed, or a historic article has not entered an automatic rescore window. */
 		severity: "informational" | "low" | "medium" | "high" | "critical" | null;
 		/** Persisted enrichment summary. Null until enrichment produces a summary. */

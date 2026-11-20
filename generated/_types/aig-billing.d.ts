@@ -15,171 +15,250 @@ export type CreateTopupResult = {
 
 export type DeleteTopupConfigResult = { [key: string]: unknown };
 
-export type GetAuthoritativeTopupEligibilityResult = {
-	advisory: true;
-	auto_topup: {
-		default_payment_method_id: string | null;
-		eligible_payment_method_ids: string[];
-		reason: "ELIGIBLE" | "NO_ACCOUNT_PAYMENT_METHOD" | "UNSUPPORTED_ACCOUNT_PAYMENT_METHOD" | "ACCOUNT_PAYMENT_METHOD_NOT_DEFAULT" | "ACCOUNT_PAYMENT_METHOD_NOT_LINKED_TO_AIG" | "CONTRACT_BILLING_NOT_SELF_SERVE" | "ELIGIBILITY_UNAVAILABLE" | "INVALID_PAYMENT_METHOD_SELECTION" | "PAYMENT_METHOD_EXPIRED" | "FIRST_TOPUP_REQUIRED" | "AUTO_TOPUP_SETUP_REQUIRED" | "AUTO_TOPUP_NOT_CONFIGURED" | "ACCOUNT_PAYMENT_METHOD_DEFAULT_MISSING" | "ACCOUNT_POLICY_UNAVAILABLE";
-		recommended_action: "NONE" | "ADD_SUPPORTED_PAYMENT_METHOD" | "USE_EXISTING_CARD" | "SET_CARD_AS_DEFAULT" | "CONTACT_SUPPORT" | "RETRY" | "SELECT_SUPPORTED_PAYMENT_METHOD" | "COMPLETE_MANUAL_TOPUP" | "AUTHENTICATE_CARD" | "CONFIGURE_AUTO_TOPUP";
-		status: "eligible" | "ineligible" | "unavailable";
-	};
-	contract_version: 2;
-	evaluated_at: string;
-	manual_topup: {
-		default_payment_method_id: string | null;
-		eligible_payment_method_ids: string[];
-		reason: "ELIGIBLE" | "NO_ACCOUNT_PAYMENT_METHOD" | "UNSUPPORTED_ACCOUNT_PAYMENT_METHOD" | "ACCOUNT_PAYMENT_METHOD_NOT_DEFAULT" | "ACCOUNT_PAYMENT_METHOD_NOT_LINKED_TO_AIG" | "CONTRACT_BILLING_NOT_SELF_SERVE" | "ELIGIBILITY_UNAVAILABLE" | "INVALID_PAYMENT_METHOD_SELECTION" | "PAYMENT_METHOD_EXPIRED" | "FIRST_TOPUP_REQUIRED" | "AUTO_TOPUP_SETUP_REQUIRED" | "AUTO_TOPUP_NOT_CONFIGURED" | "ACCOUNT_PAYMENT_METHOD_DEFAULT_MISSING" | "ACCOUNT_POLICY_UNAVAILABLE";
-		recommended_action: "NONE" | "ADD_SUPPORTED_PAYMENT_METHOD" | "USE_EXISTING_CARD" | "SET_CARD_AS_DEFAULT" | "CONTACT_SUPPORT" | "RETRY" | "SELECT_SUPPORTED_PAYMENT_METHOD" | "COMPLETE_MANUAL_TOPUP" | "AUTHENTICATE_CARD" | "CONFIGURE_AUTO_TOPUP";
-		status: "eligible" | "ineligible" | "unavailable";
-	};
-	payment_methods: ({
-		account_payment_method_id: string;
-		brand?: string;
-		is_default: boolean;
-		kind: "card" | "wallet" | "unsupported";
-		last4?: string;
-		stripe_payment_method_id: string | null;
-		wallet_type?: string;
-	})[];
-};
-
 export type GetCreditBalanceResult = {
+	/** Credit balance in US cents. Can be fractional, because usage is deducted in fractions of a cent, and is negative when usage overdraws it. */
 	balance: number;
+	/** Whether the account completed its first top-up. Auto top-up can be set up only after it. */
 	first_topup_success?: boolean;
+	/** Whether AI Gateway billing has a default payment method for the account. */
 	has_default_payment_method: boolean;
+	/** The default payment method's card. Null when there is no default, it isn't a card, or it couldn't be read. */
 	payment_method: {
+		/** Card brand, such as `visa`. */
 		brand?: string;
+		/** Last 4 digits of the card. */
 		last4?: string;
 	} | null;
+	/** Auto top-up configuration, as GET /topup/config returns it. */
 	topup_config: {
+		/** Amount in cents that each auto top-up adds. 0 when auto top-up is off. */
 		amount: number | null;
+		/** Why auto top-up was stopped. Present only once it stopped. */
 		disabledReason?: string | null;
+		/** Message from the failure that stopped auto top-up. Present only once it stopped. */
 		error?: string | null;
+		/** When auto top-up was stopped, as a Unix timestamp in milliseconds. Present only once it stopped. */
 		lastFailedAt?: number | null;
+		/** Balance threshold in cents that triggers an auto top-up. 0 when auto top-up is off. */
 		threshold: number | null;
 	};
 };
 
 export type GetInvoiceHistoryResult = {
+	/** Top-up invoices matching `type`, up to 100. */
 	invoices: ({
+		/** Amount due, in US cents. */
 		amount_due: number;
+		/** Amount paid, in US cents. */
 		amount_paid: number;
+		/** Amount still owed, in US cents. */
 		amount_remaining: number;
+		/** Number of payment attempts. */
 		attempt_count?: number;
+		/** Whether payment was attempted. */
 		attempted?: boolean;
+		/** Whether the invoice is finalized and collected without an explicit action. False for top-up invoices, which are charged when the top-up is made. */
 		auto_advance?: boolean | null;
+		/** When the invoice was created, as a Unix timestamp in seconds. */
 		created?: number;
+		/** What created the invoice. Always `AI_GATEWAY`. */
 		created_by?: string;
+		/** Lowercase ISO 4217 currency code. */
 		currency: string;
+		/** Invoice description. */
 		description?: string | null;
+		/** Invoice number, as printed on the invoice, rather than an identifier. Null until the invoice is finalized. */
 		id?: string | null;
+		/** How the top-up was made: `auto` or `manual`. */
 		invoice_origin?: string;
+		/** URL of the invoice PDF. Null until the invoice is finalized. */
 		invoice_pdf?: string | null;
+		/** Invoice status: `draft`, `open`, `paid`, `uncollectible`, or `void`. */
 		status?: string | null;
 	})[];
+	/** Pagination details. Results come in a single page. */
 	pagination: {
+		/** Whether more invoices match than returned. */
 		has_more: boolean;
+		/** Page number. Always 1. */
 		page: number;
+		/** Page size. */
 		per_page: number;
+		/** Number of matching invoices. */
 		total_count: number;
 	};
 };
 
 export type GetInvoicePreviewResult = {
+	/** Amount due, in US cents. */
 	amount_due: number;
+	/** Amount paid, in US cents. */
 	amount_paid: number;
+	/** Amount still owed, in US cents. */
 	amount_remaining: number;
+	/** Lowercase ISO 4217 currency code. */
 	currency: string;
+	/** Invoice number, as printed on the invoice, rather than an identifier. Empty until the invoice is finalized. */
 	id: string;
+	/** Invoice line items. */
 	invoice_lines: ({
+		/** Line item amount, in US cents. */
 		amount: number;
+		/** Lowercase ISO 4217 currency code. */
 		currency: string;
+		/** Line item description. */
 		description: string | null;
+		/** Period the line item covers. */
 		period: {
+			/** End of the period, as a Unix timestamp in seconds. */
 			end: number;
+			/** Start of the period, as a Unix timestamp in seconds. */
 			start: number;
 		};
+		/** Credits applied to the line item before tax. */
 		pretax_credit_amounts?: ({
+			/** Credit applied, in US cents. */
 			amount: number;
+			/** Credit balance transaction identifier, when `type` is `credit_balance_transaction`. */
 			credit_balance_transaction?: string | null;
+			/** Discount identifier, when `type` is `discount`. */
 			discount?: string | null;
+			/** Credit type: `credit_balance_transaction` or `discount`. */
 			type: string;
 		})[];
+		/** Line item pricing. */
 		pricing: {
+			/** Unit price in US cents, as a decimal string. */
 			unit_amount_decimal: string | null;
 		};
+		/** Quantity billed. */
 		quantity: number;
 	})[];
+	/** End of the billing period, as a Unix timestamp in seconds. */
 	period_end: number;
+	/** Start of the billing period, as a Unix timestamp in seconds. */
 	period_start: number;
+	/** Invoice status. */
 	status: "draft" | "open" | "paid" | "uncollectible" | "void";
 };
 
-export type GetTopupConfigResult = {
-	amount: number | null;
-	disabledReason?: string | null;
-	error?: string | null;
-	lastFailedAt?: number | null;
-	threshold: number | null;
-};
-
-export type GetTopupEligibilityResult = {
-	/** Account-level payment-method state derived from the provided list. */
-	account_payment_method_state: "NONE" | "UNSUPPORTED_ONLY" | "SUPPORTED_PRESENT" | "UNKNOWN";
-	/** AI Gateway billing profile resolution outcome. */
-	aig_customer_state: "RESOLVED" | "RESOLUTION_FAILED";
-	/** Whether AI Gateway billing has a default payment method. */
-	aig_default_payment_method_state: "PRESENT" | "MISSING";
-	/** Card to reference in the UI, e.g. "use card ending 1234". */
-	display_payment_method: {
+export type GetTopupEligibilityV2Result = {
+	/** Auto top-up state. */
+	auto_topup: {
+		/** Whether auto top-up can be set up or changed now. */
+		can_configure: boolean;
+		/** Configured threshold and amount. Null unless `state` is `active` or `needs_confirmation`. */
+		config: {
+			/** Amount in cents that each auto top-up adds. */
+			amount_cents: number;
+			/** Balance threshold in cents that triggers an auto top-up. */
+			threshold_cents: number;
+		} | null;
+		/** Allowed auto top-up values. */
+		limits: {
+			/** Maximum auto top-up amount in cents. */
+			amount_max_cents: number;
+			/** Minimum auto top-up amount in cents. */
+			amount_min_cents: number;
+			/** Minimum threshold in cents. */
+			threshold_min_cents: number;
+		};
+		/** Payment method auto top-up charges or, once stopped, the one it stopped on. Null when there is none to name. */
+		payment_method_id: string | null;
+		/** `first_topup_required`: auto top-up can be set up after the first manual top-up. `not_configured`: auto top-up is off. `active`: auto top-up is on. `needs_confirmation`: auto top-up is on, but its card has to be confirmed or replaced. `stopped`: auto top-up was turned off; `stopped_reason` says why, when known. */
+		state: "first_topup_required" | "not_configured" | "active" | "needs_confirmation" | "stopped";
+		/** Why auto top-up stopped. Present only when `state` is `stopped` and the reason is known. */
+		stopped_reason?: "payment_method_removed" | "payment_method_changed" | "expired_card" | "payment_method_not_supported" | "prepaid_card_not_supported" | "payment_declined" | "amount_out_of_range";
+	};
+	/** Response contract version. Always `2`. */
+	contract_version: 2;
+	/** When eligibility was evaluated, as an ISO 8601 timestamp. */
+	evaluated_at: string;
+	/** Manual top-up availability. */
+	manual_topup: {
+		/** Whether a manual top-up can be made now. True only when `status` is `ready`. */
+		available: boolean;
+		/** Payment method to preselect: the default when it can pay, otherwise the first that can. Null when none can. */
+		default_payment_method_id: string | null;
+		/** Allowed manual top-up amounts. */
+		limits: {
+			/** Currency of the amounts. Always `USD`. */
+			currency: "USD";
+			/** Maximum top-up amount in cents. */
+			max_cents: number;
+			/** Minimum top-up amount in cents. */
+			min_cents: number;
+		};
+	};
+	/** The account's payment methods, and whether each can pay for a top-up. */
+	payment_methods: ({
+		/** Card brand. Present for cards. */
 		brand?: string;
-		last4: string;
-	} | null;
-	/** True only when reason === ELIGIBLE. */
-	eligible: boolean;
-	/** Canonical eligibility outcome for display and support triage. */
-	reason: "ELIGIBLE" | "NO_ACCOUNT_PAYMENT_METHOD" | "UNSUPPORTED_ACCOUNT_PAYMENT_METHOD" | "ACCOUNT_PAYMENT_METHOD_NOT_DEFAULT" | "ACCOUNT_PAYMENT_METHOD_NOT_LINKED_TO_AIG" | "CONTRACT_BILLING_NOT_SELF_SERVE" | "AIG_CUSTOMER_RESOLUTION_FAILED" | "PENDING_3DS_AUTHENTICATION" | "PAYMENT_AUTHENTICATION_FAILED";
-	/** Machine-readable next step. */
-	recommended_action: "NONE" | "ADD_SUPPORTED_PAYMENT_METHOD" | "USE_EXISTING_CARD" | "SET_CARD_AS_DEFAULT" | "CONTACT_SUPPORT" | "RESUME_AUTHENTICATION" | "RETRY";
-	/** Whether the customer can resolve this themselves (vs contact support). */
-	recoverable: boolean;
-};
-
-export type GetTopupLimitsResult = {
-	/** ISO 4217 currency code. */
-	currency: string;
-	max_cents: number;
-	/** Minimum allowed top-up amount in cents. */
-	min_cents: number;
+		/** Expiration month, 1 to 12. Present for cards. */
+		exp_month?: number;
+		/** Four-digit expiration year. Present for cards. */
+		exp_year?: number;
+		/** Payment method identifier. */
+		id: string;
+		/** Whether this is the account's default payment method. */
+		is_default: boolean;
+		/** Last 4 digits. Present for cards. */
+		last4?: string;
+		/** Payment method type. */
+		type: "card" | "apple_pay" | "google_pay" | "link" | "paypal" | "other";
+		/** Why this payment method can't pay for a top-up. Present only when `usable` is false. */
+		unusable_reason?: "payment_method_not_supported" | "expired_card" | "prepaid_card_not_supported" | "card_not_3ds_capable";
+		/** Whether this payment method can pay for a top-up. */
+		usable: boolean;
+	})[];
+	/** What prevents a manual top-up, or `NONE`. `CONTRACT_BILLING`: the account is billed by contract. `ACCOUNT_RESTRICTED`: the account is restricted. `ELIGIBILITY_UNAVAILABLE`: eligibility could not be determined. `NO_ELIGIBLE_PAYMENT_METHOD`: no payment method can pay for a top-up. `DAILY_LIMIT_REACHED`: the account reached its daily top-up limit. */
+	reason: "NONE" | "CONTRACT_BILLING" | "ACCOUNT_RESTRICTED" | "ELIGIBILITY_UNAVAILABLE" | "NO_ELIGIBLE_PAYMENT_METHOD" | "DAILY_LIMIT_REACHED";
+	/** `ready` when a manual top-up is available, `blocked` when `reason` prevents one, or `unavailable` when eligibility could not be determined and the request can be retried. */
+	status: "ready" | "blocked" | "unavailable";
 };
 
 export type GetUsageHistoryResult = {
+	/** Usage cost per window of `value_grouping_window`. */
 	history: {
 		/** AI Gateway usage cost in the window, in US dollars. */
 		aggregated_value: number;
+		/** End of the window (exclusive), as a Unix timestamp in seconds. */
 		end_time: number;
+		/** Usage summary identifier. */
 		id: string;
+		/** Start of the window, as a Unix timestamp in seconds. */
 		start_time: number;
 	}[];
 };
 
 export type SetTopupConfigResult = {
+	/** Auto top-up amount in cents from the request. */
 	amount: number;
+	/** Balance threshold in cents from the request. */
 	threshold: number;
 } | {
+	/** Auto top-up amount in cents from the request. */
 	amount: number;
+	/** Auto top-up is saved. */
 	status: "configured";
+	/** Balance threshold in cents from the request. */
 	threshold: number;
 } | {
+	/** Auto top-up amount in cents from the request. */
 	amount: number;
+	/** Client secret used to complete card authentication. */
 	client_secret: string;
+	/** Card setup identifier to send back as `setup_intent_id` once authenticated. */
 	setup_intent_id: string;
+	/** The card must be authenticated with `client_secret` before auto top-up is saved. Then send the request again with `setup_intent_id`. */
 	status: "requires_action";
+	/** Balance threshold in cents from the request. */
 	threshold: number;
 };
 
 export type TopupStatusResult = {
+	/** Top-up identifier from the request. */
 	payment_intent_id: string;
+	/** `completed` once the top-up payment is processed and its credits are added to the balance, `pending` until then. */
 	status: "completed" | "pending";
 };

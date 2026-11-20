@@ -40,7 +40,7 @@ export type CreateResult = {
 /**
  * Create account Email Sending suppression
  *
- * Creates a suppression for every sending domain of the account (default) or for one sending domain (`scope.type = sending_domain`). Creating an existing active suppression returns its identifier. If a mutable legacy zone-linked account row already exists, it is promoted without changing its identifier.
+ * Creates a suppression for every sending domain of the account (default) or for one sending domain (`scope.type = sending_domain`). Creating an existing active suppression returns its identifier.
  *
  * `POST /accounts/{account_id}/email/sending/suppressions`
  */
@@ -69,7 +69,7 @@ export type DeleteResult = {
 /**
  * Delete account Email Sending suppression
  *
- * Deletes the suppression, its note, and every legacy internal zone membership, allowing future delivery attempts to the address.
+ * Deletes the suppression and its note, allowing future delivery attempts to the address.
  *
  * `DELETE /accounts/{account_id}/email/sending/suppressions/{suppression_id}`
  */
@@ -119,7 +119,7 @@ export type EditResult = {
 /**
  * Update account Email Sending suppression
  *
- * Updates expiry or advisory note fields without changing legacy internal zone memberships. Scope cannot be changed.
+ * Updates expiry or advisory note fields. Scope cannot be changed.
  *
  * `PATCH /accounts/{account_id}/email/sending/suppressions/{suppression_id}`
  */
@@ -204,7 +204,7 @@ export type ImportResult = {
 		email?: string;
 		/** Human-readable error message. Present when `status` is `invalid`, `error`, or `skipped`. */
 		error?: string;
-		/** The created or promoted suppression's identifier. Present when `status` is `processed`. */
+		/** The created or updated suppression's identifier. Present when `status` is `processed`. */
 		id?: string;
 		/** Zero-based index of this item in the request body. */
 		index: number;
@@ -221,9 +221,9 @@ export type ImportResult = {
 		/** Outcome for this item. */
 		status: "processed" | "invalid" | "error" | "skipped";
 	})[];
-	/** Number of items successfully created or promoted. */
+	/** Number of items successfully created or updated. */
 	processed: number;
-	/** Number of items skipped because the existing suppression is not customer-managed (for example, a read-only policy suppression). */
+	/** Number of items skipped because the existing suppression is not customer-managed. */
 	skipped: number;
 	/** Total number of items in the request body, including duplicates. */
 	total: number;
@@ -251,7 +251,7 @@ export type ListRequest = {
 	search?: string;
 	/** Filter to suppressions with this reason. */
 	reason?: "manual" | "complaint" | "hard_bounce" | "soft_bounce" | "policy";
-	/** Filter by scope: `account` returns only account-wide suppressions, `sending_domain` only sending-domain suppressions. Omit to list both, sending-domain suppressions first. */
+	/** Filter by scope: `account` returns only account-wide suppressions, `sending_domain` only sending-domain suppressions. Omit to list both; the order between the two scopes is not fixed. */
 	scope_type?: "account" | "sending_domain";
 	/** Exact sending-domain filter. Requires `scope_type=sending_domain`. */
 	scope_value?: string;
@@ -286,7 +286,7 @@ export type ListItem = RootItem<ListResult>;
 /**
  * List account Email Sending suppressions
  *
- * Lists every active Email Sending suppression owned by the account: sending-domain suppressions first, then account-wide suppressions (including legacy rows with internal zone memberships). Each group is newest first.
+ * Lists every active Email Sending suppression owned by the account: sending-domain suppressions and account-wide suppressions. Each scope is listed newest first. The order between sending-domain and account-wide suppressions is not fixed; use `scope_type` to list one scope.
  *
  * `GET /accounts/{account_id}/email/sending/suppressions`
  */

@@ -394,7 +394,7 @@ export type ListRequest = {
 	account_id: string;
 	/** Cursor for pagination. When provided, filters are embedded in the cursor so you only need to pass cursor and pageSize. Returned in the previous response's result_info.cursor field. Use cursor-based pagination for deep pagination (beyond 100,000 records) or for optimal performance. */
 	cursor?: string;
-	/** JSON-encoded. Structured search as a JSON array of {field, op, value} objects, AND'd together. Max 10 conditions per request. `in` and `notIn` take an array of up to 100 values. Exclusions: `not` drops events without a value for the field; `notIn` and `notContains` keep them. On intelligence datasets, a `notIn` list containing `"unknown"` also drops them; analytics datasets treat `"unknown"` as a literal value. */
+	/** JSON-encoded. Structured search as a JSON array of {field, op, value} objects, AND'd together. Max 10 conditions per request. `in` and `notIn` take an array of up to 100 values. `containsAny` takes an array of up to 50 strings and matches when the field contains any of them; it is not supported for `indicator`, `date`, `killChain`, or `hasChildren`. Exclusions: `not` drops events without a value for the field; `notIn` and `notContains` keep them. On intelligence datasets, a `notIn` list containing `"unknown"` also drops them; analytics datasets treat `"unknown"` as a literal value. */
 	search?: ({
 		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 		op: "equals" | "not" | "gt" | "gte" | "lt" | "lte" | "like" | "contains" | "startsWith" | "endsWith" | "find" | "notContains";
@@ -402,6 +402,10 @@ export type ListRequest = {
 	} | {
 		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 		op: "in" | "notIn";
+		value: string[];
+	} | {
+		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "event" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
+		op: "containsAny";
 		value: string[];
 	} | {
 		field: "killChain";
@@ -428,6 +432,10 @@ export type ListRequest = {
 	} | {
 		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 		op: "in" | "notIn";
+		value: string[];
+	} | {
+		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "event" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
+		op: "containsAny";
 		value: string[];
 	} | {
 		field: "killChain";
@@ -632,7 +640,7 @@ export type SearchRequest = {
 		orderBy?: string;
 		page?: number;
 		pageSize?: number;
-		/** Structured search as a JSON array of {field, op, value} objects, AND'd together. Max 10 conditions per request. `in` and `notIn` take an array of up to 100 values. Exclusions: `not` drops events without a value for the field; `notIn` and `notContains` keep them. On intelligence datasets, a `notIn` list containing `"unknown"` also drops them; analytics datasets treat `"unknown"` as a literal value. */
+		/** Structured search as a JSON array of {field, op, value} objects, AND'd together. Max 10 conditions per request. `in` and `notIn` take an array of up to 100 values. `containsAny` takes an array of up to 50 strings and matches when the field contains any of them; it is not supported for `indicator`, `date`, `killChain`, or `hasChildren`. Exclusions: `not` drops events without a value for the field; `notIn` and `notContains` keep them. On intelligence datasets, a `notIn` list containing `"unknown"` also drops them; analytics datasets treat `"unknown"` as a literal value. */
 		search?: ({
 			field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 			op: "equals" | "not" | "gt" | "gte" | "lt" | "lte" | "like" | "contains" | "startsWith" | "endsWith" | "find" | "notContains";
@@ -640,6 +648,10 @@ export type SearchRequest = {
 		} | {
 			field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 			op: "in" | "notIn";
+			value: string[];
+		} | {
+			field: "attacker" | "attackerCountry" | "category" | "createdAt" | "event" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
+			op: "containsAny";
 			value: string[];
 		} | {
 			field: "killChain";
@@ -666,6 +678,10 @@ export type SearchRequest = {
 		} | {
 			field: "attacker" | "attackerCountry" | "category" | "createdAt" | "date" | "event" | "indicator" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
 			op: "in" | "notIn";
+			value: string[];
+		} | {
+			field: "attacker" | "attackerCountry" | "category" | "createdAt" | "event" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
+			op: "containsAny";
 			value: string[];
 		} | {
 			field: "killChain";

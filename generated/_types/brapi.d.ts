@@ -29,3 +29,5 @@ export type SerializedAXNode = {
 	valuemin?: number;
 	valuetext?: string;
 };
+
+export type CrawlJsonValue = string | number | boolean | { [key: string]: unknown }[] | { [key: string]: { [key: string]: unknown } } | null;

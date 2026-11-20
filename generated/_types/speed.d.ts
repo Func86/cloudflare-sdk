@@ -31,6 +31,29 @@ export type TransformationsAllowedOriginsValue = string;
 /**
  * Configuration for Automatic Platform Optimization (APO) for WordPress.
  * Set to "off" to disable, or provide an object to configure APO settings.
+ * When an APO configuration already exists, fields omitted from the object keep their current value, and "off" disables APO without erasing the detected zone/site/plugin facts.
+ * On the first write for a zone (no existing configuration) an object must include `enabled`, `cf`, `wordpress` and `wp_plugin`; otherwise the request fails with error 1023 and no configuration is created. Setting "off" when no configuration exists is a no-op.
+ */
+export type AutomaticPlatformOptimizationPatchValue = {
+	/** Whether to cache by device type. */
+	cache_by_device_type?: boolean;
+	/** Whether the zone is proxied through Cloudflare. */
+	cf?: boolean;
+	/** Whether APO is enabled. */
+	enabled?: boolean;
+	/** List of hostnames where APO is active. */
+	hostnames?: string[];
+	/** Whether to recheck WordPress and plugin detection. When an APO configuration already exists, an omitted `recheck` is false, not its stored value. */
+	recheck?: boolean;
+	/** Whether the site is a WordPress site. */
+	wordpress?: boolean;
+	/** Whether the Cloudflare WordPress plugin is installed. */
+	wp_plugin?: boolean;
+} | "off";
+
+/**
+ * Configuration for Automatic Platform Optimization (APO) for WordPress.
+ * Set to "off" to disable, or provide an object to configure APO settings.
  */
 export type AutomaticPlatformOptimizationValue = {
 	/** Whether to cache by device type. */
@@ -115,7 +138,7 @@ export type CloudflareSpeedBrainResponse = Base & {
 };
 
 /** Combined view of Transformations, Allowed Origins, and C2PA settings for a zone. */
-export type TransformationsConfigResponse = Base & {
+export type TransformationsConfigResponse = SettingMetadata & {
 	/** ID of the zone setting. */
 	id?: "transformations_config";
 	/**
@@ -211,6 +234,16 @@ export type TransformationsC2paValue = "off" | "on";
 
 /** Whether the feature is enabled or disabled. */
 export type CloudflareFontsValue = "on" | "off";
+
+/** Zone setting fields shared by settings whose value is not an on/off string. */
+export type SettingMetadata = {
+	/** Whether or not this setting can be modified for this zone (based on your Cloudflare plan level). */
+	editable?: true | false;
+	/** Identifier of the zone setting. */
+	id?: string;
+	/** last time this setting was modified. */
+	modified_on?: string | null;
+};
 
 export type Base = {
 	/** Whether or not this setting can be modified for this zone (based on your Cloudflare plan level). */

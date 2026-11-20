@@ -11,10 +11,10 @@ export type BulkCreateRequest = {
 	/** Dataset UUID. */
 	dataset_id: string;
 	body?: {
-		/** Global flag to automatically create indicator types if they don't exist. Individual indicators can override this with their own autoCreateType flag. */
+		/** Global flag to automatically create indicator types if they don't exist. Individual indicators can override this with their own autoCreateType flag. When false, a non-analytics dataset still accepts pre-approved types (the same list event create accepts, such as BITCOIN or ERC-20) and registers them on first use. Analytics datasets do not check registered types. */
 		autoCreateType?: boolean;
 		indicators: ({
-			/** If true, automatically create the indicator type if it doesn't exist. If false (default), throw an error when the indicator type doesn't exist. */
+			/** If true, automatically create the indicator type if it doesn't exist. If false (default), reject an indicator type the dataset has not registered, unless the type is pre-approved (the same list event create accepts, such as BITCOIN or ERC-20), in which case it is registered on first use. Direct create applies this check to analytics datasets too. Bulk create skips it for analytics datasets. */
 			autoCreateType?: boolean;
 			indicatorType: string;
 			relatedEvents?: {
@@ -74,7 +74,7 @@ export type CreateRequest = {
 	/** Dataset UUID. */
 	dataset_id: string;
 	body?: {
-		/** If true, automatically create the indicator type if it doesn't exist. If false (default), throw an error when the indicator type doesn't exist. */
+		/** If true, automatically create the indicator type if it doesn't exist. If false (default), reject an indicator type the dataset has not registered, unless the type is pre-approved (the same list event create accepts, such as BITCOIN or ERC-20), in which case it is registered on first use. Direct create applies this check to analytics datasets too. Bulk create skips it for analytics datasets. */
 		autoCreateType?: boolean;
 		indicatorType: string;
 		relatedEvents?: {

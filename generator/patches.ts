@@ -53,6 +53,12 @@ const MOVE_RULE =
 const RULE_ACTION_PARAMETERS =
 	'Dry runs of POST /zones/{id}/rulesets on 2026-11-08 refused an unknown key in action_parameters with "invalid JSON: unknown field", for block, skip and the six actions that declare no parameters (challenge, js_challenge, managed_challenge, log, force_connection_close, ddos_dynamic), before checking the phase or the plan. Those six took {} or none, and the managed rulesets read from the playground zone send none for them.';
 
+const R2_ONE_SELECTOR =
+	'Temporary R2 credentials asked for with neither `permission` nor `actions`, or with both, got 400, 10040, "The JSON you provided was not well formed", on the playground account, 2026-11-20. Either alone got past that, to 401 for a made-up parent key. The descriptions say exactly one.';
+
+const VERSION_PATCH_NULL_ENV =
+	"Patching a probe Worker's latest version with `env: { NAME: null }` removed that binding and kept the other, on the playground account, 2026-11-20, as `env`'s description says. Creating a version shares the body, so the patch gets one of its own.";
+
 const RULESET_WITHOUT_RULES =
 	'An empty zone ruleset came back without rules from every read and write tried on the playground zone, 2026-11-08, including deleting its last rule. So did a managed ruleset read by a tag no rule has. All had version and last_updated.';
 
@@ -237,6 +243,30 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		},
 	},
 	{
+		id: 'r2-temp-access-creds-one-selector',
+		evidence: R2_ONE_SELECTOR,
+		pointer: '/components/schemas/r2_temp_access_creds_request',
+		applies: (node) =>
+			node['oneOf'] === undefined &&
+			Array.isArray(node['required']) &&
+			node['properties']?.['permission'] !== undefined &&
+			node['properties']?.['actions'] !== undefined &&
+			!['permission', 'actions'].some((name) => node['required']?.includes(name)),
+		apply: (node) => {
+			const { permission, actions, ...shared } = node['properties'] as Record<string, Schema>;
+			const required = node['required'] as string[];
+			const member = (name: string, field: Schema): Schema => ({
+				type: 'object',
+				properties: { ...structuredClone(shared), [name]: field },
+				required: [...required, name],
+			});
+			node['oneOf'] = [member('permission', permission!), member('actions', actions!)];
+			delete node['type'];
+			delete node['properties'];
+			delete node['required'];
+		},
+	},
+	{
 		id: 'rulesets-rule-action-required',
 		evidence:
 			'A dry run of POST /zones/{id}/rulesets with a rule that has no action failed with 20015, "the action is required to create or update a rule", 2026-11-08. RequestRule also names action as its discriminator, which OpenAPI requires in each variant.',
@@ -322,6 +352,35 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 			delete node['anyOf'];
 		},
 	},
+	{
+		id: 'workers-version-patch-body',
+		evidence: VERSION_PATCH_NULL_ENV,
+		pointer: '/components/schemas',
+		applies: (node) =>
+			node['workers_VersionPatch'] === undefined &&
+			node['workers_Version']?.['properties']?.['env']?.['allOf']?.[0]?.['$ref'] === '#/components/schemas/workers_env',
+		apply: (node) => {
+			const version = structuredClone(node['workers_Version'] as Schema);
+			const env = version['properties']['env'] as Schema;
+			delete env['allOf'];
+			env['type'] = 'object';
+			env['additionalProperties'] = { allOf: [{ $ref: '#/components/schemas/workers_env_binding_item' }], nullable: true };
+			node['workers_VersionPatch'] = version;
+		},
+	},
+	{
+		id: 'workers-version-patch-only',
+		evidence: VERSION_PATCH_NULL_ENV,
+		pointer: `${operationPointer('/accounts/{account_id}/workers/workers/{worker_id}/versions/latest', 'patch')}/requestBody/content`,
+		applies: (node) =>
+			Object.keys(node).length > 0 &&
+			Object.values<Schema>(node).every((content) => content['schema']?.['allOf']?.[0]?.['$ref'] === '#/components/schemas/workers_Version'),
+		apply: (node) => {
+			for (const content of Object.values<Schema>(node)) {
+				content['schema'] = { $ref: '#/components/schemas/workers_VersionPatch' };
+			}
+		},
+	},
 ];
 
 /** Applies the patches, and stops when one of them no longer applies. */
@@ -358,6 +417,8 @@ export const COMMA_LISTS: Readonly<Record<string, readonly string[]>> = {
  * stops generation.
  */
 export const EXCLUSIVE_MODELS: Readonly<Record<string, string>> = {
+	// A patch makes it a oneOf.
+	r2_temp_access_creds_request: R2_ONE_SELECTOR,
 	rulesets_RequestRule: `${RULE_ACTION_PARAMETERS} A managed_challenge rule saved with action_parameters {} on the playground zone, 2026-11-08, came back without the field, in the write's response and when read. So a rule whose action takes no parameters has none, sent or read, which action_parameters?: never says.`,
 };
 
@@ -379,7 +440,6 @@ export const DRY_RUNS: readonly string[] = [
 
 const REPLACED_BY_V2 = 'Replaced by the generally available /v2/ route, whose group takes this name.';
 const USE_SINGULAR_PATH = 'Its description says to use the singular /zones/{zone_id}/subscription path instead.';
-const PILOT_ONLY = 'Alpha, and its description says it is available only to one pilot account behind a gate.';
 
 /**
  * Operations the spec marks `x-fern-ignore` that stay out, by `METHOD /path`, each
@@ -393,12 +453,6 @@ export const EXCLUDED_IGNORED: Readonly<Record<string, string>> = {
 	'GET /accounts/{account_id}/cloudforce-one/requests/types': REPLACED_BY_V2,
 	'PUT /zones/{zone_id}/subscriptions': USE_SINGULAR_PATH,
 	'DELETE /zones/{zone_id}/subscriptions': USE_SINGULAR_PATH,
-	'GET /accounts/{account_id}/email/domain-changes': PILOT_ONLY,
-	'GET /accounts/{account_id}/email/domains': PILOT_ONLY,
-	'POST /accounts/{account_id}/email/domains': PILOT_ONLY,
-	'GET /accounts/{account_id}/email/domains/{email_domain_id}': PILOT_ONLY,
-	'DELETE /accounts/{account_id}/email/domains/{email_domain_id}': PILOT_ONLY,
-	'POST /accounts/{account_id}/email/domains/{email_domain_id}/verify': PILOT_ONLY,
 };
 
 const SETTING_ID_REACHES_IT =
@@ -525,12 +579,24 @@ export const OPERATION_RENAMES: Readonly<Record<string, OperationRename>> = byKe
 ]);
 
 /**
- * Pagination the spec's shape can't decide, by `METHOD /path`. These pages hold
- * more than one array, and the override names the one that is paged. An entry
- * whose operation is gone, now states its own pagination, or no longer has that
- * array stops generation.
+ * Pagination the spec's shape can't decide, by `METHOD /path`. Some pages hold more
+ * than one array, and the override names the one that is paged. Others declare a
+ * cursor that only an empty one on the first request starts, and page by number
+ * otherwise, so the override names the cursors to follow when the caller sends one. An
+ * entry whose operation is gone, now states its own pagination, or no longer has that
+ * array or a cursor stops generation.
  */
 export const PAGINATION_OVERRIDES: Readonly<Record<string, Pagination>> = {
 	'GET /radar/bgp/hijacks/events': { kind: 'page', items: 'events' },
 	'GET /radar/bgp/leaks/events': { kind: 'page', items: 'events' },
+	// Without a cursor, the API pages by number and sends no cursor back. With one, even
+	// empty, it refuses a page number beside it, 9241. `prev_cursor` goes back, and the
+	// first page has none (live, 2026-11-20).
+	'GET /zones/{zone_id}/dns_records': {
+		kind: 'page',
+		cursors: [
+			{ param: 'cursor', next: 'cursor' },
+			{ param: 'prev_cursor', next: 'prev_cursor' },
+		],
+	},
 };

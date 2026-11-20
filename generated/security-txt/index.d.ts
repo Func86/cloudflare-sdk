@@ -40,7 +40,7 @@ export type UpdateRequest = {
 	zone_id: string;
 	body: $security_center.SecurityTxt;
 };
-export type UpdateResult = $security_center.ApiResponseSingle;
+export type UpdateResult = $security_center.ExternalApiResponseSingleNoTerraform;
 /**
  * Updates security.txt
  *

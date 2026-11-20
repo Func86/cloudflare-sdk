@@ -118,6 +118,7 @@ export type ListRequest = {
 	gateway_id: string;
 	/** Free-text search over log metadata. */
 	search?: string;
+	/** Page number, from 1. A high page reads every page before it again. To read further back in a listing sorted by created_at, ask for page 1 again with a created_at lt filter set to the created_at of the last log returned. Logs in the same millisecond as that log can be left out: to include them, set the filter 1 ms later and drop the logs already returned. */
 	page?: number;
 	per_page?: number;
 	order_by?: "created_at" | "provider" | "model" | "model_type" | "success" | "cached";

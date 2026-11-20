@@ -95,14 +95,10 @@ export type BgpControl = {
 export type Cni = {
 	/** Customer account tag */
 	account: AccountTag;
-	bgp?: BgpControl;
-	/**
-	 * The BGP mode for a CNI.
-	 * One of the following:
-	 * * `dynamic_route_exchange`
-	 * * `advertise_only`
-	 */
-	bgp_mode?: BgpMode;
+	/** BGP Control settings. For non-GCP CNIs, null disables BGP Control. GCP CNIs require BGP configuration, so explicit null is rejected; omission preserves stored settings or repairs missing settings with the Google defaults. */
+	bgp?: BgpControl | null;
+	/** Controls the customer-facing route exchange behavior. Omitting this field during an update preserves the current mode. When enabling BGP on a BGP-disabled CNI, an omitted or null mode defaults to AdvertiseOnly. Otherwise, null clears the explicitly selected mode. */
+	bgp_mode?: BgpMode | null;
 	/**
 	 * Customer end of the point-to-point link
 	 *
@@ -120,7 +116,8 @@ export type Cni = {
 export type CniCreate = {
 	/** Customer account tag */
 	account: AccountTag;
-	bgp?: BgpControl;
+	/** BGP Control settings. For GCP CNIs, omitting this field or setting it to null enables BGP with the Google ASN and AdvertiseOnly mode by default. For other CNI types, omission or null leaves BGP disabled. */
+	bgp?: BgpControl | null;
 	interconnect: string;
 	magic: MagicSettings;
 };

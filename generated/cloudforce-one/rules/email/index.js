@@ -6,7 +6,6 @@ export const get = {"method":"GET","route":"/accounts/{account_id}/cloudforce-on
 export const list = {"method":"GET","route":"/accounts/{account_id}/cloudforce-one/rules/structured","query":["limit","offset","search"],"envelope":false};
 export const test = {"method":"POST","route":"/accounts/{account_id}/cloudforce-one/rules/structured/{id}/test","body":"json","envelope":false};
 export const update = {"method":"PUT","route":"/accounts/{account_id}/cloudforce-one/rules/structured/{id}","body":"json","envelope":false};
-export const updatePendingApproval = {"method":"PUT","route":"/accounts/{account_id}/cloudforce-one/rules/structured/approvals/{id}","query":["module"],"body":"json","envelope":false};
 export const validate = {"method":"POST","route":"/accounts/{account_id}/cloudforce-one/rules/structured/validate","body":"json","envelope":false};
 export * as approvals from "./approvals/index.js";
 export * as schema from "./schema/index.js";

@@ -42,7 +42,7 @@ export type OriginWorkerName = string;
 /** Optional UUID of a virtual network for routing origin traffic through tunnel virtual networks. */
 export type VirtualNetworkId = string;
 
-/** Optional Worker script tag (worker ID) to use as the application's origin. Only supported for TCP applications with traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. tls may only be "off" or "flexible". */
+/** Optional Worker script tag (worker ID) to use as the application's origin. Requires traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. For TCP applications, tls may be "off" or "flexible"; UDP applications require tls "off". */
 export type OriginWorkerId = string;
 
 /** The TTL of our resolution of your DNS record in seconds. */
@@ -127,7 +127,7 @@ export type AppConfig = BaseAppConfig & {
 	 * Notes: If specifying a port range, the number of ports in the range must match the number of ports specified in the "protocol" field.
 	 */
 	origin_port?: OriginPort;
-	/** Optional Worker script tag (worker ID) to use as the application's origin. Only supported for TCP applications with traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. tls may only be "off" or "flexible". */
+	/** Optional Worker script tag (worker ID) to use as the application's origin. Requires traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. For TCP applications, tls may be "off" or "flexible"; UDP applications require tls "off". */
 	origin_worker_id?: OriginWorkerId;
 	/** Name of the Worker origin. Omitted when the Worker is not found or its name cannot be resolved. */
 	origin_worker_name?: OriginWorkerName;
@@ -169,7 +169,7 @@ export type AppConfigInput = BaseAppConfigInput & {
 	 * Notes: If specifying a port range, the number of ports in the range must match the number of ports specified in the "protocol" field.
 	 */
 	origin_port?: OriginPort;
-	/** Optional Worker script tag (worker ID) to use as the application's origin. Only supported for TCP applications with traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. tls may only be "off" or "flexible". */
+	/** Optional Worker script tag (worker ID) to use as the application's origin. Requires traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. For TCP applications, tls may be "off" or "flexible"; UDP applications require tls "off". */
 	origin_worker_id?: OriginWorkerId;
 	/** Name of the Worker origin. Omitted when the Worker is not found or its name cannot be resolved. */
 	origin_worker_name?: OriginWorkerName;
@@ -216,23 +216,39 @@ export type BaseAppConfigInput = {
 	modified_on?: Modified;
 };
 
-export type PaygoAppConfig = BaseAppConfig & {
+export type PaygoAppConfig = BaseAppConfig & ({
 	/** The name and type of DNS record for the Spectrum application. */
 	dns: Dns;
 	/** List of origin IP addresses. Array may contain multiple IP addresses for load balancing. */
 	origin_direct?: OriginDirect;
+	/** Optional Worker script tag (worker ID) to use as the application's origin. Requires traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. For TCP applications, tls may be "off" or "flexible"; UDP applications require tls "off". */
+	origin_worker_id?: OriginWorkerId;
+	/** Name of the Worker origin. Omitted when the Worker is not found or its name cannot be resolved. */
+	origin_worker_name?: OriginWorkerName;
+	/** Lookup status of the Worker origin. Unknown indicates that its name could not be resolved. Only returned for Worker origins. */
+	origin_worker_status?: OriginWorkerStatus;
 	/** The port configuration at Cloudflare's edge. May specify a single port, for example `"tcp/1000"`, or a range of ports, for example `"tcp/1000-2000"`. */
 	protocol: Protocol;
-};
+	/** Determines how traffic is sent to the origin. If absent or empty, defaults to "direct". Direct mode uses origin_direct. Worker mode requires origin_worker_id, TCP or UDP with a single port, and CNAME DNS; origin_worker_id and origin_direct are mutually exclusive. A PAYG zone may have at most one Worker application per transport (one TCP and one UDP); creating another for the same transport, or converting another application to Worker while that quota is full, is rejected with error code 11034 and HTTP status 400. */
+	traffic_type?: string | "direct" | "worker";
+});
 
-export type PaygoAppConfigInput = BaseAppConfigInput & {
+export type PaygoAppConfigInput = BaseAppConfigInput & ({
 	/** The name and type of DNS record for the Spectrum application. */
 	dns: Dns;
 	/** List of origin IP addresses. Array may contain multiple IP addresses for load balancing. */
 	origin_direct?: OriginDirect;
+	/** Optional Worker script tag (worker ID) to use as the application's origin. Requires traffic_type "worker"; mutually exclusive with origin_direct, origin_dns, origin_port, proxy_protocol, and argo_smart_routing. For TCP applications, tls may be "off" or "flexible"; UDP applications require tls "off". */
+	origin_worker_id?: OriginWorkerId;
+	/** Name of the Worker origin. Omitted when the Worker is not found or its name cannot be resolved. */
+	origin_worker_name?: OriginWorkerName;
+	/** Lookup status of the Worker origin. Unknown indicates that its name could not be resolved. Only returned for Worker origins. */
+	origin_worker_status?: OriginWorkerStatus;
 	/** The port configuration at Cloudflare's edge. May specify a single port, for example `"tcp/1000"`, or a range of ports, for example `"tcp/1000-2000"`. */
 	protocol: Protocol;
-};
+	/** Determines how traffic is sent to the origin. If absent or empty, defaults to "direct". Direct mode uses origin_direct. Worker mode requires origin_worker_id, TCP or UDP with a single port, and CNAME DNS; origin_worker_id and origin_direct are mutually exclusive. A PAYG zone may have at most one Worker application per transport (one TCP and one UDP); creating another for the same transport, or converting another application to Worker while that quota is full, is rejected with error code 11034 and HTTP status 400. */
+	traffic_type?: string | "direct" | "worker";
+});
 
 export type Timestamp = string;
 

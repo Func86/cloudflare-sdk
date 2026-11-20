@@ -223,6 +223,81 @@ test('advances an offset by the items it has seen, to an empty page or the total
 	assert.equal(counted.calls.length, 2);
 });
 
+test('a list paged by number moves the offset on when the caller gives one, where the offset wins', async () => {
+	const operation = (offsetWins: boolean): PagedOperation<{ page?: number; per_page?: number; offset?: number }, number[], number> => ({
+		method: 'GET',
+		route: '/things',
+		query: ['page', 'per_page', 'offset'],
+		page: { kind: 'page', ...(offsetWins ? { offsetWins: true } : {}) },
+	});
+	// Two a page. The offset wins over the page number, as the mTLS certificate lists say.
+	const { client, calls } = mock((url) => {
+		const offset = url.searchParams.get('offset');
+		const start = offset === null ? (Number(url.searchParams.get('page') ?? 1) - 1) * 2 : Number(offset);
+		return envelope([1, 2, 3, 4, 5].slice(start, start + 2), { per_page: 2, total_count: 5, total_pages: 3 });
+	});
+	const sent = () => calls.splice(0).map((call) => [call.url.searchParams.get('offset'), call.url.searchParams.get('page')]);
+	assert.deepEqual(await collect(client.paginate(operation(true), { per_page: 2, offset: 1 })), [2, 3, 4, 5]);
+	assert.deepEqual(sent(), [
+		['1', null],
+		['3', null],
+	]);
+	assert.deepEqual(await collect(client.paginate(operation(true), { per_page: 2 })), [1, 2, 3, 4, 5]);
+	sent();
+	// Where the spec doesn't say the offset wins, the page number moves on, as before.
+	await collect(client.paginate(operation(false), { per_page: 2, offset: 1 }));
+	assert.deepEqual(sent(), [
+		['1', null],
+		['1', '2'],
+		['1', '3'],
+	]);
+});
+
+test('a list paged by number follows the cursor the caller sends instead, forward or back', async () => {
+	const operation: PagedOperation<{ page?: number; cursor?: string; prev_cursor?: string }, number[], number> = {
+		method: 'GET',
+		route: '/records',
+		query: ['page', 'cursor', 'prev_cursor'],
+		page: {
+			kind: 'page',
+			cursors: [
+				{ param: 'cursor', next: 'cursor' },
+				{ param: 'prev_cursor', next: 'prev_cursor' },
+			],
+		},
+	};
+	// One record a page. As for DNS records, `cursor` names the page after, `prev_cursor` the
+	// one before, and an empty `cursor` the first.
+	const records = [1, 2, 3];
+	const { client, calls } = mock((url) => {
+		const token = url.searchParams.get('cursor') ?? url.searchParams.get('prev_cursor');
+		if (token === null) {
+			return envelope([records[Number(url.searchParams.get('page') ?? 1) - 1]], { total_pages: 3 });
+		}
+		// As the DNS API refuses a page number beside a cursor, 9241.
+		assert.equal(url.searchParams.get('page'), null);
+		const at = Number(token);
+		const after = at + 1 < records.length ? { cursor: String(at + 1) } : {};
+		return envelope([records[at]], { ...after, ...(at > 0 ? { prev_cursor: String(at - 1) } : {}) });
+	});
+	assert.deepEqual(await collect(client.paginate(operation, { cursor: '' })), [1, 2, 3]);
+	assert.deepEqual(
+		calls.map((call) => call.url.searchParams.get('cursor')),
+		['', '1', '2'],
+	);
+	// Back to the first page, whose records come last.
+	assert.deepEqual(await collect(client.paginate(operation, { prev_cursor: '2' })), [3, 2, 1]);
+	assert.deepEqual(
+		calls.slice(3).map((call) => call.url.searchParams.get('prev_cursor')),
+		['2', '1', '0'],
+	);
+	assert.deepEqual(await collect(client.paginate(operation)), [1, 2, 3]);
+	assert.deepEqual(
+		calls.slice(6).map((call) => call.url.searchParams.get('page')),
+		[null, '2', '3'],
+	);
+});
+
 test('send unwraps the envelope and leaves a bare response alone', async () => {
 	const wrapped: Operation<object, number> = { method: 'GET', route: '/a' };
 	const bare: Operation<object, { data: number }> = { method: 'GET', route: '/a', envelope: false };

@@ -4,4 +4,4 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/teamnet/virtu
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/accounts/{account_id}/teamnet/virtual_networks/{virtual_network_id}","body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/teamnet/virtual_networks/{virtual_network_id}"};
-export const list = {"method":"GET","route":"/accounts/{account_id}/teamnet/virtual_networks","query":["id","name","is_default","is_default_network","is_deleted"]};
+export const list = {"method":"GET","route":"/accounts/{account_id}/teamnet/virtual_networks","query":["page","per_page","id","name","is_default","is_default_network","is_deleted"],"page":{"kind":"page"}};

@@ -11,7 +11,7 @@ export type CreateRequest = {
 		/** Alias for `scan_matches`. If both are set, `scan_matches` takes precedence. */
 		scan?: boolean;
 		scan_matches?: boolean;
-		/** On create, also search domains observed in the last 7 days for matches. Defaults to `true`. Ignored on update. */
+		/** Search domains observed in the last 7 days for matches. On create, applies when `true`. On update, when edit-triggered lookback is enabled for the account, applies only when the patterns change and only to the lookback itself; the match list still refreshes independently. Edit-triggered lookback is being rolled out gradually. Defaults to `true`. */
 		search_lookback?: boolean;
 		/** Patterns to match against domain names, 1 to 100 per query. Each `pattern` is a brand name or keyword of up to 200 characters. Matching also catches close variants such as typos and look-alike characters; patterns are not regular expressions. On update, this list replaces the query's existing patterns. */
 		string_matches: {
@@ -71,7 +71,7 @@ export type UpdateRequest = {
 		/** Alias for `scan_matches`. If both are set, `scan_matches` takes precedence. */
 		scan?: boolean;
 		scan_matches?: boolean;
-		/** On create, also search domains observed in the last 7 days for matches. Defaults to `true`. Ignored on update. */
+		/** Search domains observed in the last 7 days for matches. On create, applies when `true`. On update, when edit-triggered lookback is enabled for the account, applies only when the patterns change and only to the lookback itself; the match list still refreshes independently. Edit-triggered lookback is being rolled out gradually. Defaults to `true`. */
 		search_lookback?: boolean;
 		/** Patterns to match against domain names, 1 to 100 per query. Each `pattern` is a brand name or keyword of up to 200 characters. Matching also catches close variants such as typos and look-alike characters; patterns are not regular expressions. On update, this list replaces the query's existing patterns. */
 		string_matches: {
@@ -90,7 +90,7 @@ export type UpdateResult = {
 /**
  * Update domain query
  *
- * Replaces a saved domain query's tag and patterns. `tag` and `string_matches` are required, and the patterns you send replace the existing ones, so include every pattern you want to keep. Changing the patterns starts a new set of matches for the query: matches listed before the change are no longer returned, and only newly observed domains that match the new patterns are listed. Sending the same patterns in any order (for example, to change only `tag`) keeps the existing matches. If the new patterns are identical to a set already used in this account, such as the query's earlier patterns, matches already found for that set are listed as well. Omitting both `scan_matches` and its alias `scan` resets scanning to `false`. If both are supplied, `scan_matches` takes precedence. `search_lookback`, `min_time`, and `max_time` are ignored on update, so changing patterns does not search previously observed domains. If the query does not exist in this account, the request fails with error code 404.
+ * Replaces a saved domain query's tag and patterns. `tag` and `string_matches` are required, and the patterns you send replace the existing ones, so include every pattern you want to keep. Changing the patterns starts a new set of matches for the query: matches listed before the change are no longer returned, and newly observed domains that match the new patterns are listed. Sending the same patterns in any order (for example, to change only `tag`) keeps the existing matches. If the new patterns are identical to a set already used in this account, such as the query's earlier patterns, matches already found for that set are listed as well. Omitting both `scan_matches` and its alias `scan` resets scanning to `false`. If both are supplied, `scan_matches` takes precedence. When edit-triggered lookback is enabled for the account and the patterns change, the match list usually refreshes within seconds (if that refresh fails, the scheduled query sync updates it later) and, unless `search_lookback` is `false`, domains observed in the last 7 days are also searched for the new patterns. New matches from that search can take several minutes or longer to appear. Edit-triggered lookback is being rolled out gradually. `min_time` and `max_time` are ignored on update. If the query does not exist in this account, the request fails with error code 404.
  *
  * `PATCH /accounts/{account_id}/cloudforce-one/v2/brand-protection/domain/queries/{query_id}`
  *

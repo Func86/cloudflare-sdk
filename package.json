@@ -52,7 +52,7 @@
 	},
 	"devDependencies": {
 		"@bytecodealliance/jco": "1.40.0",
-		"@cloudflare/forge": "https://pkg.pr.new/cloudflare/forge/@cloudflare/forge@45c005a259a5507763d866e12d1e907af6ce745d",
+		"@cloudflare/forge": "https://pkg.pr.new/cloudflare/forge/@cloudflare/forge@ecd1521d1f164ed51ff990bd8676c0ff47a203e8",
 		"@eslint/js": "^10.0.1",
 		"@types/node": "^24.19.2",
 		"eslint": "^10.15.0",

@@ -263,6 +263,8 @@ export type RuleAction = {
 export type RuleApprovalDetailResponse = {
 	approval: {
 		audit_log_id: number;
+		/** Rule state captured when the approval was requested. Null for creates, when no prior state was recorded, or when the stored snapshot cannot be parsed. */
+		base_rule?: RulePreview | null;
 		/** Whether the authenticated user may approve or reject this pending change. */
 		can_review: boolean;
 		/** Time at which the requester cancelled the approval. */

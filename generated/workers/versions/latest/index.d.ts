@@ -10,7 +10,7 @@ export type EditRequest = {
 	/** If true, a deployment will be created that sends 100% of traffic to the new version. */
 	deploy?: boolean;
 	/** JSON Merge Patch to apply to the latest version. An empty object creates a new version with no changes. */
-	body?: $workers.VersionInput;
+	body?: $workers.VersionPatchInput;
 };
 export type EditResult = $workers.Version;
 /**

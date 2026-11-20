@@ -4,7 +4,7 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/queues/{queue
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/accounts/{account_id}/queues/{queue_id}","body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/queues/{queue_id}"};
-export const list = {"method":"GET","route":"/accounts/{account_id}/queues"};
+export const list = {"method":"GET","route":"/accounts/{account_id}/queues","query":["page","per_page"],"page":{"kind":"page"}};
 export const update = {"method":"PUT","route":"/accounts/{account_id}/queues/{queue_id}","body":"json"};
 export * as consumers from "./consumers/index.js";
 export * as messages from "./messages/index.js";

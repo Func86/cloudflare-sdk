@@ -209,7 +209,7 @@ export type CreateResult = {
 /**
  * Create a new MCP Portal
  *
- * Creates a new MCP portal for managing AI tool access through Cloudflare Access.
+ * Creates a new MCP portal. Each account supports up to 50 portals, including disabled portals.
  *
  * `POST /accounts/{account_id}/access/ai-controls/mcp/portals`
  *

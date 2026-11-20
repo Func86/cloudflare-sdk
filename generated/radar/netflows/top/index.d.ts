@@ -20,6 +20,8 @@ export type AsesRequest = {
 	continent?: string[];
 	/** Filters results by Geolocation. Specify a comma-separated list of GeoNames IDs. Prefix with `-` to exclude geoIds from results. For example, `-2267056,360689` excludes results from the 2267056 (Lisbon), but includes results from 5128638 (New York). */
 	geoId?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
@@ -96,6 +98,8 @@ export type LocationsRequest = {
 	continent?: string[];
 	/** Filters results by Geolocation. Specify a comma-separated list of GeoNames IDs. Prefix with `-` to exclude geoIds from results. For example, `-2267056,360689` excludes results from the 2267056 (Lisbon), but includes results from 5128638 (New York). */
 	geoId?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };

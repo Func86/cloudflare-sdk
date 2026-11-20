@@ -824,8 +824,6 @@ export type NamespaceIdentifier = string;
 export type Observability = {
 	/** Agents observability settings for the Worker. */
 	agents?: {
-		/** A list of destinations where Agents observability data will be exported to. */
-		destinations?: string[];
 		/** Whether Agents observability is enabled for the Worker. */
 		enabled?: boolean;
 		/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -876,8 +874,6 @@ export type Observability = {
 export type Observability2 = {
 	/** Agents observability settings for the Worker. */
 	agents?: {
-		/** A list of destinations where Agents observability data will be exported to. */
-		destinations?: string[];
 		/** Whether Agents observability is enabled for the Worker. */
 		enabled?: boolean;
 		/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). Defaults to the root head_sampling_rate. */
@@ -1781,8 +1777,6 @@ export type Preview = {
 	observability: {
 		/** Agents observability settings for the Preview. */
 		agents?: {
-			/** A list of destinations where Agents observability data will be exported to. */
-			destinations?: string[];
 			/** Whether Agents observability is enabled for the Preview. */
 			enabled?: boolean;
 			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -1884,8 +1878,6 @@ export type PreviewInput = {
 	observability: {
 		/** Agents observability settings for the Preview. */
 		agents?: {
-			/** A list of destinations where Agents observability data will be exported to. */
-			destinations?: string[];
 			/** Whether Agents observability is enabled for the Preview. */
 			enabled?: boolean;
 			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -2252,7 +2244,12 @@ export type Version = {
 	author_email?: string;
 	/** Identifier of the user who created the version. */
 	author_id?: string;
-	/** List of bindings attached to a Worker. You can find more about bindings on our docs: https://developers.cloudflare.com/workers/configuration/multipart-upload-metadata/#bindings. */
+	/**
+	 * Bindings attached to the version, as an array of objects that
+	 * each name themselves. A create or patch request can send
+	 * `bindings` or `env`, and a read returns both. A request that
+	 * sends both fails with error 10021.
+	 */
 	bindings?: Bindings;
 	/**
 	 * Global CacheW configuration for the Worker. When caching is on,
@@ -2273,6 +2270,22 @@ export type Version = {
 	containers?: Containers;
 	/** When the version was created. */
 	created_on: string;
+	/**
+	 * Bindings attached to the version, as a map from binding name to
+	 * binding. Each value holds the same payload as the matching
+	 * `bindings` entry, without `name`. Reads derive `env` from
+	 * `bindings`, so the two fields always list the same bindings and
+	 * `env` carries nothing extra. Reads omit secret values in both
+	 * fields.
+	 *
+	 * A create or patch request can send `env` or `bindings`, and a
+	 * request that sends both fails with error 10021. To copy a
+	 * version, drop `env` from the read before sending it back, and
+	 * use `inherit` bindings for secrets. In a patch, `env` entries
+	 * merge one binding at a time: set an entry to `null` to remove
+	 * that binding, while a `bindings` array replaces the whole set.
+	 */
+	env?: Env;
 	/**
 	 * Declarative exports for the version, including Durable Object
 	 * classes (with their `storage` backend) and named Worker
@@ -2388,7 +2401,12 @@ export type VersionInput = {
 	author_email?: string;
 	/** Identifier of the user who created the version. */
 	author_id?: string;
-	/** List of bindings attached to a Worker. You can find more about bindings on our docs: https://developers.cloudflare.com/workers/configuration/multipart-upload-metadata/#bindings. */
+	/**
+	 * Bindings attached to the version, as an array of objects that
+	 * each name themselves. A create or patch request can send
+	 * `bindings` or `env`, and a read returns both. A request that
+	 * sends both fails with error 10021.
+	 */
 	bindings?: Bindings;
 	/**
 	 * Global CacheW configuration for the Worker. When caching is on,
@@ -2409,6 +2427,22 @@ export type VersionInput = {
 	containers?: Containers;
 	/** When the version was created. */
 	created_on?: string;
+	/**
+	 * Bindings attached to the version, as a map from binding name to
+	 * binding. Each value holds the same payload as the matching
+	 * `bindings` entry, without `name`. Reads derive `env` from
+	 * `bindings`, so the two fields always list the same bindings and
+	 * `env` carries nothing extra. Reads omit secret values in both
+	 * fields.
+	 *
+	 * A create or patch request can send `env` or `bindings`, and a
+	 * request that sends both fails with error 10021. To copy a
+	 * version, drop `env` from the read before sending it back, and
+	 * use `inherit` bindings for secrets. In a patch, `env` entries
+	 * merge one binding at a time: set an entry to `null` to remove
+	 * that binding, while a `bindings` array replaces the whole set.
+	 */
+	env?: Env;
 	/**
 	 * Declarative exports for the version, including Durable Object
 	 * classes (with their `storage` backend) and named Worker
@@ -2625,6 +2659,163 @@ export type VersionItemUploaded = VersionItemFull & {
 	};
 });
 
+export type VersionPatchInput = {
+	/** Metadata about the version. */
+	annotations?: {
+		/** Human-readable message about the version. Truncated to 1000 bytes if longer. */
+		"workers/message"?: string;
+		/** User-provided identifier for the version. Maximum 100 bytes. */
+		"workers/tag"?: string;
+		/** Operation that triggered the creation of the version. */
+		"workers/triggered_by"?: string;
+	};
+	/**
+	 * Configuration for assets within a Worker.
+	 *
+	 * [`_headers`](https://developers.cloudflare.com/workers/static-assets/headers/#custom-headers) and
+	 * [`_redirects`](https://developers.cloudflare.com/workers/static-assets/redirects/) files should be
+	 * included as modules named `_headers` and `_redirects` with content type `text/plain`.
+	 */
+	assets?: {
+		/** Configuration for assets within a Worker. */
+		config?: {
+			/** The public URL path prefix under which assets are served. A null request value resets it to `/`; responses represent the root as `/`. All versions in a gradual deployment must use the same canonical value. To change it, first deploy the version containing the change at 100%. */
+			base_path?: string | null;
+			/** Determines the redirects and rewrites of requests for HTML content. */
+			html_handling?: "auto-trailing-slash" | "force-trailing-slash" | "drop-trailing-slash" | "none";
+			/** Determines the response when a request does not match a static asset, and there is no Worker script. */
+			not_found_handling?: "none" | "404-page" | "single-page-application";
+			run_worker_first?: string[] | boolean;
+		};
+		/** Token provided upon successful upload of all files from a registered manifest. */
+		jwt?: string;
+	};
+	/** Email of the user who created the version. */
+	author_email?: string;
+	/** Identifier of the user who created the version. */
+	author_id?: string;
+	/**
+	 * Bindings attached to the version, as an array of objects that
+	 * each name themselves. A create or patch request can send
+	 * `bindings` or `env`, and a read returns both. A request that
+	 * sends both fails with error 10021.
+	 */
+	bindings?: Bindings;
+	/**
+	 * Global CacheW configuration for the Worker. When caching is on,
+	 * the platform provisions a `cloudflare.app` zone for the Worker.
+	 * A `type: worker` entry in the `exports` map can override this
+	 * value for a single entrypoint.
+	 */
+	cache_options?: CacheOptions;
+	/** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
+	compatibility_date?: CompatibilityDate;
+	/**
+	 * Enables or disables specific Workers runtime features, such as upcoming features or changes outside the `compatibility_date`.
+	 *
+	 * Responses list only the flags this version sets explicitly and exclude behavior that `compatibility_date` enables. Responses omit the field when the list is empty, so a missing field means the version sets zero flags.
+	 */
+	compatibility_flags?: CompatibilityFlags;
+	/** List of containers attached to a Worker. Containers can only be attached to Durable Object classes of this Worker script. */
+	containers?: Containers;
+	/** When the version was created. */
+	created_on?: string;
+	/**
+	 * Bindings attached to the version, as a map from binding name to
+	 * binding. Each value holds the same payload as the matching
+	 * `bindings` entry, without `name`. Reads derive `env` from
+	 * `bindings`, so the two fields always list the same bindings and
+	 * `env` carries nothing extra. Reads omit secret values in both
+	 * fields.
+	 *
+	 * A create or patch request can send `env` or `bindings`, and a
+	 * request that sends both fails with error 10021. To copy a
+	 * version, drop `env` from the read before sending it back, and
+	 * use `inherit` bindings for secrets. In a patch, `env` entries
+	 * merge one binding at a time: set an entry to `null` to remove
+	 * that binding, while a `bindings` array replaces the whole set.
+	 */
+	env?: { [key: string]: EnvBindingItem | null };
+	/**
+	 * Declarative exports for the version, including Durable Object
+	 * classes (with their `storage` backend) and named Worker
+	 * entrypoints. On reads, tombstoned lifecycle entries are
+	 * omitted, so only live exports (`created` and
+	 * `expecting-transfer`) are returned. `exports` and `migrations`
+	 * are mutually exclusive on upload.
+	 */
+	exports?: ExportsConfigMap;
+	/**
+	 * Summary of the declarative exports reconciliation that ran on
+	 * this upload. Populated only when the uploaded metadata included
+	 * an `exports` block. Durable Object entries drive reconciliation;
+	 * `type: worker` entries do not contribute to this summary.
+	 */
+	exports_reconciliation?: ExportsReconciliationResult;
+	/** Version identifier. */
+	id?: string;
+	/** Resource limits enforced at runtime. */
+	limits?: {
+		/** CPU time limit in milliseconds. */
+		cpu_ms?: number;
+		/** Subrequest limit per request. */
+		subrequests?: number;
+	};
+	/** The name of the main module in the `modules` array (e.g. the name of the module that exports a `fetch` handler). */
+	main_module?: string;
+	/** Durable Object migration tag. Set when the version is deployed. Omitted if the version has not been deployed or the Worker does not use Durable Objects. */
+	migration_tag?: string;
+	/** Migrations for Durable Objects associated with the version. Migrations are applied when the version is deployed. */
+	migrations?: SingleStepMigrations | MultipleStepMigrations;
+	/**
+	 * Code, sourcemaps, and other content used at runtime.
+	 *
+	 * Source maps use content type `application/source-map`. Responses include them only when requested with
+	 * `include=modules,sourcemaps`. Workers stores the source map fields used to remap stack traces, so a returned
+	 * source map is equivalent to the uploaded file but not byte-identical.
+	 *
+	 * This includes [`_headers`](https://developers.cloudflare.com/workers/static-assets/headers/#custom-headers) and
+	 * [`_redirects`](https://developers.cloudflare.com/workers/static-assets/redirects/) files used to configure
+	 * [Static Assets](https://developers.cloudflare.com/workers/static-assets/). `_headers` and `_redirects` files should be
+	 * included as modules named `_headers` and `_redirects` with content type `text/plain`.
+	 */
+	modules?: {
+		/** The base64-encoded module content. */
+		content_base64: string;
+		/** The content type of the module. */
+		content_type: string;
+		/** The name of the module. */
+		name: string;
+	}[];
+	/** The integer version number, starting from one. */
+	number?: number;
+	/**
+	 * The list of npm packages that were installed and used when this Worker
+	 * version was built.
+	 */
+	package_dependencies?: {
+		/** The exact version that was resolved and installed by the package manager. */
+		installedVersion: string;
+		/** The npm package name. */
+		name: string;
+		/** The version constraint as written in package.json. */
+		packageJsonVersion: string;
+	}[];
+	/** Configuration for [Smart Placement](https://developers.cloudflare.com/workers/configuration/smart-placement). Specify mode='smart' for Smart Placement, or one of region/hostname/host. */
+	placement?: PlacementInfoNoStatus;
+	/** The client used to create the version. */
+	source?: string;
+	/** Time in milliseconds spent on [Worker startup](https://developers.cloudflare.com/workers/platform/limits/#worker-startup-time). */
+	startup_time_ms?: number;
+	/** All routable URLs that always point to this version. Does not include alias URLs, since aliases can be updated to point to a different version. */
+	urls?: string[];
+	/**
+	 * Usage model for the version.
+	 * @deprecated
+	 */
+	usage_model?: "standard" | "bundled" | "unbound";
+};
+
 export type Worker = {
 	/** When the Worker was created. */
 	created_on: string;
@@ -2640,8 +2831,6 @@ export type Worker = {
 	observability: {
 		/** Agents observability settings for the Worker. */
 		agents?: {
-			/** A list of destinations where Agents observability data will be exported to. */
-			destinations?: string[];
 			/** Whether Agents observability is enabled for the Worker. */
 			enabled?: boolean;
 			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -2780,8 +2969,6 @@ export type WorkerInput = {
 	observability: {
 		/** Agents observability settings for the Worker. */
 		agents?: {
-			/** A list of destinations where Agents observability data will be exported to. */
-			destinations?: string[];
 			/** Whether Agents observability is enabled for the Worker. */
 			enabled?: boolean;
 			/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */

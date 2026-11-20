@@ -2,14 +2,14 @@
 import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $dns_records from "../../_types/dns-records.js";
 
-export type BatchRequest = {
+export type BulkApplyRequest = {
 	/** Identifier. */
 	zone_id: string;
 	/** Whether to include shadow metadata in the `meta` field of each record in the response. See [Shadowed records](https://developers.cloudflare.com/dns/manage-dns-records/reference/shadowed-records). */
 	include_shadow_metadata?: boolean;
 	body: $dns_records.DnsRequestBatchObjectInput;
 };
-export type BatchResult = $dns_records.DnsResponseBatchObject;
+export type BulkApplyResult = $dns_records.DnsResponseBatchObject;
 /**
  * Batch DNS Records
  *
@@ -29,7 +29,7 @@ export type BatchResult = $dns_records.DnsResponseBatchObject;
  *
  * Token permissions (any one): DNS Write.
  */
-export declare const batch: Operation<BatchRequest, BatchResult>;
+export declare const bulkApply: Operation<BulkApplyRequest, BulkApplyResult>;
 
 export type CreateRequest = {
 	/** Identifier. */
@@ -110,14 +110,96 @@ export declare const edit: Operation<EditRequest, EditResult>;
 export type ExportRequest = {
 	/** Identifier. */
 	zone_id: string;
+	/** Whether to add the SOA and assigned apex NS records independently of the record filters. Set to `false` to export only matching stored records. Matching stored SOA and NS records are still exported. */
+	include_generated_records?: boolean;
+	/** Exact value of the DNS record name. This is a convenience alias for `name.exact`. */
+	name?: string;
+	/** Exact value of the DNS record name. Name filters are case-insensitive. */
+	"name.exact"?: string;
+	/** Substring of the DNS record name. Name filters are case-insensitive. */
+	"name.contains"?: string;
+	/** Prefix of the DNS record name. Name filters are case-insensitive. */
+	"name.startswith"?: string;
+	/** Suffix of the DNS record name. Name filters are case-insensitive. */
+	"name.endswith"?: string;
+	/** Record type. */
+	type?: $dns_records.Type;
+	/** Exact value of the DNS record content. This is a convenience alias for `content.exact`. */
+	content?: string;
+	/** Exact value of the DNS record content. Content filters are case-insensitive. */
+	"content.exact"?: string;
+	/** Substring of the DNS record content. Content filters are case-insensitive. */
+	"content.contains"?: string;
+	/** Prefix of the DNS record content. Content filters are case-insensitive. */
+	"content.startswith"?: string;
+	/** Suffix of the DNS record content. Content filters are case-insensitive. */
+	"content.endswith"?: string;
+	/** Whether the record is receiving the performance and security benefits of Cloudflare. */
+	proxied?: $dns_records.Proxied;
+	/** Whether to match all search requirements or at least one (any). If set to `all`, acts like a logical AND between filters. If set to `any`, acts like a logical OR instead. Note that the interaction between tag filters is controlled by the `tag-match` parameter instead. */
+	match?: $dns_records.Match;
+	/** Exact value of the DNS record comment. This is a convenience alias for `comment.exact`. */
+	comment?: string;
+	/** If this parameter is present, only records *with* a comment are returned. */
+	"comment.present"?: string;
+	/** If this parameter is present, only records *without* a comment are returned. */
+	"comment.absent"?: string;
+	/** Exact value of the DNS record comment. Comment filters are case-insensitive. */
+	"comment.exact"?: string;
+	/** Substring of the DNS record comment. Comment filters are case-insensitive. */
+	"comment.contains"?: string;
+	/** Prefix of the DNS record comment. Comment filters are case-insensitive. */
+	"comment.startswith"?: string;
+	/** Suffix of the DNS record comment. Comment filters are case-insensitive. */
+	"comment.endswith"?: string;
+	/**
+	 * Condition on the DNS record tag.
+	 *
+	 * Parameter values can be of the form `<tag-name>:<tag-value>` to search for an exact `name:value` pair, or just `<tag-name>` to search for records with a specific tag name regardless of its value.
+	 *
+	 * This is a convenience shorthand for the more powerful `tag.<predicate>` parameters.
+	 * Examples:
+	 * - `tag=important` is equivalent to `tag.present=important`
+	 * - `tag=team:DNS` is equivalent to `tag.exact=team:DNS`
+	 */
+	tag?: string;
+	/** Name of a tag which must be present on the DNS record. Tag filters are case-insensitive. */
+	"tag.present"?: string;
+	/** Name of a tag which must *not* be present on the DNS record. Tag filters are case-insensitive. */
+	"tag.absent"?: string;
+	/** A tag and value, of the form `<tag-name>:<tag-value>`. The API will only return DNS records that have a tag named `<tag-name>` whose value is `<tag-value>`. Tag filters are case-insensitive. */
+	"tag.exact"?: string;
+	/** A tag and value, of the form `<tag-name>:<tag-value>`. The API will only return DNS records that have a tag named `<tag-name>` whose value contains `<tag-value>`. Tag filters are case-insensitive. */
+	"tag.contains"?: string;
+	/** A tag and value, of the form `<tag-name>:<tag-value>`. The API will only return DNS records that have a tag named `<tag-name>` whose value starts with `<tag-value>`. Tag filters are case-insensitive. */
+	"tag.startswith"?: string;
+	/** A tag and value, of the form `<tag-name>:<tag-value>`. The API will only return DNS records that have a tag named `<tag-name>` whose value ends with `<tag-value>`. Tag filters are case-insensitive. */
+	"tag.endswith"?: string;
+	/** Allows searching in multiple properties of a DNS record simultaneously. This parameter is intended for human users, not automation. Its exact behavior is intentionally left unspecified and is subject to change in the future. This parameter works independently of the `match` setting. For automated searches, please use the other available parameters. */
+	search?: $dns_records.Search;
+	/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. The legacy `tag-match` parameter is an alias for this parameter. */
+	tag_match?: $dns_records.TagMatch;
+	/** Set to `true` to enable the `shadowed_by_name` filter. This does not add shadow metadata to the BIND output. */
+	include_shadow_metadata?: boolean;
+	/** Filters the response to records at or below the specified NS delegation name. NS, DS, and NSEC records at the delegation name are excluded because they are not shadowed by that delegation. Those record types are included only when they exist below the delegation. The value must be a non-apex subdomain of the zone. Requires `include_shadow_metadata=true`. See [Shadowed records](https://developers.cloudflare.com/dns/manage-dns-records/reference/shadowed-records). */
+	shadowed_by_name?: string;
+	/** Returns NS records that shadow the given name, searching at the name itself and each of its ancestor names within the zone, excluding the zone apex. The value must be a subdomain of the zone; the zone apex is not accepted. See [Shadowed records](https://developers.cloudflare.com/dns/manage-dns-records/reference/shadowed-records). */
+	shadowing_name?: string;
 };
 export type ExportResult = string;
 /**
  * Export DNS Records
  *
- * You can export your [BIND config](https://en.wikipedia.org/wiki/Zone_file "Zone file") through this endpoint.
+ * Export your [BIND config](https://en.wikipedia.org/wiki/Zone_file "Zone file") through this endpoint. Use the same record filters as the List DNS Records endpoint to export only matching stored records.
+ *
+ * By default, the SOA record (stored or generated) and assigned apex NS records, where applicable, are included regardless of filters. Secondary zones must have a stored SOA record to export in this mode. Set `include_generated_records=false` to export only matching stored records, without adding the SOA/nameserver section or requiring secondary zones to have an SOA record. Matching stored SOA and NS records are still exported. This may produce a partial zone rather than a complete zone. Workers-managed records are never exported.
+ *
+ * The export returns at most 5,000,000 matching stored records, in addition to any automatically included SOA and assigned apex NS records. It is not paginated and does not support `page`, `per_page`, `order`, `direction`, `cursor`, or `prev_cursor`.
+ *
+ * `include_shadow_metadata=true` is required when using `shadowed_by_name`; it does not add shadow metadata to the BIND output.
  *
  * See [the documentation](https://developers.cloudflare.com/dns/manage-dns-records/how-to/import-and-export/ "Import and export records") for more information.
+ *
  *
  * `GET /zones/{zone_id}/dns_records/export`
  *
@@ -252,9 +334,13 @@ export type ListRequest = {
 	"tag.endswith"?: string;
 	/** Allows searching in multiple properties of a DNS record simultaneously. This parameter is intended for human users, not automation. Its exact behavior is intentionally left unspecified and is subject to change in the future. This parameter works independently of the `match` setting. For automated searches, please use the other available parameters. */
 	search?: $dns_records.Search;
-	/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. */
+	/** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. The legacy `tag-match` parameter is an alias for this parameter. */
 	tag_match?: $dns_records.TagMatch;
-	/** Page number of paginated results. */
+	/** Opaque token for cursor pagination, obtained from `result_info.cursor` of the previous response. An empty value starts cursor pagination. Mutually exclusive with `page` and `prev_cursor`. */
+	cursor?: string;
+	/** Opaque token for requesting the previous page in cursor pagination, obtained from `result_info.prev_cursor` of the previous response. Mutually exclusive with `page` and `cursor`. */
+	prev_cursor?: string;
+	/** Page number for offset pagination. */
 	page?: $dns_records.Page;
 	/** Number of DNS records per page. */
 	per_page?: $dns_records.PerPage;
@@ -274,7 +360,8 @@ export type ListItem = RootItem<ListResult>;
 /**
  * List DNS Records
  *
- * List, search, sort, and filter a zones' DNS records.
+ * List, search, sort, and filter a zone's DNS records. Requests with `cursor` or `prev_cursor` use cursor pagination. Otherwise, the endpoint uses offset pagination. To start cursor pagination, set `cursor` to an empty value, then pass `result_info.cursor` from the previous response to request the next page. Cursor-paginated responses do not include `page`, `total_count`, or `total_pages`. Cursor tokens are opaque and can vary in length. Pass them back unchanged and do not assume a fixed length.
+ *
  *
  * `GET /zones/{zone_id}/dns_records`
  *

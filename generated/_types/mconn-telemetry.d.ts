@@ -285,6 +285,7 @@ export type Snapshot = {
 	netdevs?: SnapshotNetdev[];
 	/** Platform identifier */
 	platform?: string;
+	qdiscs?: SnapshotQdisc[];
 	routes?: SnapshotRoute[];
 	/** Site identifier */
 	site_id?: string;
@@ -581,6 +582,139 @@ export type SnapshotNetdev = {
 	sent_fifo: number;
 	/** Total packets transmitted */
 	sent_packets: number;
+};
+
+/** Snapshot Qdisc */
+export type SnapshotQdisc = {
+	/** Bytes currently queued */
+	backlog: number;
+	/** Total bytes sent */
+	bytes: number;
+	/** Snapshot Qdisc CAKE */
+	cake_stats?: SnapshotQdiscCake;
+	/** Interface the qdisc is attached to */
+	dev: string;
+	/** Total packets dropped */
+	drops: number;
+	/** Qdisc handle */
+	handle: string;
+	/** Kind of qdisc */
+	kind: string;
+	/** Total times the qdisc was over its limit */
+	overlimits: number;
+	/** Total packets sent */
+	packets: number;
+	/** Parent class handle (absent when root) */
+	parent?: string;
+	/** Packets currently queued */
+	qlen: number;
+	/** Total packets requeued */
+	requeues: number;
+	/** Set when attached at the root of the interface */
+	root?: boolean;
+};
+
+/** Snapshot Qdisc CAKE */
+export type SnapshotQdiscCake = {
+	/** Average offset of the network header within packets (bytes) */
+	avg_hdr_offset: number;
+	/** Estimated link capacity (bytes per second) */
+	capacity_estimate: number;
+	/** Largest overhead-adjusted packet seen (bytes) */
+	max_adj_size: number;
+	/** Largest network-layer packet seen (bytes) */
+	max_network_size: number;
+	/** Memory limit for queued packets (bytes) */
+	memory_limit: number;
+	/** Peak memory used by queued packets (bytes) */
+	memory_used: number;
+	/** Smallest overhead-adjusted packet seen (bytes, 65535 until the first packet after creation or an overhead change) */
+	min_adj_size: number;
+	/** Smallest network-layer packet seen (bytes, 65535 until the first packet after creation or an overhead change) */
+	min_network_size: number;
+	/** Snapshot Qdisc CAKE Options */
+	options: SnapshotQdiscCakeOptions;
+	tins: SnapshotQdiscCakeTin[];
+};
+
+/** Snapshot Qdisc CAKE Options */
+export type SnapshotQdiscCakeOptions = {
+	/** ACK filter mode */
+	ack_filter: string;
+	/** ATM cell compensation mode (absent when raw without ATM or PTM compensation) */
+	atm?: string;
+	/** Automatic rate estimation mode (absent when disabled) */
+	autorate?: string;
+	/** Shaped rate (bytes per second, 0 when unlimited) */
+	bandwidth: number;
+	/** Diffserv mode */
+	diffserv: string;
+	/** Flow isolation mode */
+	flowmode: string;
+	/** Firewall mark mask used to select a tin */
+	fwmark: string;
+	/** Set when shaping in ingress mode */
+	ingress: boolean;
+	/** Configured memory limit for queued packets (bytes, absent when unset) */
+	memlimit?: number;
+	/** Minimum packet size (bytes, absent when unset) */
+	mpu?: number;
+	/** Set when flow isolation uses post-NAT addresses */
+	nat: boolean;
+	/** Per-packet overhead compensation (bytes) */
+	overhead: number;
+	/** Set when no overhead compensation is applied */
+	raw: boolean;
+	/** Expected round-trip time (microseconds) */
+	rtt: number;
+	/** Set when GSO super-packets are split */
+	split_gso: boolean;
+	/** Set when DSCP markings are cleared on egress */
+	wash: boolean;
+};
+
+/** Snapshot Qdisc CAKE Tin */
+export type SnapshotQdiscCakeTin = {
+	/** Total ACKs dropped by the ACK filter */
+	ack_drops: number;
+	/** Average queueing delay (microseconds) */
+	avg_delay_us: number;
+	/** Bytes currently queued */
+	backlog_bytes: number;
+	/** Minimum queueing delay (microseconds) */
+	base_delay_us: number;
+	/** Current number of bulk flows */
+	bulk_flows: number;
+	/** Total packets dropped */
+	drops: number;
+	/** Total packets marked with ECN Congestion Experienced */
+	ecn_mark: number;
+	/** Bytes each flow may send per scheduling round */
+	flow_quantum: number;
+	/** AQM interval (microseconds) */
+	interval_us: number;
+	/** Largest packet seen (bytes) */
+	max_pkt_len: number;
+	/** Peak queueing delay (microseconds) */
+	peak_delay_us: number;
+	/** Total bytes sent */
+	sent_bytes: number;
+	/** Total packets sent */
+	sent_packets: number;
+	/** Current number of sparse flows */
+	sparse_flows: number;
+	/** Target queueing delay (microseconds) */
+	target_us: number;
+	/** Rate above which the tin yields to lower-priority tins (bytes per second) */
+	threshold_rate: number;
+	/** Current number of unresponsive flows */
+	unresponsive_flows: number;
+	/** Total flow hash collisions */
+	way_collisions: number;
+	/** Total flow hash lookups resolved by set-associative probing */
+	way_indirect_hits: number;
+	/** Total flow hash lookups that allocated a new queue */
+	way_misses: number;
 };
 
 /** Snapshot Route */

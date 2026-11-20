@@ -3,5 +3,5 @@ export const create = {"method":"POST","route":"/accounts/{account_id}/mtls_cert
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/mtls_certificates/{mtls_certificate_id}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/mtls_certificates/{mtls_certificate_id}"};
-export const list = {"method":"GET","route":"/accounts/{account_id}/mtls_certificates","query":["type"],"joined":["type"]};
+export const list = {"method":"GET","route":"/accounts/{account_id}/mtls_certificates","query":["page","per_page","limit","offset","type"],"joined":["type"],"page":{"kind":"page","offsetWins":true}};
 export * as associations from "./associations/index.js";

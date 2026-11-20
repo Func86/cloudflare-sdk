@@ -293,9 +293,6 @@ export type IssuedOn = string;
 /** Deployment status for the given tls setting. */
 export type Status12 = string;
 
-/** Desired validation method. */
-export type ValidationMethodDefinition = "http" | "cname" | "txt" | "email";
-
 /** Email addresses that receive CT alert notifications for the zone. A maximum of 100 addresses may be configured. Each address must be a valid RFC 5322 email address and must not contain a comma. Omitted from responses when no addresses are configured. */
 export type CtAlertingEmails = string[];
 
@@ -453,6 +450,15 @@ export type Sslsettings = {
 	min_tls_version?: "1.0" | "1.1" | "1.2" | "1.3";
 	/** Whether or not TLS 1.3 is enabled. */
 	tls_1_3?: "on" | "off";
+};
+
+/** SSL validation method. */
+export type ValidationMethodDefinition = "http" | "cname" | "txt" | "email";
+
+/** SSL validation settings. Omit validation_method to use the current or default method. */
+export type ValidationMethod3 = {
+	/** SSL validation method. */
+	validation_method?: ValidationMethodDefinition;
 };
 
 /** Signature type desired on certificate ("origin-rsa" (rsa), "origin-ecc" (ecdsa), or "keyless-certificate" (for Keyless SSL servers). */
@@ -1227,11 +1233,6 @@ export type Universal = {
 export type UuidObject = {
 	/** The DCV Delegation unique identifier. */
 	uuid?: Uuid;
-};
-
-export type ValidationMethod3 = {
-	/** Desired validation method. */
-	validation_method: ValidationMethodDefinition;
 };
 
 export type Verification = {

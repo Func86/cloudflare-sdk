@@ -541,7 +541,7 @@ export type UpdateRequest = {
 		name?: string;
 		/** Route outbound traffic to this MCP server through Zero Trust Secure Web Gateway. */
 		secure_web_gateway?: boolean;
-		/** Server-wide prompt capability overrides. */
+		/** Prompt overrides. Omit to preserve, send [] to clear, or null to reset the field to absence. */
 		updated_prompts?: {
 			/** Custom name exposed for the capability. */
 			alias?: string;
@@ -551,8 +551,8 @@ export type UpdateRequest = {
 			enabled?: boolean;
 			/** Name of the tool or prompt capability to override. */
 			name: string;
-		}[];
-		/** Server-wide tool capability overrides. */
+		}[] | null;
+		/** Tool overrides. Omit to preserve, send [] to clear, or null to reset the field to absence. */
 		updated_tools?: {
 			/** Custom name exposed for the capability. */
 			alias?: string;
@@ -562,7 +562,7 @@ export type UpdateRequest = {
 			enabled?: boolean;
 			/** Name of the tool or prompt capability to override. */
 			name: string;
-		}[];
+		}[] | null;
 	};
 };
 export type UpdateResult = {

@@ -23,6 +23,25 @@ export type DeleteResult = { [key: string]: unknown } | { [key: string]: unknown
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Trigger UUID. */
+	trigger_uuid: string;
+	body: $builds.EnvironmentVariablesRequest;
+};
+export type EditResult = $builds.EnvironmentVariablesResponse;
+/**
+ * Set build variables
+ *
+ * Add or replace build-time variables and secrets without changing unspecified keys.
+ *
+ * `PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}/environment_variables`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type ListRequest = {
 	/** Account identifier. */
 	account_id: string;
@@ -40,22 +59,3 @@ export type ListResult = $builds.EnvironmentVariablesResponse;
  * Token permissions (any one): Workers CI Write, Workers CI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
-
-export type UpsertRequest = {
-	/** Account identifier. */
-	account_id: string;
-	/** Trigger UUID. */
-	trigger_uuid: string;
-	body: $builds.EnvironmentVariablesRequest;
-};
-export type UpsertResult = $builds.EnvironmentVariablesResponse;
-/**
- * Set build variables
- *
- * Add or replace build-time variables and secrets without changing unspecified keys.
- *
- * `PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}/environment_variables`
- *
- * Token permissions (any one): Workers CI Write.
- */
-export declare const upsert: Operation<UpsertRequest, UpsertResult>;

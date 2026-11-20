@@ -22,7 +22,7 @@ import { prepare } from './prepare.ts';
 import type { OpenApiDocument } from './spec.ts';
 
 // Bump this SHA to generate from a new release.
-const FORGE_OPENAPI_VERSION = 'debf614f6ff428f3dbb88126efb5584e4e3a6e0b';
+const FORGE_OPENAPI_VERSION = '3dc49274ce762f56d29e46b1a78742e6f8ab6bcc';
 const FORGE_OPENAPI_URL = `https://github.com/cloudflare/forge/releases/download/openapi@${FORGE_OPENAPI_VERSION}/openapi.forge.json`;
 
 async function loadDocument(path: string | undefined): Promise<OpenApiDocument> {
@@ -51,7 +51,7 @@ async function runForge(document: string, plugin: string, out: string): Promise<
 	const normalize = spawn(process.execPath, [forgeBin, 'normalize', '--leave-old-extensions', '-'], {
 		stdio: ['pipe', 'pipe', 'inherit'],
 	});
-	const forge = spawn(process.execPath, [forgeBin, '-', '--target', `wasm://${plugin}`, '--out', out], {
+	const forge = spawn(process.execPath, [forgeBin, 'generate', '-', '--target', `wasm://${plugin}`, '--out', out], {
 		stdio: ['pipe', 'inherit', 'inherit'],
 	});
 	let transferError: unknown;

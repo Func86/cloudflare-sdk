@@ -31,7 +31,9 @@ export function namingProblems(
 	const allowed = VERB_METHODS.get(verb);
 	const rpc = (VERB_SEGMENTS.get(verb) ?? [verb]).includes(segment ?? '');
 	const readByPost = READS.has(verb) && operation.method === 'POST' && operation.body !== undefined;
-	if (allowed && !allowed.includes(operation.method) && !rpc && !readByPost) {
+	// A bulk method's body lists what it acts on, so a POST can carry any verb, as a bulk delete does.
+	const bulkByPost = method.startsWith('bulk-') && operation.method === 'POST' && operation.body !== undefined;
+	if (allowed && !allowed.includes(operation.method) && !rpc && !readByPost && !bulkByPost) {
 		problems.push('its name says a verb its HTTP method does not do');
 	}
 	if (operation.accountOrZone && groups.some((group) => /^(account|zone)s?-/.test(group))) {

@@ -107,9 +107,10 @@ const cf = createMockClient()
   recorded. A nested `body` is still the caller's.
 - A result given as it is is the whole list to `paginate`, which calls its handler once. `withResultInfo` answers one
   page, with the `result_info` that says whether another follows: a next cursor goes where the operation's `page.next`
-  says, such as `{ cursors: { after } }` for `rulesets.list`. The handler gets each page's `page`, `offset` or cursor
-  in its request. The first page is as the caller gave it, and each later one a number, even for the few operations
-  that declare it as text.
+  says, such as `{ cursors: { after } }` for `rulesets.list`. A list paged by number that takes cursors too, as
+  `dns.records.list` does, reads one only when the request sets it, where its `page.cursors` say. The handler gets each
+  page's `page`, `offset` or cursor in its request. The first page is as the caller gave it, and each later one a
+  number, even for the few operations that declare it as text.
 - What a handler throws, the call throws as it is, such as an `ApiError` of any status, or an `ApiConnectionError`.
 - For an operation that can answer in another format, text or bytes is that format, so `paginate` refuses it as the
   client refuses a CSV response.
@@ -133,8 +134,9 @@ lint and tests first.
 `npm run lint` runs Knip twice: over everything, and then over `src/` alone for exports that only tests or the
 generator use, since only `src/` ships as code.
 
-Forge isn't on npm, so this pins the same pkg.pr.new build as cf. npm 12 refuses tarball URLs by default, so `.npmrc`
-sets `allow-remote=root`, which allows ones listed in this `package.json` and not ones its dependencies declare.
+Forge has no release on npm yet, only a placeholder, so this pins the same pkg.pr.new build as cf. npm 12 refuses
+tarball URLs by default, so `.npmrc` sets `allow-remote=root`, which allows ones listed in this `package.json` and not
+ones its dependencies declare.
 
 | File | What it does |
 | --- | --- |
@@ -158,11 +160,18 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
 
 ### What the generator decides
 
-- **Pagination is inferred from the response shape.** Only 2 operations state it with `x-fern-pagination`. A GET
-  with page, cursor or offset parameters paginates over `result`, or over the one array inside it. Anything
-  ambiguous isn't paginated and is listed in `generated/_meta/report.json` (45 operations today).
+- **Pagination is inferred from the response shape.** Only 2 operations state it with `x-fern-pagination`. A GET with
+  page, cursor or offset parameters paginates over `result`, or over the one array inside it. Anything ambiguous isn't
+  paginated and is listed in `generated/_meta/report.json` (47 operations today). An override in `generator/patches.ts`
+  decides what the shape gets wrong: `dns.records.list` pages by number, as its cursor starts only when the first
+  request sends one, even empty. When the caller sends `cursor`, it follows that instead, as the API refuses a page
+  number beside one, and when the caller sends `prev_cursor`, it goes back to the first page, which comes last.
 - **`readOnly` fields get a separate input type,** `FooInput`, where they're optional. A value read from the API can
   still be sent back.
+- **Lengths and ranges aren't typed.** The spec has 397 arrays with `minItems: 1`, such as R2's `actions`, but a type
+  for a non-empty array, `[T, ...T[]]`, refuses an ordinary one, such as an array from `filter`, so every caller would
+  need a cast or a check. The same goes for string lengths, patterns and number ranges. The API refuses what's out of
+  range.
 - **An operation with several formats is read by each response's content type.** 17 operations declare JSON and
   something else, so their result is a union. The 5 with a binary format send `Accept: */*`, as operations with no JSON
   do, including Browser Run's 2 script operations, which a patch lets return server-sent events too, as a script's
@@ -190,11 +199,13 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   the operation has its own `account_id` or `zone_id`.
 - **A cursor list ends when its cursor does.** An empty page can have more after it: KV documents this for deleted
   keys, and R2 does it for keys grouped by a delimiter.
-- **A page list ends at the total `result_info` gives,** or at a short page when it states the page size. An offset
-  list ends at `total_count`, which none of the 22 declares. Only `ai-search.items.chunks` declares `result_info`
-  fields, `limit` and `total`, and the runtime doesn't read them. Otherwise either ends at an empty page, at the cost
-  of one more request, because the API may cap the size asked for. A repeated page ends it only when there's no total,
-  since two pages alike can be real data.
+- **A page list ends at the total `result_info` gives,** or at a short page when it states the page size. An offset list
+  ends at `total_count`, which none of the 22 declares. Only `ai-search.items.chunks` declares `result_info` fields,
+  `limit` and `total`, and the runtime doesn't read them. Otherwise either ends at an empty page, at the cost of one
+  more request, because the API may cap the size asked for. A repeated page ends it only when there's no total, since
+  two pages alike can be real data. A page list whose `offset` says it takes precedence over the page number is read by
+  offset when the caller gives one: the mTLS and origin TLS certificate lists and `zones.hostnames.settings.tls.get`.
+  Others, such as `ssl.client-certificates.list`, keep the offset and move the page number on.
 - **A binary field in a form is `Blob | string`,** whether it's inline or in a model, so a KV value can be text. A model
   is printed once, so generation stops if one with such a field is used in JSON, where it would need a variant.
 - **A declared 204 is part of the result type.** 4 operations that answer in JSON add `undefined`.
@@ -213,28 +224,31 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   them, but the 57 declared as integers or numbers, such as a Logpush `job_id`, also take the number the API sends as
   the ID. Text keeps an int64 above 2^53, or a decimal such as a Magic connector event's timestamp, exact.
 - **Spec patches expire.** A patch whose defect has gone stops generation, so an upstream fix retires it. So does a
-  pagination override whose operation is gone, now states its own pagination, or no longer has the array it names.
-  Besides those described elsewhere, patches require each ruleset rule's `action`, which the API rejects a rule
-  without and the spec names as the discriminator, apart from an update that only moves a rule, by its `position` with no
-  field of a rule beside it; take each rule's `action_parameters` from its action alone, as the API refuses any other
-  key; let a ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds keys builds by the
-  version ID asked for; let a Browser Run script's result hold nested arrays; put Domain Connect's routes under
-  `/dns/domainconnect`, where the API serves them, and its `verify` at `v2`; add the 3 fields a Logpush job has
-  undeclared and stop a listed job from being `null`; and declare the `notificationUrl` that Stream's webhook body
-  requires but leaves undeclared, as the spec hides the `notification_url` it declares from SDKs. `RequestRule` lists
-  its variants so that each declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in
-  `generator/patches.ts` says: the six actions that take no parameters, such as `log`, have `action_parameters?:
-  never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule` or
-  `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it. One action's rule is
-  `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's parameters.
+  pagination override whose operation is gone, now states its own pagination, or no longer has the page parameter, the
+  array or a cursor it names. Besides those described elsewhere, patches require each ruleset rule's `action`, which the
+  API rejects a rule without and the spec names as the discriminator, apart from an update that only moves a rule, by
+  its `position` with no field of a rule beside it; take each rule's `action_parameters` from its action alone, as the
+  API refuses any other key; let a ruleset's `rules` be absent, as an empty ruleset leaves them out; say that Builds
+  keys builds by the version ID asked for; let a Browser Run script's result hold nested arrays; put Domain Connect's
+  routes under `/dns/domainconnect`, where the API serves them, and its `verify` at `v2`; add the 3 fields a Logpush job
+  has undeclared and stop a listed job from being `null`; declare the `notificationUrl` that Stream's webhook body
+  requires but leaves undeclared, as the spec hides the `notification_url` it declares from SDKs; give a patch of a
+  Worker's latest version a body of its own, whose `env` entries can be `null` to remove one binding, as creating a
+  version shares the body; and make temporary R2 credentials take exactly one of `permission` and `actions`, as the API
+  refuses neither and both. `RequestRule` and R2's `TempAccessCredsRequest` list their variants so that each declares
+  `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in `generator/patches.ts` says. The six rule actions
+  that take no parameters, such as `log`, have `action_parameters?: never`, though the API also accepts `{}`. Code can
+  read `action_parameters` on any `RequestRule` or `ResponseRule`, but not on `Rule`, the base every variant shares,
+  which no longer declares it. One action's rule is `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's
+  parameters.
 - **A string described as a comma-separated list is a list,** sent joined with commas, where `COMMA_LISTS` in
   `generator/patches.ts` names it: Builds' `version_ids` and `external_script_ids` for now. Of the 52 query strings
   whose description says comma-separated, comma-delimited or separated by commas, each of the other 50 is added after
   reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
   `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
   Builds splits, as a live check showed.
-- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,651
-  of its 3,653 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,646
+  of its 3,648 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
   Cloudflare's own CLI. Forge would name the other 2, for the NEL setting, by their `operationId`, outside any group, so
   `UNNAMED_OPERATIONS` in `generator/patches.ts` leaves them out, as `zones.settings.get` and `edit` reach them with
   `setting_id: 'nel'`. Another operation without a name stops generation. A rename in `generator/patches.ts` fixes a
@@ -244,12 +258,13 @@ sets `allow-remote=root`, which allows ones listed in this `package.json` and no
   methods that repeat their group, such as `cloudforceOneRequestGet` for `get`, as a hidden operation's name is never
   shown; and the hidden Email Security move described below. Forge stops when two operations take one name, so a rename
   can't take another's. Every name passes three rules, which `npm test` checks: its verb is one its HTTP method does,
-  apart from an RPC-style route such as `POST …/bulk/delete` and a read by POST whose body says what to read, such as
-  `ai-audit.robots.bulkGet`; an account-or-zone route has no `account-` or `zone-` group; and a method doesn't repeat
-  its group. `npm run generate` lists the names that break one in `_meta/report.json`, and prints the names it renamed
-  or removed against the last output, which break the calls that import them. It compares names, so one that moves to
-  another route is unchanged. A second run would print nothing, so for release notes `npm run names -- <git ref>`
-  compares the output with a commit's, such as the last release's.
+  apart from an RPC-style route such as `POST …/bulk/delete`, a read by POST whose body says what to read, such as
+  `ai-audit.robots.bulkGet`, and a bulk method by POST whose body lists what it acts on, such as
+  `email-security.sending-domain-restrictions.bulkDelete`; an account-or-zone route has no `account-` or `zone-`
+  group; and a method doesn't repeat its group. `npm run generate` lists the names that break one in
+  `_meta/report.json`, and prints the names it renamed or removed against the last output, which break the calls that
+  import them. It compares names, so one that moves to another route is unchanged. A second run would print nothing,
+  so for release notes `npm run names -- <git ref>` compares the output with a commit's, such as the last release's.
 
 ### What `prepare.ts` works around
 
@@ -258,8 +273,8 @@ output with a direct reading of the spec. No type check catches them, because th
 
 | In the spec | What Forge does | What `prepare.ts` does |
 | --- | --- | --- |
-| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (251 names) |
-| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (597 properties) |
+| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (252 names) |
+| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (600 properties) |
 | `writeOnly` | Has no such flag | Stops requiring the field (14), so responses don't promise it |
 | `nullable` in one `allOf` branch, such as Pages' `latest_deployment` | Drops it, or intersects it away | Makes the `allOf` nullable (9 that reach a type, and an error body), whether a property, an item or a map's values, as the official SDK types Pages' |
 
@@ -278,19 +293,18 @@ Forge also has no `allowReserved`, which R2 object keys declare because the spec
 
 ### Hidden operations
 
-The spec marks 540 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
+The spec marks 526 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
 unless there's a concrete reason not to, because the mark doesn't mean an operation is broken: Libreflare calls
 `POST /secrets_store/stores`, which is one of them.
 
 | Left out | Operations | Reason |
 | --- | --- | --- |
-| Deprecated | 293 | The spec marks them deprecated |
+| Deprecated | 288 | The spec marks them deprecated |
 | For Terraform alone | 9 | `x-fern-audiences` names only Terraform |
-| `/email/domains*`, `/email/domain-changes` | 6 | Alpha, and documented as open to one pilot account behind a gate |
 | `PUT` and `DELETE /zones/{zone_id}/subscriptions` | 2 | Documented as replaced by the singular `/zones/{zone_id}/subscription` |
 | `cloudforce-one/requests/{constants,quota,types}` | 3 | Replaced by generally available `/v2/` routes, whose groups take these names |
 
-The rest are generated, subject to the rule below. The last three rows are `EXCLUDED_IGNORED` in `generator/patches.ts`,
+The rest are generated, subject to the rule below. The last two rows are `EXCLUDED_IGNORED` in `generator/patches.ts`,
 and an entry that no longer matches a hidden operation stops generation. `POST .../events/{event_id}/raw/{raw_id}` stays
 in although it says "legacy", because it also says it has no direct replacement. The hidden single-message move is
 renamed to `email-security.investigate.moveOne`, so it doesn't collide with the visible bulk
@@ -301,10 +315,10 @@ be unfinished.
 
 ### Operations with no declared response
 
-29 operations, hidden or not, answer with a status like 200 and declare no content, only a description such as
+27 operations, hidden or not, answer with a status like 200 and declare no content, only a description such as
 `"200": { "description": "List of PIRs" }`. No type exists to generate, and the official SDK has none either. Only a
-captured response could provide one, and nothing here uses them, so they're left out. They include 21 under
-`cloudforce-one`, such as `priority-intelligence` and `requests/{project_type}/quota`.
+captured response could provide one, and nothing here uses them, so they're left out. They include 19 under
+`cloudforce-one`, such as `priority-intelligence` and `binary/{hash}`.
 
 `DELETE`s are the exception: 13 stay in as `void`, because a caller doesn't depend on the body and a failure still throws
 `ApiError`. This is a rule rather than a list, so an operation comes back once Cloudflare describes its response, or once
@@ -380,6 +394,12 @@ Expect to write patches.
   and the spec's routes get 404. Its `verify` there is at `v2`, which reads the spec's body: a made-up `domain`,
   `hash` and `sig` got 403, "unknown public key domain". A module Worker's content is `multipart/form-data`, which
   `formData()` splits into its modules.
+- DNS records on a test zone on 2026-11-20, against spec `3dc49274`: a list without a cursor pages by number and sends
+  no cursor back, and one with an empty `cursor` pages by cursor until a page leaves it out. `prev_cursor` goes back
+  until the first page, which has none, and an empty one is refused. A page number beside a cursor gets 400, 9241.
+- Writes on a test account on 2026-11-20: patching a Worker's latest version with a `null` entry in `env` removed that
+  binding and kept the other. Temporary R2 credentials asked for with neither `permission` nor `actions`, or both, got
+  400, 10040, and either alone got past that.
 - Browser Run scripts on a test account on 2026-11-12: nested arrays come back as returned, and a `Response` keeps its
   content type, as an image did.
 - Ruleset writes on a test zone: dry runs refuse a rule without its `action` and an unknown key in
@@ -398,7 +418,10 @@ Expect to write patches.
   used for live checks hides headers.
 - 23 operations this paginates and the official SDK doesn't. 6 where the spec declares a cursor and the SDK uses page
   numbers.
-- Any write operation against the live API other than those ruleset writes.
+- Any write operation against the live API other than those above.
+- An offset winning over the page number on the 4 lists whose spec says so. That rests on the spec, and on the mTLS and
+  origin TLS certificate lists, which are empty on the test account, answering `offset: 0` with `page: 2` as page 1 on
+  2026-11-20.
 - Bundlers other than esbuild.
 - `Accept: */*` on binary operations, and `application/scim+json` on SCIM's. The tool used for live checks can't set
   headers, so neither these nor the earlier `application/json` were tried on the API.

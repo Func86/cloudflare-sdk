@@ -1031,8 +1031,19 @@ export type SnapshotRequest = {
 			url?: string;
 			value: string;
 		})[];
+		/** Optional list of custom AI models to use for the request. The models will be tried in the order provided, and in case a model returns an error, the next one will be used as fallback. */
+		custom_ai?: {
+			/** Authorization token for the AI model: `Bearer <token>`. Not needed for workers-ai models. */
+			authorization?: string;
+			/** AI model to use for the request. Must be formed as `<provider>/<model_name>`, e.g. `workers-ai/@cf/meta/llama-3.3-70b-instruct-fp8-fast`. */
+			model: string;
+		}[];
+		elements?: {
+			selector: string;
+		}[];
 		emulateMediaType?: string;
-		formats?: ("content" | "screenshot" | "markdown" | "accessibilityTree")[];
+		excludeExternalLinks?: boolean;
+		formats?: ("content" | "screenshot" | "markdown" | "accessibilityTree" | "pdf" | "links" | "scrape" | "json")[];
 		/** Check [options](https://pptr.dev/api/puppeteer.gotooptions). */
 		gotoOptions?: {
 			referer?: string;
@@ -1042,10 +1053,58 @@ export type SnapshotRequest = {
 		};
 		/** Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
 		html?: string;
+		interestingOnly?: boolean;
+		/** Check [options](https://pptr.dev/api/puppeteer.pdfoptions). */
+		pdfOptions?: {
+			/** Whether to show the header and footer. */
+			displayHeaderFooter?: boolean;
+			/** HTML template for the print footer. */
+			footerTemplate?: string;
+			/** Paper format. Takes priority over width and height if set. */
+			format?: "letter" | "legal" | "tabloid" | "ledger" | "a0" | "a1" | "a2" | "a3" | "a4" | "a5" | "a6";
+			/** HTML template for the print header. */
+			headerTemplate?: string;
+			/** Sets the height of paper. Can be a number or string with unit. */
+			height?: string | number;
+			/** Whether to print in landscape orientation. */
+			landscape?: boolean;
+			/** Set the PDF margins. Useful when setting header and footer. */
+			margin?: {
+				bottom?: string | number;
+				left?: string | number;
+				right?: string | number;
+				top?: string | number;
+			};
+			/** Hides default white background and allows generating pdfs with transparency. */
+			omitBackground?: boolean;
+			/** Generate document outline. */
+			outline?: boolean;
+			/** Paper ranges to print, e.g. '1-5, 8, 11-13'. */
+			pageRanges?: string;
+			/** Give CSS @page size priority over other size declarations. */
+			preferCSSPageSize?: boolean;
+			/** Set to true to print background graphics. */
+			printBackground?: boolean;
+			/** Scales the rendering of the web page. Amount must be between 0.1 and 2. */
+			scale?: number;
+			/** Generate tagged (accessible) PDF. */
+			tagged?: boolean;
+			/** Timeout in milliseconds. */
+			timeout?: number;
+			/** Sets the width of paper. Can be a number or string with unit. */
+			width?: string | number;
+		};
+		prompt?: string;
 		/** Block undesired requests that match the provided regex patterns, eg. '/^.*\.(css)'. */
 		rejectRequestPattern?: string[];
 		/** Block undesired requests that match the provided resource types, eg. 'image' or 'script'. */
 		rejectResourceTypes?: ("document" | "stylesheet" | "image" | "media" | "font" | "script" | "texttrack" | "xhr" | "fetch" | "prefetch" | "eventsource" | "websocket" | "manifest" | "signedexchange" | "ping" | "cspviolationreport" | "preflight" | "other")[];
+		response_format?: {
+			/** Schema for the response format. More information here: https://developers.cloudflare.com/workers-ai/json-mode/ */
+			json_schema?: { [key: string]: unknown } | null;
+			type: string;
+		};
+		root?: string;
 		screenshotOptions?: {
 			captureBeyondViewport?: boolean;
 			clip?: {
@@ -1062,6 +1121,8 @@ export type SnapshotRequest = {
 			quality?: number;
 			type?: "png" | "jpeg" | "webp";
 		};
+		scrollPage?: boolean;
+		selector?: string;
 		setExtraHTTPHeaders?: { [key: string]: string };
 		setJavaScriptEnabled?: boolean;
 		/** URL to navigate to, eg. `https://example.com`. */
@@ -1076,6 +1137,7 @@ export type SnapshotRequest = {
 			isMobile?: boolean;
 			width: number;
 		};
+		visibleLinksOnly?: boolean;
 		/** Wait for the selector to appear in page. Check [options](https://pptr.dev/api/puppeteer.page.waitforselector). */
 		waitForSelector?: {
 			hidden?: true;
@@ -1098,15 +1160,37 @@ export type SnapshotResult = {
 	accessibilityTree?: $brapi.SerializedAXNode;
 	/** HTML content. */
 	content?: string;
+	/** Data extracted from the page HTML by the requested prompt. */
+	json?: { [key: string]: unknown } | ({ [key: string]: unknown } | null)[] | null;
+	/** Links found on the page. */
+	links?: string[];
 	/** Markdown content. Prefixed with YAML frontmatter (e.g. `title`) when the page provides that metadata. */
 	markdown?: string;
+	/** Base64 encoded PDF. */
+	pdf?: string;
+	/** Elements matched by the requested selectors. */
+	scrape?: {
+		results: {
+			attributes: {
+				name: string;
+				value: string;
+			}[];
+			height?: number;
+			html: string;
+			left: number;
+			text?: string;
+			top: number;
+			width?: number;
+		}[];
+		selector: string;
+	}[];
 	/** Base64 encoded image. */
 	screenshot?: string;
 };
 /**
- * Get HTML content and screenshot.
+ * Capture multiple page formats.
  *
- * Returns the page's HTML content and screenshot. Control page loading with `gotoOptions` and `waitFor*` options. Customize screenshots with `viewport`, `fullPage`, `clip` and others.
+ * Capture at least two formats from one prepared page: HTML, screenshot, Markdown, accessibility tree, PDF, links, scrape, or JSON. Defaults to HTML and screenshot. Format-specific options use the same fields as standalone actions. Scrape requires elements. An origin 304 returns HTTP 200 with an empty result and meta.status 304, without captures or AI work, and is not cached. JSON snapshots share one actionTimeout budget across navigation, captures, retries, and AI (default 60 seconds, maximum 120 seconds). Other snapshots retain existing timeout behavior. Formats use a fixed capture order, not array order; a live page may change between captures. Any format failure fails the request.
  *
  * `POST /accounts/{account_id}/browser-rendering/snapshot`
  *

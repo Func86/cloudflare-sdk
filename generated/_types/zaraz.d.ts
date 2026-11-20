@@ -58,6 +58,8 @@ export type ZarazConfigBase = {
 	settings: {
 		/** Automatic injection of Zaraz scripts enabled. */
 		autoInjectScript: boolean;
+		/** Minimum bot score required to load Zaraz. */
+		botScoreThreshold?: number;
 		/** Details of the worker that receives and edits Zaraz Context object. */
 		contextEnricher?: {
 			escapedWorkerName: string;
@@ -121,9 +123,12 @@ export type BaseMc = BaseTool & ({
 		/** List of firing triggers IDs. */
 		firingTriggers: string[];
 	} };
-	/** Tool's internal name. */
+	/** Name of the Managed Component the tool runs, for example `google-analytics_v4`. */
 	component: string;
-	/** DEPRECATED - List of actions configured on a tool. Either this or actions field is required. If both are present, actions field will take precedence. */
+	/**
+	 * DEPRECATED - List of actions configured on a tool. Either this or actions field is required. If both are present, actions field will take precedence.
+	 * @deprecated
+	 */
 	neoEvents?: {
 		/** Tool event type. */
 		actionType: string;
@@ -169,9 +174,26 @@ export type ClickListenerRule = {
 
 export type CustomManagedComponent = BaseMc & {
 	type: "custom-mc";
-	/** Cloudflare worker that acts as a managed component. */
+	/** Cloudflare Worker that acts as a Managed Component. */
 	worker: {
+		/** Name of the Worker script. */
 		escapedWorkerName: string;
+		/** Set by Cloudflare when the config is saved. Do not set or change it. */
+		mutableId?: string;
+		/** Tag of the Worker script. */
+		workerTag: string;
+	};
+};
+
+export type CustomManagedComponentInput = BaseMc & {
+	type: "custom-mc";
+	/** Cloudflare Worker that acts as a Managed Component. */
+	worker: {
+		/** Name of the Worker script. */
+		escapedWorkerName: string;
+		/** Set by Cloudflare when the config is saved. Do not set or change it. */
+		mutableId?: string;
+		/** Tag of the Worker script. */
 		workerTag: string;
 	};
 };
@@ -251,12 +273,12 @@ export type WorkerVariable = {
 	};
 };
 
-export type ZarazConfigBody = ZarazConfigBase & ({
+export type ZarazConfigBodyInput = ZarazConfigBase & ({
 	/** Tools set up under Zaraz configuration, where key is the alpha-numeric tool ID and value is the tool configuration object. */
-	tools?: { [key: string]: ManagedComponent | CustomManagedComponent };
+	tools?: { [key: string]: ManagedComponent | CustomManagedComponentInput };
 }) & ({
 	/** Tools set up under Zaraz configuration, where key is the alpha-numeric tool ID and value is the tool configuration object. */
-	tools: { [key: string]: ManagedComponent | CustomManagedComponent };
+	tools: { [key: string]: ManagedComponent | CustomManagedComponentInput };
 });
 
 export type ZarazConfigReturn = ZarazConfigBase & ({

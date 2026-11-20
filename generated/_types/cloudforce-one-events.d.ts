@@ -31,6 +31,58 @@ export type FieldDefinition = {
 	required?: boolean;
 };
 
+export type PirOrganizationType = {
+	description: string;
+	id: string;
+	label: string;
+	sectors: ("aerospace" | "agriculture" | "automotive" | "chemical" | "commercial" | "communications" | "construction" | "defense" | "education" | "energy" | "entertainment" | "financial-services" | "government-local" | "government-national" | "government-public-services" | "government-regional" | "healthcare" | "hospitality-leisure" | "infrastructure" | "insurance" | "manufacturing" | "mining" | "non-profit" | "pharmaceuticals" | "professional-services" | "retail" | "technology" | "telecommunications" | "transportation" | "utilities")[];
+	suggested_protected_targets: ("organization" | "customers" | "employees" | "executives" | "partners" | "events" | "products-infrastructure")[];
+};
+
+export type PirTopic = {
+	actor_types: ("nation-state" | "crime-syndicate" | "criminal" | "activist" | "hacker" | "insider-disgruntled" | "insider-accidental" | "spy" | "terrorist" | "competitor" | "sensationalist")[];
+	coverage_notes: ({
+		message: string;
+		source: "articles" | "events";
+	})[];
+	event_rules: {
+		explanation: string;
+		id: string;
+	}[];
+	/** The `topic_families` entry this topic is listed under. New families can be added, so treat an unknown value as ungrouped. */
+	family: string;
+	filter_revision: number;
+	intent_revision: number;
+	motivations: ("personal-gain" | "organizational-gain" | "ideology" | "dominance" | "notoriety" | "coercion" | "revenge")[];
+	presentation_revision: number;
+	/** Inherited facts this topic emphasizes: listed as Highly relevant and available to its event rules. Every PIR inherits every fact. */
+	profile_context: ("technologies" | "key_suppliers")[];
+	/** English question; only `{targets}` and `{regions}` are substituted. */
+	question_template: string;
+	recommended_sectors: ("aerospace" | "agriculture" | "automotive" | "chemical" | "commercial" | "communications" | "construction" | "defense" | "education" | "energy" | "entertainment" | "financial-services" | "government-local" | "government-national" | "government-public-services" | "government-regional" | "healthcare" | "hospitality-leisure" | "infrastructure" | "insurance" | "manufacturing" | "mining" | "non-profit" | "pharmaceuticals" | "professional-services" | "retail" | "technology" | "telecommunications" | "transportation" | "utilities")[];
+	relevance_criteria: ({
+		band: "highly" | "somewhat" | "not";
+		default_selected: boolean;
+		id: string;
+		text: string;
+	})[];
+	/** Suggestions the account can see; others are left out. */
+	suggested_actors: ({
+		alias: string | null;
+		default_selected: boolean;
+		id: string;
+		name: string;
+	})[];
+	title: string;
+	topic_id: string;
+};
+
+export type PirTopicFamily = {
+	id: string;
+	/** English heading for the group. */
+	label: string;
+};
+
 export type RelationshipEdge = {
 	/** Confidence score 0–100, or null. */
 	confidence: number | null;

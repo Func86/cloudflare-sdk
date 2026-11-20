@@ -3,4 +3,4 @@ export const create = {"method":"POST","route":"/zones/{zone_id}/origin_tls_clie
 const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/origin_tls_client_auth/{certificate_id}"};
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/zones/{zone_id}/origin_tls_client_auth/{certificate_id}"};
-export const list = {"method":"GET","route":"/zones/{zone_id}/origin_tls_client_auth"};
+export const list = {"method":"GET","route":"/zones/{zone_id}/origin_tls_client_auth","query":["page","per_page","limit","offset"],"page":{"kind":"page","offsetWins":true}};

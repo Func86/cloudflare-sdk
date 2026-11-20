@@ -25,50 +25,23 @@ export type CreateResult = $aig_billing.CreateTopupResult;
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
-export type EligibilityRequest = {
+export type GetEligibilityRequest = {
 	/** Cloudflare account ID. */
 	account_id: string;
-	body?: {
-		contract_version?: 2;
-		payment_method_id?: string;
-		/** Account-level payment methods, forwarded by the dashboard for legacy eligibility only. */
-		payment_methods?: {
-			/** Whether this is the account default payment method. */
-			default?: boolean;
-			/** Last 4 digits, for display copy only. */
-			last_four?: string;
-			/** Payment-method type. Absent or unrecognized is treated as non-card (does not error). Known values: PAYPAL, CREDIT_CARD, APPLE_PAY, GOOGLE_PAY, ACH_DIRECT_DEBIT, SEPA_DEBIT, CASHAPP, LINK, CRYPTO. */
-			type?: string;
-		}[];
-	};
 };
-export type EligibilityResult = $aig_billing.GetTopupEligibilityResult | $aig_billing.GetAuthoritativeTopupEligibilityResult;
+export type GetEligibilityResult = $aig_billing.GetTopupEligibilityV2Result;
 /**
  * Get top-up eligibility
  *
- * Determine top-up eligibility. Requests without contract_version retain the legacy forwarded-method contract. Explicit contract_version: 2 opts into the gated, read-only authoritative advisory API; forwarded method metadata is not authoritative. No response authorizes a charge.
+ * Reports whether the account can top up: its payment methods and whether each can pay for a top-up, whether a manual top-up is available and its limits, and the auto top-up state. Advisory only: every top-up checks again. Answers 409 while this endpoint isn't available for the account yet.
  *
- * `POST /accounts/{account_id}/ai-gateway/billing/topup/eligibility`
+ * `GET /accounts/{account_id}/ai-gateway/billing/topup/eligibility`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): Billing Write, Billing Read.
+ *
+ * @beta
  */
-export declare const eligibility: Operation<EligibilityRequest, EligibilityResult>;
-
-export type LimitsRequest = {
-	/** Cloudflare account ID. */
-	account_id: string;
-};
-export type LimitsResult = $aig_billing.GetTopupLimitsResult;
-/**
- * Get account top-up limits
- *
- * Retrieve the minimum and maximum allowed top-up amounts (in cents) for this account.
- *
- * `GET /accounts/{account_id}/ai-gateway/billing/topup/limits`
- *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
- */
-export declare const limits: Operation<LimitsRequest, LimitsResult>;
+export declare const getEligibility: Operation<GetEligibilityRequest, GetEligibilityResult>;
 
 export type StatusRequest = {
 	/** Cloudflare account ID. */

@@ -4,7 +4,7 @@ export * as top from "./top/index.js";
 
 export type SummaryRequest = {
 	/** Specifies the attribute by which to group the results. */
-	dimension: "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
+	dimension: "AS_CATEGORY" | "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
 	/** Array of names used to label the series in the response. */
 	name?: string[];
 	/** Filters results by relative date range ending at the current time, with each value producing a separate series. Use `<n>d` for days (up to `364d`) or `<n>w` for weeks (up to `52w`). Append `control` to request the equivalent previous period for comparison: the comparison window is shifted back by the current window's length rounded up to a whole number of weeks, so it keeps the same weekday alignment and does not overlap the current window (e.g. `7dcontrol` covers days -14 to -7, `10dcontrol` covers days -24 to -14). For example, pass `7d` and `7dcontrol` to compare this week with the previous week. All series must resolve to the same duration as the main series; relative ranges (including `control`) satisfy this automatically. Use this parameter or set specific start and end dates (`dateStart` and `dateEnd` parameters). */
@@ -19,6 +19,8 @@ export type SummaryRequest = {
 	location?: string[];
 	/** Filters results by continent. Specify a comma-separated list of alpha-2 codes. Prefix with `-` to exclude continents from results. For example, `-EU,NA` excludes results from EU, but includes results from NA. */
 	continent?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters results by IP version (Ipv4 vs. IPv6). */
 	ipVersion?: ("IPv4" | "IPv6")[];
 	/** Filters results by HTTP version. */
@@ -100,6 +102,8 @@ export type TimeseriesRequest = {
 	continent?: string[];
 	/** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). `PERCENTAGE_CHANGE` requires exactly one comparison series (e.g. a `control` date range). */
 	normalization?: "PERCENTAGE_CHANGE" | "MIN0_MAX";
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters results by IP version (Ipv4 vs. IPv6). */
 	ipVersion?: ("IPv4" | "IPv6")[];
 	/** Filters results by HTTP version. */
@@ -167,7 +171,7 @@ export declare const timeseries: Operation<TimeseriesRequest, TimeseriesResult>;
 
 export type TimeseriesGroupsRequest = {
 	/** Specifies the attribute by which to group the results. */
-	dimension: "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
+	dimension: "AS_CATEGORY" | "HTTP_METHOD" | "HTTP_VERSION" | "IP_VERSION" | "MANAGED_RULES" | "MITIGATION_PRODUCT" | "VERTICAL" | "INDUSTRY";
 	/** Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals). Refer to [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/). When omitted, the interval is auto-selected from the requested date range; finer intervals are only available for shorter ranges. If the requested interval is too granular for the date range, the request is rejected. */
 	aggInterval?: "15m" | "1h" | "1d" | "1w";
 	/** Array of names used to label the series in the response. */
@@ -184,6 +188,8 @@ export type TimeseriesGroupsRequest = {
 	location?: string[];
 	/** Filters results by continent. Specify a comma-separated list of alpha-2 codes. Prefix with `-` to exclude continents from results. For example, `-EU,NA` excludes results from EU, but includes results from NA. */
 	continent?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters results by IP version (Ipv4 vs. IPv6). */
 	ipVersion?: ("IPv4" | "IPv6")[];
 	/** Filters results by HTTP version. */

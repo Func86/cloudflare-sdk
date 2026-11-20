@@ -16,7 +16,14 @@ interface Entry {
 	response: string;
 	alternatives?: string[];
 	body?: string;
-	page?: { kind: string; items?: string; param?: string; next?: string };
+	page?: {
+		kind: string;
+		items?: string;
+		param?: string;
+		next?: string;
+		cursors?: { param: string; next: string }[];
+		offsetWins?: true;
+	};
 	aliasOf?: string;
 }
 
@@ -52,6 +59,30 @@ test('pagination in a union result and in a union envelope is found', () => {
 	assert.deepEqual(pageOf('user.memberships.list'), { kind: 'page' });
 });
 
+test('DNS records page by number, and by the cursor a caller sends, as the API refuses both at once', () => {
+	assert.deepEqual(pageOf('dns.records.list'), {
+		kind: 'page',
+		cursors: [
+			{ param: 'cursor', next: 'cursor' },
+			{ param: 'prev_cursor', next: 'prev_cursor' },
+		],
+	});
+});
+
+test('an offset moves on only where the spec says it wins over the page number', () => {
+	for (const id of [
+		'ssl.mtls-certificates.list',
+		'ssl.origin-tls-client-auth.hostname-certificates.list',
+		'ssl.origin-tls-client-auth.zone-certificates.list',
+		'zones.hostnames.settings.tls.get',
+	]) {
+		assert.deepEqual(pageOf(id), { kind: 'page', offsetWins: true }, id);
+	}
+	// "Offset the results." says nothing of the page number.
+	assert.deepEqual(pageOf('ssl.client-certificates.list'), { kind: 'page' });
+	assert.deepEqual(pageOf('acm.custom-trust-store.list'), { kind: 'page' });
+});
+
 test('x-fern-pagination is read where the spec states it', () => {
 	assert.deepEqual(pageOf('containers.applications.list'), {
 		kind: 'cursor',
@@ -85,8 +116,6 @@ test('an operation marked x-fern-ignore is generated unless there is a reason no
 	// Replaced, as their descriptions or their v2 routes say.
 	assert.equal(routes.has('GET /accounts/{account_id}/cloudforce-one/requests/quota'), false);
 	assert.equal(routes.has('PUT /zones/{zone_id}/subscriptions'), false);
-	// Only open to one pilot account.
-	assert.equal(routes.has('GET /accounts/{account_id}/email/domains'), false);
 	// For Terraform alone.
 	assert.equal(routes.has('POST /accounts/{account_id}/dlp/entries/predefined'), false);
 });

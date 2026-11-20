@@ -11,7 +11,7 @@ export type CreateResult = $r2.TempAccessCredsResponse;
 /**
  * Create Temporary Access Credentials
  *
- * Creates temporary access credentials on a bucket that can be optionally scoped to prefixes or objects.
+ * Creates temporary access credentials on a bucket that can be optionally scoped to prefixes or objects. The credentials grant either a permission level or an explicit list of S3 actions.
  *
  * `POST /accounts/{account_id}/r2/temp-access-credentials`
  */

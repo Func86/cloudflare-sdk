@@ -6,10 +6,35 @@ export type GoogleTagGatewayConfig = {
 	enabled: boolean;
 	/** Specifies the endpoint path for proxying Google Tag Manager requests. Use an absolute path starting with '/', with no nested paths and alphanumeric characters only (e.g. /metrics). */
 	endpoint: string;
-	/** Hides the original client IP address from Google when enabled. */
+	/**
+	 * Deprecated. This value is stored but has no effect on traffic. Optional in requests: if omitted, the previously stored value is kept. Responses always include it.
+	 * @deprecated
+	 */
+	hideOriginalIp?: boolean;
+	/** Specify the Google Tag Manager container or measurement ID (e.g. GTM-XXXXXXX or G-XXXXXXXXXX). */
+	measurementId: string;
+	/** Set up the associated Google Tag on the zone automatically when enabled. */
+	setUpTag?: boolean | null;
+};
+
+export type GoogleTagGatewayConfigResponse = ({
+	/** Enables or disables Google Tag Gateway for this zone. */
+	enabled: boolean;
+	/** Specifies the endpoint path for proxying Google Tag Manager requests. Use an absolute path starting with '/', with no nested paths and alphanumeric characters only (e.g. /metrics). */
+	endpoint: string;
+	/**
+	 * Deprecated. This value is stored but has no effect on traffic. Optional in requests: if omitted, the previously stored value is kept. Responses always include it.
+	 * @deprecated
+	 */
 	hideOriginalIp: boolean;
 	/** Specify the Google Tag Manager container or measurement ID (e.g. GTM-XXXXXXX or G-XXXXXXXXXX). */
 	measurementId: string;
 	/** Set up the associated Google Tag on the zone automatically when enabled. */
 	setUpTag?: boolean | null;
+}) & {
+	/**
+	 * Deprecated. This value is stored but has no effect on traffic. Optional in requests: if omitted, the previously stored value is kept. Responses always include it.
+	 * @deprecated
+	 */
+	hideOriginalIp: boolean;
 };

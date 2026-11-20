@@ -21,12 +21,12 @@ export type DeleteResult = { [key: string]: unknown } | { [key: string]: unknown
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
-export type UpsertRequest = {
+export type ReplaceRequest = {
 	/** Account identifier. */
 	account_id: string;
 	body: $builds.UpsertRepoConnectionRequest;
 };
-export type UpsertResult = $builds.UpsertRepoConnectionResponse;
+export type ReplaceResult = $builds.UpsertRepoConnectionResponse;
 /**
  * Create or update a repository connection
  *
@@ -36,4 +36,4 @@ export type UpsertResult = $builds.UpsertRepoConnectionResponse;
  *
  * Token permissions (any one): Workers CI Write.
  */
-export declare const upsert: Operation<UpsertRequest, UpsertResult>;
+export declare const replace: Operation<ReplaceRequest, ReplaceResult>;

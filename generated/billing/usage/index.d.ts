@@ -186,6 +186,24 @@ export type QueryResult = $billable_usage_api.CostAndUsageData[];
  * Requests that use dimension grouping return HTTP 400 when the
  * underlying usage data source does not support dimensions.
  *
+ * `Granularity` is optional. When it is omitted, the response is as
+ * described above. With `DAILY`, each record covers one day. With
+ * `PERIOD`, each record covers the whole time period:
+ * `ChargePeriodStart` is the first day of the period and
+ * `ChargePeriodEnd` is the day after its last day. For `usage`,
+ * `ConsumedQuantity` is the sum of the daily quantities in the bucket.
+ *
+ * When `Granularity` is set and `Metric` is `cost`, each record is one
+ * billable metric for one bucket. `PricingQuantity` and `BilledCost` are
+ * summed across pricing tiers, so unit prices and the list and
+ * contracted costs derived from them are absent. Only cost held in US
+ * dollars is summed, so a total can be lower than the sum of the `cost`
+ * records returned without `Granularity` for the same range when that
+ * range also holds cost in another credit type.
+ *
+ * Requests for `usage` that use `PERIOD` granularity return HTTP 400
+ * when the underlying usage data source does not support it.
+ *
  *
  * `POST /accounts/{account_id}/billable/usage`
  */

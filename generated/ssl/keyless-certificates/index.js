@@ -4,4 +4,4 @@ const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/keyless_certificate
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/zones/{zone_id}/keyless_certificates/{keyless_certificate_id}","body":"json"};
 export const get = {"method":"GET","route":"/zones/{zone_id}/keyless_certificates/{keyless_certificate_id}"};
-export const list = {"method":"GET","route":"/zones/{zone_id}/keyless_certificates"};
+export const list = {"method":"GET","route":"/zones/{zone_id}/keyless_certificates","query":["page","per_page"],"page":{"kind":"page"}};

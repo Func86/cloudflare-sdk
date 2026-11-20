@@ -139,7 +139,7 @@ export type GetResult = {
 		};
 		type: "termination";
 	} | {
-		end: string;
+		end?: string;
 		error: {
 			message: string;
 			name: string;

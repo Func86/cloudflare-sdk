@@ -91,6 +91,8 @@ export declare const botnetThreatFeed: PagedOperation<BotnetThreatFeedRequest, B
 export type GetRequest = {
 	/** Single Autonomous System Number (ASN) as integer. */
 	asn: number | string;
+	/** Include the traffic data confidence level in the response. Set to `false` to skip it and get a faster response. */
+	includeConfidenceLevel?: boolean;
 	/** Format in which results will be returned. */
 	format?: "JSON" | "CSV";
 };
@@ -98,7 +100,10 @@ export type GetResult = {
 	asn: {
 		aka?: string;
 		asn: number;
-		confidenceLevel: number;
+		/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+		category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
+		/** Omitted when `includeConfidenceLevel` is `false`. */
+		confidenceLevel?: number;
 		country: string;
 		countryName: string;
 		estimatedUsers: {
@@ -113,13 +118,15 @@ export type GetResult = {
 		};
 		name: string;
 		orgName: string;
-		related: {
+		related: ({
 			aka?: string;
 			asn: number;
+			/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+			category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
 			/** Total estimated users. */
 			estimatedUsers?: number;
 			name: string;
-		}[];
+		})[];
 		/** Regional Internet Registry. */
 		source: string;
 		website: string;
@@ -146,6 +153,8 @@ export type IpResult = {
 	asn: {
 		aka?: string;
 		asn: number;
+		/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+		category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
 		country: string;
 		countryName: string;
 		estimatedUsers: {
@@ -160,13 +169,15 @@ export type IpResult = {
 		};
 		name: string;
 		orgName: string;
-		related: {
+		related: ({
 			aka?: string;
 			asn: number;
+			/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+			category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
 			/** Total estimated users. */
 			estimatedUsers?: number;
 			name: string;
-		}[];
+		})[];
 		/** Regional Internet Registry. */
 		source: string;
 		website: string;
@@ -198,9 +209,11 @@ export type ListRequest = {
 	format?: "JSON" | "CSV";
 };
 export type ListResult = {
-	asns: {
+	asns: ({
 		aka?: string;
 		asn: number;
+		/** Inferred network type of the AS: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs) or `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers). `null` when the AS is not classified. */
+		category: "ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | null;
 		country: string;
 		countryName: string;
 		estimatedUsers: {
@@ -210,7 +223,7 @@ export type ListResult = {
 		name: string;
 		orgName?: string;
 		website?: string;
-	}[];
+	})[];
 };
 export type ListItem = ItemOf<ListResult, "asns">;
 /**

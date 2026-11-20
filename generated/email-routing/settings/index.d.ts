@@ -2,22 +2,22 @@
 import type { Operation } from "#runtime";
 import type * as $email from "../../_types/email.js";
 
-export type ApplyRequest = {
+export type EditRequest = {
 	/** Identifier. */
 	zone_id: string;
 	body: $email.UpdateEmailRoutingSettingsProperties;
 };
-export type ApplyResult = $email.Settings;
+export type EditResult = $email.Settings;
 /**
- * Apply Email Routing settings
+ * Update Email Routing settings
  *
- * Apply the provided settings to your Email Routing zone. Omitted settings retain their current values, as with PATCH.
+ * Update the settings for your Email Routing zone.
  *
- * `PUT /zones/{zone_id}/email/routing`
+ * `PATCH /zones/{zone_id}/email/routing`
  *
  * Token permissions (any one): Zone Settings Write.
  */
-export declare const apply: Operation<ApplyRequest, ApplyResult>;
+export declare const edit: Operation<EditRequest, EditResult>;
 
 export type GetRequest = {
 	/** Identifier. */
@@ -35,19 +35,19 @@ export type GetResult = $email.Settings;
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
-export type UpdateRequest = {
+export type ReplaceRequest = {
 	/** Identifier. */
 	zone_id: string;
 	body: $email.UpdateEmailRoutingSettingsProperties;
 };
-export type UpdateResult = $email.Settings;
+export type ReplaceResult = $email.Settings;
 /**
- * Update Email Routing settings
+ * Apply Email Routing settings
  *
- * Update the settings for your Email Routing zone.
+ * Apply the provided settings to your Email Routing zone. Omitted settings retain their current values, as with PATCH.
  *
- * `PATCH /zones/{zone_id}/email/routing`
+ * `PUT /zones/{zone_id}/email/routing`
  *
  * Token permissions (any one): Zone Settings Write.
  */
-export declare const update: Operation<UpdateRequest, UpdateResult>;
+export declare const replace: Operation<ReplaceRequest, ReplaceResult>;

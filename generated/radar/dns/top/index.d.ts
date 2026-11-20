@@ -38,6 +38,8 @@ export type AsesRequest = {
 	dnssecAware?: ("SUPPORTED" | "NOT_SUPPORTED")[];
 	/** Filters results based on DNSSEC-validated answers by end-to-end security status. */
 	dnssecE2e?: boolean[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters results by IP version (Ipv4 vs. IPv6). */
 	ipVersion?: ("IPv4" | "IPv6")[];
 	/** Filters results based on whether the queries have a matching answer. */
@@ -136,6 +138,8 @@ export type LocationsRequest = {
 	dnssecAware?: ("SUPPORTED" | "NOT_SUPPORTED")[];
 	/** Filters results based on DNSSEC-validated answers by end-to-end security status. */
 	dnssecE2e?: boolean[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters results by IP version (Ipv4 vs. IPv6). */
 	ipVersion?: ("IPv4" | "IPv6")[];
 	/** Filters results based on whether the queries have a matching answer. */

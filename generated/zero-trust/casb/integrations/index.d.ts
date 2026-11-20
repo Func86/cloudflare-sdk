@@ -11,7 +11,7 @@ export type CreateResult = $one.IntegrationV2Detail;
 /**
  * Create integration
  *
- * Creates a new integration for the specified application. Integration creation with OAuth is not supported by API at the moment. For other auth methods, use `GET /v2/applications/{application_id}/credential-guide` to see the required credential structure and example payloads for each vendor.
+ * Creates a new integration for the specified application. For other auth methods, use `GET /v2/applications/{application_id}/credential-guide` to see the required credential structure and example payloads for each vendor.
  *
  * `POST /accounts/{account_id}/one/integrations`
  */
@@ -126,7 +126,7 @@ export type UpdateResult = $one.IntegrationV2Detail;
 /**
  * Update integration
  *
- * Updates an integration's name, permissions, DLP profiles, use cases, or credentials.
+ * Updates an integration's name, permissions, DLP profiles, use cases, credentials, or GitLab resources.
  *
  * `PATCH /accounts/{account_id}/one/integrations/{id}`
  */

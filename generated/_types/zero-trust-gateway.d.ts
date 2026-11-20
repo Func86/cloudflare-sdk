@@ -321,14 +321,14 @@ export type DnsDestinationIpsIdRead = string;
 /** Indicate the number of items in the list. */
 export type Count = number;
 
+/** Indicate the read-only Data Localization Suite region the certificate authority's key material is pinned to. This corresponds to one of the regions selected for the account via the account region setting (`GET`/`PUT /accounts/{account_id}/zerotrust/region`). Omitted for certificates that were created without a region. */
+export type Region = string;
+
 /** Indicate the read-only certificate type, BYO-PKI (custom) or Gateway-managed. */
 export type Type = "custom" | "gateway_managed";
 
 /** Indicate the read-only deployment status of the certificate on Cloudflare's edge. Gateway TLS interception can use certificates in the 'available' (previously called 'active') state. */
 export type BindingStatus = "pending_deployment" | "available" | "pending_deletion" | "inactive";
-
-/** Indicate the read-only region the certificate authority's key material is pinned to. Omitted for certificates that were created without a region. */
-export type Region = string;
 
 /** Indicate the version number of the rule(read-only). */
 export type Version = number;
@@ -419,6 +419,8 @@ export type GatewayAccountSettings = {
 		max_ttl_secs?: MaxTtlSecs;
 		/** Specify whether to detect protocols from the initial bytes of client traffic. */
 		protocol_detection?: ProtocolDetection;
+		/** Specify per-region TLS interception and certificate settings for Gateway, keyed by Data Localization Suite region key. Relies on the Zero Trust account region setting  (`GET`/`PUT /accounts/{account_id}/zerotrust/region`) - the account must select a region before Gateway applies these settings for it. */
+		regions?: RegionsSettings;
 		/** Specify whether to enable the sandbox. */
 		sandbox?: Sandbox;
 		/** Specify whether to inspect encrypted HTTP traffic. */
@@ -456,6 +458,8 @@ export type GatewayAccountSettingsInput = {
 		max_ttl_secs?: MaxTtlSecs;
 		/** Specify whether to detect protocols from the initial bytes of client traffic. */
 		protocol_detection?: ProtocolDetection;
+		/** Specify per-region TLS interception and certificate settings for Gateway, keyed by Data Localization Suite region key. Relies on the Zero Trust account region setting  (`GET`/`PUT /accounts/{account_id}/zerotrust/region`) - the account must select a region before Gateway applies these settings for it. */
+		regions?: RegionsSettings;
 		/** Specify whether to enable the sandbox. */
 		sandbox?: Sandbox;
 		/** Specify whether to inspect encrypted HTTP traffic. */
@@ -577,6 +581,9 @@ export type CustomCertificateSettingsInput = {
 	updated_at?: string;
 } | null;
 
+/** Specify per-region TLS interception and certificate settings for Gateway, keyed by Data Localization Suite region key. Relies on the Zero Trust account region setting  (`GET`/`PUT /accounts/{account_id}/zerotrust/region`) - the account must select a region before Gateway applies these settings for it. */
+export type RegionsSettings = { [key: string]: RegionSetting } | null;
+
 /** Specify the Cloudflare account ID. */
 export type CfAccountId = string;
 
@@ -588,6 +595,14 @@ export type BodyScanningSettings = {
 
 /** Specify the DNS over HTTPS domain that receives DNS requests. Gateway automatically generates this value. */
 export type Subdomain = string;
+
+/** Specify the TLS interception and certificate settings Gateway applies to traffic routed through this region. */
+export type RegionSetting = {
+	/** Specify certificate settings for Gateway TLS interception. If unset, the Cloudflare Root CA handles interception. */
+	certificate?: CertificateSettings;
+	/** Specify whether to inspect encrypted HTTP traffic. */
+	tls_decrypt: TlsSettings;
+};
 
 /** Specify the UUID of the IPv6 block brought to the gateway so that this location's IPv6 address is allocated from the Bring Your Own IPv6 (BYOIPv6) block rather than the standard Cloudflare IPv6 block. */
 export type DnsDestinationIpv6BlockId = string | null;
@@ -774,7 +789,7 @@ export type Certificates = {
 	issuer_org?: string;
 	/** Provide the entire issuer field of the certificate (read-only). */
 	issuer_raw?: string;
-	/** Indicate the read-only region the certificate authority's key material is pinned to. Omitted for certificates that were created without a region. */
+	/** Indicate the read-only Data Localization Suite region the certificate authority's key material is pinned to. This corresponds to one of the regions selected for the account via the account region setting (`GET`/`PUT /accounts/{account_id}/zerotrust/region`). Omitted for certificates that were created without a region. */
 	region?: Region;
 	/** Indicate the read-only certificate type, BYO-PKI (custom) or Gateway-managed. */
 	type?: Type;
@@ -884,6 +899,8 @@ export type GatewayAccountLoggingSettings = {
 };
 
 export type GenerateCertRequest = {
+	/** Pin the generated certificate authority's key material to one of the account's selected Data Localization Suite regions. **Important**: This field is only settable during certificate creation. Certificates become immutable after creation - use the `/activate` and `/deactivate` endpoints to manage certificate lifecycle. */
+	region?: string;
 	/** Sets the certificate validity period in days (range: 1-10,950 days / ~30 years). Defaults to 1,825 days (5 years). **Important**: This field is only settable during the certificate creation.  Certificates becomes immutable after creation - use the `/activate` and `/deactivate` endpoints to manage certificate lifecycle. */
 	validity_period_days?: number;
 };

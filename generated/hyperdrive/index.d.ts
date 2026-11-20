@@ -39,6 +39,25 @@ export type DeleteResult = { [key: string]: unknown } | null;
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** The Cloudflare account ID. */
+	account_id: string;
+	/** The unique identifier of the Hyperdrive configuration. */
+	hyperdrive_id: string;
+	body: $hyperdrive.HyperdriveConfigPatch;
+};
+export type EditResult = $hyperdrive.HyperdriveConfigResponse;
+/**
+ * Update Hyperdrive
+ *
+ * Updates and returns the specified fields of the Hyperdrive configuration. Custom caching settings are not kept if caching is disabled. For an integration-backed configuration, the integration association is preserved but cannot be changed; omit the integration field.
+ *
+ * `PATCH /accounts/{account_id}/hyperdrive/configs/{hyperdrive_id}`
+ *
+ * Token permissions (any one): Hyperdrive Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The Cloudflare account ID. */
 	account_id: string;
@@ -114,22 +133,3 @@ export type RestartResult = $hyperdrive.HyperdriveConfigResponse;
  * Token permissions (any one): Hyperdrive Write.
  */
 export declare const restart: Operation<RestartRequest, RestartResult>;
-
-export type UpdateRequest = {
-	/** The Cloudflare account ID. */
-	account_id: string;
-	/** The unique identifier of the Hyperdrive configuration. */
-	hyperdrive_id: string;
-	body: $hyperdrive.HyperdriveConfigPatch;
-};
-export type UpdateResult = $hyperdrive.HyperdriveConfigResponse;
-/**
- * Update Hyperdrive
- *
- * Updates and returns the specified fields of the Hyperdrive configuration. Custom caching settings are not kept if caching is disabled. For an integration-backed configuration, the integration association is preserved but cannot be changed; omit the integration field.
- *
- * `PATCH /accounts/{account_id}/hyperdrive/configs/{hyperdrive_id}`
- *
- * Token permissions (any one): Hyperdrive Write.
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

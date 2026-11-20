@@ -4,6 +4,7 @@ import type * as $tunnel from "../_types/tunnel.js";
 export * as config from "./config/index.js";
 export * as connections from "./connections/index.js";
 export * as connectors from "./connectors/index.js";
+export * as hostnames from "./hostnames/index.js";
 export * as managementToken from "./management-token/index.js";
 export * as token from "./token/index.js";
 

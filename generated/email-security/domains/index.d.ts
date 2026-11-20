@@ -3,7 +3,7 @@ import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $email_security from "../../_types/email-security.js";
 export * as verification from "./verification/index.js";
 
-export type BatchRequest = {
+export type BulkApplyRequest = {
 	/** Account identifier tag. */
 	account_id: string;
 	body: {
@@ -26,7 +26,7 @@ export type BatchRequest = {
 		})[];
 	};
 };
-export type BatchResult = {
+export type BulkApplyResult = {
 	deletes: $email_security.DeletedDomain[];
 	patches: $email_security.DomainList;
 	posts: $email_security.DomainList;
@@ -46,7 +46,7 @@ export type BatchResult = {
  *
  * @beta
  */
-export declare const batch: Operation<BatchRequest, BatchResult>;
+export declare const bulkApply: Operation<BulkApplyRequest, BulkApplyResult>;
 
 export type CreateRequest = {
 	/** Account identifier tag. */

@@ -2,6 +2,6 @@
 export const create = {"method":"POST","route":"/accounts/{account_id}/email/routing/addresses","body":"json"};
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/email/routing/addresses/{destination_address_identifier}"};
 export { delete_ as delete };
+export const edit = {"method":"PATCH","route":"/accounts/{account_id}/email/routing/addresses/{destination_address_identifier}","body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/email/routing/addresses/{destination_address_identifier}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/email/routing/addresses","query":["page","per_page","direction","verified"],"page":{"kind":"page"}};
-export const update = {"method":"PATCH","route":"/accounts/{account_id}/email/routing/addresses/{destination_address_identifier}","body":"json"};

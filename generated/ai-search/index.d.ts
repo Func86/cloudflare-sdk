@@ -179,6 +179,8 @@ export type CreateRequest = {
 			vector: boolean;
 		};
 		indexing_options?: {
+			/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+			file_summary?: boolean;
 			/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 			keyword_tokenizer?: "porter" | "trigram";
 			/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */
@@ -331,6 +333,8 @@ export type CreateResult = {
 		vector: boolean;
 	};
 	indexing_options?: {
+		/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+		file_summary?: boolean;
 		/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 		keyword_tokenizer?: "porter" | "trigram";
 		/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */
@@ -506,6 +510,8 @@ export type DeleteResult = {
 		vector: boolean;
 	};
 	indexing_options?: {
+		/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+		file_summary?: boolean;
 		/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 		keyword_tokenizer?: "porter" | "trigram";
 		/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */
@@ -682,6 +688,8 @@ export type GetResult = {
 		vector: boolean;
 	};
 	indexing_options?: {
+		/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+		file_summary?: boolean;
 		/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 		keyword_tokenizer?: "porter" | "trigram";
 		/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */
@@ -860,6 +868,8 @@ export type ListResult = ({
 		[key: string]: unknown;
 	};
 	indexing_options: {
+		/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+		file_summary?: boolean;
 		keyword_tokenizer?: "porter" | "trigram";
 		use_ocr?: boolean;
 		[key: string]: unknown;
@@ -965,10 +975,22 @@ export type ListResult = ({
 		[key: string]: unknown;
 	} | null;
 	status: string;
+	/**
+	 * Deprecated and ignored during indexing and search; changing it still re-indexes existing files on the next sync. Use indexing_options.file_summary instead.
+	 * @deprecated
+	 */
 	summarization: boolean;
+	/**
+	 * Deprecated and ignored during indexing and search; changing it still re-indexes existing files on the next sync. Use indexing_options.file_summary instead.
+	 * @deprecated
+	 */
 	summarization_model: string | null;
 	sync_interval: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 	system_prompt_ai_search: string | null;
+	/**
+	 * Deprecated and has no effect. Use indexing_options.file_summary instead.
+	 * @deprecated
+	 */
 	system_prompt_index_summarization: string | null;
 	system_prompt_rewrite_query: string | null;
 	token_id: string | null;
@@ -1473,6 +1495,8 @@ export type UpdateRequest = {
 			vector: boolean;
 		};
 		indexing_options?: {
+			/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+			file_summary?: boolean;
 			/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 			keyword_tokenizer?: "porter" | "trigram";
 			/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */
@@ -1584,11 +1608,23 @@ export type UpdateRequest = {
 				parse_type?: "sitemap" | "discover";
 			};
 		} | null;
+		/**
+		 * Deprecated and ignored during indexing and search; changing it still re-indexes existing files on the next sync. Use indexing_options.file_summary instead.
+		 * @deprecated
+		 */
 		summarization?: boolean;
+		/**
+		 * Deprecated and ignored during indexing and search; changing it still re-indexes existing files on the next sync. Use indexing_options.file_summary instead.
+		 * @deprecated
+		 */
 		summarization_model?: string | null;
 		/** Interval between automatic syncs, in seconds. Allowed values: 900 (15min), 1800 (30min), 3600 (1h), 7200 (2h), 14400 (4h), 21600 (6h), 43200 (12h), 86400 (24h). Defaults to 86400 (24h). */
 		sync_interval?: 900 | 1800 | 3600 | 7200 | 14400 | 21600 | 43200 | 86400;
 		system_prompt_ai_search?: string | null;
+		/**
+		 * Deprecated and has no effect. Use indexing_options.file_summary instead.
+		 * @deprecated
+		 */
 		system_prompt_index_summarization?: string | null;
 		system_prompt_rewrite_query?: string | null;
 		token_id?: string;
@@ -1629,6 +1665,8 @@ export type UpdateResult = {
 		vector: boolean;
 	};
 	indexing_options?: {
+		/** Generates a per-file summary, topics, and keywords during indexing for text files and media transcripts of at least three chunks. The summary and keywords are stored as the item's context metadata (a context you set is kept), and the topics are added to chunk context headers where they fit. Best effort: a file whose summary fails is indexed without one. The model calls are billed to your account through the instance's AI Gateway. Changing this triggers a full re-index. Defaults to false. */
+		file_summary?: boolean;
 		/** Tokenizer used for keyword search indexing. porter provides word-level tokenization with Porter stemming (good for natural language queries). trigram enables character-level substring matching (good for partial matches, code, identifiers). Changing this triggers a full re-index. Defaults to porter. */
 		keyword_tokenizer?: "porter" | "trigram";
 		/** Enables OCR ingestion for PDFs and images. Changing this triggers a full re-index. Defaults to false. */

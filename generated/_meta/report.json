@@ -2,6 +2,8 @@
  "pagination": {
   "paged parameters, but the response has no envelope": [
    "GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes",
+   "GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes/{id}/deployments",
+   "GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes/{id}/versions",
    "GET /accounts/{account_id}/cloudforce-one/v2/brand-protection/logo/matches",
    "GET /accounts/{account_id}/cloudforce-one/v2/brand-protection/domain/matches",
    "GET /accounts/{account_id}/browser-rendering/devtools/session",

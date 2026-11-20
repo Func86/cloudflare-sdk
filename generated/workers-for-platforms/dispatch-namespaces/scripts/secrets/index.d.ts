@@ -2,7 +2,7 @@
 import type { Operation } from "#runtime";
 import type * as $workers from "../../../../_types/workers.js";
 
-export type BulkRequest = {
+export type BulkEditRequest = {
 	/** Identifier. */
 	account_id: string;
 	/** Name of the Workers for Platforms dispatch namespace. */
@@ -11,7 +11,7 @@ export type BulkRequest = {
 	script_name: string;
 	body: $workers.SecretPatchRequest;
 };
-export type BulkResult = $workers.SecretPatchResponse;
+export type BulkEditResult = $workers.SecretPatchResponse;
 /**
  * Patch multiple Workers for Platforms script secrets
  *
@@ -28,7 +28,7 @@ export type BulkResult = $workers.SecretPatchResponse;
  *
  * `PATCH /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/secrets-bulk`
  */
-export declare const bulk: Operation<BulkRequest, BulkResult>;
+export declare const bulkEdit: Operation<BulkEditRequest, BulkEditResult>;
 
 export type DeleteRequest = {
 	/** Identifier. */

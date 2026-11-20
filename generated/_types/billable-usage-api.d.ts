@@ -164,6 +164,8 @@ export type V2TimePeriod = {
 export type V2UsageQuery = {
 	/** Usage filters. Filters of different kinds are combined with AND, so a record must match every filter present to be returned. */
 	FilterBy?: V2FilterBy;
+	/** Optional time bucket to sum records over. `DAILY` returns one record per day. `PERIOD` returns one record for the whole time period. When set with `Metric` `cost`, cost is summed across pricing tiers into one record per billable metric per bucket. When omitted, records are not summed: `usage` returns daily records and `cost` returns one record per rated breakdown. Available only on `POST` account usage. */
+	Granularity?: "DAILY" | "PERIOD";
 	/** Grouping definitions used to split result rows. At most two unique keys may be supplied. */
 	GroupBy?: V2GroupBy[];
 	/** Type of cost/usage records to retrieve. `usage` returns unrated usage quantities. `cost` returns rated usage with cost and pricing fields; it is available only on `POST` account usage and only when the underlying usage data source is ClickHouse (other sources return an empty result set). Requests that combine `cost` with `GroupBy` or `FilterBy.Tags` return HTTP 400. Unrelated to `FilterBy.BillableMetricIds`. Defaults to `usage` when omitted. */
@@ -191,6 +193,13 @@ export type V2TagFilter = {
 };
 
 export type V2AccountBillableMetric = {
+	/**
+	 * Dimension keys defined for this billable metric. Use them as
+	 * `Key` in a `DIMENSION` `GroupBy` on the account usage endpoint.
+	 * They do not depend on the requested period, and a key can
+	 * be listed even when no usage in the period carries it. Empty when
+	 * the metric defines no dimensions.
+	 */
 	DimensionKeys: string[];
 	/** Public catalog identifier of the billable metric. */
 	Id: string;
@@ -198,6 +207,15 @@ export type V2AccountBillableMetric = {
 	Name: string;
 	ProductCategory: V2ProductCategory[];
 	ProductFamily: V2ProductFamily[];
+	/**
+	 * Resource-tag keys observed on this metric's usage within the
+	 * requested period, sorted and deduplicated. Use them as `Key` in a
+	 * `TAG` `GroupBy` or in `FilterBy.Tags` on the account usage
+	 * endpoint. Because the list reflects recorded usage, it changes with
+	 * `from` and `to`, and is empty when no tagged usage exists in the
+	 * period or tag-key discovery is not available.
+	 */
+	TagKeys: string[];
 };
 
 export type V2ProductCategory = {

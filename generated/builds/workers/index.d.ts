@@ -38,6 +38,27 @@ export type DeleteResult = string;
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Script tag of the Worker. */
+	script_tag: string;
+	/** Apply a previews_base_config patch to every existing Preview of the Worker as well as to the base config. */
+	patch_existing_previews?: "true" | "false";
+	body: $builds.UpdateWorkerRequest;
+};
+export type EditResult = $builds.WorkerResponse;
+/**
+ * Update Worker build configuration
+ *
+ * Update the build configuration for a Worker script. Supports partial updates to git repository settings, production build settings, and Preview settings.
+ *
+ * `PATCH /accounts/{account_id}/builds/workers/{script_tag}`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** Account identifier. */
 	account_id: string;
@@ -92,24 +113,3 @@ export type PurgeCacheResult = { [key: string]: unknown } | { [key: string]: unk
  * Token permissions (any one): Workers CI Write.
  */
 export declare const purgeCache: Operation<PurgeCacheRequest, PurgeCacheResult>;
-
-export type UpdateRequest = {
-	/** Account identifier. */
-	account_id: string;
-	/** Script tag of the Worker. */
-	script_tag: string;
-	/** Apply a previews_base_config patch to every existing Preview of the Worker as well as to the base config. */
-	patch_existing_previews?: "true" | "false";
-	body: $builds.UpdateWorkerRequest;
-};
-export type UpdateResult = $builds.WorkerResponse;
-/**
- * Update Worker build configuration
- *
- * Update the build configuration for a Worker script. Supports partial updates to git repository settings, production build settings, and Preview settings.
- *
- * `PATCH /accounts/{account_id}/builds/workers/{script_tag}`
- *
- * Token permissions (any one): Workers CI Write.
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

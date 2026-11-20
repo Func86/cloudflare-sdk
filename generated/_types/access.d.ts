@@ -815,7 +815,7 @@ export type Saml = IdentityProvider & {
 			/** header that will be added on the request to the origin */
 			header_name?: string;
 		}[];
-		/** X509 certificate to verify the signature in the SAML authentication response */
+		/** X509 certificate to verify the signature in the SAML authentication response. Mutually exclusive with `metadata_url`. */
 		idp_public_certs?: string[];
 		/** IdP Entity ID or Issuer URL */
 		issuer_url?: string;
@@ -826,6 +826,8 @@ export type Saml = IdentityProvider & {
 		 * Set this if your IdP enforces a URL length limit.
 		 */
 		max_sso_url_length?: number;
+		/** HTTPS URL of the IdP's SAML metadata document from which Access reads the signing certificates used to verify SAML authentication responses. Mutually exclusive with `idp_public_certs`. */
+		metadata_url?: string;
 		/** Sign the SAML authentication request with Access credentials. To verify the signature, use the public key from the Access certs endpoints. */
 		sign_request?: boolean;
 		/** URL to send the SAML authentication requests to */
@@ -861,7 +863,7 @@ export type SamlInput = IdentityProviderInput & {
 			/** header that will be added on the request to the origin */
 			header_name?: string;
 		}[];
-		/** X509 certificate to verify the signature in the SAML authentication response */
+		/** X509 certificate to verify the signature in the SAML authentication response. Mutually exclusive with `metadata_url`. */
 		idp_public_certs?: string[];
 		/** IdP Entity ID or Issuer URL */
 		issuer_url?: string;
@@ -872,6 +874,8 @@ export type SamlInput = IdentityProviderInput & {
 		 * Set this if your IdP enforces a URL length limit.
 		 */
 		max_sso_url_length?: number;
+		/** HTTPS URL of the IdP's SAML metadata document from which Access reads the signing certificates used to verify SAML authentication responses. Mutually exclusive with `idp_public_certs`. */
+		metadata_url?: string;
 		/** Sign the SAML authentication request with Access credentials. To verify the signature, use the public key from the Access certs endpoints. */
 		sign_request?: boolean;
 		/** URL to send the SAML authentication requests to */

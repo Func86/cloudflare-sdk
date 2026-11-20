@@ -14,6 +14,12 @@ import { EXCLUSIVE_BODY, LITERAL_SLASHES } from '../spec.ts';
  * `Accept` or `Content-Type` is kept: it chooses a format, or the type of an R2 object.
  */
 const RUNTIME_HEADERS = new Set(['authorization', 'content-length']);
+/**
+ * What an `offset` of a list paged by number says when it wins over the page number, as those of
+ * the mTLS and origin TLS certificate lists do. Others, such as client certificates', say only
+ * "Offset the results.", so `paginate` moves their page number on.
+ */
+const OFFSET_WINS = /takes precedence over page/i;
 /** Query parameters that take a cursor, and where each kind's next cursor may be in `result_info`. */
 const CURSOR_PARAMS: Readonly<Record<string, readonly string[]>> = {
 	cursor: ['cursor', 'cursors.after', 'next_cursor'],
@@ -507,10 +513,22 @@ function statedPagination(method: Method): Pagination | undefined {
 
 /**
  * Stops generation when a pagination override no longer names an array of the result, as
- * the types read it: a base's generic `result` doesn't hide the operation's. `prepare`
- * checks the rest, that its operation is generated and doesn't state its own pagination.
+ * the types read it: a base's generic `result` doesn't hide the operation's. Or when the
+ * operation no longer takes the page number it pages by, or a cursor it names is no longer
+ * a query parameter or in `result_info`. `prepare` checks the rest, that its operation is
+ * generated and doesn't state its own pagination.
  */
-export function checkOverride(key: string, override: Pagination, response: ResolvedResponse): void {
+export function checkOverride(key: string, override: Pagination, response: ResolvedResponse, query: ReadonlySet<string>): void {
+	if (override.kind === 'page' && !query.has('page')) {
+		throw new Error(`The pagination override for ${key} is stale, so check it and remove it: it has no page parameter`);
+	}
+	for (const cursor of override.kind === 'page' ? (override.cursors ?? []) : []) {
+		if (!query.has(cursor.param) || !declares(response.resultInfo, cursor.next)) {
+			throw new Error(
+				`The pagination override for ${key} is stale, so check it and remove it: it has no ${cursor.param} parameter, or no result_info.${cursor.next}`,
+			);
+		}
+	}
 	const holds = (result: Type): boolean => {
 		let list: Type | undefined = result;
 		for (const name of override.items?.split('.') ?? []) {
@@ -537,9 +555,10 @@ function resolvePagination(
 	response: ResolvedResponse,
 	report: Report,
 ): Pagination | undefined {
+	const query = new Set(params.filter((param) => param.in === 'query').map((param) => param.name));
 	const override = PAGINATION_OVERRIDES[key];
 	if (override) {
-		checkOverride(key, override, response);
+		checkOverride(key, override, response, query);
 		return override;
 	}
 	const stated = statedPagination(method);
@@ -549,7 +568,6 @@ function resolvePagination(
 	if (method.httpMethod !== 'GET') {
 		return undefined;
 	}
-	const query = new Set(params.filter((param) => param.in === 'query').map((param) => param.name));
 	const cursorParam = Object.keys(CURSOR_PARAMS).find((name) => query.has(name));
 	const paged = cursorParam !== undefined || query.has('page') || (query.has('limit') && query.has('offset'));
 	if (!paged) {
@@ -577,7 +595,9 @@ function resolvePagination(
 		}
 	}
 	if (query.has('page')) {
-		return { kind: 'page', ...items };
+		const offset = params.find((param) => param.in === 'query' && param.name === 'offset');
+		const offsetWins = offset !== undefined && OFFSET_WINS.test(offset.description);
+		return { kind: 'page', ...items, ...(offsetWins ? { offsetWins: true } : {}) };
 	}
 	return { kind: 'offset', ...items };
 }

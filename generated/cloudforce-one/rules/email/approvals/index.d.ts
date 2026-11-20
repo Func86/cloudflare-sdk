@@ -2,6 +2,41 @@
 import type { Operation } from "#runtime";
 import type * as $cloudforce_one from "../../../../_types/cloudforce-one.js";
 
+export type ReplaceRequest = {
+	/** Cloudflare account ID. */
+	account_id: string;
+	/** The unique identifier for the approval. */
+	id: string;
+	/** Structured rule module. */
+	module?: "eml";
+	body?: {
+		/** Nested condition groups support up to 10 levels of depth. */
+		condition: $cloudforce_one.EmailRuleConditionGroup;
+		description?: string;
+		enabled?: boolean;
+		meta?: $cloudforce_one.MetaInputEntry[];
+		name: string;
+		/** Disposition for matching email. This emits status metadata with the selected value. */
+		status?: "silent" | "blocking";
+		strings?: ({
+			identifier: string;
+			match_type?: "text" | "hex" | "regex";
+			modifiers?: ("nocase" | "wide" | "ascii" | "fullword")[];
+			type: "string_match";
+			value: string;
+		})[];
+	};
+};
+export type ReplaceResult = $cloudforce_one.EditApprovalResponse;
+/**
+ * Update a pending structured email rule approval
+ *
+ * Validate, compile, and replace the proposed structured email rule on a pending approval. Only the original requester may update it.
+ *
+ * `PUT /accounts/{account_id}/cloudforce-one/rules/structured/approvals/{id}`
+ */
+export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
+
 export type ResubmitRequest = {
 	/** Cloudflare account ID. */
 	account_id: string;

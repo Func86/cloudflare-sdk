@@ -532,6 +532,9 @@ export type ExportJob = {
 	user_id: string;
 };
 
+/** JSON Schema subset describing the content of each asset of this type. The top level is an `object` with `properties` and an optional `required` list. Property names must be 1 to 32 letters, digits or underscores. A property may be nullable by listing `null` alongside its type. */
+export type AssetTypeContentSchema = { [key: string]: unknown };
+
 /** Order specification for finding exports. */
 export type FindingExportOrderFilterRequest = {
 	/** Sort direction. */
@@ -968,17 +971,35 @@ export type Webhook = {
 export type AssetSchemaDetail = {
 	/** Asset class identifier (PascalCase), e.g. AnthropicApiKey. */
 	asset_class: string;
+	/** JSON Schema subset describing the content of each asset of this type. The top level is an `object` with `properties` and an optional `required` list. Property names must be 1 to 32 letters, digits or underscores. A property may be nullable by listing `null` alongside its type. */
+	content_schema?: AssetTypeContentSchema;
+	/** Human-readable name. Present for `cloudflare` and `custom` asset types. */
+	display_name?: string;
+	/** Unique identifier. Present for `cloudflare` and `custom` asset types. */
+	id?: string;
+	/** Who defines the asset class: `system` for built-in asset classes, `cloudflare` for asset types provided by Cloudflare, and `custom` for the account's own asset types. */
+	origin: "system" | "cloudflare" | "custom";
 	/**
 	 * Fields and related attributes a custom finding type may reference for this asset
 	 * class, as a JSON Schema. Top-level properties are `asset` and, when related
 	 * resources exist, `associated`.
 	 */
 	schema: { [key: string]: unknown };
+	/** Current version. Present for `cloudflare` and `custom` asset types. */
+	version?: number;
 };
 
 export type AssetSchemaSummary = {
 	/** Asset class identifier (PascalCase), e.g. AnthropicUser. */
 	asset_class: string;
+	/** Human-readable name. Present for `cloudflare` and `custom` asset types. */
+	display_name?: string;
+	/** Unique identifier. Present for `cloudflare` and `custom` asset types. */
+	id?: string;
+	/** Who defines the asset class: `system` for built-in asset classes, `cloudflare` for asset types provided by Cloudflare, and `custom` for the account's own asset types. */
+	origin: "system" | "cloudflare" | "custom";
+	/** Current version. Present for `cloudflare` and `custom` asset types. */
+	version?: number;
 };
 
 export type AssetSchemaVendorGroup = {

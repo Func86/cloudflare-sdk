@@ -37,7 +37,8 @@ import type {
 import type { GetResult as ZarazConfigs } from '@libreflare/cloudflare-sdk/zaraz/history/configs';
 import type { Operation as ApiShieldOperation } from '@libreflare/cloudflare-sdk/types/api-shield';
 import type { Project } from '@libreflare/cloudflare-sdk/types/pages';
-import type { Deployment, DeploymentInput } from '@libreflare/cloudflare-sdk/types/workers';
+import type { Deployment, DeploymentInput, VersionInput, VersionPatchInput } from '@libreflare/cloudflare-sdk/types/workers';
+import type { TempAccessCredsRequest } from '@libreflare/cloudflare-sdk/types/r2';
 import * as logpushJobs from '@libreflare/cloudflare-sdk/logpush/jobs';
 import { get as getLatestBuilds } from '@libreflare/cloudflare-sdk/builds/latest';
 import { get as getBuilds } from '@libreflare/cloudflare-sdk/builds/versions';
@@ -371,6 +372,20 @@ export async function dryRun(flag: boolean): Promise<void> {
 	// @ts-expect-error A whole rule needs its action, in a dry run too.
 	await cf.send(rules.update, { zone_id: 'z', ruleset_id: 'r', rule_id: 'x', dry_run: true, body: { enabled: false, position: { index: 1 } } });
 }
+
+// Temporary R2 credentials take a permission or a list of actions, and the API refuses neither or both.
+const credentials = { bucket: 'b', parentAccessKeyId: 'k', ttlSeconds: 60 };
+export const byPermission: TempAccessCredsRequest = { ...credentials, permission: 'object-read-only' };
+export const byActions: TempAccessCredsRequest = { ...credentials, actions: ['GetObject'] };
+// @ts-expect-error Neither.
+export const noSelector: TempAccessCredsRequest = credentials;
+// @ts-expect-error Both.
+export const bothSelectors: TempAccessCredsRequest = { ...credentials, permission: 'object-read-only', actions: ['GetObject'] };
+
+// A patch of a Worker's latest version removes one binding with null, which a new version can't send.
+export const removeBinding: VersionPatchInput = { env: { OLD: null, NEW: { type: 'plain_text', text: 'x' } } };
+// @ts-expect-error Only a patch removes a binding.
+export const newWithout: VersionInput = { env: { OLD: null } };
 
 // A mock client is keyed by the operation imported, and each handler is typed from it.
 export const mocked = createMockClient()

@@ -15,6 +15,8 @@ export type CreateRequest = {
 		enabled?: boolean;
 		/** Polling interval in seconds (60-86400). Default 300s (5 minutes). */
 		poll_interval_s?: number;
+		/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. Default false. */
+		tagging_enabled?: boolean;
 		/** Override the feed's title. Null clears it; omit to keep existing or derived value. */
 		title?: string | null;
 		/** HTTPS RSS feed URL. Provide exactly one of url or curated_feed_id. The account must have feed creation entitlement and not exceed feed allowance. */
@@ -39,6 +41,8 @@ export type CreateResult = {
 	/** Polling health: `active`, or `error` after a failed poll. */
 	status: string;
 	subscribed_at: string | null;
+	/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. */
+	tagging_enabled: boolean;
 	title: string | null;
 	updated_at: string;
 	url: string;
@@ -77,6 +81,8 @@ export type DeleteResult = {
 	/** Polling health: `active`, or `error` after a failed poll. */
 	status: string;
 	subscribed_at: string | null;
+	/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. */
+	tagging_enabled: boolean;
 	title: string | null;
 	updated_at: string;
 	url: string;
@@ -156,6 +162,8 @@ export type ListResult = {
 		/** Polling health: `active`, or `error` after a failed poll. */
 		status: string;
 		subscribed_at: string | null;
+		/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. */
+		tagging_enabled: boolean;
 		title: string | null;
 		updated_at: string;
 		url: string;
@@ -215,6 +223,8 @@ export type UpdateRequest = {
 		enabled?: boolean;
 		/** New polling interval in seconds (60-86400). Omit to keep current value. */
 		poll_interval_s?: number;
+		/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. Omit to keep current value. */
+		tagging_enabled?: boolean;
 		/** Override the feed's title. Null clears it; omit to keep existing or derived value. */
 		title?: string | null;
 	};
@@ -237,6 +247,8 @@ export type UpdateResult = {
 	/** Polling health: `active`, or `error` after a failed poll. */
 	status: string;
 	subscribed_at: string | null;
+	/** When enabled, new articles from this feed are tagged automatically by AI. Changes apply to articles processed afterwards. */
+	tagging_enabled: boolean;
 	title: string | null;
 	updated_at: string;
 	url: string;

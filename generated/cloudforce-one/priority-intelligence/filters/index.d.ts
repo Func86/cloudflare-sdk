@@ -19,6 +19,10 @@ export type GenerateResult = {
 		op: "in" | "notIn";
 		value: string[];
 	} | {
+		field: "attacker" | "attackerCountry" | "category" | "createdAt" | "event" | "indicatorType" | "mitreAttack" | "mitreCapec" | "tags" | "targetCountry" | "targetIndustry" | "tlp" | "uuid";
+		op: "containsAny";
+		value: string[];
+	} | {
 		field: "killChain";
 		op: "equals" | "not" | "gt" | "gte" | "lt" | "lte";
 		value: number | string;

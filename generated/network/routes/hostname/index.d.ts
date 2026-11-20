@@ -11,7 +11,7 @@ export type CreateRequest = {
 		/** The hostname of the route. */
 		hostname?: $tunnel.Hostname;
 		/** UUID of the tunnel. */
-		tunnel_id?: $tunnel.TunnelId3;
+		tunnel_id?: $tunnel.TunnelId2;
 	};
 };
 export type CreateResult = $tunnel.HostnameRoute;
@@ -56,7 +56,7 @@ export type EditRequest = {
 		/** The hostname of the route. */
 		hostname?: $tunnel.Hostname;
 		/** UUID of the tunnel. */
-		tunnel_id?: $tunnel.TunnelId3;
+		tunnel_id?: $tunnel.TunnelId2;
 	};
 };
 export type EditResult = $tunnel.HostnameRoute;
@@ -97,7 +97,7 @@ export type ListRequest = {
 	/** If set, only list hostname routes that contain a substring of the given value, the filter is case-insensitive. */
 	hostname?: $tunnel.Hostname;
 	/** If set, only list hostname routes that point to a specific tunnel. */
-	tunnel_id?: $tunnel.TunnelId3;
+	tunnel_id?: $tunnel.TunnelId2;
 	/** If set, only list hostname routes with the given comment. */
 	comment?: $tunnel.HostnameQueryComment;
 	/** If provided, include only resources that were created (and not deleted) before this time. URL encoded. */

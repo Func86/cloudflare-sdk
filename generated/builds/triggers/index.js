@@ -3,7 +3,7 @@ export const create = {"method":"POST","route":"/accounts/{account_id}/builds/tr
 export const createBuild = {"method":"POST","route":"/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds","body":"json"};
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/builds/triggers/{trigger_uuid}"};
 export { delete_ as delete };
+export const edit = {"method":"PATCH","route":"/accounts/{account_id}/builds/triggers/{trigger_uuid}","body":"json"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/builds/workers/{external_script_id}/triggers"};
-export const update = {"method":"PATCH","route":"/accounts/{account_id}/builds/triggers/{trigger_uuid}","body":"json"};
 export * as cache from "./cache/index.js";
 export * as environmentVariables from "./environment-variables/index.js";

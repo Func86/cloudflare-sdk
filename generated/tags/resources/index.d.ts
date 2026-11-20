@@ -3,6 +3,12 @@ import type { AccountOrZone, Operation, PagedOperation, RootItem } from "#runtim
 import type * as $resource_tagging from "../../_types/resource-tagging.js";
 
 export type DeleteRequest = AccountOrZone & {
+	/** The ID of the resource to remove tags from. */
+	resource_id: $resource_tagging.ResourceId;
+	/** The type of the resource. */
+	resource_type: $resource_tagging.AccountResourceType;
+	/** Worker identifier. Required for worker_version resources. */
+	worker_id?: $resource_tagging.WorkerId;
 	/**
 	 * ETag value for optimistic concurrency control. When provided, the server will
 	 * verify the current resource ETag matches before applying the write. Returns
@@ -10,7 +16,6 @@ export type DeleteRequest = AccountOrZone & {
 	 * obtained. Omit this header for unconditional writes.
 	 */
 	"If-Match"?: string;
-	body: $resource_tagging.DeleteTagsRequestAccountLevel;
 };
 export type DeleteResult = void;
 /**

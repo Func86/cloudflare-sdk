@@ -4,7 +4,7 @@ export * as top from "./top/index.js";
 
 export type SummaryRequest = {
 	/** Specifies the NetFlows attribute by which to group the results. */
-	dimension: "ADM1" | "AS" | "LOCATION" | "PRODUCT";
+	dimension: "ADM1" | "AS" | "AS_CATEGORY" | "LOCATION" | "PRODUCT";
 	/** Array of names used to label the series in the response. */
 	name?: string[];
 	/** Filters results by relative date range ending at the current time, with each value producing a separate series. Use `<n>d` for days (up to `364d`) or `<n>w` for weeks (up to `52w`). Append `control` to request the equivalent previous period for comparison: the comparison window is shifted back by the current window's length rounded up to a whole number of weeks, so it keeps the same weekday alignment and does not overlap the current window (e.g. `7dcontrol` covers days -14 to -7, `10dcontrol` covers days -24 to -14). For example, pass `7d` and `7dcontrol` to compare this week with the previous week. All series must resolve to the same duration as the main series; relative ranges (including `control`) satisfy this automatically. Use this parameter or set specific start and end dates (`dateStart` and `dateEnd` parameters). */
@@ -21,6 +21,8 @@ export type SummaryRequest = {
 	continent?: string[];
 	/** Filters results by Geolocation. Specify a comma-separated list of GeoNames IDs. Prefix with `-` to exclude geoIds from results. For example, `-2267056,360689` excludes results from the 2267056 (Lisbon), but includes results from 5128638 (New York). */
 	geoId?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters the results by network traffic product types. */
 	product?: ("HTTP" | "ALL")[];
 	/** Limits the number of objects per group to the top items within the specified time range. When item count exceeds the limit, extra items appear grouped under an "other" category. Only supported on high-cardinality dimensions; otherwise the request is rejected. Minimum value is 2. */
@@ -88,6 +90,8 @@ export type TimeseriesRequest = {
 	dateStart?: string[];
 	/** End of the date range (inclusive). Alternative to `dateRange`; provide together with `dateStart`. When requesting comparison series, every series must resolve to the same duration as the main series. Each `dateStart`/`dateEnd` is floored to the nearest 15 minutes before evaluation, so windows whose durations match only before alignment may be rejected. */
 	dateEnd?: string[];
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters the results by network traffic product types. */
 	product?: ("HTTP" | "ALL")[];
 	/** Filters results by Autonomous System. Specify one or more Autonomous System Numbers (ASNs) as a comma-separated list. Prefix with `-` to exclude ASNs from results. For example, `-174, 3356` excludes results from AS174, but includes results from AS3356. */
@@ -159,7 +163,7 @@ export declare const timeseries: Operation<TimeseriesRequest, TimeseriesResult>;
 
 export type TimeseriesGroupsRequest = {
 	/** Specifies the NetFlows attribute by which to group the results. */
-	dimension: "ADM1" | "AS" | "LOCATION" | "PRODUCT";
+	dimension: "ADM1" | "AS" | "AS_CATEGORY" | "LOCATION" | "PRODUCT";
 	/** Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals). Refer to [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/). When omitted, the interval is auto-selected from the requested date range; finer intervals are only available for shorter ranges. If the requested interval is too granular for the date range, the request is rejected. */
 	aggInterval?: "15m" | "1h" | "1d" | "1w";
 	/** Array of names used to label the series in the response. */
@@ -182,6 +186,8 @@ export type TimeseriesGroupsRequest = {
 	limitPerGroup?: number;
 	/** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). `PERCENTAGE_CHANGE` requires exactly one comparison series (e.g. a `control` date range). */
 	normalization?: "PERCENTAGE" | "MIN0_MAX" | "PERCENTAGE_CHANGE";
+	/** Filters results by the inferred network type of the Autonomous System: `ACCESS_ISP` (networks connecting end users, plus transit), `HOSTING_CLOUD_CONTENT` (hosting providers, clouds and CDNs), `ORGANIZATION` (enterprises, universities, governments, banks and IXP route servers), or `UNCLASSIFIED` (the AS isn't classified, or the traffic couldn't be mapped to an AS). In HTTP, only supported for date ranges starting on or after 2023-05-01. */
+	asCategory?: ("ACCESS_ISP" | "HOSTING_CLOUD_CONTENT" | "ORGANIZATION" | "UNCLASSIFIED")[];
 	/** Filters the results by network traffic product types. */
 	product?: ("HTTP" | "ALL")[];
 	/** Format in which results will be returned. */

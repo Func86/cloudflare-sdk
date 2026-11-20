@@ -269,6 +269,10 @@ export type ListRequest = {
 	account_id: string;
 	gateway_id: string;
 	id: string;
+	/** Page number */
+	page?: number;
+	/** Number of versions per page */
+	per_page?: number;
 };
 export type ListResult = {
 	data: {

@@ -2,7 +2,7 @@
 export const create = {"method":"POST","route":"/accounts/{account_id}/builds/workers","body":"json"};
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/builds/workers/{script_tag}"};
 export { delete_ as delete };
+export const edit = {"method":"PATCH","route":"/accounts/{account_id}/builds/workers/{script_tag}","query":["patch_existing_previews"],"body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/builds/workers/{script_tag}"};
 export const migrateToPreviews = {"method":"POST","route":"/accounts/{account_id}/builds/workers/{script_tag}/migrate_to_previews","body":"json"};
 export const purgeCache = {"method":"POST","route":"/accounts/{account_id}/builds/workers/{script_tag}/purge_build_cache"};
-export const update = {"method":"PATCH","route":"/accounts/{account_id}/builds/workers/{script_tag}","query":["patch_existing_previews"],"body":"json"};

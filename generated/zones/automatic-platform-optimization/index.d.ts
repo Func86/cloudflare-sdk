@@ -9,8 +9,10 @@ export type EditRequest = {
 		/**
 		 * Configuration for Automatic Platform Optimization (APO) for WordPress.
 		 * Set to "off" to disable, or provide an object to configure APO settings.
+		 * When an APO configuration already exists, fields omitted from the object keep their current value, and "off" disables APO without erasing the detected zone/site/plugin facts.
+		 * On the first write for a zone (no existing configuration) an object must include `enabled`, `cf`, `wordpress` and `wp_plugin`; otherwise the request fails with error 1023 and no configuration is created. Setting "off" when no configuration exists is a no-op.
 		 */
-		value: $speed.AutomaticPlatformOptimizationValue;
+		value: $speed.AutomaticPlatformOptimizationPatchValue;
 	};
 };
 export type EditResult = $speed.AutomaticPlatformOptimizationResponse;
@@ -20,6 +22,8 @@ export type EditResult = $speed.AutomaticPlatformOptimizationResponse;
  * Automatic Platform Optimization (APO) for WordPress is a performance feature that serves your
  * WordPress site from Cloudflare's edge network, reducing load times for visitors.
  * Refer to the APO documentation for more information.
+ * When an APO configuration already exists, fields omitted from an object `value` keep their current value, except `recheck`, which is false unless the request sends it. Setting `value` to `"off"` disables APO but keeps the detected zone/site/plugin facts.
+ * On the first write for a zone (no existing configuration) an object `value` must include `enabled`, `cf`, `wordpress` and `wp_plugin`; otherwise the request fails with error 1023. `"off"` is a no-op when no configuration exists.
  *
  *
  * `PATCH /zones/{zone_id}/settings/automatic_platform_optimization`

@@ -21,7 +21,7 @@ export declare const get: Operation<GetRequest, GetResult>;
 export type UpdateRequest = {
 	/** Identifier. */
 	zone_id: string;
-	body: $zaraz.ZarazConfigBody;
+	body: $zaraz.ZarazConfigBodyInput;
 };
 export type UpdateResult = $zaraz.ZarazConfigReturn;
 /**

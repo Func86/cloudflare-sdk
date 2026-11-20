@@ -69,6 +69,8 @@ export type CreateRequest = {
 		log_management_strategy?: "STOP_INSERTING" | "DELETE_OLDEST" | null;
 		logpush?: boolean;
 		logpush_public_key?: string | null;
+		/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+		multiprovider_enabled?: boolean;
 		otel?: ({
 			authorization?: string;
 			content_type?: "json" | "protobuf";
@@ -187,6 +189,8 @@ export type CreateResult = {
 	} | null;
 	/** Unique identifier of the AI Gateway within the account. */
 	id: string;
+	/** Identifier of the AI Gateway that never changes and is never reused, even after the gateway is deleted. Accepted in place of the gateway ID in any gateway path. */
+	internal_id: string;
 	is_default?: boolean;
 	log_classification?: boolean;
 	log_management?: number | null;
@@ -194,6 +198,8 @@ export type CreateResult = {
 	logpush?: boolean;
 	logpush_public_key?: string | null;
 	modified_at: string;
+	/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+	multiprovider_enabled?: boolean;
 	otel?: ({
 		authorization?: string;
 		content_type?: "json" | "protobuf";
@@ -327,6 +333,8 @@ export type DeleteResult = {
 	} | null;
 	/** Unique identifier of the AI Gateway within the account. */
 	id: string;
+	/** Identifier of the AI Gateway that never changes and is never reused, even after the gateway is deleted. Accepted in place of the gateway ID in any gateway path. */
+	internal_id: string;
 	is_default?: boolean;
 	log_classification?: boolean;
 	log_management?: number | null;
@@ -334,6 +342,8 @@ export type DeleteResult = {
 	logpush?: boolean;
 	logpush_public_key?: string | null;
 	modified_at: string;
+	/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+	multiprovider_enabled?: boolean;
 	otel?: ({
 		authorization?: string;
 		content_type?: "json" | "protobuf";
@@ -468,6 +478,8 @@ export type GetResult = {
 	} | null;
 	/** Unique identifier of the AI Gateway within the account. */
 	id: string;
+	/** Identifier of the AI Gateway that never changes and is never reused, even after the gateway is deleted. Accepted in place of the gateway ID in any gateway path. */
+	internal_id: string;
 	is_default?: boolean;
 	log_classification?: boolean;
 	log_management?: number | null;
@@ -475,6 +487,8 @@ export type GetResult = {
 	logpush?: boolean;
 	logpush_public_key?: string | null;
 	modified_at: string;
+	/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+	multiprovider_enabled?: boolean;
 	otel?: ({
 		authorization?: string;
 		content_type?: "json" | "protobuf";
@@ -630,6 +644,8 @@ export type ListResult = ({
 	} | null;
 	/** Unique identifier of the AI Gateway within the account. */
 	id: string;
+	/** Identifier of the AI Gateway that never changes and is never reused, even after the gateway is deleted. Accepted in place of the gateway ID in any gateway path. */
+	internal_id: string;
 	is_default?: boolean;
 	log_classification?: boolean;
 	log_management?: number | null;
@@ -637,6 +653,8 @@ export type ListResult = ({
 	logpush?: boolean;
 	logpush_public_key?: string | null;
 	modified_at: string;
+	/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+	multiprovider_enabled?: boolean;
 	otel?: ({
 		authorization?: string;
 		content_type?: "json" | "protobuf";
@@ -768,6 +786,8 @@ export type UpdateRequest = {
 		log_management_strategy?: "STOP_INSERTING" | "DELETE_OLDEST" | null;
 		logpush?: boolean;
 		logpush_public_key?: string | null;
+		/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+		multiprovider_enabled?: boolean;
 		otel?: ({
 			authorization?: string;
 			content_type?: "json" | "protobuf";
@@ -886,6 +906,8 @@ export type UpdateResult = {
 	} | null;
 	/** Unique identifier of the AI Gateway within the account. */
 	id: string;
+	/** Identifier of the AI Gateway that never changes and is never reused, even after the gateway is deleted. Accepted in place of the gateway ID in any gateway path. */
+	internal_id: string;
 	is_default?: boolean;
 	log_classification?: boolean;
 	log_management?: number | null;
@@ -893,6 +915,8 @@ export type UpdateResult = {
 	logpush?: boolean;
 	logpush_public_key?: string | null;
 	modified_at: string;
+	/** Lets requests to a model use every provider that serves it. When off, a model uses only the providers it launched with, so a provider added later receives none of its traffic. A request that names providers (the cf-aig-allowed-providers header or routing.allowedProviders) can still use any of them. Model aliases (custom/) are not restricted. */
+	multiprovider_enabled?: boolean;
 	otel?: ({
 		authorization?: string;
 		content_type?: "json" | "protobuf";

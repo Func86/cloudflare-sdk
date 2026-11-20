@@ -4,6 +4,7 @@ export * as filters from "./filters/index.js";
 export * as interests from "./interests/index.js";
 export * as matches from "./matches/index.js";
 export * as profile from "./profile/index.js";
+export * as topics from "./topics/index.js";
 
 export type DeleteRequest = {
 	account_id: string;

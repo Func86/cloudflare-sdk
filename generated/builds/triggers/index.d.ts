@@ -59,6 +59,25 @@ export type DeleteResult = { [key: string]: unknown } | { [key: string]: unknown
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** Account identifier. */
+	account_id: string;
+	/** Trigger UUID. */
+	trigger_uuid: string;
+	body: $builds.UpdateTriggerRequest;
+};
+export type EditResult = $builds.TriggerResponse;
+/**
+ * Update a build trigger
+ *
+ * Update commands, cache settings, or branch and path filters for a trigger.
+ *
+ * `PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}`
+ *
+ * Token permissions (any one): Workers CI Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type ListRequest = {
 	/** Account identifier. */
 	account_id: string;
@@ -76,22 +95,3 @@ export type ListResult = $builds.TriggerResponse[];
  * Token permissions (any one): Workers CI Write, Workers CI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
-
-export type UpdateRequest = {
-	/** Account identifier. */
-	account_id: string;
-	/** Trigger UUID. */
-	trigger_uuid: string;
-	body: $builds.UpdateTriggerRequest;
-};
-export type UpdateResult = $builds.TriggerResponse;
-/**
- * Update a build trigger
- *
- * Update commands, cache settings, or branch and path filters for a trigger.
- *
- * `PATCH /accounts/{account_id}/builds/triggers/{trigger_uuid}`
- *
- * Token permissions (any one): Workers CI Write.
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

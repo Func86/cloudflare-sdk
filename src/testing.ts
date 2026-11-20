@@ -37,7 +37,10 @@ export class ResultWithInfo<Res> {
  * Answers with a result and its `result_info`, such as one page of several:
  * `withResultInfo(items, { page: 1, total_pages: 2 })`. A next cursor goes where the
  * operation's `page.next` says, such as `{ cursors: { after: 'c2' } }` for `rulesets.list`.
- * Only a result in the Cloudflare envelope has a `result_info`, not text or bytes.
+ * A list paged by number that takes cursors too, as `dns.records.list` does, reads one only
+ * when the request sets it: `{ cursor: 'c2' }` for a request with `cursor`, where its
+ * `page.cursors` say. Only a result in the Cloudflare envelope has a `result_info`, not text
+ * or bytes.
  */
 export function withResultInfo<Res>(result: Res, resultInfo: ResultInfo): ResultWithInfo<Res> {
 	return new ResultWithInfo(result, resultInfo);

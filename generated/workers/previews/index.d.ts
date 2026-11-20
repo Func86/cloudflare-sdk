@@ -26,8 +26,6 @@ export type CreateRequest = {
 		observability: {
 			/** Agents observability settings for the Preview. */
 			agents?: {
-				/** A list of destinations where Agents observability data will be exported to. */
-				destinations?: string[];
 				/** Whether Agents observability is enabled for the Preview. */
 				enabled?: boolean;
 				/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
@@ -203,8 +201,6 @@ export type UpdateRequest = {
 		observability: {
 			/** Agents observability settings for the Preview. */
 			agents?: {
-				/** A list of destinations where Agents observability data will be exported to. */
-				destinations?: string[];
 				/** Whether Agents observability is enabled for the Preview. */
 				enabled?: boolean;
 				/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */

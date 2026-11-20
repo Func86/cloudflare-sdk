@@ -2,7 +2,7 @@
 import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $email_security from "../../_types/email-security.js";
 
-export type BatchRequest = {
+export type BulkDeleteRequest = {
 	/** Account identifier tag. */
 	account_id: string;
 	body: {
@@ -13,7 +13,7 @@ export type BatchRequest = {
 		}[];
 	};
 };
-export type BatchResult = {
+export type BulkDeleteResult = {
 	deletes: {
 		/** Sending domain restriction identifier. */
 		id: $email_security.SendingDomainRestrictionId;
@@ -30,7 +30,7 @@ export type BatchResult = {
  *
  * @beta
  */
-export declare const batch: Operation<BatchRequest, BatchResult>;
+export declare const bulkDelete: Operation<BulkDeleteRequest, BulkDeleteResult>;
 
 export type CreateRequest = {
 	/** Account identifier tag. */

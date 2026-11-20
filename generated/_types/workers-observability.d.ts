@@ -649,15 +649,15 @@ export type UsageLimit = {
 	};
 	/** free: the account has no Workers Paid or Enterprise plan. paid: it has one of them. */
 	plan: "free" | "paid";
-	/** When a limited free account is expected to start keeping events again, at the daily limit reset. Not guaranteed if the account was limited for another reason. null otherwise, including for paid accounts, which are brought back in stages. */
+	/** When a limited free account starts keeping events again, at the daily limit reset. null otherwise, including for paid accounts, which are brought back in stages. */
 	resets_at: string | null;
 	/** Share of the account's events being kept, from 0 to 1. */
 	sample_rate: number;
 	/**
 	 * Whether telemetry is being dropped, and why. More values may be added; treat unknown values like normal.
 	 * - normal: every event is kept.
-	 * - limited: the account keeps only sample_rate of its events, usually because it passed its daily limit. A free account over its limit keeps none until resets_at; a paid one keeps about 10 events a second and is brought back in stages after 00:00 UTC.
-	 * - restricted: events are dropped for another reason. Contact support.
+	 * - limited: the account passed its daily limit and keeps only sample_rate of its events. A free account keeps none until resets_at; a paid one keeps about 10 events a second and is brought back in stages after 00:00 UTC.
+	 * - restricted: the account keeps only sample_rate of its events for another reason. Contact support.
 	 */
 	status: "normal" | "limited" | "restricted";
 };

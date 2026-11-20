@@ -21,6 +21,30 @@ export type CreateResult = $r2.AddCustomDomainResponse;
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
+export type CreateLegacyRequest = {
+	/** Cloudflare account ID that owns the R2 resource. */
+	account_id: string;
+	/** Name of the bucket. */
+	bucket_name: string;
+	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
+	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
+	body: $r2.AddCustomDomainLegacyRequest;
+};
+export type CreateLegacyResult = $r2.CustomDomainLegacyResponse;
+/**
+ * Attach Custom Domain To Bucket (Deprecated)
+ *
+ * Registers a new custom domain for an existing R2 bucket. This endpoint does not change whether the domain is enabled; enable it with [Configure Custom Domain Settings](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/domains/subresources/custom/methods/update/). A domain that was enabled on this bucket and then removed with the deprecated remove endpoint is enabled again as soon as it is attached.
+ *
+ * Deprecated: use [Attach Custom Domain To Bucket](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/domains/subresources/custom/methods/create/) (`POST /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom`) instead. This endpoint will be removed.
+ *
+ *
+ * `POST /accounts/{account_id}/r2/buckets/{bucket_name}/custom_domains`
+ *
+ * @deprecated
+ */
+export declare const createLegacy: Operation<CreateLegacyRequest, CreateLegacyResult>;
+
 export type DeleteRequest = {
 	/** Cloudflare account ID that owns the R2 resource. */
 	account_id: string;
@@ -43,6 +67,33 @@ export type DeleteResult = $r2.RemoveCustomDomainResponse;
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
+
+export type DeleteLegacyRequest = {
+	/** Cloudflare account ID that owns the R2 resource. */
+	account_id: string;
+	/** Name of the bucket. */
+	bucket_name: string;
+	/** Name of the custom domain. */
+	domain: string;
+	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
+	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
+};
+export type DeleteLegacyResult = $r2.CustomDomainLegacyResponse;
+/**
+ * Remove Custom Domain From Bucket (Deprecated)
+ *
+ * Disconnects a custom domain from an R2 bucket and removes its configuration. Unlike the replacement endpoint, it does not reset whether the domain is enabled, so attaching the same domain to this bucket again restores its previous state: a domain that was enabled before removal is enabled again immediately. It succeeds when the account has no such domain, and fails with 409 when the domain is attached to a different bucket.
+ *
+ * Deprecated: use [Remove Custom Domain From Bucket](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/domains/subresources/custom/methods/delete/) (`DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom/{domain}`) instead. This endpoint will be removed.
+ *
+ *
+ * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/custom_domains/{domain}`
+ *
+ * Token permissions (any one): Workers R2 Storage Write.
+ *
+ * @deprecated
+ */
+export declare const deleteLegacy: Operation<DeleteLegacyRequest, DeleteLegacyResult>;
 
 export type GetRequest = {
 	/** Cloudflare account ID that owns the R2 resource. */
@@ -83,6 +134,29 @@ export type ListResult = $r2.ListCustomDomainsResponse;
  * `GET /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom`
  */
 export declare const list: Operation<ListRequest, ListResult>;
+
+export type ListLegacyRequest = {
+	/** Cloudflare account ID that owns the R2 resource. */
+	account_id: string;
+	/** Name of the bucket. */
+	bucket_name: string;
+	/** Jurisdiction where objects in this bucket are guaranteed to be stored. */
+	"cf-r2-jurisdiction"?: "default" | "eu" | "us" | "fedramp" | "fedramp-high";
+};
+export type ListLegacyResult = $r2.ListCustomDomainsLegacyResponse;
+/**
+ * List Custom Domains of Bucket (Deprecated)
+ *
+ * Gets a list of all custom domains registered with an existing R2 bucket. Unlike the replacement endpoint, the response does not say whether each domain is enabled.
+ *
+ * Deprecated: use [List Custom Domains of Bucket](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/domains/subresources/custom/methods/list/) (`GET /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom`) instead. This endpoint will be removed.
+ *
+ *
+ * `GET /accounts/{account_id}/r2/buckets/{bucket_name}/custom_domains`
+ *
+ * @deprecated
+ */
+export declare const listLegacy: Operation<ListLegacyRequest, ListLegacyResult>;
 
 export type UpdateRequest = {
 	/** Cloudflare account ID that owns the R2 resource. */

@@ -90,10 +90,6 @@ export type UpdateRequest = {
 	body: {
 		/** The name of the webhook destination. This will be included in the request body when you receive a webhook notification. */
 		name: $aaa.ComponentsSchemasName;
-		/** Optional secret that will be passed in the `cf-webhook-auth` header when dispatching generic webhook notifications or formatted for supported destinations. Secrets are not returned in any API response body. */
-		secret?: $aaa.Secret;
-		/** The POST endpoint to call when dispatching a notification. */
-		url: $aaa.Url;
 	};
 };
 export type UpdateResult = {
@@ -103,7 +99,7 @@ export type UpdateResult = {
 /**
  * Update a webhook
  *
- * Update a webhook destination.
+ * Update a webhook destination. Only `name` can be updated. `url` and `secret` are immutable; to change them, delete the webhook and create a new one.
  *
  * `PUT /accounts/{account_id}/alerting/v3/destinations/webhooks/{webhook_id}`
  *

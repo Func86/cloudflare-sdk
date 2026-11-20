@@ -12,6 +12,17 @@ export type Pagination =
 			kind: 'page';
 			/** The array's key in `result`; `result` itself is the array when absent. */
 			items?: string;
+			/**
+			 * Cursors that page the list instead, each when the request sets its `param`, even to
+			 * an empty string, as the API refuses a page number beside one. `next` is as for a
+			 * cursor list. One can go back, as DNS records' `prev_cursor` does.
+			 */
+			cursors?: readonly { param: string; next: string }[];
+			/**
+			 * Whether an `offset` the request sets wins over the page number, as the spec says
+			 * of a few lists, so that the offset moves on instead.
+			 */
+			offsetWins?: true;
 	  }
 	| {
 			kind: 'offset';
@@ -595,6 +606,17 @@ function at(value: unknown, path: string): unknown {
 	return current;
 }
 
+/** The cursor `paginate` follows: a cursor list's, or the one a list paged by number takes that the request sets. */
+function cursorOf(pagination: Pagination, request: Fields): { param: string; next: string } | undefined {
+	if (pagination.kind === 'cursor') {
+		return pagination;
+	}
+	if (pagination.kind === 'page') {
+		return pagination.cursors?.find((cursor) => typeof request[cursor.param] === 'string');
+	}
+	return undefined;
+}
+
 /** Whether a JSON body is the Cloudflare envelope, which can leave out an empty `result`. */
 function isEnvelope(body: unknown): body is Fields {
 	return isRecord(body) && ('result' in body || 'success' in body);
@@ -845,6 +867,10 @@ export function clientWith(transport: Transport): Client {
 
 	async function* items(operation: PagedOperation, request: Fields, call: RequestOptions | undefined) {
 		const pagination = operation.page;
+		const cursor = cursorOf(pagination, request);
+		const byOffset =
+			pagination.kind === 'offset' ||
+			(pagination.kind === 'page' && pagination.offsetWins === true && typeof request['offset'] === 'number');
 		let fields = request;
 		// A few operations declare `page` as a string. Their "all" isn't a number, and has no next page.
 		let number = Number(request['page'] ?? 1);
@@ -861,15 +887,15 @@ export function clientWith(transport: Transport): Client {
 				yield* current.items;
 				return;
 			}
-			if (pagination.kind === 'cursor') {
+			if (cursor !== undefined) {
 				// Only the cursor ends the list. An empty page can have more after it: KV
 				// skips deleted keys, and R2 lists keys grouped by a delimiter elsewhere.
 				yield* current.items;
-				const next = at(current.resultInfo, pagination.next);
-				if (typeof next !== 'string' || next === '' || next === fields[pagination.param]) {
+				const next = at(current.resultInfo, cursor.next);
+				if (typeof next !== 'string' || next === '' || next === fields[cursor.param]) {
 					return;
 				}
-				fields = { ...fields, [pagination.param]: next };
+				fields = { ...fields, [cursor.param]: next };
 				continue;
 			}
 			if (current.items.length === 0) {
@@ -879,8 +905,7 @@ export function clientWith(transport: Transport): Client {
 			// A total ends the list, and two pages alike can be real data. Without one, an
 			// endpoint that ignores the page parameter would repeat itself forever. A short
 			// page doesn't end it either, as the API may cap the size asked for.
-			const counted =
-				typeof info?.total_count === 'number' || (pagination.kind === 'page' && typeof info?.total_pages === 'number');
+			const counted = typeof info?.total_count === 'number' || (!byOffset && typeof info?.total_pages === 'number');
 			if (!counted) {
 				const fingerprint = JSON.stringify(current.items);
 				if (fingerprint === previous) {
@@ -890,7 +915,7 @@ export function clientWith(transport: Transport): Client {
 			}
 			yield* current.items;
 			seen += current.items.length;
-			if (pagination.kind === 'offset') {
+			if (byOffset) {
 				offset += current.items.length;
 				if (typeof info?.total_count === 'number' && offset >= info.total_count) {
 					return;

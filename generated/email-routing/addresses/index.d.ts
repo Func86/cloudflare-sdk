@@ -38,6 +38,25 @@ export type DeleteResult = $email.Addresses;
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** Destination address identifier. */
+	destination_address_identifier: string;
+	body: $email.UpdateDestinationAddressProperties;
+};
+export type EditResult = $email.Addresses;
+/**
+ * Update destination address
+ *
+ * Updates the status of a specific destination address.
+ *
+ * `PATCH /accounts/{account_id}/email/routing/addresses/{destination_address_identifier}`
+ *
+ * Token permissions (any one): Email Routing Addresses Write.
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** Identifier. */
 	account_id: string;
@@ -80,22 +99,3 @@ export type ListItem = RootItem<ListResult>;
  * Token permissions (any one): Email Routing Addresses Write, Email Routing Addresses Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
-
-export type UpdateRequest = {
-	/** Identifier. */
-	account_id: string;
-	/** Destination address identifier. */
-	destination_address_identifier: string;
-	body: $email.UpdateDestinationAddressProperties;
-};
-export type UpdateResult = $email.Addresses;
-/**
- * Update destination address
- *
- * Updates the status of a specific destination address.
- *
- * `PATCH /accounts/{account_id}/email/routing/addresses/{destination_address_identifier}`
- *
- * Token permissions (any one): Email Routing Addresses Write.
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -6,7 +6,7 @@ export type GetRequest = {
 	/** Identifier. */
 	zone_id: string;
 };
-export type GetResult = $google_tag_gateway.GoogleTagGatewayConfig;
+export type GetResult = $google_tag_gateway.GoogleTagGatewayConfigResponse;
 /**
  * Get Google Tag Gateway configuration
  *
@@ -23,7 +23,7 @@ export type UpdateRequest = {
 	zone_id: string;
 	body: $google_tag_gateway.GoogleTagGatewayConfig;
 };
-export type UpdateResult = $google_tag_gateway.GoogleTagGatewayConfig;
+export type UpdateResult = $google_tag_gateway.GoogleTagGatewayConfigResponse;
 /**
  * Update Google Tag Gateway configuration
  *
