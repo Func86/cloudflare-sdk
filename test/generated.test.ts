@@ -259,6 +259,17 @@ test('an account-or-zone operation takes account_id or zone_id, and its declarat
 	assert.ok(marked > 100);
 });
 
+test("tags run against an account or a zone, and an Access policy's tags send its application", async () => {
+	const { get } = (await import('../generated/tags/resources/index.js')) as unknown as { get: Operation<Record<string, unknown>, unknown> };
+	const { cf, urls } = client(() => Response.json({ success: true, errors: [], result: {} }));
+	await cf.send(get, { zone_id: 'z', resource_type: 'access_application_policy', resource_id: 'p', access_application_id: 'app' });
+	await cf.send(get, { account_id: 'a', resource_type: 'worker_version', resource_id: 'v', worker_id: 'w' });
+	assert.deepEqual(urls, [
+		'https://api.cloudflare.com/client/v4/zones/z/tags?resource_id=p&resource_type=access_application_policy&access_application_id=app',
+		'https://api.cloudflare.com/client/v4/accounts/a/tags?resource_id=v&resource_type=worker_version&worker_id=w',
+	]);
+});
+
 test('names the spec gets wrong are renamed, so every name passes the naming rules', () => {
 	// The official SDK's names, for an `account-` group on routes that serve zones too.
 	for (const id of ['logpush.jobs.list', 'logpush.validate.destination', 'logpush.validate.destinationExists', 'logpush.ownership.validate', 'waiting-rooms.list', 'custom-pages.list']) {

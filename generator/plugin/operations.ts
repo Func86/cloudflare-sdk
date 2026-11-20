@@ -2,11 +2,11 @@
  * Reads what the output needs from Forge's methods: where each field is sent, the
  * Cloudflare envelope, and how a list pages.
  */
-import type { Field, Method, Type } from '@cloudflare/forge/plugin';
+import type { Field, Method, Model, ModelType, Type } from '@cloudflare/forge/plugin';
 import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
 import { afterAccountOrZone } from '../../src/routes.ts';
-import { DRY_RUNS, PAGINATION_OVERRIDES, REQUEST_VARIANTS, type RequestVariant } from '../patches.ts';
+import { DRY_RUNS, type EnumValue, PAGINATION_OVERRIDES, REQUEST_VARIANTS, type RequestVariant } from '../patches.ts';
 import { EXCLUSIVE_BODY, LITERAL_SLASHES } from '../spec.ts';
 
 /**
@@ -614,62 +614,143 @@ export function readDryRun(key: string, params: readonly Param[], response: Reso
 	}
 	const dryRun = params.find((param) => param.in === 'query' && param.name === 'dry_run');
 	const flag = dryRun?.type === undefined ? undefined : strip(dryRun.type);
-	const nullable = (type: Type): boolean => {
-		const resolved = type.kind === 'model' ? type.model.type : type;
-		return resolved.kind === 'union' && resolved.members.some(isNull);
-	};
-	if (flag?.kind !== 'scalar' || flag.scalar !== 'boolean' || response.kind !== 'envelope' || !response.types.some(nullable)) {
+	if (flag?.kind !== 'scalar' || flag.scalar !== 'boolean' || response.kind !== 'envelope' || !response.types.some(holdsNull)) {
 		throw new Error(`The dry run of ${key} is stale, so check it and remove it from DRY_RUNS: it has no boolean dry_run, or no null result`);
 	}
 	return true;
+}
+
+/** Whether a type can be `null`, as a member of a union or through a model. */
+export function holdsNull(type: Type): boolean {
+	if (type.kind === 'model') {
+		return holdsNull(type.model.type);
+	}
+	return isNull(type) || (type.kind === 'union' && type.members.some(holdsNull));
+}
+
+/** The values of an enum, or of a union of enums, as a `oneOf` of them is. */
+function enumValues(type: Type): readonly EnumValue[] | undefined {
+	const resolved = strip(type);
+	if (resolved.kind === 'enum') {
+		return resolved.values;
+	}
+	if (resolved.kind !== 'union') {
+		return undefined;
+	}
+	const lists = resolved.members.filter((member) => !isNull(member)).map(enumValues);
+	return lists.some((list) => list === undefined) ? undefined : [...new Set(lists.flatMap((list) => list ?? []))];
+}
+
+/** What `readVariants` checks the variants against. */
+export interface VariantContext {
+	params: readonly Param[];
+	accountOrZone: boolean;
+	body: ResolvedBody | undefined;
+	/** The model of the spec's schema with this name, if Forge has one. */
+	model: (schemaName: string) => Model | undefined;
+}
+
+/** The parameters a variant takes. */
+export function takenBy(variant: RequestVariant): readonly string[] {
+	return variant.takes ?? [];
+}
+
+/** The parameters any of the variants takes, which are their group. */
+export function groupOf(variants: readonly RequestVariant[] | undefined): Set<string> {
+	return new Set(variants?.flatMap(takenBy));
+}
+
+/** The alternative of a JSON body that the spec's schema of this name is. */
+export function bodyAlternative(body: ResolvedBody | undefined, schemaName: string): Model | undefined {
+	if (body?.kind !== 'json' || body.type === undefined) {
+		return undefined;
+	}
+	const members = alternativesOf(body.type)?.members ?? [];
+	return members.find((member): member is ModelType => member.kind === 'model' && member.model.schemaName === schemaName)?.model;
 }
 
 /**
  * The variants `REQUEST_VARIANTS` gives the operation, if any, and stops generation when one
  * names a parameter the operation doesn't take or one named as a template, leaves out one it
  * requires, requires one it doesn't take, or limits one that isn't an enum, to no values or to a
- * value it doesn't have. `prepare` checks that each is generated.
+ * value or model it doesn't have. A scope needs an account-or-zone route, with variants for both,
+ * and a body one of the operation's body's alternatives, not an exclusive body; each needs every
+ * variant to have one.
+ * `prepare` checks that each is generated.
  */
 export function readVariants(
 	key: string,
-	params: readonly Param[],
+	context: VariantContext,
 	variants: readonly RequestVariant[] | undefined = REQUEST_VARIANTS[key]?.variants,
 ): readonly RequestVariant[] | undefined {
 	if (variants === undefined) {
 		return undefined;
 	}
-	const query = new Map(params.filter((param) => param.in === 'query').map((param) => [param.name, param]));
+	const query = new Map(context.params.filter((param) => param.in === 'query').map((param) => [param.name, param]));
 	const problems = new Set<string>();
 	if (variants.length < 2) {
 		problems.add('it has fewer than 2 variants');
 	}
-	const group = new Set(variants.flatMap((variant) => variant.takes));
+	const group = groupOf(variants);
 	// A variant would forbid the template's name, not the keys it matches.
 	for (const name of [...group].filter((name) => /<[^>]+>/.test(name))) {
 		problems.add(`${name} is a template, whose keys a variant can't forbid`);
 	}
+	const scopes = new Set(variants.map((variant) => variant.scope));
+	if (scopes.size > 1 && scopes.has(undefined)) {
+		problems.add('some variants have a scope and others not');
+	} else if (!scopes.has(undefined) && !context.accountOrZone) {
+		problems.add("its variants have a scope, but its route isn't an account-or-zone route");
+	} else if (!scopes.has(undefined) && scopes.size < 2) {
+		problems.add('its variants run against the account or the zone only');
+	}
+	const bodies = variants.filter((variant) => variant.body !== undefined).length;
+	if (bodies > 0 && bodies < variants.length) {
+		problems.add('some variants have a body and others not');
+	}
+	// A variant prints its alternative alone, without the `?: never` that `exclusiveUnion` adds.
+	if (bodies > 0 && context.body?.exclusive === true) {
+		problems.add('its variants have bodies, which would drop the ?: never of its exclusive body');
+	}
 	for (const variant of variants) {
-		for (const name of [...group].filter((name) => query.get(name)?.required === true && !variant.takes.includes(name))) {
+		const takes = takenBy(variant);
+		for (const name of [...group].filter((name) => query.get(name)?.required === true && !takes.includes(name))) {
 			problems.add(`a variant leaves out ${name}, which the operation requires`);
 		}
-		for (const name of variant.takes.filter((taken) => !query.has(taken))) {
+		for (const name of takes.filter((taken) => !query.has(taken))) {
 			problems.add(`it has no ${name} parameter`);
 		}
-		for (const name of (variant.requires ?? []).filter((required) => !variant.takes.includes(required))) {
+		for (const name of (variant.requires ?? []).filter((required) => !takes.includes(required))) {
 			problems.add(`a variant requires ${name} without taking it`);
+		}
+		if (variant.body !== undefined && bodyAlternative(context.body, variant.body) === undefined) {
+			problems.add(`its JSON body has no alternative ${variant.body}`);
 		}
 		for (const [name, values] of Object.entries(variant.values ?? {})) {
 			const type = query.get(name)?.type;
-			const resolved = type === undefined ? undefined : strip(type);
-			if (!variant.takes.includes(name) || resolved?.kind !== 'enum') {
+			const all = type === undefined ? undefined : enumValues(type);
+			if (!takes.includes(name) || all === undefined) {
 				problems.add(`a variant limits ${name}, which it doesn't take as an enum`);
 				continue;
+			}
+			let within = all;
+			if ('model' in values && values.model !== undefined) {
+				const model = context.model(values.model);
+				const limit = model === undefined ? undefined : enumValues(model.type);
+				if (limit === undefined) {
+					problems.add(`a variant limits ${name} to ${values.model}, which isn't an enum model`);
+					continue;
+				}
+				for (const value of limit.filter((value) => !all.includes(value))) {
+					problems.add(`${name} has no value ${JSON.stringify(value)} of ${values.model}`);
+				}
+				within = limit;
 			}
 			const listed = 'only' in values ? values.only : values.not;
 			if (listed.length === 0) {
 				problems.add(`a variant lists no values of ${name}`);
 			}
-			for (const value of listed.filter((value) => !resolved.values.includes(value))) {
+			for (const value of listed.filter((value) => !within.includes(value))) {
 				problems.add(`${name} has no value ${JSON.stringify(value)}`);
 			}
 		}
@@ -684,12 +765,12 @@ export function readVariants(
 
 /** The parameters of the variants' group that no variant taking `name` also takes. */
 function excludedBy(variants: readonly RequestVariant[], name: string): string[] | undefined {
-	const taking = variants.filter((variant) => variant.takes.includes(name));
+	const taking = variants.filter((variant) => takenBy(variant).includes(name));
 	if (taking.length === 0) {
 		return undefined;
 	}
-	const allowed = new Set(taking.flatMap((variant) => variant.takes));
-	const excludes = [...new Set(variants.flatMap((variant) => variant.takes))].filter((other) => !allowed.has(other));
+	const allowed = groupOf(taking);
+	const excludes = [...groupOf(variants)].filter((other) => !allowed.has(other));
 	return excludes.length === 0 ? undefined : excludes;
 }
 
@@ -735,7 +816,7 @@ function deprecationOf(method: Method): string | undefined {
 		.join(' ');
 }
 
-export function resolveOperation(method: Method, report: Report): ResolvedOperation {
+export function resolveOperation(method: Method, report: Report, model: VariantContext['model'] = () => undefined): ResolvedOperation {
 	const key = `${method.httpMethod} ${method.path}`;
 	const resolved = resolveParams(method);
 	const accountOrZone = readAccountOrZone(key, method.path, resolved.params);
@@ -743,7 +824,8 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		? resolved.params.filter((param) => param.name !== 'account_or_zone' && param.name !== 'account_or_zone_id')
 		: resolved.params;
 	const response = resolveResponse(method);
-	const variants = readVariants(key, params);
+	const body = resolveBody(method);
+	const variants = readVariants(key, { params, accountOrZone, body, model });
 	const page = resolvePagination(method, key, params, response, report);
 	const permissions = method.extension('x-api-token-group');
 	const slashes = method.extension(LITERAL_SLASHES);
@@ -762,7 +844,7 @@ export function resolveOperation(method: Method, report: Report): ResolvedOperat
 		dryRun: readDryRun(key, params, response),
 		params,
 		joined: resolved.joined,
-		body: resolveBody(method),
+		body,
 		response,
 		page: page === undefined ? undefined : withExcludes(key, page, variants),
 		variants,

@@ -30,9 +30,14 @@ export function pointerGet(doc: unknown, pointer: string): unknown {
 	return current;
 }
 
+/** The JSON pointer to a route's path item, such as `/paths/~1zones` for `/zones`. */
+export function pathPointer(route: string): string {
+	return `/paths/${route.replaceAll('~', '~0').replaceAll('/', '~1')}`;
+}
+
 /** The JSON pointer to an operation, such as `/paths/~1zones/get` for `GET /zones`. */
 export function operationPointer(route: string, verb: string): string {
-	return `/paths/${route.replaceAll('~', '~0').replaceAll('/', '~1')}/${verb}`;
+	return `${pathPointer(route)}/${verb}`;
 }
 
 export class Spec {

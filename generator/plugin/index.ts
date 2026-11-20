@@ -6,10 +6,22 @@
  * Only types come from Forge here, so this builds with Forge's bundler without
  * pulling its runtime in. `generator/entry.ts` is the plugin's entry module.
  */
-import type { File, Forge, Group, Type } from '@cloudflare/forge/plugin';
+import type { File, Forge, Group, Model, Type } from '@cloudflare/forge/plugin';
 import { afterAccountOrZone } from '../../src/routes.ts';
 import { namingProblems } from './names.ts';
-import { alternativesOf, fieldNames, type Param, type Report, type ResolvedOperation, resolveOperation } from './operations.ts';
+import {
+	alternativesOf,
+	bodyAlternative,
+	fieldNames,
+	groupOf,
+	holdsNull,
+	type Param,
+	type Report,
+	type ResolvedBody,
+	type ResolvedOperation,
+	resolveOperation,
+	takenBy,
+} from './operations.ts';
 import { type EnumValue, EXCLUSIVE_MODELS, type RequestVariant } from '../patches.ts';
 import { jsdoc, type Mode, Models, namespaceOf, parenthesize, Printer, propertyKey } from './types.ts';
 
@@ -123,27 +135,57 @@ function paramField(param: Param, type: string, required: boolean): string {
 	return `${jsdoc(param.description, '\t')}\t${fieldKey(param.name, required)}: ${type};\n`;
 }
 
+/** The fields a variant that runs against the account or the zone takes, as `AccountOrZone` has them. */
+const SCOPES = {
+	account: '\t/** The account to run against. */\n\taccount_id: string;\n\tzone_id?: never;\n',
+	zone: '\t/** The zone to run against. */\n\tzone_id: string;\n\taccount_id?: never;\n',
+} as const;
+
 /**
  * The query parameters that variants govern, as a union of the variants, in the operation's
  * order. Each takes its own parameters, limited to the values it says, and gives the group's
- * others `?: never`, as `exclusiveUnion` does for a body.
+ * others `?: never`, as `exclusiveUnion` does for a body. A variant with a scope takes its account
+ * or zone first, and one with a body takes it last.
  */
-export function variantUnion(variants: readonly RequestVariant[], params: readonly Param[], printer: Printer): string {
-	const group = new Set(variants.flatMap((variant) => variant.takes));
+export function variantUnion(
+	variants: readonly RequestVariant[],
+	params: readonly Param[],
+	printer: Printer,
+	body?: ResolvedBody,
+): string {
+	const group = groupOf(variants);
 	const governed = params.filter((param) => group.has(param.name));
+	const model = (schemaName: string, found: Model | undefined): string => {
+		if (found === undefined) {
+			throw new Error(`No model is the spec's schema ${schemaName}, which a request variant names`);
+		}
+		return printer.type({ kind: 'model', model: found }, 'write', '\t');
+	};
 	const printed = variants.map((variant) => {
-		let out = '';
-		for (const param of governed.filter((param) => variant.takes.includes(param.name))) {
+		const takes = takenBy(variant);
+		let out = variant.scope === undefined ? '' : SCOPES[variant.scope];
+		for (const param of governed.filter((param) => takes.includes(param.name))) {
 			const limit = variant.values?.[param.name];
 			const values = (list: readonly EnumValue[]): string => list.map((value) => JSON.stringify(value)).join(' | ');
 			let type = paramType(param, printer);
-			if (limit !== undefined) {
-				type = 'only' in limit ? values(limit.only) : `Exclude<${type}, ${values(limit.not)}>`;
+			if (limit !== undefined && 'only' in limit) {
+				type = values(limit.only);
+			} else if (limit?.model !== undefined) {
+				// The model's enum alone, with the null the parameter's own type can hold.
+				const excluded = `Exclude<${model(limit.model, printer.models.named(limit.model))}, ${values(limit.not)}>`;
+				type = param.type !== undefined && holdsNull(param.type) ? `${excluded} | null` : excluded;
+			} else if (limit !== undefined) {
+				type = `Exclude<${type}, ${values(limit.not)}>`;
 			}
 			out += paramField(param, type, param.required || variant.requires?.includes(param.name) === true);
 		}
-		for (const param of governed.filter((param) => !variant.takes.includes(param.name))) {
+		for (const param of governed.filter((param) => !takes.includes(param.name))) {
 			out += `\t${propertyKey(param.name)}?: never;\n`;
+		}
+		if (variant.body !== undefined) {
+			// As a body of the operation's own can be sent as a form, where the operation also takes one.
+			const form = body?.formAlternative === true ? 'FormData | ' : '';
+			out += `${jsdoc(body?.description, '\t')}\tbody${body?.required === false ? '?' : ''}: ${form}${model(variant.body, bodyAlternative(body, variant.body))};\n`;
 		}
 		return `{\n${out}}`;
 	});
@@ -151,13 +193,14 @@ export function variantUnion(variants: readonly RequestVariant[], params: readon
 }
 
 function requestType(operation: ResolvedOperation, printer: Printer): string {
-	const group = new Set(operation.variants?.flatMap((variant) => variant.takes));
+	const { variants, body } = operation;
+	const group = groupOf(variants);
 	let out = '';
 	for (const param of operation.params.filter((param) => !group.has(param.name))) {
 		out += paramField(param, paramType(param, printer), param.required);
 	}
-	const { body } = operation;
-	if (body) {
+	// Each variant takes its own body, where they have one.
+	if (body && !variants?.some((variant) => variant.body !== undefined)) {
 		out += jsdoc(body.description, '\t');
 		let type: string;
 		if (body.kind === 'raw') {
@@ -173,11 +216,16 @@ function requestType(operation: ResolvedOperation, printer: Printer): string {
 		out += `\tbody${body.required ? '' : '?'}: ${type};\n`;
 	}
 	const parts = [
-		...(operation.accountOrZone ? ['AccountOrZone'] : []),
+		...(takesAccountOrZone(operation) ? ['AccountOrZone'] : []),
 		...(out === '' ? [] : [`{\n${out}}`]),
-		...(operation.variants === undefined ? [] : [`(${variantUnion(operation.variants, operation.params, printer)})`]),
+		...(variants === undefined ? [] : [`(${variantUnion(variants, operation.params, printer, body)})`]),
 	];
 	return parts.length === 0 ? '{}' : parts.join(' & ');
+}
+
+/** Whether the request type takes `AccountOrZone`, which variants that each have a scope replace. */
+function takesAccountOrZone(operation: ResolvedOperation): boolean {
+	return operation.accountOrZone && !operation.variants?.some((variant) => variant.scope !== undefined);
 }
 
 /**
@@ -245,7 +293,7 @@ function groupFiles(group: Group, operations: readonly ResolvedOperation[], mode
 				? `export const ${name} = ${literal};\n`
 				: `const ${local} = ${literal};\nexport { ${local} as ${name} };\n`;
 
-		if (operation.accountOrZone) {
+		if (takesAccountOrZone(operation)) {
 			runtime.add('AccountOrZone');
 		}
 		declarations += `\nexport type ${typeName}Request = ${requestType(operation, printer)};\n`;
@@ -367,7 +415,7 @@ export function generateFiles(forge: Forge): File[] {
 	const files: File[] = [];
 	const manifest: unknown[] = [];
 	for (const group of namedGroups(forge)) {
-		const operations = group.methods.map((method) => resolveOperation(method, report));
+		const operations = group.methods.map((method) => resolveOperation(method, report, (name) => models.named(name)));
 		const groups = group.path.map((name) => name.kebab());
 		group.methods.forEach((method, index) => {
 			const operation = operations[index]!;

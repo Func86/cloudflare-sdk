@@ -40,7 +40,12 @@ import type { Project } from '@libreflare/cloudflare-sdk/types/pages';
 import type { Deployment, DeploymentInput, VersionInput, VersionPatchInput } from '@libreflare/cloudflare-sdk/types/workers';
 import type { TempAccessCredsRequest } from '@libreflare/cloudflare-sdk/types/r2';
 import type { ListRequest as DnsRecordsRequest } from '@libreflare/cloudflare-sdk/dns/records';
-import type { DeleteRequest as DeleteTagsRequest, GetRequest as GetTagsRequest } from '@libreflare/cloudflare-sdk/tags/resources';
+import type {
+	DeleteRequest as DeleteTagsRequest,
+	GetRequest as GetTagsRequest,
+	UpdateRequest as UpdateTagsRequest,
+} from '@libreflare/cloudflare-sdk/tags/resources';
+import type { AccountResourceType } from '@libreflare/cloudflare-sdk/types/resource-tagging';
 import { list as listAnnotations, type ListRequest as AnnotationsRequest } from '@libreflare/cloudflare-sdk/radar/annotations';
 import type { ListRequest as CustomHostnamesRequest } from '@libreflare/cloudflare-sdk/custom-hostnames';
 import type { ListRequest as ScimUsersRequest } from '@libreflare/cloudflare-sdk/zero-trust/identity-providers/scim/users';
@@ -435,6 +440,43 @@ export const workerTags: DeleteTagsRequest = { ...account, resource_type: 'worke
 export const versionWithout: GetTagsRequest = { ...account, resource_type: 'worker_version', resource_id: 'v' };
 // @ts-expect-error A worker with one.
 export const workerWith: DeleteTagsRequest = { ...account, resource_type: 'worker', resource_id: 'w', worker_id: 'w' };
+// A type of the account's is narrowed first, to send a worker_id with a worker version only.
+export function accountTags(resource_type: AccountResourceType, worker_id: string): GetTagsRequest {
+	return resource_type === 'worker_version'
+		? { ...account, resource_type, resource_id: 'r', worker_id }
+		: { ...account, resource_type, resource_id: 'r' };
+}
+
+// A scope typed as AccountOrZone is narrowed first, as the account and the zone take their own types.
+export function scopedTags(scope: AccountOrZone, resource_id: string): GetTagsRequest {
+	return scope.zone_id === undefined
+		? { ...scope, resource_type: 'worker', resource_id }
+		: { ...scope, resource_type: 'zone', resource_id };
+}
+// @ts-expect-error A scope that can be the zone, with an account's type.
+export const unnarrowed = (scope: AccountOrZone): GetTagsRequest => ({ ...scope, resource_type: 'worker', resource_id: 'r' });
+
+// A zone's resources are tagged with its zone_id, and each route refuses the other's types.
+export const recordTags: GetTagsRequest = { ...zone, resource_type: 'dns_record', resource_id: 'r' };
+// @ts-expect-error An account's type on the zone.
+export const workerOnZone: GetTagsRequest = { ...zone, resource_type: 'worker', resource_id: 'w' };
+// @ts-expect-error A zone's type on the account.
+export const recordOnAccount: GetTagsRequest = { ...account, resource_type: 'dns_record', resource_id: 'r' };
+// @ts-expect-error A worker version on the zone.
+export const versionOnZone: GetTagsRequest = { ...zone, resource_type: 'worker_version', resource_id: 'v', worker_id: 'w' };
+// An Access policy's tags need its application's ID, which no other resource takes.
+export const policyTags: DeleteTagsRequest = { ...zone, resource_type: 'access_application_policy', resource_id: 'p', access_application_id: 'app' };
+// @ts-expect-error A policy without its application.
+export const policyWithout: DeleteTagsRequest = { ...zone, resource_type: 'access_application_policy', resource_id: 'p' };
+// @ts-expect-error A record with one.
+export const recordWith: GetTagsRequest = { ...zone, resource_type: 'dns_record', resource_id: 'r', access_application_id: 'app' };
+// Setting tags takes the account's body with account_id, and the zone's with zone_id.
+export const setRecordTags: UpdateTagsRequest = { ...zone, body: { resource_type: 'dns_record', resource_id: 'r', tags: { env: 'prod' } } };
+export const setWorkerTags: UpdateTagsRequest = { ...account, body: { resource_type: 'worker', resource_id: 'w', tags: { env: 'prod' } } };
+// @ts-expect-error An account's body on the zone.
+export const workerBodyOnZone: UpdateTagsRequest = { ...zone, body: { resource_type: 'worker', resource_id: 'w', tags: {} } };
+// @ts-expect-error A zone's body on the account.
+export const recordBodyOnAccount: UpdateTagsRequest = { ...account, body: { resource_type: 'dns_record', resource_id: 'r', tags: {} } };
 
 // A mock client is keyed by the operation imported, and each handler is typed from it.
 export const mocked = createMockClient()

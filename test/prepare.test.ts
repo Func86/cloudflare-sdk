@@ -126,11 +126,65 @@ test('the Domain Connect patch stops applying once its routes move or declare th
 		'/v2/domainTemplates/providers/{provider}/services/{service}': { get: op() },
 		'/v1/verify': { post: op() },
 	});
-	assert.equal(patch.applies(paths()), true);
+	const doc = { paths: {}, components: { schemas: {} } } as OpenApiDocument;
+	assert.equal(patch.applies(paths(), doc), true);
 	const servers = [{ url: 'https://api.cloudflare.com/client/v4/dns/domainconnect' }];
-	assert.equal(patch.applies(paths({ servers })), false);
-	assert.equal(patch.applies(paths({ get: { ...op(), servers } })), false);
-	assert.equal(patch.applies({ ...paths(), '/dns/domainconnect/v2/verify': { post: op() } }), false);
+	assert.equal(patch.applies(paths({ servers }), doc), false);
+	assert.equal(patch.applies(paths({ get: { ...op(), servers } }), doc), false);
+	assert.equal(patch.applies({ ...paths(), '/dns/domainconnect/v2/verify': { post: op() } }, doc), false);
+});
+
+test('the tags patches read the query parameters an operation takes, however the spec declares them', () => {
+	const patch = (id: string) => SPEC_PATCHES.find((found) => found.id === `resource-tagging-${id}`)!;
+	const application = { name: 'access_application_id', in: 'query', schema: { type: 'string' } };
+	const worker = { name: 'worker_id', in: 'query', schema: { type: 'string' } };
+	const typed = { name: 'resource_type', in: 'query', schema: { $ref: '#/components/schemas/resource-tagging_account_resource_type' } };
+	const parameters = { application, chained: { $ref: '#/components/parameters/application' }, worker, typed };
+	const doc = { paths: {}, components: { schemas: {}, parameters } } as unknown as OpenApiDocument;
+	const ref = (name: string): Schema => ({ $ref: `#/components/parameters/${name}` });
+	const item = (own: Schema[], shared?: Schema[]): Schema => ({
+		get: { parameters: own },
+		delete: { parameters: structuredClone(own) },
+		...(shared === undefined ? {} : { parameters: shared }),
+	});
+	// The spec declares access_application_id: inline, at the end of a chain of $refs, or on the path item.
+	const adding = patch('get-access-application-id');
+	assert.equal(adding.applies(item([{ name: 'resource_id', in: 'query' }, worker]), doc), true);
+	assert.equal(adding.applies(item([application, worker]), doc), false);
+	assert.equal(adding.applies(item([ref('chained'), worker]), doc), false);
+	assert.equal(adding.applies(item([worker], [ref('application')]), doc), false);
+	// A header of that name isn't the query parameter.
+	assert.equal(adding.applies(item([{ ...application, in: 'header' }, worker]), doc), true);
+	// Without the operation, the path item's worker_id doesn't make the patch apply, so it's reported as stale.
+	const withoutGet = item([], [worker]);
+	delete withoutGet['get'];
+	assert.equal(adding.applies(withoutGet, doc), false);
+	assert.equal(patch('get-zone-types').applies(withoutGet, doc), false);
+	// It's missing whether or not worker_id is there, and goes last without it.
+	const alone = item([{ name: 'resource_id', in: 'query' }]);
+	assert.equal(adding.applies(alone, doc), true);
+	adding.apply(alone, doc);
+	assert.deepEqual(
+		(alone['get']['parameters'] as Schema[]).map((param) => param['name']),
+		['resource_id', 'access_application_id'],
+	);
+	// It goes after worker_id, even one given by its $ref.
+	const added = item([ref('worker'), { name: 'resource_id', in: 'query' }]);
+	adding.apply(added, doc);
+	assert.deepEqual(
+		(added['get']['parameters'] as Schema[]).map((param) => param['name'] ?? param['$ref']),
+		['#/components/parameters/worker', 'access_application_id', 'resource_id'],
+	);
+	// A resource_type the two operations share, by its $ref or on the path item, is patched as a copy for each.
+	for (const shared of [item([ref('typed')]), item([], [ref('typed')])]) {
+		for (const verb of ['delete', 'get']) {
+			const zoneTypes = patch(`${verb}-zone-types`);
+			assert.equal(zoneTypes.applies(shared, doc), true, verb);
+			zoneTypes.apply(shared, doc);
+			assert.equal(zoneTypes.applies(shared, doc), false, verb);
+		}
+		assert.deepEqual(typed.schema, { $ref: '#/components/schemas/resource-tagging_account_resource_type' });
+	}
 });
 
 test('a property is nullable when one allOf branch allows null and the intersection would not', () => {

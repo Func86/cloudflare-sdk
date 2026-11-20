@@ -11,7 +11,9 @@ import {
 	readAccountOrZone,
 	readDryRun,
 	readVariants,
+	type ResolvedBody,
 	type ResolvedResponse,
+	type VariantContext,
 	withExcludes,
 } from '../generator/plugin/operations.ts';
 import type { EnumValue, RequestVariant } from '../generator/patches.ts';
@@ -229,35 +231,87 @@ test('an exclusive body reads its alternatives through models, and keeps null as
 test('request variants name parameters the operation takes, and values its enums have', () => {
 	const string: Type = { kind: 'scalar', scalar: 'string' };
 	const query = (name: string, type: Type = string, required = false): Param => ({ name, in: 'query', required, description: '', type });
+	const on = (params: readonly Param[], more: Partial<VariantContext> = {}): VariantContext => ({
+		params,
+		accountOrZone: false,
+		body: undefined,
+		model: () => undefined,
+		...more,
+	});
 	const dns = 'GET /zones/{zone_id}/dns_records';
 	const cursors = [query('page'), query('cursor'), query('prev_cursor')];
-	assert.equal(readVariants('GET /unlisted', cursors), undefined);
-	assert.equal(readVariants(dns, cursors)?.length, 3);
-	assert.throws(() => readVariants(dns, cursors.slice(0, 2)), /dns_records are stale.*no prev_cursor parameter/);
-	const tags = 'GET /{account_or_zone}/{account_or_zone_id}/tags';
+	assert.equal(readVariants('GET /unlisted', on(cursors)), undefined);
+	assert.equal(readVariants(dns, on(cursors))?.length, 3);
+	assert.throws(() => readVariants(dns, on(cursors.slice(0, 2))), /dns_records are stale.*no prev_cursor parameter/);
 	const types = (...values: EnumValue[]): Type => ({ kind: 'enum', values }) as unknown as Type;
-	const tagged = (type: Type, workerRequired = false) => [query('resource_type', type, true), query('worker_id', string, workerRequired)];
-	assert.equal(readVariants(tags, tagged(types('worker', 'worker_version')))?.length, 2);
-	assert.throws(() => readVariants(tags, tagged(types('worker'))), /resource_type has no value "worker_version"/);
-	assert.throws(() => readVariants(tags, tagged(string)), /limits resource_type, which it doesn't take as an enum/);
+	const pair = (name: string, type: Type, required = false) => [query(name, type), query('id', string, required)];
+	const limited = (values: NonNullable<RequestVariant['values']>): RequestVariant[] => [{ takes: ['kind'], values }, { takes: ['id'] }];
+	const key = 'GET /a';
+	assert.throws(() => readVariants(key, on(pair('kind', types('a'))), limited({ kind: { only: ['b'] } })), /kind has no value "b"/);
+	assert.throws(() => readVariants(key, on(pair('kind', string)), limited({ kind: { only: ['a'] } })), /limits kind, which it doesn't take as an enum/);
 	// A variant can't leave out a parameter the operation requires.
-	assert.throws(() => readVariants(tags, tagged(types('worker', 'worker_version'), true)), /leaves out worker_id/);
-	const limited = (values: NonNullable<RequestVariant['values']>): RequestVariant[] => [
-		{ takes: ['resource_type'], values },
-		{ takes: ['worker_id'] },
-	];
-	assert.throws(() => readVariants(tags, tagged(types('worker')), limited({ resource_type: { only: [] } })), /lists no values of resource_type/);
-	assert.throws(() => readVariants(tags, tagged(types('worker')), limited({ resource_type: { not: [] } })), /lists no values of resource_type/);
+	assert.throws(() => readVariants(key, on(pair('kind', types('a'), true)), limited({ kind: { only: ['a'] } })), /leaves out id/);
+	assert.throws(() => readVariants(key, on(pair('kind', types('a'))), limited({ kind: { only: [] } })), /lists no values of kind/);
+	assert.throws(() => readVariants(key, on(pair('kind', types('a'))), limited({ kind: { not: [] } })), /lists no values of kind/);
 	// A number or boolean enum can be limited, by its values as they are.
-	const numbered = [query('ssl', types(0, 1)), query('id')];
 	const ssl = (value: EnumValue): RequestVariant[] => [{ takes: ['ssl'], values: { ssl: { only: [value] } } }, { takes: ['id'] }];
-	assert.equal(readVariants(tags, numbered, ssl(1))?.length, 2);
-	assert.throws(() => readVariants(tags, numbered, ssl('1')), /ssl has no value "1"/);
+	assert.equal(readVariants(key, on(pair('ssl', types(0, 1))), ssl(1))?.length, 2);
+	assert.throws(() => readVariants(key, on(pair('ssl', types(0, 1))), ssl('1')), /ssl has no value "1"/);
 	// A template names keys that a variant can't give `?: never`.
 	const meta = [query('meta.<field>[<operator>]'), query('id')];
 	assert.throws(
-		() => readVariants(tags, meta, [{ takes: ['meta.<field>[<operator>]'] }, { takes: ['id'] }]),
+		() => readVariants(key, on(meta), [{ takes: ['meta.<field>[<operator>]'] }, { takes: ['id'] }]),
 		/meta\.<field>\[<operator>\] is a template, whose keys a variant can't forbid/,
+	);
+	// The tags route's variants each run against the account or the zone, by the spec's enums of each.
+	const accountTypes = model('resource-tagging_account_resource_type', types('worker', 'worker_version'));
+	const zoneTypes = model('resource-tagging_zone_resource_type', types('zone', 'access_application_policy'));
+	const either: Type = { kind: 'union', members: [accountTypes, zoneTypes].map((found) => ({ kind: 'model', model: found })) } as unknown as Type;
+	const tagged = [query('resource_type', either, true), query('worker_id'), query('access_application_id')];
+	const named = (name: string) => [accountTypes, zoneTypes].find((found) => found.schemaName === name);
+	const tags = 'GET /{account_or_zone}/{account_or_zone_id}/tags';
+	assert.equal(readVariants(tags, on(tagged, { accountOrZone: true, model: named }))?.length, 4);
+	assert.throws(() => readVariants(tags, on(tagged, { accountOrZone: true })), /resource-tagging_zone_resource_type, which isn't an enum model/);
+	assert.throws(() => readVariants(tags, on(tagged, { model: named })), /scope, but its route isn't an account-or-zone route/);
+	assert.throws(
+		() => readVariants(tags, on([query('resource_type', { kind: 'model', model: accountTypes }, true), ...tagged.slice(1)], { accountOrZone: true, model: named })),
+		/resource_type has no value "zone" of resource-tagging_zone_resource_type/,
+	);
+	// A null beside the enums doesn't stop them being one.
+	const members = (either as unknown as { members: unknown[] }).members;
+	const nullable = { kind: 'union', members: [...members, { kind: 'scalar', scalar: 'null' }] } as unknown as Type;
+	assert.equal(readVariants(tags, on([query('resource_type', nullable, true), ...tagged.slice(1)], { accountOrZone: true, model: named }))?.length, 4);
+	// A limit to some values can name its scope's enum, which holds them.
+	assert.throws(
+		() =>
+			readVariants(tags, on(tagged, { accountOrZone: true, model: named }), [
+				{ scope: 'account', takes: ['resource_type'] },
+				{ scope: 'zone', takes: ['resource_type'], values: { resource_type: { model: 'resource-tagging_zone_resource_type', only: ['worker_version'] } } },
+			]),
+		/resource_type has no value "worker_version"/,
+	);
+	const scoped = (...variants: RequestVariant[]) => readVariants(key, on(pair('kind', types('a')), { accountOrZone: true }), variants);
+	assert.throws(() => scoped({ scope: 'account', takes: ['kind'] }, { takes: ['id'] }), /some variants have a scope and others not/);
+	assert.throws(() => scoped({ scope: 'zone', takes: ['kind'] }, { scope: 'zone', takes: ['id'] }), /run against the account or the zone only/);
+	// A variant's body is one of the body's alternatives.
+	const bodies = [model('a_account', object()), model('a_zone', object())];
+	const body: ResolvedBody = {
+		kind: 'json',
+		required: true,
+		description: '',
+		formAlternative: false,
+		exclusive: false,
+		type: { kind: 'union', members: bodies.map((found) => ({ kind: 'model', model: found })) } as unknown as Type,
+	};
+	const put = (...variants: RequestVariant[]) => readVariants('PUT /a', on([], { accountOrZone: true, body }), variants);
+	assert.equal(put({ scope: 'account', body: 'a_account' }, { scope: 'zone', body: 'a_zone' })?.length, 2);
+	assert.throws(() => put({ scope: 'account', body: 'a_account' }, { scope: 'zone', body: 'a_other' }), /its JSON body has no alternative a_other/);
+	assert.throws(() => put({ scope: 'account', body: 'a_account' }, { scope: 'zone' }), /some variants have a body and others not/);
+	const exclusive = (...variants: RequestVariant[]) =>
+		readVariants('PUT /a', on([], { accountOrZone: true, body: { ...body, exclusive: true } }), variants);
+	assert.throws(
+		() => exclusive({ scope: 'account', body: 'a_account' }, { scope: 'zone', body: 'a_zone' }),
+		/would drop the \?: never of its exclusive body/,
 	);
 });
 
@@ -280,6 +334,43 @@ test("request variants print as a union that gives each the others' parameters a
 		variantUnion([{ takes: ['from', 'to'], requires: ['from', 'to'] }, { takes: ['id'] }], params, printer),
 		'{\n\tfrom: string;\n\tto: string;\n\tid?: never;\n} | {\n\tid?: string;\n\tfrom?: never;\n\tto?: never;\n}',
 	);
+	// A scope comes first and a body last, and a limit can be of another enum, by its model.
+	const kindsModel = model('a_kinds', kinds);
+	const bodies = [model('a_account', object()), model('a_zone', object())];
+	const scopedPrinter = new Printer(new Models({ groups: [{ models: [kindsModel, ...bodies] }] } as unknown as Forge), undefined);
+	const body: ResolvedBody = {
+		kind: 'json',
+		required: true,
+		description: 'The tags.',
+		formAlternative: false,
+		exclusive: false,
+		type: { kind: 'union', members: bodies.map((found) => ({ kind: 'model', model: found })) } as unknown as Type,
+	};
+	assert.equal(
+		variantUnion(
+			[
+				{ scope: 'account', takes: ['kind'], values: { kind: { model: 'a_kinds', not: ['a'] } }, body: 'a_account' },
+				{ scope: 'zone', takes: ['id'], body: 'a_zone' },
+			],
+			params,
+			scopedPrinter,
+			body,
+		),
+		'{\n\t/** The account to run against. */\n\taccount_id: string;\n\tzone_id?: never;\n\tkind?: Exclude<$a.Kinds, "a">;\n\tid?: never;\n\t/** The tags. */\n\tbody: $a.Account;\n} | {\n\t/** The zone to run against. */\n\tzone_id: string;\n\taccount_id?: never;\n\tid?: string;\n\tkind?: never;\n\t/** The tags. */\n\tbody: $a.Zone;\n}',
+	);
+	// A model's enum keeps the null the parameter can hold.
+	const nullableKinds = [query('kind', { kind: 'union', members: [kinds, { kind: 'scalar', scalar: 'null' }] } as unknown as Type), query('id')];
+	assert.match(
+		variantUnion([{ takes: ['kind'], values: { kind: { model: 'a_kinds', not: ['a'] } } }, { takes: ['id'] }], nullableKinds, scopedPrinter),
+		/\tkind\?: Exclude<\$a\.Kinds, "a"> \| null;\n/,
+	);
+	// A body the operation also takes as a form can be a FormData in each variant.
+	const formed = variantUnion([{ scope: 'account', body: 'a_account' }, { scope: 'zone', body: 'a_zone' }], params, scopedPrinter, {
+		...body,
+		formAlternative: true,
+	});
+	assert.match(formed, /\tbody: FormData \| \$a\.Account;\n/);
+	assert.match(formed, /\tbody: FormData \| \$a\.Zone;\n/);
 	// What the API refuses beside each parameter paginate moves on.
 	const exclusive = [{ takes: ['page'] }, { takes: ['cursor'] }, { takes: ['prev_cursor'] }];
 	const cursors = [{ param: 'cursor', next: 'cursor' }];

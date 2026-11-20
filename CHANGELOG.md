@@ -83,7 +83,8 @@ change something few callers rely on; its entry says how to update a call.
     and `radar.annotations.outages.locations` and `radar.traffic-anomalies.locations.get`.
   - `tags.resources.get` and `delete`: `worker_id` for a `worker_version`, and for no other resource. A
     `resource_type` typed as the whole `AccountResourceType` fits neither, so narrow it first:
-    `type === 'worker_version' ? { resource_type: type, worker_id } : { resource_type: type }`.
+    `type === 'worker_version' ? { resource_type: type, worker_id } : { resource_type: type }`. With `zone_id`,
+    they take `access_application_id` for an `access_application_policy` alone, as below.
 - `paginate` throws a `TypeError`, before sending anything, for a request that sets what the API refuses beside the page
   number or cursor it moves on: a `cursor` for `zero-trust.dex.isps.list`, `page` for `workflows.instances.list`, or
   `page` beside a cursor for `dns.records.list`. It does so whatever the list's length, and the message says which
@@ -96,6 +97,18 @@ change something few callers rely on; its entry says how to update a call.
     array or a string.
   - `radar.entities.asns.get` returns `confidenceLevel` only when asked with `includeConfidenceLevel: true`.
   - A step in `workflows.instances.get` can leave out `end`.
+
+### Fixed
+
+- `tags.resources.get`, `delete` and `update` can tag a zone's resources. With `zone_id`, they took only the account's
+  resource types, which the zone route refuses. Now they take the zone's, such as `zone` and `dns_record`, and
+  `update` takes the zone's body, a `SetTagsRequestZoneLevel`. An `access_application_policy` takes its
+  `access_application_id`: in the query for `get` and `delete`, and in the body for `update`. With `account_id`, they
+  take the account's as before. A call that sends the account's resource type or body with `zone_id` no longer
+  compiles, as the API refuses it. Nor does one whose scope is typed as `AccountOrZone`, as it could be either, so
+  narrow it first: `scope.zone_id === undefined ? { ...scope, resource_type: 'worker', resource_id } : { ...scope,
+  resource_type: 'zone', resource_id }`.
+  `types/resource-tagging` exports `ZoneResourceType` and the zone's body types.
 
 ## [0.3.0] - 2026-11-12
 

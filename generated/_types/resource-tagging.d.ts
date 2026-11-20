@@ -153,8 +153,14 @@ export type TaggedResourceObjectZoneLevelBase = {
 /** Contains key-value pairs of tags. Keys may contain at most 256 characters. Values may contain at most 1024 characters and may be empty for key-only tags. */
 export type Tags = { [key: string]: string };
 
+/** Enum for access_application_policy resource type. */
+export type ZoneResourceTypeAccessApplicationPolicyEnum = "access_application_policy";
+
 /** Enum for base account-level resource types (those with no extra required fields). */
 export type AccountResourceTypeBaseEnum = "access_application" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "app_library_application" | "cloudflared_tunnel" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer_monitor" | "load_balancer_pool" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker";
+
+/** Enum for base zone-level resource types (those with no extra required fields). */
+export type ZoneResourceTypeBaseEnum = "api_gateway_operation" | "custom_certificate" | "custom_hostname" | "dns_record" | "healthcheck" | "load_balancer" | "managed_client_certificate" | "worker_route" | "zone" | "zone_ruleset";
 
 /** Enum for worker_version resource type. */
 export type AccountResourceTypeWorkerVersionEnum = "worker_version";
@@ -171,8 +177,21 @@ export type AccountResourceType = "access_application" | "access_group" | "acces
 /** Identifies the type of resource. */
 export type ResourceType = "access_application" | "access_application_policy" | "access_group" | "access_service_token" | "account" | "account_ruleset" | "ai_gateway" | "ai_search_instance" | "ai_search_namespace" | "alerting_policy" | "alerting_webhook" | "api_gateway_operation" | "app_library_application" | "cloudflared_tunnel" | "custom_certificate" | "custom_hostname" | "cws_deployment" | "cws_policy" | "cws_policy_set" | "cws_workload" | "d1_database" | "device" | "dns_record" | "durable_object_namespace" | "gateway_list" | "gateway_rule" | "healthcheck" | "image" | "infrastructure_target" | "kv_namespace" | "load_balancer" | "load_balancer_monitor" | "load_balancer_pool" | "managed_client_certificate" | "namespace_worker" | "pages_project" | "queue" | "r2_bucket" | "resource_share" | "stream_live_input" | "stream_video" | "vectorize_index" | "worker" | "worker_route" | "worker_version" | "zone" | "zone_ruleset";
 
+/** Identifies the type of zone-level resource. */
+export type ZoneResourceType = "access_application_policy" | "api_gateway_operation" | "custom_certificate" | "custom_hostname" | "dns_record" | "healthcheck" | "load_balancer" | "managed_client_certificate" | "worker_route" | "zone" | "zone_ruleset";
+
 /** Identifies the unique resource. */
 export type ResourceId = string;
+
+/** Request body schema for deleting tags from access_application_policy resources. */
+export type DeleteTagsRequestZoneLevelAccessApplicationPolicy = {
+	/** Access application ID is required only for access_application_policy resources */
+	access_application_id: AccessApplicationId;
+	/** Identifies the unique resource. */
+	resource_id: ResourceId;
+	/** Enum for access_application_policy resource type. */
+	resource_type: ZoneResourceTypeAccessApplicationPolicyEnum;
+};
 
 /** Request body schema for deleting tags from account-level resources. */
 export type DeleteTagsRequestAccountLevelBase = {
@@ -192,6 +211,20 @@ export type DeleteTagsRequestAccountLevelWorkerVersion = {
 	worker_id: WorkerId;
 };
 
+/** Request body schema for deleting tags from zone-level resources. Zone ID comes from URL path. */
+export type DeleteTagsRequestZoneLevelBase = {
+	/** Identifies the unique resource. */
+	resource_id: ResourceId;
+	/** Enum for base zone-level resource types (those with no extra required fields). */
+	resource_type: ZoneResourceTypeBaseEnum;
+};
+
+/** Request body schema for setting tags on access_application_policy resources. */
+export type SetTagsRequestZoneLevelAccessApplicationPolicy = DeleteTagsRequestZoneLevelAccessApplicationPolicy & {
+	/** Contains key-value pairs of tags. Keys may contain at most 256 characters. Values may contain at most 1024 characters and may be empty for key-only tags. */
+	tags?: Tags;
+};
+
 /** Request body schema for setting tags on account-level resources with no extra requirements. */
 export type SetTagsRequestAccountLevelBase = DeleteTagsRequestAccountLevelBase & {
 	/** Contains key-value pairs of tags. Keys may contain at most 256 characters. Values may contain at most 1024 characters and may be empty for key-only tags. */
@@ -206,6 +239,15 @@ export type SetTagsRequestAccountLevelWorkerVersion = DeleteTagsRequestAccountLe
 	/** Contains key-value pairs of tags. Keys may contain at most 256 characters. Values may contain at most 1024 characters and may be empty for key-only tags. */
 	tags?: Tags;
 };
+
+/** Request body schema for setting tags on zone-level resources with no extra requirements. */
+export type SetTagsRequestZoneLevelBase = DeleteTagsRequestZoneLevelBase & {
+	/** Contains key-value pairs of tags. Keys may contain at most 256 characters. Values may contain at most 1024 characters and may be empty for key-only tags. */
+	tags?: Tags;
+};
+
+/** Request body schema for setting tags on zone-level resources. */
+export type SetTagsRequestZoneLevel = SetTagsRequestZoneLevelBase | SetTagsRequestZoneLevelAccessApplicationPolicy;
 
 /** Response for access_application resources */
 export type TaggedResourceObjectAccessApplication = {

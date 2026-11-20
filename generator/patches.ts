@@ -5,16 +5,16 @@
  * the patch rather than leaving it to rot. Paths are JSON pointers.
  */
 import type { Pagination } from '../src/client.ts';
-import { EXCLUSIVE_BODY, type OpenApiDocument, operationPointer, pointerGet, type Schema } from './spec.ts';
+import { EXCLUSIVE_BODY, type OpenApiDocument, operationPointer, pathPointer, pointerGet, type Schema, Spec } from './spec.ts';
 
 export interface SpecPatch {
 	id: string;
 	/** What was observed, and when. */
 	evidence: string;
 	pointer: string;
-	/** Whether the node still has the defect this patch fixes. */
-	applies: (node: Schema) => boolean;
-	apply: (node: Schema) => void;
+	/** Whether the node still has the defect this patch fixes. The document resolves a `$ref` in it. */
+	applies: (node: Schema, doc: OpenApiDocument) => boolean;
+	apply: (node: Schema, doc: OpenApiDocument) => void;
 }
 
 /** The prefix of an account-or-zone route. */
@@ -58,6 +58,9 @@ const R2_ONE_SELECTOR =
 
 const VERSION_PATCH_NULL_ENV =
 	"Patching a probe Worker's latest version with `env: { NAME: null }` removed that binding and kept the other, on the playground account, 2026-11-20, as `env`'s description says. Creating a version shares the body, so the patch gets one of its own.";
+
+const TAG_SCOPES =
+	"On the playground, 2026-11-20, the account and zone routes each served their own resource types and refused the other's, 444 and 1016. An Access policy got 444 without its access_application_id, in the query to read or remove its tags or in the body to set them, as did the ID beside a zone or a worker; no real policy was tried.";
 
 const RULESET_WITHOUT_RULES =
 	'An empty zone ruleset came back without rules from every read and write tried on the playground zone, 2026-11-08, including deleting its last rule. So did a managed ruleset read by a tag no rule has. All had version and last_updated.';
@@ -131,6 +134,102 @@ function scriptEventStream(id: string, path: string): SpecPatch {
 			node['text/event-stream'] = {
 				schema: { description: 'Server-sent events, from a script that returns them as a `Response`.', type: 'string' },
 			};
+		},
+	};
+}
+
+/** The tags route, which runs against an account or a zone. */
+const TAGS = `${AOZ}/tags`;
+const TAGGING = '#/components/schemas/resource-tagging_';
+
+interface QueryParam {
+	/** The list that declares it: the operation's own, or its path item's, which the operation inherits. */
+	list: Schema[];
+	at: number;
+	/** The parameter at the end of its chain of `$ref`s. */
+	param: Schema;
+}
+
+/**
+ * The query parameter named `name` that the path item's operation takes: its own, which
+ * overrides one of the same name and location on the path item, or else the path item's. None
+ * when the path item has no such operation.
+ */
+function tagQueryParam(item: Schema, verb: string, doc: OpenApiDocument, name: string): QueryParam | undefined {
+	// Without the operation, its path item's parameters belong to no one, and the patch is stale.
+	if (!isOperation(item, verb)) {
+		return undefined;
+	}
+	const spec = new Spec(doc);
+	for (const list of [item[verb]['parameters'], item['parameters']]) {
+		if (!Array.isArray(list)) {
+			continue;
+		}
+		const at = (list as Schema[]).findIndex((entry) => {
+			const param = spec.deref(entry);
+			return param['name'] === name && param['in'] === 'query';
+		});
+		if (at !== -1) {
+			return { list: list as Schema[], at, param: spec.deref(list[at] as Schema) };
+		}
+	}
+	return undefined;
+}
+
+function isOperation(item: Schema, verb: string): boolean {
+	return typeof item[verb] === 'object' && item[verb] !== null;
+}
+
+/** The operation's own parameters, which it declares once one goes in. */
+function ownParams(item: Schema, verb: string): Schema[] {
+	const operation = item[verb] as Schema;
+	return (operation['parameters'] ??= []) as Schema[];
+}
+
+/** A tag read's or removal's `resource_type`, which the spec limits to the account's types, not the zone's. */
+function tagZoneTypes(verb: 'delete' | 'get'): SpecPatch {
+	return {
+		id: `resource-tagging-${verb}-zone-types`,
+		evidence: TAG_SCOPES,
+		pointer: pathPointer(TAGS),
+		applies: (item, doc) =>
+			tagQueryParam(item, verb, doc, 'resource_type')?.param['schema']?.['$ref'] === `${TAGGING}account_resource_type`,
+		apply: (item, doc) => {
+			const found = tagQueryParam(item, verb, doc, 'resource_type')!;
+			// A copy, as the parameter can be shared by reference, or by the path item, with the other operation.
+			const patched: Schema = {
+				...structuredClone(found.param),
+				schema: { oneOf: [{ $ref: `${TAGGING}account_resource_type` }, { $ref: `${TAGGING}zone_resource_type` }] },
+			};
+			const own = ownParams(item, verb);
+			if (found.list === own) {
+				own[found.at] = patched;
+			} else {
+				// After the operation's own, which can move it in the query's and the type's order, as
+				// where Forge puts an inherited parameter is its own choice.
+				own.push(patched);
+			}
+		},
+	};
+}
+
+/** A tag read's or removal's `access_application_id`, which a zone's `access_application_policy` needs. */
+function tagAccessApplication(verb: 'delete' | 'get'): SpecPatch {
+	return {
+		id: `resource-tagging-${verb}-access-application-id`,
+		evidence: TAG_SCOPES,
+		pointer: pathPointer(TAGS),
+		applies: (item, doc) => isOperation(item, verb) && tagQueryParam(item, verb, doc, 'access_application_id') === undefined,
+		apply: (item, doc) => {
+			const worker = tagQueryParam(item, verb, doc, 'worker_id');
+			const own = ownParams(item, verb);
+			// Beside worker_id, where the operation declares it, and otherwise last.
+			own.splice(worker?.list === own ? worker.at + 1 : own.length, 0, {
+				name: 'access_application_id',
+				in: 'query',
+				description: 'Access application identifier. Required for access_application_policy resources.',
+				schema: { $ref: `${TAGGING}access_application_id` },
+			});
 		},
 	};
 }
@@ -266,6 +365,17 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 			delete node['required'];
 		},
 	},
+	...(['delete', 'get'] as const).flatMap((verb) => [tagAccessApplication(verb), tagZoneTypes(verb)]),
+	{
+		id: 'resource-tagging-update-zone-body',
+		evidence: TAG_SCOPES,
+		pointer: `${operationPointer(TAGS, 'put')}/requestBody/content/application~1json/schema`,
+		applies: (node) => node['$ref'] === `${TAGGING}set_tags_request_account_level` && node['oneOf'] === undefined,
+		apply: (node) => {
+			delete node['$ref'];
+			node['oneOf'] = [{ $ref: `${TAGGING}set_tags_request_account_level` }, { $ref: `${TAGGING}set_tags_request_zone_level` }];
+		},
+	},
 	{
 		id: 'rulesets-rule-action-required',
 		evidence:
@@ -387,10 +497,10 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 export function applyPatches(doc: OpenApiDocument): void {
 	for (const patch of SPEC_PATCHES) {
 		const node = pointerGet(doc, patch.pointer) as Schema | undefined;
-		if (node === undefined || !patch.applies(node)) {
+		if (node === undefined || !patch.applies(node, doc)) {
 			throw new Error(`The spec patch ${patch.id} no longer applies. Check whether it was fixed upstream, and remove it.`);
 		}
-		patch.apply(node);
+		patch.apply(node, doc);
 	}
 }
 
@@ -604,12 +714,22 @@ export const PAGINATION_OVERRIDES: Readonly<Record<string, Pagination>> = {
 /** A value an enum can have. */
 export type EnumValue = string | number | boolean;
 
-/** One way to call an operation: the parameters of its group it takes, and which of them it needs. */
+/**
+ * One way to call an operation: the parameters of its group it takes, and which of them it needs.
+ * On an account-or-zone route, it can run against one of them only, and take a body of its own.
+ */
 export interface RequestVariant {
-	takes: readonly string[];
+	/** Whether it runs against the account, with `account_id`, or the zone, with `zone_id`. */
+	scope?: 'account' | 'zone';
+	takes?: readonly string[];
 	requires?: readonly string[];
-	/** The values an enum parameter takes this way, as `only`, or doesn't, as `not`. */
-	values?: Readonly<Record<string, { only: readonly EnumValue[] } | { not: readonly EnumValue[] }>>;
+	/**
+	 * The values an enum parameter takes this way: as `only` says, or all but those `not` names, of
+	 * its enum or of the enum the spec's schema `model` names, which its enum holds.
+	 */
+	values?: Readonly<Record<string, ({ only: readonly EnumValue[] } | { not: readonly EnumValue[] }) & { model?: string }>>;
+	/** The body it takes, as the spec's schema of this name, one of the body's alternatives. */
+	body?: string;
 }
 
 export interface RequestVariants {
@@ -629,12 +749,31 @@ const RADAR_DATES: RequestVariants = {
 	variants: [{ takes: ['dateRange'] }, { takes: ['dateStart', 'dateEnd'], requires: ['dateStart', 'dateEnd'] }],
 };
 
-const WORKER_VERSION_TAGS: RequestVariants = {
-	evidence:
-		'GET /accounts/{id}/tags for a worker_version without worker_id got 400, 444, "invalid request", and so did a worker with one, on the playground account, 2026-11-20. The version with its worker_id was read. The delete takes the same query.',
+const TAGGED_RESOURCES: RequestVariants = {
+	evidence: `${TAG_SCOPES} A worker version got 444 without its worker_id, as did the ID beside a worker or a zone.`,
 	variants: [
-		{ takes: ['resource_type', 'worker_id'], requires: ['worker_id'], values: { resource_type: { only: ['worker_version'] } } },
-		{ takes: ['resource_type'], values: { resource_type: { not: ['worker_version'] } } },
+		{
+			scope: 'account',
+			takes: ['resource_type', 'worker_id'],
+			requires: ['worker_id'],
+			values: { resource_type: { model: 'resource-tagging_account_resource_type', only: ['worker_version'] } },
+		},
+		{
+			scope: 'account',
+			takes: ['resource_type'],
+			values: { resource_type: { model: 'resource-tagging_account_resource_type', not: ['worker_version'] } },
+		},
+		{
+			scope: 'zone',
+			takes: ['resource_type', 'access_application_id'],
+			requires: ['access_application_id'],
+			values: { resource_type: { model: 'resource-tagging_zone_resource_type', only: ['access_application_policy'] } },
+		},
+		{
+			scope: 'zone',
+			takes: ['resource_type'],
+			values: { resource_type: { model: 'resource-tagging_zone_resource_type', not: ['access_application_policy'] } },
+		},
 	],
 };
 
@@ -644,10 +783,13 @@ const SCIM_IDS = (others: string): string =>
 /**
  * Query parameters that exclude or require each other, by `METHOD /path`, with the evidence. A
  * parameter that a variant names is in the operation's group, and the request type is a union of
- * the variants, each giving the group's other parameters `?: never`. `paginate` refuses a request
- * that sets a parameter the one it moves on excludes, before sending it. An entry whose operation
- * isn't generated, or that names a parameter it doesn't take or an enum value it doesn't have,
- * stops generation.
+ * the variants, each giving the group's other parameters `?: never`. On an account-or-zone route,
+ * variants can each run against the account or the zone, and each take a body of its own.
+ * `paginate` refuses a request that sets a parameter the one it moves on excludes, before sending
+ * it. An entry whose operation isn't generated, or that names a parameter it doesn't take, an enum
+ * value or model it doesn't have, or a body that isn't one of its alternatives or beside an exclusive
+ * body, stops generation, as does one whose scopes or bodies only some variants have, or that scopes
+ * one side only.
  */
 export const REQUEST_VARIANTS: Readonly<Record<string, RequestVariants>> = byKey('REQUEST_VARIANTS', [
 	[
@@ -703,6 +845,16 @@ export const REQUEST_VARIANTS: Readonly<Record<string, RequestVariants>> = byKey
 			['prev_cursor'],
 		),
 	],
-	[`GET ${AOZ}/tags`, WORKER_VERSION_TAGS],
-	[`DELETE ${AOZ}/tags`, WORKER_VERSION_TAGS],
+	[`GET ${TAGS}`, TAGGED_RESOURCES],
+	[`DELETE ${TAGS}`, TAGGED_RESOURCES],
+	[
+		`PUT ${TAGS}`,
+		{
+			evidence: TAG_SCOPES,
+			variants: [
+				{ scope: 'account', body: 'resource-tagging_set_tags_request_account_level' },
+				{ scope: 'zone', body: 'resource-tagging_set_tags_request_zone_level' },
+			],
+		},
+	],
 ]);

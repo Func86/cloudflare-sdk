@@ -68,6 +68,7 @@ export class Models {
 	readonly #modeSensitive = new Set<Model>();
 	readonly #fileHolders = new Set<Model>();
 	readonly #used = new Set<string>();
+	readonly #bySchemaName = new Map<string, Model>();
 	/** The models used and not printed yet. */
 	readonly queue: { model: Model; mode: Mode }[] = [];
 
@@ -87,6 +88,7 @@ export class Models {
 			return name;
 		};
 		for (const model of all) {
+			this.#bySchemaName.set(model.schemaName, model);
 			const { prefix, rest } = splitName(model.schemaName);
 			this.#names.set(model, { prefix, read: claim(prefix, pascal(rest)), write: '' });
 		}
@@ -96,6 +98,11 @@ export class Models {
 			entry.write = claim(entry.prefix, `${entry.read}Input`);
 		}
 		this.#classify(all);
+	}
+
+	/** The model of the spec's schema with this name, if Forge has one. */
+	named(schemaName: string): Model | undefined {
+		return this.#bySchemaName.get(schemaName);
 	}
 
 	/**
