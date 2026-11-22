@@ -27,6 +27,8 @@ export type ControlResult = $realtimekit.GenericSuccessResponse & ({
  *
  * Pause/Resume/Stop a given recording ID.
  *
+ * **Note:** A recording can stay paused for a maximum of 12 hours. After that, it automatically resumes and finishes.
+ *
  * `PUT /accounts/{account_id}/realtime/kit/{app_id}/recordings/{recording_id}`
  *
  * Token permissions (any one): Realtime Admin, Realtime.

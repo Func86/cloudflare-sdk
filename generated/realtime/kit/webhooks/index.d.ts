@@ -47,6 +47,29 @@ export type DeleteResult = $realtimekit.WebhookSuccessResponse;
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** The account identifier tag. */
+	account_id: string;
+	/** The app identifier tag. */
+	app_id: string;
+	/** ID of the webhook */
+	webhook_id: string;
+	body: $realtimekit.PatchWebhookRequest;
+};
+export type EditResult = $realtimekit.WebhookSuccessResponse;
+/**
+ * Edit a webhook
+ *
+ * Edits the webhook details for the given webhook ID.
+ *
+ * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}`
+ *
+ * Token permissions (any one): Realtime Admin, Realtime.
+ *
+ * @beta
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The account identifier tag. */
 	account_id: string;
@@ -111,26 +134,3 @@ export type ReplaceResult = $realtimekit.WebhookSuccessResponse;
  * @beta
  */
 export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
-
-export type UpdateRequest = {
-	/** The account identifier tag. */
-	account_id: string;
-	/** The app identifier tag. */
-	app_id: string;
-	/** ID of the webhook */
-	webhook_id: string;
-	body: $realtimekit.PatchWebhookRequest;
-};
-export type UpdateResult = $realtimekit.WebhookSuccessResponse;
-/**
- * Edit a webhook
- *
- * Edits the webhook details for the given webhook ID.
- *
- * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}`
- *
- * Token permissions (any one): Realtime Admin, Realtime.
- *
- * @beta
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

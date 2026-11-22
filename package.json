@@ -1,6 +1,6 @@
 {
 	"name": "@libreflare/cloudflare-sdk",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"private": false,
 	"description": "A slim Cloudflare API client generated from Forge's openapi.forge.json.",
 	"type": "module",
@@ -52,7 +52,7 @@
 	},
 	"devDependencies": {
 		"@bytecodealliance/jco": "1.40.0",
-		"@cloudflare/forge": "https://pkg.pr.new/cloudflare/forge/@cloudflare/forge@ecd1521d1f164ed51ff990bd8676c0ff47a203e8",
+		"@cloudflare/forge": "0.2.0",
 		"@eslint/js": "^10.0.1",
 		"@types/node": "^24.19.2",
 		"eslint": "^10.15.0",

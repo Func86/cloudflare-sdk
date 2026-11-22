@@ -31,6 +31,36 @@ export type CreateResult = {
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
+export type EditRequest = {
+	/** The account identifier tag. */
+	account_id: string;
+	app_id: string;
+	body: {
+		/** The app name. Leading and trailing whitespace is removed, and the name must contain at least one non-whitespace character. */
+		name: string;
+	};
+};
+export type EditResult = {
+	data: {
+		created_at?: string;
+		id?: string;
+		name?: string | null;
+	};
+	success: true;
+};
+/**
+ * Update an app
+ *
+ * Update the name of an app in your account.
+ *
+ * `PATCH /accounts/{account_id}/realtime/kit/apps/{app_id}`
+ *
+ * Token permissions (any one): Realtime Admin, Realtime.
+ *
+ * @beta
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The account identifier tag. */
 	account_id: string;
@@ -95,33 +125,3 @@ export type ListResult = {
  * @beta
  */
 export declare const list: Operation<ListRequest, ListResult>;
-
-export type UpdateRequest = {
-	/** The account identifier tag. */
-	account_id: string;
-	app_id: string;
-	body: {
-		/** The app name. Leading and trailing whitespace is removed, and the name must contain at least one non-whitespace character. */
-		name: string;
-	};
-};
-export type UpdateResult = {
-	data: {
-		created_at?: string;
-		id?: string;
-		name?: string | null;
-	};
-	success: true;
-};
-/**
- * Update an app
- *
- * Update the name of an app in your account.
- *
- * `PATCH /accounts/{account_id}/realtime/kit/apps/{app_id}`
- *
- * Token permissions (any one): Realtime Admin, Realtime.
- *
- * @beta
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

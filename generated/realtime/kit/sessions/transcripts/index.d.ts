@@ -19,7 +19,7 @@ export type ExportResult = {
 /**
  * Fetch the complete transcript for a session
  *
- * Returns a URL to download the transcript for the session ID in CSV format.
+ * Returns a URL to download the transcript for the session ID in the requested format.
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/sessions/{session_id}/transcript`
  *

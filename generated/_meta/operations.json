@@ -6238,7 +6238,7 @@
   "response": "envelope"
  },
  {
-  "id": "dns.dnssec.list.zsks",
+  "id": "dns.dnssec.zsks.list",
   "method": "GET",
   "route": "/zones/{zone_id}/dnssec/zsk",
   "response": "envelope"
@@ -11510,6 +11510,12 @@
   "response": "envelope"
  },
  {
+  "id": "pages.deploy-hooks.trigger",
+  "method": "POST",
+  "route": "/pages/webhooks/deploy_hooks/{deploy_hook_id}",
+  "response": "envelope"
+ },
+ {
   "id": "pages.deployments.create",
   "method": "POST",
   "route": "/accounts/{account_id}/pages/projects/{project_name}/deployments",
@@ -13646,6 +13652,13 @@
   "body": "json"
  },
  {
+  "id": "realtime.kit.apps.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/realtime/kit/apps/{app_id}",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "realtime.kit.apps.get",
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/apps/{app_id}",
@@ -13656,13 +13669,6 @@
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/apps",
   "response": "json"
- },
- {
-  "id": "realtime.kit.apps.update",
-  "method": "PATCH",
-  "route": "/accounts/{account_id}/realtime/kit/apps/{app_id}",
-  "response": "json",
-  "body": "json"
  },
  {
   "id": "realtime.kit.livestreams.get",
@@ -13709,6 +13715,13 @@
   "body": "json"
  },
  {
+  "id": "realtime.kit.meetings.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "realtime.kit.meetings.get",
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}",
@@ -13723,13 +13736,6 @@
  {
   "id": "realtime.kit.meetings.replace",
   "method": "PUT",
-  "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "realtime.kit.meetings.update",
-  "method": "PATCH",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}",
   "response": "json",
   "body": "json"
@@ -13800,6 +13806,13 @@
   "response": "json"
  },
  {
+  "id": "realtime.kit.meetings.participants.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "realtime.kit.meetings.participants.get",
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}",
@@ -13814,13 +13827,6 @@
  {
   "id": "realtime.kit.meetings.participants.replace",
   "method": "PUT",
-  "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "realtime.kit.meetings.participants.update",
-  "method": "PATCH",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}",
   "response": "json",
   "body": "json"
@@ -13853,6 +13859,13 @@
   "response": "json"
  },
  {
+  "id": "realtime.kit.presets.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "realtime.kit.presets.get",
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}",
@@ -13867,13 +13880,6 @@
  {
   "id": "realtime.kit.presets.replace",
   "method": "PUT",
-  "route": "/accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "realtime.kit.presets.update",
-  "method": "PATCH",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}",
   "response": "json",
   "body": "json"
@@ -13991,6 +13997,13 @@
   "response": "json"
  },
  {
+  "id": "realtime.kit.webhooks.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "realtime.kit.webhooks.get",
   "method": "GET",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}",
@@ -14005,13 +14018,6 @@
  {
   "id": "realtime.kit.webhooks.replace",
   "method": "PUT",
-  "route": "/accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "realtime.kit.webhooks.update",
-  "method": "PATCH",
   "route": "/accounts/{account_id}/realtime/kit/{app_id}/webhooks/{webhook_id}",
   "response": "json",
   "body": "json"

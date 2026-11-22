@@ -3,6 +3,7 @@ import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $pages from "../_types/pages.js";
 export * as assets from "./assets/index.js";
 export * as buildCache from "./build-cache/index.js";
+export * as deployHooks from "./deploy-hooks/index.js";
 export * as deployments from "./deployments/index.js";
 export * as domains from "./domains/index.js";
 export * as source from "./source/index.js";

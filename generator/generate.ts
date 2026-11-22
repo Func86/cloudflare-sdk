@@ -22,7 +22,7 @@ import { prepare } from './prepare.ts';
 import type { OpenApiDocument } from './spec.ts';
 
 // Bump this SHA to generate from a new release.
-const FORGE_OPENAPI_VERSION = '3dc49274ce762f56d29e46b1a78742e6f8ab6bcc';
+const FORGE_OPENAPI_VERSION = '2b2a4d864560ba802f264202316ec9eaf8595dd6';
 const FORGE_OPENAPI_URL = `https://github.com/cloudflare/forge/releases/download/openapi@${FORGE_OPENAPI_VERSION}/openapi.forge.json`;
 
 async function loadDocument(path: string | undefined): Promise<OpenApiDocument> {

@@ -7,6 +7,7 @@ export const get = {"method":"GET","route":"/accounts/{account_id}/pages/project
 export const list = {"method":"GET","route":"/accounts/{account_id}/pages/projects","query":["page","per_page"],"page":{"kind":"page"}};
 export * as assets from "./assets/index.js";
 export * as buildCache from "./build-cache/index.js";
+export * as deployHooks from "./deploy-hooks/index.js";
 export * as deployments from "./deployments/index.js";
 export * as domains from "./domains/index.js";
 export * as source from "./source/index.js";

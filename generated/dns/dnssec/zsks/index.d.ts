@@ -2,11 +2,11 @@
 import type { Operation } from "#runtime";
 import type * as $dnssec from "../../../_types/dnssec.js";
 
-export type ZsksRequest = {
+export type ListRequest = {
 	/** Identifier. */
 	zone_id: string;
 };
-export type ZsksResult = $dnssec.DnssecZsk[];
+export type ListResult = $dnssec.DnssecZsk[];
 /**
  * List DNSSEC ZSKs
  *
@@ -16,4 +16,4 @@ export type ZsksResult = $dnssec.DnssecZsk[];
  *
  * Token permissions (any one): DNS Read, DNS Write.
  */
-export declare const zsks: Operation<ZsksRequest, ZsksResult>;
+export declare const list: Operation<ListRequest, ListResult>;

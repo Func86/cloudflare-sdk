@@ -64,6 +64,38 @@ export type DeleteResult = $realtimekit.GenericSuccessResponse & ({
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** The account identifier tag. */
+	account_id: string;
+	/** The app identifier tag. */
+	app_id: string;
+	/** ID of the preset to fetch */
+	preset_id: string;
+	body: $realtimekit.UpdatePreset;
+};
+export type EditResult = $realtimekit.GenericSuccessResponse & ({
+	data: {
+		/** Timestamp this preset was created at */
+		created_at: string;
+		/** ID of the preset */
+		id: string;
+		/** Timestamp this preset was last updated */
+		updated_at: string;
+	} & $realtimekit.Preset;
+});
+/**
+ * Update a preset
+ *
+ * Update a preset by the provided preset ID
+ *
+ * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}`
+ *
+ * Token permissions (any one): Realtime Admin, Realtime.
+ *
+ * @beta
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The account identifier tag. */
 	account_id: string;
@@ -154,35 +186,3 @@ export type ReplaceResult = $realtimekit.GenericSuccessResponse & ({
  * @beta
  */
 export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
-
-export type UpdateRequest = {
-	/** The account identifier tag. */
-	account_id: string;
-	/** The app identifier tag. */
-	app_id: string;
-	/** ID of the preset to fetch */
-	preset_id: string;
-	body: $realtimekit.UpdatePreset;
-};
-export type UpdateResult = $realtimekit.GenericSuccessResponse & ({
-	data: {
-		/** Timestamp this preset was created at */
-		created_at: string;
-		/** ID of the preset */
-		id: string;
-		/** Timestamp this preset was last updated */
-		updated_at: string;
-	} & $realtimekit.Preset;
-});
-/**
- * Update a preset
- *
- * Update a preset by the provided preset ID
- *
- * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/presets/{preset_id}`
- *
- * Token permissions (any one): Realtime Admin, Realtime.
- *
- * @beta
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -34,6 +34,8 @@ export type GetLatestResult = $cws.CategoryVersion;
  *
  * `GET /cws/categories/applications/{application_key}/versions/latest`
  *
+ * Throws an `ApiError` with status 304: Not Modified - the supplied If-None-Match matches the latest application bundle.
+ *
  * @beta
  */
 export declare const getLatest: Operation<GetLatestRequest, GetLatestResult>;

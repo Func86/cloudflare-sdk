@@ -381,6 +381,11 @@ export type PagesAssetsUpsertHashesRequest = {
 	hashes: string[];
 };
 
+export type PagesDeployHookResponse = {
+	/** Identifier of the deployment started by the deploy hook. */
+	id: string;
+};
+
 export type PagesUploadTokenResponse = {
 	/** Short-lived JWT used to authenticate Pages Direct Upload asset operations. */
 	jwt: string;

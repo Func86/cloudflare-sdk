@@ -22,6 +22,8 @@ export type GetResult = $registrar.ExtensionItem;
  *
  *
  * `GET /accounts/{account_id}/registrar/extensions/{extension}`
+ *
+ * Throws an `ApiError` with status 304: Not Modified — client cache is current. Returned when the request includes an `If-None-Match` header matching the current ETag.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -67,5 +69,7 @@ export type ListItem = RootItem<ListResult>;
  *
  *
  * `GET /accounts/{account_id}/registrar/extensions`
+ *
+ * Throws an `ApiError` with status 304: Not Modified — client cache is current. Returned when the request includes an `If-None-Match` header matching the current ETag.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

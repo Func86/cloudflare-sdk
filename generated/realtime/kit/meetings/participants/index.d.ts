@@ -82,6 +82,47 @@ export type DeleteResult = $realtimekit.GenericSuccessResponse & {
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type EditRequest = {
+	/** The account identifier tag. */
+	account_id: string;
+	/** The app identifier tag. */
+	app_id: string;
+	/** ID of the meeting. You can fetch the meeting ID using the create a meeting API. */
+	meeting_id: string;
+	/** ID of the participant. You can fetch the participant ID using the add a participant API. */
+	participant_id: string;
+	body: {
+		/** (Optional) Name of the participant. */
+		name?: string | null;
+		/** (Optional) A URL to a picture to be used for the participant. */
+		picture?: string | null;
+		/** (Optional) Name of the preset to apply to this participant. */
+		preset_name?: string | null;
+	};
+};
+export type EditResult = $realtimekit.GenericSuccessResponse & ({
+	data?: $realtimekit.Participant & {
+		/** Time at which the token stops being valid, in UTC. Returned when adding a participant. */
+		expires_on?: string;
+		/** Time from which the token is valid, in UTC. Returned when adding a participant. */
+		not_before?: string;
+		/** The participant's auth token that can be used for joining a meeting from the client side. */
+		token: string;
+	};
+});
+/**
+ * Edit a participant's detail
+ *
+ * Updates a participant's details for the given meeting and participant ID.
+ *
+ * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}`
+ *
+ * Token permissions (any one): Realtime Admin, Realtime.
+ *
+ * @beta
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The account identifier tag. */
 	account_id: string;
@@ -179,44 +220,3 @@ export type ReplaceResult = $realtimekit.GenericSuccessResponse & ({
  * @beta
  */
 export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
-
-export type UpdateRequest = {
-	/** The account identifier tag. */
-	account_id: string;
-	/** The app identifier tag. */
-	app_id: string;
-	/** ID of the meeting. You can fetch the meeting ID using the create a meeting API. */
-	meeting_id: string;
-	/** ID of the participant. You can fetch the participant ID using the add a participant API. */
-	participant_id: string;
-	body: {
-		/** (Optional) Name of the participant. */
-		name?: string | null;
-		/** (Optional) A URL to a picture to be used for the participant. */
-		picture?: string | null;
-		/** (Optional) Name of the preset to apply to this participant. */
-		preset_name?: string | null;
-	};
-};
-export type UpdateResult = $realtimekit.GenericSuccessResponse & ({
-	data?: $realtimekit.Participant & {
-		/** Time at which the token stops being valid, in UTC. Returned when adding a participant. */
-		expires_on?: string;
-		/** Time from which the token is valid, in UTC. Returned when adding a participant. */
-		not_before?: string;
-		/** The participant's auth token that can be used for joining a meeting from the client side. */
-		token: string;
-	};
-});
-/**
- * Edit a participant's detail
- *
- * Updates a participant's details for the given meeting and participant ID.
- *
- * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}`
- *
- * Token permissions (any one): Realtime Admin, Realtime.
- *
- * @beta
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -13,6 +13,7 @@ import {
 	readVariants,
 	type ResolvedBody,
 	type ResolvedResponse,
+	throws3xx,
 	type VariantContext,
 	withExcludes,
 } from '../generator/plugin/operations.ts';
@@ -392,6 +393,23 @@ test("request variants print as a union that gives each the others' parameters a
 	const offsets = [{ takes: ['offset'] }, { takes: ['cursor'] }];
 	assert.deepEqual(withExcludes('GET /a', { kind: 'page' }, offsets), { kind: 'page' });
 	assert.throws(() => withExcludes('GET /a', { kind: 'page', offsetWins: true }, offsets), /GET \/a say what offset excludes/);
+});
+
+test('a declared 3xx that fetch passes on is noted, and a redirect it follows or a range is not', () => {
+	const response = (status: string, description = '') => ({ status, description, contents: [], json: undefined });
+	// Sorted by status, as Forge gives them.
+	const errors = [
+		response('300'),
+		response('301', 'Moved.'),
+		response('304', " A deployment already exists for the branch's latest commit.\n"),
+		response('307'),
+		response('3XX', 'Any redirect.'),
+		response('404', 'Not found.'),
+	];
+	assert.deepEqual(throws3xx({ errors }), [
+		{ status: '300', description: '' },
+		{ status: '304', description: "A deployment already exists for the branch's latest commit." },
+	]);
 });
 
 test('a listed dry run needs a boolean dry_run and a result that can be null', () => {

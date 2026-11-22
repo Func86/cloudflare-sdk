@@ -35,23 +35,24 @@ export type KickRequest = {
 	app_id: string;
 	/** ID of the meeting */
 	meeting_id: string;
-	/** Request body for kicking participants from an active session. At least one of `participant_ids` or `custom_participant_ids` must contain a value. */
+	/** Request body for kicking participants from an active session. */
 	body: {
-		custom_participant_ids?: string[];
-		participant_ids?: string[];
+		/** IDs of the participants to kick, as returned when the participants were added to the meeting. */
+		participant_ids: string[];
 	};
 };
 export type KickResult = {
 	data?: {
-		action?: string;
-		participants?: $realtimekit.SessionParticipant[];
+		action?: "kick";
+		/** Participants the kick was requested for. */
+		participants?: $realtimekit.ActionParticipant[];
 	};
 	success?: boolean;
 };
 /**
  * Kick participants from an active session
  *
- * Kicks one or more participants from an active session using user ID or custom participant ID.
+ * Kicks one or more participants from an active session using their participant IDs. Every connection of each participant is removed from the session.
  *
  * `POST /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/active-session/kick`
  *
@@ -71,7 +72,8 @@ export type KickAllRequest = {
 };
 export type KickAllResult = {
 	data?: {
-		action?: string;
+		action?: "kick-all";
+		/** Number of connections (peers) that were in the session when it was ended. */
 		kicked_participants_count?: number;
 	};
 	success?: boolean;
@@ -79,7 +81,7 @@ export type KickAllResult = {
 /**
  * Kick all participants
  *
- * Kicks all participants from an active session for the given meeting ID.
+ * Kicks all participants from an active session for the given meeting ID and ends the session. Participants in connected breakout rooms are kicked as well.
  *
  * `POST /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/active-session/kick-all`
  *
@@ -96,23 +98,24 @@ export type MuteRequest = {
 	app_id: string;
 	/** ID of the meeting */
 	meeting_id: string;
-	/** Request body for muting participants in an active session. At least one of `participant_ids` or `custom_participant_ids` must contain a value. */
+	/** Request body for muting participants in an active session. */
 	body: {
-		custom_participant_ids?: string[];
-		participant_ids?: string[];
+		/** IDs of the participants to mute, as returned when the participants were added to the meeting. */
+		participant_ids: string[];
 	};
 };
 export type MuteResult = {
 	data?: {
-		action?: string;
-		participants?: $realtimekit.SessionParticipant[];
+		action?: "mute";
+		/** Participants the mute was requested for. */
+		participants?: $realtimekit.ActionParticipant[];
 	};
 	success?: boolean;
 };
 /**
  * Mute participants of an active session
  *
- * Mutes one or more participants from an active session using user ID or custom participant ID.
+ * Mutes the microphone of one or more participants of an active session using their participant IDs.
  *
  * `POST /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/active-session/mute`
  *
@@ -130,14 +133,18 @@ export type MuteAllRequest = {
 	/** ID of the meeting */
 	meeting_id: string;
 	/** Request body for muting all participants in an active session. */
-	body: {
-		/** if false, participants won't be able to unmute themselves after they are muted */
+	body?: {
+		/**
+		 * This field is ignored. Muted participants can unmute themselves if their preset allows them to produce audio.
+		 * @deprecated
+		 */
 		allow_unmute?: boolean;
 	};
 };
 export type MuteAllResult = {
 	data?: {
-		action?: string;
+		action?: "mute-all";
+		/** Number of connections (peers) whose microphone was unmuted and has been muted by this request. */
 		muted_participants_count?: number;
 	};
 	success?: boolean;
@@ -145,7 +152,7 @@ export type MuteAllResult = {
 /**
  * Mute all participants
  *
- * Mutes all participants of an active session for the given meeting ID.
+ * Mutes the microphone of all participants of an active session for the given meeting ID.
  *
  * `POST /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/active-session/mute-all`
  *

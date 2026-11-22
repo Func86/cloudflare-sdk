@@ -109,6 +109,8 @@ export type GetResult = Uint8Array;
  *
  *
  * `GET /accounts/{account_id}/r2/buckets/{bucket_name}/objects/{object_key}`
+ *
+ * Throws an `ApiError` with status 304: Not Modified. Returned when conditional request headers indicate the object has not changed.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 

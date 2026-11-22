@@ -3,4 +3,4 @@ const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/dnssec"};
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/zones/{zone_id}/dnssec","body":"json"};
 export const get = {"method":"GET","route":"/zones/{zone_id}/dnssec"};
-export * as list from "./list/index.js";
+export * as zsks from "./zsks/index.js";

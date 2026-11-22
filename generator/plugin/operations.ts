@@ -26,6 +26,14 @@ const CURSOR_PARAMS: Readonly<Record<string, readonly string[]>> = {
 	page_token: ['next_page_token'],
 	after: ['cursors.after', 'cursor'],
 };
+/** The redirects `fetch` follows, as the runtime leaves `redirect` at `follow`, so a caller never gets one. */
+const FOLLOWED_REDIRECTS = new Set(['301', '302', '303', '307', '308']);
+
+/** A declared response, by its status and the spec's description of it. */
+export interface StatusNote {
+	status: string;
+	description: string;
+}
 
 export interface Param {
 	name: string;
@@ -73,6 +81,8 @@ export interface ResolvedOperation {
 	availability: string | undefined;
 	deprecated: string | undefined;
 	permissions: string[];
+	/** The 3xx responses that reach the caller, which throw an `ApiError` though a caller may take one for success. */
+	throws3xx: StatusNote[];
 	/**
 	 * Whether the route starts with `/{account_or_zone}/{account_or_zone_id}`, which the
 	 * runtime fills from `account_id` or `zone_id`. `params` leaves the pair out.
@@ -816,6 +826,17 @@ function deprecationOf(method: Method): string | undefined {
 		.join(' ');
 }
 
+/**
+ * The 3xx responses an operation declares that reach the caller, such as a 304 for a conditional
+ * GET, or for a Pages deploy hook whose branch is already deployed. The runtime throws an
+ * `ApiError` for each, as for any status outside 2xx. A range such as `3XX` says no status.
+ */
+export function throws3xx(method: Pick<Method, 'errors'>): StatusNote[] {
+	return method.errors
+		.filter(({ status }) => /^3\d\d$/.test(status) && !FOLLOWED_REDIRECTS.has(status))
+		.map(({ status, description }) => ({ status, description: description.trim() }));
+}
+
 export function resolveOperation(method: Method, report: Report, model: VariantContext['model'] = () => undefined): ResolvedOperation {
 	const key = `${method.httpMethod} ${method.path}`;
 	const resolved = resolveParams(method);
@@ -840,6 +861,7 @@ export function resolveOperation(method: Method, report: Report, model: VariantC
 		availability: method.availability,
 		deprecated: deprecationOf(method),
 		permissions: Array.isArray(permissions) ? (permissions as string[]) : [],
+		throws3xx: throws3xx(method),
 		accountOrZone,
 		dryRun: readDryRun(key, params, response),
 		params,

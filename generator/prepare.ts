@@ -247,8 +247,8 @@ function losesNull(spec: Spec, branches: readonly Schema[]): boolean {
  *
  * Forge's model has no `writeOnly`, so such a field can't be left out of what the API
  * sends, and a response type would promise a password or a secret that never arrives.
- * It stops being required: sending too little gets a clear error from the API, and a
- * wrong response type doesn't.
+ * It stops being required, by its schema and by any `allOf`, `oneOf` or `anyOf` branch of
+ * it: sending too little gets a clear error from the API, and a wrong response type doesn't.
  *
  * Forge drops `nullable` from an `allOf` branch, as in `allOf: [{ $ref }, { nullable: true }]`,
  * and intersects it away when only one branch allows `null`. OpenAPI 3.0 reads that the
@@ -268,9 +268,15 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 			`These schemas would become nullable as a whole, and so would every use of them: ${whole.join(', ')}. Check each, and patch its branch as for api-shield_operation, or add a way to accept it if it really can be null.`,
 		);
 	}
-	const walk = (node: unknown): void => {
+	const isWriteOnly = (property: Schema | undefined): boolean =>
+		property?.['writeOnly'] === true || spec.deref(property)['writeOnly'] === true;
+	// `inherited` holds the `writeOnly` names of the schemas a branch is in, as Realtime's
+	// storage configuration requires its `secret` in a branch that declares it again without the flag.
+	const walk = (node: unknown, inherited: ReadonlySet<string> = new Set()): void => {
 		if (Array.isArray(node)) {
-			node.forEach(walk);
+			for (const item of node) {
+				walk(item, inherited);
+			}
 			return;
 		}
 		if (typeof node !== 'object' || node === null) {
@@ -281,9 +287,13 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 			schema['nullable'] = true;
 			counts.nullable += 1;
 		}
+		const writeOnly = new Set(inherited);
 		const properties: Schema | undefined = schema['properties'];
 		if (typeof properties === 'object' && properties !== null) {
 			for (const [name, property] of Object.entries<Schema>(properties)) {
+				if (isWriteOnly(property)) {
+					writeOnly.add(name);
+				}
 				const target = spec.deref(property);
 				if (property?.['$ref'] !== undefined && property['readOnly'] !== true && target['readOnly'] === true) {
 					// OpenAPI 3.0 ignores what sits beside a `$ref`, and so does Forge. The wrapper
@@ -298,19 +308,17 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 					counts.readOnly += 1;
 				}
 			}
-			if (Array.isArray(schema['required'])) {
-				schema['required'] = (schema['required'] as string[]).filter((name) => {
-					const property: Schema | undefined = properties[name];
-					const writeOnly = property?.['writeOnly'] === true || spec.deref(property)['writeOnly'] === true;
-					if (writeOnly) {
-						counts.writeOnly += 1;
-					}
-					return !writeOnly;
-				});
-			}
 		}
-		for (const value of Object.values(schema)) {
-			walk(value);
+		if (Array.isArray(schema['required'])) {
+			schema['required'] = (schema['required'] as string[]).filter((name) => {
+				if (writeOnly.has(name)) {
+					counts.writeOnly += 1;
+				}
+				return !writeOnly.has(name);
+			});
+		}
+		for (const [key, value] of Object.entries(schema)) {
+			walk(value, key === 'allOf' || key === 'oneOf' || key === 'anyOf' ? writeOnly : undefined);
 		}
 	};
 	walkSchemas(doc, walk);

@@ -243,6 +243,34 @@ test('a reference to a readOnly schema is marked readOnly, and keeps its documen
 	assert.deepEqual(properties.plain, { allOf: [{ $ref: '#/components/schemas/plain' }], readOnly: true });
 });
 
+test('a writeOnly field stops being required, by its schema and by the branches of it', () => {
+	const doc = document({});
+	doc.components.schemas = {
+		// As Realtime's storage configuration, whose branches require fields it marks writeOnly.
+		storage: {
+			type: 'object',
+			properties: {
+				type: { type: 'string' },
+				secret: { type: 'string', writeOnly: true },
+				password: { type: 'string', writeOnly: true },
+				nested: { type: 'object', properties: { id: { type: 'string' } }, required: ['id', 'secret'] },
+			},
+			required: ['type', 'password'],
+			oneOf: [
+				{ properties: { secret: { minLength: 1 }, type: { enum: ['aws'] } }, required: ['secret', 'type'] },
+				{ oneOf: [{ required: ['password'] }] },
+			],
+		},
+	};
+	assert.equal(normalizeFlags(doc).writeOnly, 3);
+	const storage = doc.components.schemas['storage'];
+	assert.deepEqual(storage?.['required'], ['type']);
+	assert.deepEqual(storage?.['oneOf'][0].required, ['type']);
+	assert.deepEqual(storage?.['oneOf'][1].oneOf[0].required, []);
+	// A property's own schema is another object, so its `secret` is its own.
+	assert.deepEqual(storage?.['properties'].nested.required, ['id', 'secret']);
+});
+
 test('a named schema that would turn nullable as a whole stops generation', () => {
 	const doc = document({});
 	doc.components.schemas = {

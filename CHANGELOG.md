@@ -7,11 +7,16 @@ change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
+This release breaks calls: each breaking change below says how to update one.
+
 ### Breaking
 
-- **27 operations are renamed by the spec,** now generated from Forge's `openapi@3dc49274` rather than `debf614f`. cf's
-  commands take the same names, apart from 3 that its older pin hasn't renamed yet: `user.load-balancers.pools.edit`
-  and `bulkEdit`, and `network.subnets.initial-resolved-ip.replace`. Each keeps its request and result:
+- **33 operations are renamed by the spec,** now generated from Forge's `openapi@2b2a4d86` rather than `debf614f`. cf's
+  commands take the same names. Each keeps the shape of its request and result, but their types take the new name, so
+  import them from the new path under that name, such as `EditRequest` for `UpdateRequest` in `realtime/kit/apps`, or
+  `BulkDeleteRequest` from `kv/keys` for `DeleteRequest` from `kv/bulk`:
 
   | Was | Now |
   | --- | --- |
@@ -20,6 +25,7 @@ change something few callers rely on; its entry says how to update a call.
   | `builds/triggers/environment-variables`: `upsert` | `builds/triggers/environment-variables`: `edit` |
   | `builds/workers`: `update` | `builds/workers`: `edit` |
   | `cloudforce-one/rules/email`: `updatePendingApproval` | `cloudforce-one/rules/email/approvals`: `replace` |
+  | `dns/dnssec/list`: `zsks` | `dns/dnssec/zsks`: `list` |
   | `dns/records`: `batch` | `dns/records`: `bulkApply` |
   | `email-routing/addresses`: `update` | `email-routing/addresses`: `edit` |
   | `email-routing/settings`: `apply`, `update` | `email-routing/settings`: `replace`, `edit` |
@@ -27,6 +33,7 @@ change something few callers rely on; its entry says how to update a call.
   | `hyperdrive`: `update` | `hyperdrive`: `edit` |
   | `kv/bulk`: `delete`, `get`, `put` | `kv/keys`: `bulkDelete`, `bulkGet`, `bulkPut` |
   | `network/subnets/initial-resolved-ip`: `edit` | `network/subnets/initial-resolved-ip`: `replace` |
+  | `update` in `realtime/kit/apps`, `realtime/kit/meetings`, `realtime/kit/meetings/participants`, `realtime/kit/presets` and `realtime/kit/webhooks` | `edit` |
   | `user/load-balancers/pools/edit/pools`: `pool`, `pools` | `user/load-balancers/pools`: `edit`, `bulkEdit` |
   | `bulk` in `workers/secrets` and `workers-for-platforms/dispatch-namespaces/scripts/secrets` | `bulkEdit` |
   | `zero-trust/access/targets/bulk`: `replaceTags`, `update` | `zero-trust/access/targets`: `bulkReplaceTags`, `bulkCreate` |
@@ -40,10 +47,14 @@ change something few callers rely on; its entry says how to update a call.
 
 ### Added
 
-- 11 operations: `tunnels.hostnames.create`, `delete`, `edit`, `get` and `list`,
+- 12 operations: `tunnels.hostnames.create`, `delete`, `edit`, `get` and `list`,
   `ai-gateway.billing.topup.getEligibility`, `cloudforce-one.priority-intelligence.topics.list` and
-  `cloudforce-one.requests.quota.get`, whose responses the spec now describes, and `createLegacy`, `deleteLegacy` and
-  `listLegacy` in `r2.buckets.domains.custom`, for the deprecated `custom_domains` route.
+  `cloudforce-one.requests.quota.get`, whose responses the spec now describes, `createLegacy`, `deleteLegacy` and
+  `listLegacy` in `r2.buckets.domains.custom`, for the deprecated `custom_domains` route, and
+  `pages.deploy-hooks.trigger`, which starts a deploy hook's deployment.
+- Doc comments say when an operation throws an `ApiError` with status 304, which a caller may take for success:
+  `pages.deploy-hooks.trigger` when a deployment of the branch's latest commit already exists, and 7 GETs given a
+  matching `If-None-Match` or `If-Modified-Since`, such as `r2.objects.get`.
 - 8 list operations are paginated, so `paginate` and `page` take them, and they take `page` and `per_page`:
   `network.virtual-networks.list`, `pages.domains.list`, `queues.list`, `ssl.keyless-certificates.list`,
   `ssl.mtls-certificates.list`, `ssl.origin-tls-client-auth.hostname-certificates.list`,
@@ -56,6 +67,8 @@ change something few callers rely on; its entry says how to update a call.
 - Worker versions have `env`, their bindings as a map by name, beside `bindings`. In `workers.versions.latest.edit`,
   whose body is now a `VersionPatchInput`, an entry set to `null` removes that binding and keeps the others.
 - `r2.temporary-credentials.create` takes S3 `actions` in place of a `permission`. Its type takes exactly one of them.
+- `stream.videos.copy` and `stream.videos.direct-upload.create` take `encodingMode`, to make a preview rendition
+  first, and Stream videos report it with `previewStatus`.
 
 ### Changed
 
@@ -71,6 +84,12 @@ change something few callers rely on; its entry says how to update a call.
   - Workers' observability settings no longer have `agents.destinations`, wherever they're sent or read, such as in
     `workers.previews.update`.
   - `zaraz.config.update` takes a `ZarazConfigBodyInput`, and `types/zaraz` no longer exports `ZarazConfigBody`.
+  - `realtime.kit.meetings.active.kick` and `mute` require `participant_ids` and no longer take
+    `custom_participant_ids`. The `participants` they return have only an `id`, as `ActionParticipant`s, and
+    `types/realtimekit` no longer exports `SessionParticipant`.
+  - `realtime.kit.sessions.transcripts.export` returns `session_id` in place of `sessionId`.
+- `realtime.kit.meetings.active.muteAll` can be sent without a body, and its `allow_unmute` is deprecated, as the API
+  ignores it: a muted participant can unmute themselves if their preset lets them produce audio.
 - Request types reject query parameters the API refuses together, so such a call fails to compile, not with a 400.
   Send one of them:
   - `dns.records.list`: one of `page`, `cursor` and `prev_cursor`. `zero-trust.dex.isps.list` and
@@ -97,9 +116,14 @@ change something few callers rely on; its entry says how to update a call.
     array or a string.
   - `radar.entities.asns.get` returns `confidenceLevel` only when asked with `includeConfidenceLevel: true`.
   - A step in `workflows.instances.get` can leave out `end`.
+  - A realtime-kit session's `ended_at`, in `realtime.kit.sessions.get` and `list` and
+    `realtime.kit.meetings.active.get`, can be `null`.
 
 ### Fixed
 
+- Realtime recordings' `storage_config` no longer promises `access_key`, `password` or `private_key` in the results
+  of `realtime.kit.recordings.get`, `list`, `start` and `control`, as the API never returns them. Nor does
+  `realtime.kit.recordings.start` require them, as for other write-only fields.
 - `tags.resources.get`, `delete` and `update` can tag a zone's resources. With `zone_id`, they took only the account's
   resource types, which the zone route refuses. Now they take the zone's, such as `zone` and `dns_record`, and
   `update` takes the zone's body, a `SetTagsRequestZoneLevel`. An `access_application_policy` takes its

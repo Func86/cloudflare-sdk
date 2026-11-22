@@ -135,9 +135,7 @@ lint and tests first.
 `npm run lint` runs Knip twice: over everything, and then over `src/` alone for exports that only tests or the
 generator use, since only `src/` ships as code.
 
-Forge has no release on npm yet, only a placeholder, so this pins the same pkg.pr.new build as cf. npm 12 refuses
-tarball URLs by default, so `.npmrc` sets `allow-remote=root`, which allows ones listed in this `package.json` and not
-ones its dependencies declare.
+Forge comes from npm, pinned to the release cf pins.
 
 | File | What it does |
 | --- | --- |
@@ -169,7 +167,7 @@ ones its dependencies declare.
   number beside one, and when the caller sends `prev_cursor`, it goes back to the first page, which comes last.
 - **`readOnly` fields get a separate input type,** `FooInput`, where they're optional. A value read from the API can
   still be sent back.
-- **Lengths and ranges aren't typed.** The spec has 397 arrays with `minItems: 1`, such as R2's `actions`, but a type
+- **Lengths and ranges aren't typed.** The spec has 395 arrays with `minItems: 1`, such as R2's `actions`, but a type
   for a non-empty array, `[T, ...T[]]`, refuses an ordinary one, such as an array from `filter`, so every caller would
   need a cast or a check. The same goes for string lengths, patterns and number ranges. The API refuses what's out of
   range.
@@ -204,6 +202,10 @@ ones its dependencies declare.
 - **A declared `Accept` or `Content-Type` parameter is a request field.** `r2.objects.put` takes the object's
   `Content-Type`, which otherwise defaults to the declared `application/octet-stream`, and 2 operations choose a format
   with `Accept`.
+- **A declared 3xx that `fetch` doesn't follow is in the doc comment.** It throws an `ApiError`, as any status outside
+  2xx does, though a caller may take it for success, so the comment says so, with the spec's description. 8 operations
+  declare a 304: 7 GETs, when the caller's `If-None-Match` or `If-Modified-Since` matches, such as `r2.objects.get`,
+  and `pages.deploy-hooks.trigger`, when the branch's latest commit is already deployed.
 - **An account-or-zone route takes `account_id` or `zone_id`.** The spec writes 78 routes, used by 134 operations, as
   `/{account_or_zone}/{account_or_zone_id}/...`, with a selector and an ID. Their request types take the account's or the
   zone's ID instead, as other operations do, and their docs show both routes. Each literal is marked `accountOrZone`, and
@@ -267,8 +269,8 @@ ones its dependencies declare.
   reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
   `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
   Builds splits, as a live check showed.
-- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,646
-  of its 3,648 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,647
+  of its 3,649 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
   Cloudflare's own CLI. Forge would name the other 2, for the NEL setting, by their `operationId`, outside any group, so
   `UNNAMED_OPERATIONS` in `generator/patches.ts` leaves them out, as `zones.settings.get` and `edit` reach them with
   `setting_id: 'nel'`. Another operation without a name stops generation. A rename in `generator/patches.ts` fixes a
@@ -293,9 +295,9 @@ output with a direct reading of the spec. No type check catches them, because th
 
 | In the spec | What Forge does | What `prepare.ts` does |
 | --- | --- | --- |
-| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (252 names) |
+| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (250 names) |
 | `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (600 properties) |
-| `writeOnly` | Has no such flag | Stops requiring the field (14), so responses don't promise it |
+| `writeOnly` | Has no such flag | Stops requiring the field (20), also where a branch of its schema requires it, so responses don't promise it |
 | `nullable` in one `allOf` branch, such as Pages' `latest_deployment` | Drops it, or intersects it away | Makes the `allOf` nullable (9 that reach a type, and an error body), whether a property, an item or a map's values, as the official SDK types Pages' |
 
 A spec patch exempts API Shield's `operation`, whose nullable branch only adds `features`: read as written, every
@@ -482,7 +484,7 @@ Expect to write patches.
 ## Forge dependencies
 
 Forge is early. Its plugin interface is pre-1.0 (WIT 0.4.0), and it says breaking changes will bump the minor version.
-Pinning it by commit means nothing moves until the pin does, and a change in the spec's extensions reaches this code
+Pinning an exact version means nothing moves until the pin does, and a change in the spec's extensions reaches this code
 through `forge normalize`. Aliases replace the name they rename, so the output has `o11y.*` and not `observability.*`,
 as cf does.
 

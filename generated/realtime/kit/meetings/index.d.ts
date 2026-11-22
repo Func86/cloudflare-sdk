@@ -60,6 +60,65 @@ export type CreateResult = $realtimekit.GenericSuccessResponse & {
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
+export type EditRequest = {
+	/** The account identifier tag. */
+	account_id: string;
+	/** The app identifier tag. */
+	app_id: string;
+	/** ID of the meeting. Fetch the meeting ID using the create a meeting API. */
+	meeting_id: string;
+	/** Update meeting body */
+	body: {
+		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
+		ai_config?: $realtimekit.AIConfig;
+		/** Turns SIP dial-in on or off. Turning it off deletes the SIP URI and credentials; calls already in progress continue. Turning it on again creates a new SIP URI and credentials. */
+		enable_sip?: boolean;
+		/** Specifies if the meeting should start getting livestreamed on start. */
+		live_stream_on_start?: boolean;
+		/** If a meeting is updated to persist_chat, meeting chat would remain for a week within the meeting space. */
+		persist_chat?: boolean;
+		/** Specifies if the meeting should start getting recorded as soon as someone joins the meeting. */
+		record_on_start?: boolean;
+		/** Recording Configurations to be used for this meeting. This level of configs takes higher preference over App level configs on the RealtimeKit developer portal. */
+		recording_config?: $realtimekit.RecordingConfig;
+		/** Time in seconds, for which a session remains active, after the last participant has left the meeting. */
+		session_keep_alive_time_in_secs?: number;
+		/** Whether the meeting is `ACTIVE` or `INACTIVE`. Users will not be able to join an `INACTIVE` meeting. */
+		status?: "ACTIVE" | "INACTIVE";
+		/** Automatically generate summary of meetings using transcripts. Requires Transcriptions to be enabled, and can be retrieved via Webhooks or summary API. */
+		summarize_on_end?: boolean;
+		/** Title of the meeting */
+		title?: string;
+		/** Automatically generate transcripts when the meeting ends. */
+		transcribe_on_end?: boolean;
+	};
+};
+export type EditResult = $realtimekit.GenericSuccessResponse & {
+	data?: $realtimekit.Meeting;
+} & {
+	data?: {
+		/** Recording Configurations to be used for this meeting. This level of configs takes higher preference over App level configs on the RealtimeKit developer portal. */
+		recording_config?: $realtimekit.RecordingConfig;
+	};
+} & {
+	data?: {
+		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
+		ai_config?: $realtimekit.AIConfig;
+	};
+};
+/**
+ * Update a meeting
+ *
+ * Updates a meeting in an App for the given meeting ID.
+ *
+ * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}`
+ *
+ * Token permissions (any one): Realtime Admin, Realtime.
+ *
+ * @beta
+ */
+export declare const edit: Operation<EditRequest, EditResult>;
+
 export type GetRequest = {
 	/** The account identifier tag. */
 	account_id: string;
@@ -185,62 +244,3 @@ export type ReplaceResult = $realtimekit.GenericSuccessResponse & {
  * @beta
  */
 export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
-
-export type UpdateRequest = {
-	/** The account identifier tag. */
-	account_id: string;
-	/** The app identifier tag. */
-	app_id: string;
-	/** ID of the meeting. Fetch the meeting ID using the create a meeting API. */
-	meeting_id: string;
-	/** Update meeting body */
-	body: {
-		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
-		ai_config?: $realtimekit.AIConfig;
-		/** Turns SIP dial-in on or off. Turning it off deletes the SIP URI and credentials; calls already in progress continue. Turning it on again creates a new SIP URI and credentials. */
-		enable_sip?: boolean;
-		/** Specifies if the meeting should start getting livestreamed on start. */
-		live_stream_on_start?: boolean;
-		/** If a meeting is updated to persist_chat, meeting chat would remain for a week within the meeting space. */
-		persist_chat?: boolean;
-		/** Specifies if the meeting should start getting recorded as soon as someone joins the meeting. */
-		record_on_start?: boolean;
-		/** Recording Configurations to be used for this meeting. This level of configs takes higher preference over App level configs on the RealtimeKit developer portal. */
-		recording_config?: $realtimekit.RecordingConfig;
-		/** Time in seconds, for which a session remains active, after the last participant has left the meeting. */
-		session_keep_alive_time_in_secs?: number;
-		/** Whether the meeting is `ACTIVE` or `INACTIVE`. Users will not be able to join an `INACTIVE` meeting. */
-		status?: "ACTIVE" | "INACTIVE";
-		/** Automatically generate summary of meetings using transcripts. Requires Transcriptions to be enabled, and can be retrieved via Webhooks or summary API. */
-		summarize_on_end?: boolean;
-		/** Title of the meeting */
-		title?: string;
-		/** Automatically generate transcripts when the meeting ends. */
-		transcribe_on_end?: boolean;
-	};
-};
-export type UpdateResult = $realtimekit.GenericSuccessResponse & {
-	data?: $realtimekit.Meeting;
-} & {
-	data?: {
-		/** Recording Configurations to be used for this meeting. This level of configs takes higher preference over App level configs on the RealtimeKit developer portal. */
-		recording_config?: $realtimekit.RecordingConfig;
-	};
-} & {
-	data?: {
-		/** The AI Config allows you to customize the behavior of meeting transcriptions and summaries */
-		ai_config?: $realtimekit.AIConfig;
-	};
-};
-/**
- * Update a meeting
- *
- * Updates a meeting in an App for the given meeting ID.
- *
- * `PATCH /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}`
- *
- * Token permissions (any one): Realtime Admin, Realtime.
- *
- * @beta
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

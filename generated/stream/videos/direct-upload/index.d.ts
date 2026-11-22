@@ -21,7 +21,7 @@ export type CreateResult = {
 /**
  * Upload videos via direct upload URLs
  *
- * Creates a direct upload endpoint that allows an end-user to upload a video without an API key.
+ * Creates a direct upload endpoint that allows an end-user to upload a video without an API key. `encodingMode` is fixed when the upload URL is created and cannot be changed when the generated URL is used.
  *
  * `POST /accounts/{account_id}/stream/direct_upload`
  *

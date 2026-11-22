@@ -54,6 +54,12 @@ export type PeerReportEvent = {
 	timestamp?: string;
 };
 
+/** ActionParticipant */
+export type ActionParticipant = {
+	/** ID of the participant */
+	id: string;
+};
+
 /** Aggregated inbound (consumer) audio statistics for the session. */
 export type AudioConsumerStatsCumulative = {
 	/** Cumulative latency distribution (milliseconds-based thresholds). */
@@ -711,20 +717,6 @@ export type MeetingSip = {
 	username: string;
 } | null;
 
-/** SessionParticipant */
-export type SessionParticipant = {
-	created_at: string;
-	/** Email of the session participant. */
-	email?: string;
-	/** ID of the session participant */
-	id: string;
-	/** Name of the session participant. */
-	name?: string;
-	/** A URL pointing to a picture of the participant. */
-	picture?: string;
-	updated_at: string;
-};
-
 /** StorageConfig */
 export type StorageConfig = ({
 	/**
@@ -749,7 +741,7 @@ export type StorageConfig = ({
 	private_key?: string;
 	/** Region of the storage medium. */
 	region?: string;
-	/** Secret key of the storage medium. Similar to `access_key`, it is only writeable by clients, not readable. */
+	/** Secret key of the storage medium. Required for `aws` storage. Similar to `access_key`, it is only writeable by clients, not readable. */
 	secret?: string;
 	/** Type of storage media. */
 	type: "aws" | "azure" | "digitalocean" | "gcs" | "sftp";
@@ -758,11 +750,16 @@ export type StorageConfig = ({
 }) & ({
 	type?: "gcs";
 } | {
-	access_key: unknown;
+	access_key?: unknown;
 	region: unknown;
-	type?: "aws" | "azure" | "digitalocean";
+	secret?: unknown;
+	type?: "aws";
 } | {
-	access_key: unknown;
+	access_key?: unknown;
+	region: unknown;
+	type?: "azure" | "digitalocean";
+} | {
+	access_key?: unknown;
 	region: unknown;
 	type?: "sftp";
 } & ({
@@ -772,8 +769,6 @@ export type StorageConfig = ({
 	username: unknown;
 	host: unknown;
 	port: unknown;
-} & {
-	private_key: unknown;
 } | {
 	auth_method?: "PASSWORD";
 } & {
@@ -781,8 +776,6 @@ export type StorageConfig = ({
 	username: unknown;
 	host: unknown;
 	port: unknown;
-} & {
-	password: unknown;
 })) | null;
 
 /** Summary Config */
@@ -1077,7 +1070,7 @@ export type ActiveSession = {
 	/** timestamp when session created */
 	created_at: string;
 	/** timestamp when session ended */
-	ended_at?: string;
+	ended_at?: string | null;
 	/** ID of the session */
 	id: string;
 	/** number of participants currently in the session */
@@ -1162,6 +1155,7 @@ export type ParticipantsList = {
 };
 
 export type PatchWebhookRequest = {
+	/** Omit to keep the current value. */
 	enabled?: boolean;
 	/** Events that the webhook will get triggered by */
 	events?: ("meeting.started" | "meeting.ended" | "meeting.participantJoined" | "meeting.participantLeft" | "recording.statusUpdate" | "livestreaming.statusUpdate" | "meeting.chatSynced" | "meeting.transcript" | "meeting.summary")[];
@@ -1221,7 +1215,7 @@ export type Poll = {
 };
 
 export type Transcript = {
-	sessionId: string;
+	session_id: string;
 	/** URL where the transcript can be downloaded */
 	transcript_download_url: string;
 	/** Time when the download URL will expire */

@@ -30,6 +30,8 @@ export type VideoCopyRequest = {
 	allowedOrigins?: AllowedOrigins;
 	/** A user-defined identifier for the media creator. */
 	creator?: Creator;
+	/** Specifies whether to generate a preview rendition before the standard encoding ladder. `default` generates only the standard encoding ladder. `previewFirst` generates a preview rendition first. */
+	encodingMode?: EncodingMode;
 	/** A video's URL. The server must be publicly routable and support `HTTP HEAD` requests and `HTTP GET` range requests. The server should respond to `HTTP HEAD` requests with a `content-range` header that includes the size of the file. This is the preferred field over `url`. */
 	input?: string;
 	/** A user modifiable key-value store used to reference other systems of record for managing videos. */
@@ -230,6 +232,9 @@ export type LiveInputRecordingSettings = {
 	timeoutSeconds?: LiveInputRecordingTimeoutSeconds;
 };
 
+/** Reports the current status of preview generation. This value is `null` when `encodingMode` is `default`. */
+export type PreviewStatus = "pending" | "ready" | "error" | "not-eligible-container" | "not-eligible-video-codec" | "not-eligible-audio-codec" | "not-eligible-resolution" | "not-eligible-bitrate" | "not-eligible-gop" | "not-eligible-pixel-format" | "not-eligible-edit-list" | null;
+
 /** Sets the creator ID asssociated with this live input. */
 export type LiveInputDefaultCreator = string;
 
@@ -262,6 +267,9 @@ export type StartTimeSeconds = number;
 
 /** Specifies whether the video is `vod` or `live`. */
 export type Type = string;
+
+/** Specifies whether to generate a preview rendition before the standard encoding ladder. `default` generates only the standard encoding ladder. `previewFirst` generates a preview rendition first. */
+export type EncodingMode = "default" | "previewFirst";
 
 /** Specifies why the video failed to encode using a human readable error message in English. This field is empty if the video is not in an `error` state. */
 export type ErrorReasonText = string;
@@ -491,6 +499,8 @@ export type DirectUploadRequest = {
 	allowedOrigins?: AllowedOrigins;
 	/** A user-defined identifier for the media creator. */
 	creator?: Creator;
+	/** Specifies whether to generate a preview rendition before the standard encoding ladder. `default` generates only the standard encoding ladder. `previewFirst` generates a preview rendition first. */
+	encodingMode?: EncodingMode;
 	/** The date and time after upload when videos will not be accepted. */
 	expiry?: string;
 	/** The maximum duration in seconds for a video upload. Can be set for a video that is not yet uploaded to limit its duration. Uploads that exceed the specified duration will fail during processing. A value of `-1` means the value is unknown. */
@@ -680,6 +690,8 @@ export type Videos = {
 	creator?: Creator;
 	/** The duration of the video in seconds. A value of `-1` means the duration is unknown. The duration becomes available after the upload and before the video is ready. */
 	duration?: Duration;
+	/** Specifies whether to generate a preview rendition before the standard encoding ladder. `default` generates only the standard encoding ladder. `previewFirst` generates a preview rendition first. */
+	encodingMode?: EncodingMode;
 	input?: Input;
 	/** The live input ID used to upload a video with Stream Live. */
 	liveInput?: LiveInput;
@@ -694,6 +706,8 @@ export type Videos = {
 	playback?: Playback;
 	/** The video's preview page URI. This field is omitted until encoding is complete. */
 	preview?: Preview;
+	/** Reports the current status of preview generation. This value is `null` when `encodingMode` is `default`. */
+	previewStatus?: PreviewStatus;
 	/** Public details for the video including title, share link, channel link, and logo. */
 	publicDetails?: {
 		channel_link?: string | null;

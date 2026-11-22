@@ -93,6 +93,9 @@ function operationDoc(operation: ResolvedOperation): string {
 			? `\`${operation.method} ${operation.route}\``
 			: `\`${operation.method} /accounts/{account_id}${rest}\` or \`${operation.method} /zones/{zone_id}${rest}\``,
 	);
+	for (const { status, description } of operation.throws3xx) {
+		lines.push('', `Throws an \`ApiError\` with status ${status}${description ? `: ${description}` : '.'}`);
+	}
 	if (operation.permissions.length > 0) {
 		lines.push('', `Token permissions (any one): ${operation.permissions.join(', ')}.`);
 	}

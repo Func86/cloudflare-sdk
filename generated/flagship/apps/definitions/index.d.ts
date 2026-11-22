@@ -18,6 +18,8 @@ export type GetResult = $flagship.FlagDefinitions;
  *
  * `GET /accounts/{account_id}/flagship/apps/{app_id}/definitions`
  *
+ * Throws an `ApiError` with status 304: Definitions have not changed.
+ *
  * Token permissions (any one): Flagship Read, Flagship Write.
  *
  * @beta

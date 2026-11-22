@@ -2,8 +2,8 @@
 export const create = {"method":"POST","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants","body":"json","envelope":false};
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}","envelope":false};
 export { delete_ as delete };
+export const edit = {"method":"PATCH","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}","body":"json","envelope":false};
 export const get = {"method":"GET","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}","envelope":false};
 export const list = {"method":"GET","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants","query":["page_no","per_page"],"envelope":false};
 export const replace = {"method":"PUT","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}","body":"json","envelope":false};
-export const update = {"method":"PATCH","route":"/accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}/participants/{participant_id}","body":"json","envelope":false};
 export * as tokens from "./tokens/index.js";
