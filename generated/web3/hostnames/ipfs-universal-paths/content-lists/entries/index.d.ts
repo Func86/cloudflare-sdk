@@ -13,6 +13,8 @@ export type CreateResult = $web3.ContentListEntry;
 /**
  * Create IPFS Universal Path Gateway Content List Entry
  *
+ * Creates a new entry in an IPFS Universal Path Gateway content list.
+ *
  * `POST /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries`
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -24,7 +26,6 @@ export type DeleteRequest = {
 	identifier: string;
 	/** Specify the identifier of the hostname. */
 	content_list_entry_identifier: string;
-	body: unknown;
 };
 export type DeleteResult = {
 	/** Specify the identifier of the hostname. */
@@ -32,6 +33,8 @@ export type DeleteResult = {
 } | null;
 /**
  * Delete IPFS Universal Path Gateway Content List Entry
+ *
+ * Deletes an entry from an IPFS Universal Path Gateway content list.
  *
  * `DELETE /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries/{content_list_entry_identifier}`
  *
@@ -52,6 +55,8 @@ export type GetResult = $web3.ContentListEntry;
 /**
  * IPFS Universal Path Gateway Content List Entry Details
  *
+ * Retrieves details for a specific IPFS Universal Path Gateway content list entry.
+ *
  * `GET /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries/{content_list_entry_identifier}`
  *
  * Token permissions (any one): Web3 Hostnames Write, Web3 Hostnames Read.
@@ -71,6 +76,8 @@ export type ListResult = {
 /**
  * List IPFS Universal Path Gateway Content List Entries
  *
+ * Lists entries in an IPFS Universal Path Gateway content list.
+ *
  * `GET /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries`
  *
  * Token permissions (any one): Web3 Hostnames Write, Web3 Hostnames Read.
@@ -89,6 +96,8 @@ export type UpdateRequest = {
 export type UpdateResult = $web3.ContentListEntry;
 /**
  * Edit IPFS Universal Path Gateway Content List Entry
+ *
+ * Updates an IPFS Universal Path Gateway content list entry.
  *
  * `PUT /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries/{content_list_entry_identifier}`
  *

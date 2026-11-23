@@ -28,7 +28,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai/finetunes`
  *
- * Token permissions (any one): Workers AI Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -68,6 +68,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/ai/finetunes`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): Workers AI Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -16,7 +16,7 @@ export type CreateResult = $posture_api.Webhook;
  *
  * `POST /accounts/{account_id}/data-security/posture/webhooks`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -35,7 +35,7 @@ export type DeleteResult = $posture_api.ApiResponseCommon;
  *
  * `DELETE /accounts/{account_id}/data-security/posture/webhooks/{webhook_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -62,7 +62,7 @@ export type EvaluateResult = $posture_api.EvaluateNewWebhookResponse;
  *
  * `POST /accounts/{account_id}/data-security/posture/webhooks/evaluate`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const evaluate: Operation<EvaluateRequest, EvaluateResult>;
 
@@ -89,7 +89,7 @@ export type EvaluateExistingResult = $posture_api.EvaluateNewWebhookResponse;
  *
  * `POST /accounts/{account_id}/data-security/posture/webhooks/{webhook_id}/evaluate`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const evaluateExisting: Operation<EvaluateExistingRequest, EvaluateExistingResult>;
 
@@ -107,7 +107,7 @@ export type GetResult = $posture_api.Webhook;
  *
  * `GET /accounts/{account_id}/data-security/posture/webhooks/{webhook_id}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -124,7 +124,7 @@ export type ListResult = $posture_api.Webhook[];
  *
  * `GET /accounts/{account_id}/data-security/posture/webhooks`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -143,6 +143,6 @@ export type UpdateResult = $posture_api.Webhook;
  *
  * `PUT /accounts/{account_id}/data-security/posture/webhooks/{webhook_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

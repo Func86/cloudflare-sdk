@@ -26,7 +26,7 @@ export type CreateResult = $mq.EventSubscription;
  *
  * `POST /accounts/{account_id}/event_subscriptions/subscriptions`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -44,7 +44,7 @@ export type DeleteResult = $mq.EventSubscription;
  *
  * `DELETE /accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -73,7 +73,7 @@ export type EditResult = $mq.EventSubscription;
  *
  * `PATCH /accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -91,13 +91,15 @@ export type GetResult = $mq.EventSubscription;
  *
  * `GET /accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
 export type ListRequest = {
 	/** A Resource identifier. */
 	account_id: string;
+	/** Filter event subscriptions by destination queue ID. */
+	queue_id?: string;
 	/** Page number for pagination */
 	page?: number;
 	/** Number of items per page */
@@ -116,6 +118,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/event_subscriptions/subscriptions`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

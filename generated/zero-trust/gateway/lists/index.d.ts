@@ -37,6 +37,8 @@ export type CreateResult = {
  * Creates a new Zero Trust list.
  *
  * `POST /accounts/{account_id}/gateway/lists`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -53,6 +55,8 @@ export type DeleteResult = { [key: string]: unknown };
  * Deletes a Zero Trust list.
  *
  * `DELETE /accounts/{account_id}/gateway/lists/{list_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -76,6 +80,8 @@ export type EditResult = $zero_trust_gateway.Lists;
  * Appends or removes an item from a configured Zero Trust list.
  *
  * `PATCH /accounts/{account_id}/gateway/lists/{list_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -92,6 +98,8 @@ export type GetResult = $zero_trust_gateway.Lists;
  * Fetch a single Zero Trust list.
  *
  * `GET /accounts/{account_id}/gateway/lists/{list_id}`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -153,6 +161,8 @@ export type ListResult = $zero_trust_gateway.Lists[];
  * Fetch all Zero Trust lists for an account.
  *
  * `GET /accounts/{account_id}/gateway/lists`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -177,6 +187,8 @@ export type UpdateResult = $zero_trust_gateway.Lists;
  * Updates a configured Zero Trust list. Skips updating list items if not included in the payload. A non empty list items will overwrite the existing list.
  *
  * `PUT /accounts/{account_id}/gateway/lists/{list_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;
 
@@ -195,5 +207,7 @@ export type UploadResult = $zero_trust_gateway.CsvOperation;
  * Create a new Zero Trust list by uploading a CSV file. The file must be `text/csv` or `text/plain` and cannot exceed 2 MB. The operation is processed asynchronously. Use the returned operation ID to poll for status.
  *
  * `POST /accounts/{account_id}/gateway/lists/upload`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const upload: Operation<UploadRequest, UploadResult>;

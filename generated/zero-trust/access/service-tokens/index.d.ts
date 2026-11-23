@@ -43,7 +43,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/access/service_tokens` or `POST /zones/{zone_id}/access/service_tokens`
  *
- * Token permissions (any one): Access: Service Tokens Write.
+ * Token permissions (any one): Individual Access Service Token Admin, Access: Service Tokens Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -59,7 +59,7 @@ export type DeleteResult = $access.ServiceTokens;
  *
  * `DELETE /accounts/{account_id}/access/service_tokens/{service_token_id}` or `DELETE /zones/{zone_id}/access/service_tokens/{service_token_id}`
  *
- * Token permissions (any one): Access: Service Tokens Write.
+ * Token permissions (any one): Individual Access Service Token Admin, Access: Service Tokens Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -76,7 +76,7 @@ export type GetResult = $access.ServiceTokens;
  *
  * `GET /accounts/{account_id}/access/service_tokens/{service_token_id}` or `GET /zones/{zone_id}/access/service_tokens/{service_token_id}`
  *
- * Token permissions (any one): Access: Service Tokens Write, Access: Service Tokens Read.
+ * Token permissions (any one): Individual Access Service Token Read, Individual Access Service Token Admin, Access: Service Tokens Write, Access: Service Tokens Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -99,7 +99,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/service_tokens` or `GET /zones/{zone_id}/access/service_tokens`
  *
- * Token permissions (any one): Access: Service Tokens Write, Access: Service Tokens Read.
+ * Token permissions (any one): Individual Access Service Token Read, Individual Access Service Token Admin, Access: Service Tokens Write, Access: Service Tokens Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -117,7 +117,7 @@ export type RefreshResult = $access.ServiceTokens;
  *
  * `POST /accounts/{account_id}/access/service_tokens/{service_token_id}/refresh`
  *
- * Token permissions (any one): Access: Service Tokens Write.
+ * Token permissions (any one): Individual Access Service Token Admin, Access: Service Tokens Write, Zero Trust Write.
  */
 export declare const refresh: Operation<RefreshRequest, RefreshResult>;
 
@@ -184,6 +184,6 @@ export type UpdateResult = $access.ServiceTokens;
  *
  * `PUT /accounts/{account_id}/access/service_tokens/{service_token_id}` or `PUT /zones/{zone_id}/access/service_tokens/{service_token_id}`
  *
- * Token permissions (any one): Access: Service Tokens Write.
+ * Token permissions (any one): Individual Access Service Token Admin, Access: Service Tokens Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

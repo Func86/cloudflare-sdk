@@ -55,6 +55,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/builds/tokens`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

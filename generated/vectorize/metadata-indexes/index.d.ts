@@ -16,7 +16,7 @@ export type CreateResult = $vectorize.CreateMetadataIndexResponse;
  *
  * `POST /accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/create`
  *
- * Token permissions (any one): Vectorize Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Vectorize Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -34,7 +34,7 @@ export type DeleteResult = $vectorize.DeleteMetadataIndexResponse;
  *
  * `POST /accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/delete`
  *
- * Token permissions (any one): Vectorize Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Vectorize Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -52,6 +52,6 @@ export type ListResult = $vectorize.ListMetadataIndexResponse;
  *
  * `GET /accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/list`
  *
- * Token permissions (any one): Vectorize Write, Vectorize Read.
+ * Token permissions (any one): Auto Rag Write Run Engine, Vectorize Write, Vectorize Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -19,7 +19,7 @@ export type ApiResponseCommon = {
 export type CodedMessage = {
 	code: number;
 	/** Optional upstream error context for APIv4 errors that wrap downstream service failures. */
-	error_chain?: { [key: string]: unknown }[];
+	error_chain?: CodedMessage[];
 	message: string;
 };
 

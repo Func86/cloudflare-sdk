@@ -36,6 +36,8 @@ export type ChunksItem = RootItem<ChunksResult>;
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}/chunks`
  *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
+ *
  * @beta
  */
 export declare const chunks: PagedOperation<ChunksRequest, ChunksResult, ChunksItem>;
@@ -58,6 +60,8 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
@@ -78,6 +82,8 @@ export type DownloadResult = Uint8Array;
  * Downloads the raw file content for a specific item from the managed AI Search instance storage.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}/download`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -114,6 +120,8 @@ export type GetResult = {
  * Retrieves a specific indexed item from an AI Search instance.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -165,6 +173,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items`
  *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
@@ -195,6 +205,8 @@ export type LogsItem = RootItem<LogsResult>;
  * Lists processing logs for a specific item in an AI Search instance.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}/logs`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -236,6 +248,8 @@ export type SyncResult = {
  * Synchronizes an item to an AI Search instance index.
  *
  * `PATCH /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items/{item_id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */
@@ -288,6 +302,8 @@ export type UploadResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const upload: Operation<UploadRequest, UploadResult>;
@@ -329,6 +345,8 @@ export type UpsertResult = {
  * Creates or updates an indexed item in an AI Search instance.
  *
  * `PUT /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/items`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */

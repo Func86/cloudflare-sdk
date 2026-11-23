@@ -62,12 +62,14 @@ export type AccountStateResponse = {
 	scans_enabled: boolean;
 };
 
-export type ApiResponseSingle = {
+export type ApiResponseCommon = {
 	errors: Messages;
 	messages: Messages;
 	/** Whether the API call was successful. */
 	success: true;
 };
+
+export type ApiResponseSingle = ApiResponseCommon;
 
 export type AuditLog = {
 	/** The timestamp when the change occurred. */

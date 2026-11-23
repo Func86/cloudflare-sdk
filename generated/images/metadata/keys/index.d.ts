@@ -16,6 +16,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/images/v2/metadata/keys`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -55,7 +55,7 @@ export type GetResult = $workers.Route;
  *
  * `GET /zones/{zone_id}/workers/routes/{route_id}`
  *
- * Token permissions (any one): Workers Routes Write, Workers Routes Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -71,7 +71,7 @@ export type ListResult = $workers.Route[];
  *
  * `GET /zones/{zone_id}/workers/routes`
  *
- * Token permissions (any one): Workers Routes Write, Workers Routes Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Routes Write, Workers Routes Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

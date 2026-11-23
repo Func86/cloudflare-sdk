@@ -2,12 +2,12 @@
 import type { Operation } from "#runtime";
 import type * as $custom_indicator_feeds from "../../../_types/custom-indicator-feeds.js";
 
-export type CreateRequest = {
+export type GrantRequest = {
 	/** Identifier */
 	account_id: string;
 	body: $custom_indicator_feeds.PermissionsRequest;
 };
-export type CreateResult = $custom_indicator_feeds.PermissionsUpdate;
+export type GrantResult = $custom_indicator_feeds.PermissionsUpdate;
 /**
  * Grant permission to indicator feed
  *
@@ -15,23 +15,7 @@ export type CreateResult = $custom_indicator_feeds.PermissionsUpdate;
  *
  * `PUT /accounts/{account_id}/intel/indicator-feeds/permissions/add`
  */
-export declare const create: Operation<CreateRequest, CreateResult>;
-
-export type DeleteRequest = {
-	/** Identifier */
-	account_id: string;
-	body: $custom_indicator_feeds.PermissionsRequest;
-};
-export type DeleteResult = $custom_indicator_feeds.PermissionsUpdate;
-/**
- * Revoke permission to indicator feed
- *
- * Revokes access permissions for a custom threat indicator feed.
- *
- * `PUT /accounts/{account_id}/intel/indicator-feeds/permissions/remove`
- */
-declare const delete_: Operation<DeleteRequest, DeleteResult>;
-export { delete_ as delete };
+export declare const grant: Operation<GrantRequest, GrantResult>;
 
 export type ListRequest = {
 	/** Identifier */
@@ -48,3 +32,18 @@ export type ListResult = $custom_indicator_feeds.PermissionListItem[];
  * Token permissions (any one): Intel Write, Intel Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
+
+export type RevokeRequest = {
+	/** Identifier */
+	account_id: string;
+	body: $custom_indicator_feeds.PermissionsRequest;
+};
+export type RevokeResult = $custom_indicator_feeds.PermissionsUpdate;
+/**
+ * Revoke permission to indicator feed
+ *
+ * Revokes access permissions for a custom threat indicator feed.
+ *
+ * `PUT /accounts/{account_id}/intel/indicator-feeds/permissions/remove`
+ */
+export declare const revoke: Operation<RevokeRequest, RevokeResult>;

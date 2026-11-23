@@ -4,4 +4,4 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/shares/{share
 export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/shares/{share_id}/excluded-recipients/{excluded_recipient_id}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/shares/{share_id}/excluded-recipients","query":["page","per_page"],"page":{"kind":"page"}};
-export const update = {"method":"PUT","route":"/accounts/{account_id}/shares/{share_id}/excluded-recipients","body":"json","response":"none"};
+export const replace = {"method":"PUT","route":"/accounts/{account_id}/shares/{share_id}/excluded-recipients","body":"json","response":"none"};

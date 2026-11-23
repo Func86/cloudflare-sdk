@@ -8,6 +8,7 @@ export const get = {"method":"GET","route":"/accounts/{account_id}/images/v1/{im
 export const getBlob = {"method":"GET","route":"/accounts/{account_id}/images/v1/{image_id}/blob","response":"bytes","accept":"*/*"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/images/v2","query":["continuation_token","per_page","sort_order","creator","meta.<field>[<operator>]"]};
 export const stats = {"method":"GET","route":"/accounts/{account_id}/images/v1/stats"};
+export * as config from "./config/index.js";
 export * as flows from "./flows/index.js";
 export * as import from "./import/index.js";
 export * as keys from "./keys/index.js";

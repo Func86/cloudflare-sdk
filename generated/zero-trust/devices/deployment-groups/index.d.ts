@@ -50,6 +50,8 @@ export type GetResult = $teams_devices.DeploymentGroup;
  *
  * `GET /accounts/{account_id}/devices/deployment-groups/{group_id}`
  *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ *
  * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
@@ -69,6 +71,8 @@ export type ListItem = RootItem<ListResult>;
  * Lists all deployment groups for an account. Use deployment groups to assign target WARP client versions to specific devices. This endpoint is in Beta.
  *
  * `GET /accounts/{account_id}/devices/deployment-groups`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  *
  * @beta
  */

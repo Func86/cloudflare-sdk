@@ -304,6 +304,9 @@ export type PlaybackSrtUrl = string;
 /** The URL used to play live video over WebRTC. */
 export type PlaybackWebrtcUrl = string;
 
+/** The URL where webhooks will be sent. */
+export type NotificationUrl = string;
+
 /** The WebRTC URL you provide to the broadcaster, which they stream live video to. */
 export type InputWebrtcUrl = string;
 
@@ -773,5 +776,5 @@ export type Watermarks = {
 
 export type WebhookRequest = {
 	/** The URL where webhooks will be sent. */
-	notificationUrl: string;
+	notificationUrl: NotificationUrl;
 };

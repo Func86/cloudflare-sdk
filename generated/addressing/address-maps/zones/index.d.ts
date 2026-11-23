@@ -2,6 +2,64 @@
 import type { Operation } from "#runtime";
 import type * as $addressing from "../../../_types/addressing.js";
 
+export type BulkCreateRequest = {
+	/** Identifier of a Cloudflare account. */
+	account_id: string;
+	/** Identifier of an Address Map. */
+	address_map_id: string;
+	body: {
+		zones: $addressing.ZoneIdentifier[];
+	};
+};
+export type BulkCreateResult = $addressing.ApiResponseCollection;
+/**
+ * Add Multiple Zones to an Address Map
+ *
+ * Add multiple zones as members of a particular address map.
+ *
+ * `POST /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones`
+ */
+export declare const bulkCreate: Operation<BulkCreateRequest, BulkCreateResult>;
+
+export type BulkDeleteRequest = {
+	/** Identifier of a Cloudflare account. */
+	account_id: string;
+	/** Identifier of an Address Map. */
+	address_map_id: string;
+	body: {
+		zones: $addressing.ZoneIdentifier[];
+	};
+};
+export type BulkDeleteResult = $addressing.ApiResponseCollection;
+/**
+ * Remove Multiple Zones from an Address Map
+ *
+ * Remove multiple zones as members of a particular address map.
+ *
+ * `DELETE /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones`
+ *
+ * Token permissions (any one): Address Maps Write.
+ */
+export declare const bulkDelete: Operation<BulkDeleteRequest, BulkDeleteResult>;
+
+export type CreateRequest = {
+	/** Identifier of a Cloudflare account. */
+	account_id: string;
+	/** Identifier of an Address Map. */
+	address_map_id: string;
+	/** Identifier of a zone. */
+	member_zone_id: string;
+};
+export type CreateResult = $addressing.ApiResponseCollection;
+/**
+ * Add a zone membership to an Address Map
+ *
+ * Add a zone as a member of a particular address map.
+ *
+ * `PUT /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones/{member_zone_id}`
+ */
+export declare const create: Operation<CreateRequest, CreateResult>;
+
 export type DeleteRequest = {
 	/** Identifier of a Cloudflare account. */
 	account_id: string;
@@ -22,61 +80,3 @@ export type DeleteResult = $addressing.ApiResponseCollection;
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
-
-export type DeleteBulkRequest = {
-	/** Identifier of a Cloudflare account. */
-	account_id: string;
-	/** Identifier of an Address Map. */
-	address_map_id: string;
-	body: {
-		zones: $addressing.ZoneIdentifier[];
-	};
-};
-export type DeleteBulkResult = $addressing.ApiResponseCollection;
-/**
- * Remove Multiple Zones from an Address Map
- *
- * Remove multiple zones as members of a particular address map.
- *
- * `DELETE /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones`
- *
- * Token permissions (any one): Address Maps Write.
- */
-export declare const deleteBulk: Operation<DeleteBulkRequest, DeleteBulkResult>;
-
-export type UpdateRequest = {
-	/** Identifier of a Cloudflare account. */
-	account_id: string;
-	/** Identifier of an Address Map. */
-	address_map_id: string;
-	/** Identifier of a zone. */
-	member_zone_id: string;
-};
-export type UpdateResult = $addressing.ApiResponseCollection;
-/**
- * Add a zone membership to an Address Map
- *
- * Add a zone as a member of a particular address map.
- *
- * `PUT /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones/{member_zone_id}`
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;
-
-export type UpdateBulkRequest = {
-	/** Identifier of a Cloudflare account. */
-	account_id: string;
-	/** Identifier of an Address Map. */
-	address_map_id: string;
-	body: {
-		zones: $addressing.ZoneIdentifier[];
-	};
-};
-export type UpdateBulkResult = $addressing.ApiResponseCollection;
-/**
- * Add Multiple Zones to an Address Map
- *
- * Add multiple zones as members of a particular address map.
- *
- * `POST /accounts/{account_id}/addressing/address_maps/{address_map_id}/zones`
- */
-export declare const updateBulk: Operation<UpdateBulkRequest, UpdateBulkResult>;

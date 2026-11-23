@@ -245,12 +245,7 @@ export type ApiResponseCommon = {
 	success: true;
 };
 
-export type ApiResponseSingle = {
-	errors: Messages;
-	messages: Messages;
-	/** Whether the API call was successful. */
-	success: true;
-};
+export type ApiResponseSingle = ApiResponseCommon;
 
 export type BgpOnDemand = {
 	/** Prefix advertisement status to the Internet. This field is only not 'null' if on demand is enabled. */

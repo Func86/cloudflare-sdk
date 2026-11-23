@@ -40,7 +40,7 @@ export type BulkCreateResult = ({
  *
  * `POST /accounts/{account_id}/urlscanner/v2/bulk`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const bulkCreate: Operation<BulkCreateRequest, BulkCreateResult>;
 
@@ -51,7 +51,7 @@ export type CreateRequest = {
 		/** Enable agent readiness checks. */
 		agentReadiness?: boolean;
 		/** Country to geo egress from */
-		country?: "AE" | "AL" | "AM" | "AO" | "AR" | "AT" | "AU" | "AZ" | "BB" | "BD" | "BE" | "BF" | "BG" | "BH" | "BN" | "BO" | "BR" | "BT" | "BW" | "BY" | "CA" | "CD" | "CH" | "CI" | "CL" | "CM" | "CO" | "CR" | "CW" | "CY" | "CZ" | "DE" | "DJ" | "DK" | "DO" | "DZ" | "EC" | "EE" | "EG" | "ES" | "ET" | "FI" | "FJ" | "FR" | "GB" | "GD" | "GE" | "GH" | "GR" | "GT" | "GU" | "GY" | "HK" | "HN" | "HR" | "HT" | "HU" | "ID" | "IE" | "IL" | "IN" | "IQ" | "IS" | "IT" | "JM" | "JO" | "JP" | "KE" | "KG" | "KH" | "KR" | "KW" | "KZ" | "LA" | "LB" | "LK" | "LR" | "LT" | "LU" | "LV" | "MA" | "MD" | "MG" | "MK" | "MM" | "MN" | "MO" | "MT" | "MU" | "MV" | "MW" | "MX" | "MY" | "MZ" | "NA" | "NC" | "NG" | "NL" | "NO" | "NP" | "NZ" | "OM" | "PA" | "PE" | "PF" | "PH" | "PK" | "PL" | "PR" | "PS" | "PT" | "PY" | "QA" | "RE" | "RO" | "RS" | "RU" | "RW" | "SA" | "SE" | "SG" | "SI" | "SK" | "SN" | "SR" | "TH" | "TJ" | "TN" | "TR" | "TT" | "TW" | "TZ" | "UA" | "UG" | "US" | "UZ" | "VN" | "ZA" | "ZM" | "ZW";
+		country?: "AE" | "AL" | "AM" | "AO" | "AR" | "AT" | "AU" | "AZ" | "BB" | "BD" | "BE" | "BF" | "BG" | "BH" | "BN" | "BO" | "BR" | "BT" | "BW" | "BY" | "CA" | "CH" | "CI" | "CL" | "CM" | "CO" | "CR" | "CY" | "CZ" | "DE" | "DJ" | "DK" | "DO" | "DZ" | "EC" | "EE" | "EG" | "ES" | "ET" | "FI" | "FJ" | "FR" | "GB" | "GE" | "GH" | "GR" | "GT" | "GY" | "HK" | "HN" | "HR" | "HU" | "ID" | "IE" | "IL" | "IN" | "IQ" | "IS" | "IT" | "JM" | "JO" | "JP" | "KE" | "KG" | "KH" | "KR" | "KW" | "KZ" | "LA" | "LB" | "LK" | "LT" | "LU" | "LV" | "MD" | "MG" | "MK" | "MN" | "MO" | "MT" | "MU" | "MV" | "MX" | "MY" | "MZ" | "NA" | "NC" | "NG" | "NL" | "NO" | "NP" | "NZ" | "OM" | "PA" | "PE" | "PF" | "PH" | "PK" | "PL" | "PR" | "PS" | "PT" | "PY" | "QA" | "RE" | "RO" | "RS" | "RU" | "RW" | "SA" | "SE" | "SG" | "SI" | "SK" | "SN" | "SR" | "TH" | "TN" | "TR" | "TT" | "TW" | "TZ" | "UA" | "UG" | "US" | "VN" | "ZA" | "ZM" | "ZW";
 		/** Set custom headers. */
 		customHeaders?: { [key: string]: string };
 		customagent?: string;
@@ -86,7 +86,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/urlscanner/v2/scan`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -104,7 +104,7 @@ export type DomResult = string;
  *
  * `GET /accounts/{account_id}/urlscanner/v2/dom/{scan_id}`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const dom: Operation<DomRequest, DomResult>;
 
@@ -1322,7 +1322,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/urlscanner/v2/result/{scan_id}`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -1401,7 +1401,7 @@ export type HarResult = {
  *
  * `GET /accounts/{account_id}/urlscanner/v2/har/{scan_id}`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const har: Operation<HarRequest, HarResult>;
 
@@ -1447,7 +1447,7 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/urlscanner/v2/search`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -1467,6 +1467,6 @@ export type ScreenshotResult = Uint8Array;
  *
  * `GET /accounts/{account_id}/urlscanner/v2/screenshots/{scan_id}.png`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const screenshot: Operation<ScreenshotRequest, ScreenshotResult>;

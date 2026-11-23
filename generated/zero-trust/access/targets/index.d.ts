@@ -29,6 +29,8 @@ export type BulkCreateResult = $infra.TargetArray;
  * Adds one or more targets.
  *
  * `PUT /accounts/{account_id}/infrastructure/targets/batch`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const bulkCreate: Operation<BulkCreateRequest, BulkCreateResult>;
 
@@ -76,6 +78,8 @@ export type CreateResult = $infra.Target;
  * Creates a new infrastructure access target in the account.
  *
  * `POST /accounts/{account_id}/infrastructure/targets`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -92,6 +96,8 @@ export type DeleteResult = void;
  * Removes a single infrastructure access target by its ID.
  *
  * `DELETE /accounts/{account_id}/infrastructure/targets/{target_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -109,6 +115,8 @@ export type GetResult = $infra.Target;
  * Fetches a single infrastructure access target by its ID.
  *
  * `GET /accounts/{account_id}/infrastructure/targets/{target_id}`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -193,6 +201,8 @@ export type ListItem = RootItem<ListResult>;
  * together.
  *
  * `GET /accounts/{account_id}/infrastructure/targets`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -225,5 +235,7 @@ export type UpdateResult = $infra.Target;
  * Updates an existing infrastructure access target by its ID.
  *
  * `PUT /accounts/{account_id}/infrastructure/targets/{target_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

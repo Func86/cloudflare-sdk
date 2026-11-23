@@ -45,7 +45,7 @@ export type CreateResult = $r2.R2BucketJob;
  *
  * `POST /accounts/{account_id}/r2/buckets/{bucket_name}/jobs`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 

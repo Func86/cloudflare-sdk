@@ -28,6 +28,8 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-search/tokens`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -43,6 +45,8 @@ export type DeleteResult = { [key: string]: unknown };
  * Deletes a stored AI Search credential permanently. Credentials in use by an instance cannot be deleted.
  *
  * `DELETE /accounts/{account_id}/ai-search/tokens/{id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */
@@ -70,6 +74,8 @@ export type GetResult = {
  * Retrieve a stored AI Search credential without exposing its secret.
  *
  * `GET /accounts/{account_id}/ai-search/tokens/{id}`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -103,6 +109,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-search/tokens`
  *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
@@ -134,6 +142,8 @@ export type UpdateResult = {
  * Replace a stored AI Search credential and invalidate cached credentials for instances that use it.
  *
  * `PUT /accounts/{account_id}/ai-search/tokens/{id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */

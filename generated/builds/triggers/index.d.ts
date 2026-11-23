@@ -92,6 +92,6 @@ export type ListResult = $builds.TriggerResponse[];
  *
  * `GET /accounts/{account_id}/builds/workers/{external_script_id}/triggers`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

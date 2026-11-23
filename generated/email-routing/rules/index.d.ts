@@ -73,6 +73,10 @@ export type ListAccountItem = RootItem<ListAccountResult>;
  * Lists existing routing rules across all zones in the account or zone.
  *
  * `GET /accounts/{account_id}/email/routing/rules` or `GET /zones/{zone_id}/email/routing/rules`
+ *
+ * Token permissions on an account (any one): Email Routing Account Rules Read.
+ *
+ * Token permissions on a zone (any one): Email Routing Rules Write, Email Routing Rules Read.
  */
 export declare const listAccount: PagedOperation<ListAccountRequest, ListAccountResult, ListAccountItem>;
 
@@ -88,6 +92,8 @@ export type PlanResult = $email.AccountRulesPlan;
  * Computes the Email Routing rule changes that would be needed to reconcile a Wrangler-managed desired ruleset. This endpoint is read-only and does not create, update, or delete rules.
  *
  * `POST /accounts/{account_id}/email/routing/rules/plan`
+ *
+ * Token permissions (any one): Email Routing Account Rules Read.
  */
 export declare const plan: Operation<PlanRequest, PlanResult>;
 

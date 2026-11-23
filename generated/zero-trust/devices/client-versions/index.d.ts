@@ -23,6 +23,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/devices/client-versions`
  *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

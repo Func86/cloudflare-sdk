@@ -24,6 +24,8 @@ export type Interrupt = {
 	};
 };
 
+export type ConnectorInterruptsCreateRequest = Interrupt;
+
 export type ConnectorInterruptsResult = Interrupt & {
 	submitted_at: string;
 	triggered_at?: string;

@@ -3,6 +3,14 @@
 /** A MIME type that can be excluded from migration. */
 export type SourcingkitAcceptableContentType = "image/jpeg" | "image/png" | "image/webp" | "image/gif" | "image/avif" | "image/heic" | "image/svg+xml";
 
+/** Account-level Cloudflare Images settings. Settings that are `false` may be omitted from responses; treat an absent setting as `false`. */
+export type ImagesConfig = {
+	/** Whether flexible variants are enabled. When `true`, hosted images can be transformed with options in the URL (for example `https://imagedelivery.net/<ACCOUNT_HASH>/<IMAGE_ID>/w=400,sharpen=3`) instead of only through named variants. When `false` or absent, only named variants can be requested. */
+	flexible_variants?: ImagesConfigFlexibleVariants;
+	/** Retain C2PA provenance metadata on images delivered from hosted Cloudflare Images. When enabled, Cloudflare keeps any existing Content Credentials in the source image and cryptographically signs the transformations it applies during delivery. */
+	preserve_content_credentials?: ImagesConfigPreserveContentCredentials;
+};
+
 /** Allows you to define image resizing sizes for different use cases. */
 export type ImageVariantOptions = {
 	/** The fit property describes how the width and height dimensions should be interpreted. */
@@ -60,6 +68,17 @@ export type ImageVariantWidth = number;
 /** Object specifying available variants for an image. */
 export type ImageVariants = (ImageThumbnailUrl | ImageHeroUrl | ImageOriginalUrl)[];
 
+/** Retain C2PA provenance metadata on images delivered from hosted Cloudflare Images. When enabled, Cloudflare keeps any existing Content Credentials in the source image and cryptographically signs the transformations it applies during delivery. */
+export type ImagesConfigPreserveContentCredentials = boolean;
+
+/** Settings to change. Settings omitted from the request are left unchanged. */
+export type ImagesConfigEditRequest = {
+	/** Whether flexible variants are enabled. When `true`, hosted images can be transformed with options in the URL (for example `https://imagedelivery.net/<ACCOUNT_HASH>/<IMAGE_ID>/w=400,sharpen=3`) instead of only through named variants. When `false` or absent, only named variants can be requested. */
+	flexible_variants?: ImagesConfigFlexibleVariants;
+	/** Retain C2PA provenance metadata on images delivered from hosted Cloudflare Images. When enabled, Cloudflare keeps any existing Content Credentials in the source image and cryptographically signs the transformations it applies during delivery. */
+	preserve_content_credentials?: ImagesConfigPreserveContentCredentials;
+};
+
 /** The cloud storage vendor of the source bucket. */
 export type SourcingkitVendor = "s3" | "r2";
 
@@ -86,6 +105,9 @@ export type ImageVariantSchemasMetadata = "keep" | "copyright" | "none";
 
 /** When the media item was uploaded. */
 export type ImageUploaded = string;
+
+/** Whether flexible variants are enabled. When `true`, hosted images can be transformed with options in the URL (for example `https://imagedelivery.net/<ACCOUNT_HASH>/<IMAGE_ID>/w=400,sharpen=3`) instead of only through named variants. When `false` or absent, only named variants can be requested. */
+export type ImagesConfigFlexibleVariants = boolean;
 
 export type Image = {
 	/** Can set the creator field with an internal user ID. */

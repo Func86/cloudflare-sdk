@@ -18,6 +18,8 @@ export type GetResult = $precursor.PrecursorConfig;
  *
  * `GET /zones/{zone_id}/precursor`
  *
+ * Token permissions (any one): Precursor Write, Precursor Read.
+ *
  * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
@@ -53,6 +55,8 @@ export type UpdateResult = $precursor.PrecursorConfig;
  *
  *
  * `PUT /zones/{zone_id}/precursor`
+ *
+ * Token permissions (any one): Precursor Write.
  *
  * @beta
  */

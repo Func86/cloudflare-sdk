@@ -62,7 +62,7 @@ export type GetResult = $pages.Domain;
  *
  * `GET /accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}`
  *
- * Token permissions (any one): Pages Read, Pages Write.
+ * Token permissions (any one): Pages Metadata Read, Pages Read, Pages Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -85,6 +85,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/pages/projects/{project_name}/domains`
  *
- * Token permissions (any one): Pages Read, Pages Write.
+ * Token permissions (any one): Pages Metadata Read, Pages Read, Pages Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

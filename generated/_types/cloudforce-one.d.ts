@@ -411,7 +411,7 @@ export type SuccessResponse = {
 };
 
 export type TreeNode = {
-	children: { [key: string]: unknown }[];
+	children: TreeNode[];
 	count: number;
 	name: string;
 	path: string;

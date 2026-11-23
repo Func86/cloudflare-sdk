@@ -1093,19 +1093,8 @@ export type CustomFindingTypeResponse = ({
 
 export type FindingType = BaseFindingType & {
 	/** Remediation guide information for a finding. */
-	remediation?: FindingRemediation;
-} & ({
-	category: FindingCategory;
-	/** The unique identifier of the finding. */
-	id: string;
-	/** The name of the finding. */
-	name: string;
-	/** Remediation guide information for a finding. */
 	remediation: FindingRemediation;
-	severity: SeverityEnum & string;
-	/** The SaaS/Cloud vendor of the platform with which the finding is associated. */
-	vendor: string;
-});
+};
 
 export type FindingTypeValidationError = {
 	/**

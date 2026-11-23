@@ -20,7 +20,7 @@ export type ActivateResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/activate/{target_id}`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const activate: Operation<ActivateRequest, ActivateResult>;
 
@@ -43,7 +43,7 @@ export type CloseResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/close/{target_id}`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const close: Operation<CloseRequest, CloseResult>;
 
@@ -112,7 +112,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/list/{target_id}`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -147,6 +147,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/list`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

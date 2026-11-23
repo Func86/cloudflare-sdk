@@ -27,6 +27,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/finding_types/{finding_type_id}/remediation_types`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

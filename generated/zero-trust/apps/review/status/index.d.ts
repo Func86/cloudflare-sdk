@@ -13,6 +13,8 @@ export type ListResult = $zero_trust_gateway.ApplicationsReviewStatusResponseCon
  * Retrieve the statuses of your applications.
  *
  * `GET /accounts/{account_id}/gateway/apps/review_status`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -35,5 +37,7 @@ export type UpdateResult = $zero_trust_gateway.ApplicationsReviewStatusResponseC
  * Update the statuses of your applications.
  *
  * `PUT /accounts/{account_id}/gateway/apps/review_status`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

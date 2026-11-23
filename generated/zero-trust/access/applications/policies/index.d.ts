@@ -16,7 +16,7 @@ export type GetResult = $access.AppPolicyResult;
  *
  * `GET /accounts/{account_id}/access/apps/{app_id}/policies/{policy_id}` or `GET /zones/{zone_id}/access/apps/{app_id}/policies/{policy_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access Policy Read, Individual Access Policy Admin, Access: Policies Write, Access: Policies Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  *
  * @deprecated
  */
@@ -39,7 +39,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/apps/{app_id}/policies` or `GET /zones/{zone_id}/access/apps/{app_id}/policies`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access Policy Read, Individual Access Policy Admin, Access: Policies Write, Access: Policies Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  *
  * @deprecated
  */
@@ -61,6 +61,6 @@ export type MakeReusableResult = $access.AppPolicyResult[];
  *
  * `PUT /accounts/{account_id}/access/apps/{app_id}/policies/{policy_id}/make_reusable`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access Policy Admin, Access: Policies Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const makeReusable: Operation<MakeReusableRequest, MakeReusableResult>;

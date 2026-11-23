@@ -593,15 +593,35 @@
   "response": "envelope"
  },
  {
+  "id": "addressing.address-maps.accounts.create",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/accounts/{member_account_id}",
+  "response": "json"
+ },
+ {
   "id": "addressing.address-maps.accounts.delete",
   "method": "DELETE",
   "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/accounts/{member_account_id}",
   "response": "json"
  },
  {
-  "id": "addressing.address-maps.accounts.update",
+  "id": "addressing.address-maps.ips.bulkCreate",
+  "method": "POST",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips",
+  "response": "json",
+  "body": "json"
+ },
+ {
+  "id": "addressing.address-maps.ips.bulkDelete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips",
+  "response": "json",
+  "body": "json"
+ },
+ {
+  "id": "addressing.address-maps.ips.create",
   "method": "PUT",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/accounts/{member_account_id}",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips/{ip_address}",
   "response": "json"
  },
  {
@@ -611,50 +631,30 @@
   "response": "json"
  },
  {
-  "id": "addressing.address-maps.ips.deleteBulk",
-  "method": "DELETE",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "addressing.address-maps.ips.update",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips/{ip_address}",
-  "response": "json"
- },
- {
-  "id": "addressing.address-maps.ips.updateBulk",
+  "id": "addressing.address-maps.zones.bulkCreate",
   "method": "POST",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/ips",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones",
   "response": "json",
   "body": "json"
+ },
+ {
+  "id": "addressing.address-maps.zones.bulkDelete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones",
+  "response": "json",
+  "body": "json"
+ },
+ {
+  "id": "addressing.address-maps.zones.create",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones/{member_zone_id}",
+  "response": "json"
  },
  {
   "id": "addressing.address-maps.zones.delete",
   "method": "DELETE",
   "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones/{member_zone_id}",
   "response": "json"
- },
- {
-  "id": "addressing.address-maps.zones.deleteBulk",
-  "method": "DELETE",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "addressing.address-maps.zones.update",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones/{member_zone_id}",
-  "response": "json"
- },
- {
-  "id": "addressing.address-maps.zones.updateBulk",
-  "method": "POST",
-  "route": "/accounts/{account_id}/addressing/address_maps/{address_map_id}/zones",
-  "response": "json",
-  "body": "json"
  },
  {
   "id": "addressing.leases.list",
@@ -1494,6 +1494,41 @@
   "id": "ai-gateway.logs.update",
   "method": "PATCH",
   "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/logs/{id}",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "ai-gateway.model-aliases.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/model_aliases",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "ai-gateway.model-aliases.delete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/model_aliases/{id}",
+  "response": "envelope"
+ },
+ {
+  "id": "ai-gateway.model-aliases.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/model_aliases/{id}",
+  "response": "envelope"
+ },
+ {
+  "id": "ai-gateway.model-aliases.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/model_aliases",
+  "response": "envelope",
+  "page": {
+   "kind": "page"
+  }
+ },
+ {
+  "id": "ai-gateway.model-aliases.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/ai-gateway/gateways/{gateway_id}/model_aliases/{id}",
   "response": "envelope",
   "body": "json"
  },
@@ -3606,6 +3641,20 @@
   "body": "json"
  },
  {
+  "id": "cache.origin-cloud-regions.bulkDelete",
+  "method": "DELETE",
+  "route": "/zones/{zone_id}/origin/cloud_regions/batch",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "cache.origin-cloud-regions.bulkReplace",
+  "method": "PUT",
+  "route": "/zones/{zone_id}/origin/cloud_regions/batch",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "cache.origin-cloud-regions.createV1",
   "method": "POST",
   "route": "/zones/{zone_id}/cache/origin_cloud_regions",
@@ -3650,20 +3699,6 @@
   "id": "cache.origin-cloud-regions.update",
   "method": "PUT",
   "route": "/zones/{zone_id}/origin/cloud_regions/{origin_ip}",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "cache.origin-cloud-regions.bulk.delete",
-  "method": "DELETE",
-  "route": "/zones/{zone_id}/origin/cloud_regions/batch",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "cache.origin-cloud-regions.bulk.update",
-  "method": "PUT",
-  "route": "/zones/{zone_id}/origin/cloud_regions/batch",
   "response": "envelope",
   "body": "json"
  },
@@ -3949,24 +3984,18 @@
  {
   "id": "cloudforce-one.requests.create",
   "method": "POST",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/new",
-  "response": "envelope",
+  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}",
+  "response": "json",
   "body": "json"
- },
- {
-  "id": "cloudforce-one.requests.delete",
-  "method": "DELETE",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
-  "response": "json"
  },
  {
   "id": "cloudforce-one.requests.get",
   "method": "GET",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
-  "response": "envelope"
+  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}",
+  "response": "json"
  },
  {
-  "id": "cloudforce-one.requests.getRequestList",
+  "id": "cloudforce-one.requests.list",
   "method": "GET",
   "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}",
   "response": "envelope",
@@ -3975,37 +4004,10 @@
   }
  },
  {
-  "id": "cloudforce-one.requests.getRequestRead",
-  "method": "GET",
-  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}",
-  "response": "json"
- },
- {
-  "id": "cloudforce-one.requests.list",
-  "method": "POST",
-  "route": "/accounts/{account_id}/cloudforce-one/requests",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "cloudforce-one.requests.postRequestCreate",
-  "method": "POST",
-  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}",
-  "response": "json",
-  "body": "json"
- },
- {
-  "id": "cloudforce-one.requests.putRequestUpdate",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}",
-  "response": "json",
-  "body": "json"
- },
- {
   "id": "cloudforce-one.requests.update",
   "method": "PUT",
-  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
-  "response": "envelope",
+  "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}",
+  "response": "json",
   "body": "json"
  },
  {
@@ -4065,6 +4067,39 @@
   "method": "GET",
   "route": "/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/constants",
   "response": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.legacy.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/new",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.legacy.delete",
+  "method": "DELETE",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
+  "response": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.legacy.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
+  "response": "envelope"
+ },
+ {
+  "id": "cloudforce-one.requests.legacy.list",
+  "method": "POST",
+  "route": "/accounts/{account_id}/cloudforce-one/requests",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "cloudforce-one.requests.legacy.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/cloudforce-one/requests/{request_id}",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "cloudforce-one.requests.legal-response.accessCheck",
@@ -4973,13 +5008,6 @@
   "method": "GET",
   "route": "/accounts/{account_id}/cloudforce-one/events/countries",
   "response": "json"
- },
- {
-  "id": "cloudforce-one.threat-intel.events.legacy.bulkCreateWithRelationships",
-  "method": "POST",
-  "route": "/accounts/{account_id}/cloudforce-one/events/create/bulk/relationships",
-  "response": "json",
-  "body": "json"
  },
  {
   "id": "cloudforce-one.threat-intel.events.legacy.delete",
@@ -6426,45 +6454,45 @@
   }
  },
  {
-  "id": "dns.settings.account.views.create",
+  "id": "dns.usage.account.get",
+  "method": "GET",
+  "route": "/{account_or_zone}/{account_or_zone_id}/dns_records/usage",
+  "response": "envelope"
+ },
+ {
+  "id": "dns.views.create",
   "method": "POST",
   "route": "/accounts/{account_id}/dns_settings/views",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "dns.settings.account.views.delete",
+  "id": "dns.views.delete",
   "method": "DELETE",
   "route": "/accounts/{account_id}/dns_settings/views/{view_id}",
   "response": "envelope"
  },
  {
-  "id": "dns.settings.account.views.edit",
+  "id": "dns.views.edit",
   "method": "PATCH",
   "route": "/accounts/{account_id}/dns_settings/views/{view_id}",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "dns.settings.account.views.get",
+  "id": "dns.views.get",
   "method": "GET",
   "route": "/accounts/{account_id}/dns_settings/views/{view_id}",
   "response": "envelope"
  },
  {
-  "id": "dns.settings.account.views.list",
+  "id": "dns.views.list",
   "method": "GET",
   "route": "/accounts/{account_id}/dns_settings/views",
   "response": "envelope",
   "page": {
    "kind": "page"
   }
- },
- {
-  "id": "dns.usage.account.get",
-  "method": "GET",
-  "route": "/{account_or_zone}/{account_or_zone_id}/dns_records/usage",
-  "response": "envelope"
  },
  {
   "id": "dns.zone-transfers.forceAxfr",
@@ -7534,6 +7562,19 @@
   }
  },
  {
+  "id": "feedback.diagnose",
+  "method": "GET",
+  "route": "/feedback/diagnosis",
+  "response": "envelope"
+ },
+ {
+  "id": "feedback.send",
+  "method": "POST",
+  "route": "/feedback/send",
+  "response": "json",
+  "body": "json"
+ },
+ {
   "id": "field-extractors.delete",
   "method": "DELETE",
   "route": "/accounts/{account_id}/field_extractors/{extractor}",
@@ -7825,6 +7866,20 @@
    "param": "cursor",
    "next": "cursor"
   }
+ },
+ {
+  "id": "flagship.apps.ofrep.evaluate",
+  "method": "POST",
+  "route": "/accounts/{account_id}/flagship/apps/{app_id}/ofrep/v1/evaluate/flags/{flag_key}",
+  "response": "json",
+  "body": "json"
+ },
+ {
+  "id": "flagship.apps.ofrep.evaluateAll",
+  "method": "POST",
+  "route": "/accounts/{account_id}/flagship/apps/{app_id}/ofrep/v1/evaluate/flags",
+  "response": "json",
+  "body": "json"
  },
  {
   "id": "fraud.get",
@@ -8224,6 +8279,19 @@
   "response": "envelope"
  },
  {
+  "id": "images.config.edit",
+  "method": "PATCH",
+  "route": "/accounts/{account_id}/images/v1/config",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "images.config.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/images/v1/config",
+  "response": "envelope"
+ },
+ {
   "id": "images.flows.get",
   "method": "GET",
   "route": "/zones/{zone_id}/images/v1/flows",
@@ -8518,16 +8586,9 @@
   "response": "envelope"
  },
  {
-  "id": "intel.indicator-feeds.permissions.create",
+  "id": "intel.indicator-feeds.permissions.grant",
   "method": "PUT",
   "route": "/accounts/{account_id}/intel/indicator-feeds/permissions/add",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "intel.indicator-feeds.permissions.delete",
-  "method": "PUT",
-  "route": "/accounts/{account_id}/intel/indicator-feeds/permissions/remove",
   "response": "envelope",
   "body": "json"
  },
@@ -8536,6 +8597,13 @@
   "method": "GET",
   "route": "/accounts/{account_id}/intel/indicator-feeds/permissions/view",
   "response": "envelope"
+ },
+ {
+  "id": "intel.indicator-feeds.permissions.revoke",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/intel/indicator-feeds/permissions/remove",
+  "response": "envelope",
+  "body": "json"
  },
  {
   "id": "intel.indicator-feeds.providers.create",
@@ -11151,23 +11219,9 @@
   "response": "envelope"
  },
  {
-  "id": "o11y.telemetry.heartbeat",
-  "method": "POST",
-  "route": "/accounts/{account_id}/workers/observability/telemetry/live-tail/heartbeat",
-  "response": "envelope",
-  "body": "json"
- },
- {
   "id": "o11y.telemetry.keys",
   "method": "POST",
   "route": "/accounts/{account_id}/workers/observability/telemetry/keys",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "o11y.telemetry.liveTail",
-  "method": "POST",
-  "route": "/accounts/{account_id}/workers/observability/telemetry/live-tail",
   "response": "envelope",
   "body": "json"
  },
@@ -11220,6 +11274,20 @@
   "id": "o11y.tracing.settings.update",
   "method": "PATCH",
   "route": "/zones/{zone_id}/observability/tracing/settings",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "observability.telemetry.heartbeat",
+  "method": "POST",
+  "route": "/accounts/{account_id}/workers/observability/telemetry/live-tail/heartbeat",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "observability.telemetry.liveTail",
+  "method": "POST",
+  "route": "/accounts/{account_id}/workers/observability/telemetry/live-tail",
   "response": "envelope",
   "body": "json"
  },
@@ -11734,9 +11802,32 @@
   "body": "json"
  },
  {
+  "id": "pay-per-use.agreements.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/pay-per-use/agreements",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "pay-per-use.agreements.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/pay-per-use/agreements",
+  "response": "envelope",
+  "page": {
+   "kind": "page",
+   "items": "agreements"
+  }
+ },
+ {
   "id": "pay-per-use.enabled-domains.list",
   "method": "GET",
   "route": "/accounts/{account_id}/pay-per-use/enabled-domains",
+  "response": "envelope"
+ },
+ {
+  "id": "pay-per-use.enabled-publishers.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/pay-per-use/enabled-publishers",
   "response": "envelope"
  },
  {
@@ -14417,7 +14508,7 @@
   }
  },
  {
-  "id": "resource-sharing.excluded-recipients.update",
+  "id": "resource-sharing.excluded-recipients.replace",
   "method": "PUT",
   "route": "/accounts/{account_id}/shares/{share_id}/excluded-recipients",
   "response": "none",
@@ -14452,7 +14543,7 @@
   }
  },
  {
-  "id": "resource-sharing.recipients.update",
+  "id": "resource-sharing.recipients.replace",
   "method": "PUT",
   "route": "/accounts/{account_id}/shares/{share_id}/recipients",
   "response": "none",
@@ -16823,24 +16914,10 @@
   "response": "envelope"
  },
  {
-  "id": "vectorize.deleteByIds",
-  "method": "POST",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/delete_by_ids",
-  "response": "envelope",
-  "body": "json"
- },
- {
   "id": "vectorize.get",
   "method": "GET",
   "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}",
   "response": "envelope"
- },
- {
-  "id": "vectorize.getByIds",
-  "method": "POST",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/get_by_ids",
-  "response": "envelope",
-  "body": "json"
  },
  {
   "id": "vectorize.info",
@@ -16849,57 +16926,71 @@
   "response": "envelope"
  },
  {
-  "id": "vectorize.insert",
-  "method": "POST",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/insert",
-  "response": "envelope",
-  "body": "raw"
- },
- {
   "id": "vectorize.list",
   "method": "GET",
   "route": "/accounts/{account_id}/vectorize/v2/indexes",
   "response": "envelope"
  },
  {
-  "id": "vectorize.listVectors",
-  "method": "GET",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/list",
-  "response": "envelope"
- },
- {
-  "id": "vectorize.query",
-  "method": "POST",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/query",
-  "response": "envelope",
-  "body": "json"
- },
- {
-  "id": "vectorize.upsert",
-  "method": "POST",
-  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/upsert",
-  "response": "envelope",
-  "body": "raw"
- },
- {
-  "id": "vectorize.metadata-index.create",
+  "id": "vectorize.metadata-indexes.create",
   "method": "POST",
   "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/create",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "vectorize.metadata-index.delete",
+  "id": "vectorize.metadata-indexes.delete",
   "method": "POST",
   "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/delete",
   "response": "envelope",
   "body": "json"
  },
  {
-  "id": "vectorize.metadata-index.list",
+  "id": "vectorize.metadata-indexes.list",
   "method": "GET",
   "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/metadata_index/list",
   "response": "envelope"
+ },
+ {
+  "id": "vectorize.vectors.bulkDelete",
+  "method": "POST",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/delete_by_ids",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "vectorize.vectors.bulkGet",
+  "method": "POST",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/get_by_ids",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "vectorize.vectors.insert",
+  "method": "POST",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/insert",
+  "response": "envelope",
+  "body": "raw"
+ },
+ {
+  "id": "vectorize.vectors.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/list",
+  "response": "envelope"
+ },
+ {
+  "id": "vectorize.vectors.query",
+  "method": "POST",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/query",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "vectorize.vectors.upsert",
+  "method": "POST",
+  "route": "/accounts/{account_id}/vectorize/v2/indexes/{index_name}/upsert",
+  "response": "envelope",
+  "body": "raw"
  },
  {
   "id": "waiting-rooms.create",
@@ -17019,7 +17110,7 @@
   "body": "json"
  },
  {
-  "id": "waiting-rooms.rules.get",
+  "id": "waiting-rooms.rules.list",
   "method": "GET",
   "route": "/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules",
   "response": "envelope"
@@ -17262,8 +17353,7 @@
   "id": "web3.hostnames.delete",
   "method": "DELETE",
   "route": "/zones/{zone_id}/web3/hostnames/{identifier}",
-  "response": "envelope",
-  "body": "json"
+  "response": "envelope"
  },
  {
   "id": "web3.hostnames.edit",
@@ -17308,8 +17398,7 @@
   "id": "web3.hostnames.ipfs-universal-paths.content-lists.entries.delete",
   "method": "DELETE",
   "route": "/zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list/entries/{content_list_entry_identifier}",
-  "response": "envelope",
-  "body": "json"
+  "response": "envelope"
  },
  {
   "id": "web3.hostnames.ipfs-universal-paths.content-lists.entries.get",

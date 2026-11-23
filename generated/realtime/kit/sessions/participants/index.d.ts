@@ -27,7 +27,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/sessions/{session_id}/participants/{participant_id}`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */
@@ -66,7 +66,7 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/sessions/{session_id}/participants`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */

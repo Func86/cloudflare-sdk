@@ -26,6 +26,8 @@ export type ByClassResult = {
  * Retrieves Security Center insight counts aggregated by classification class.
  *
  * `GET /accounts/{account_id}/security-center/insights/class` or `GET /zones/{zone_id}/security-center/insights/class`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const byClass: Operation<ByClassRequest, ByClassResult>;
 
@@ -41,6 +43,8 @@ export type ByPartnerResult = {
  * Retrieves the uncapped count of active, non-dismissed, unclassified RiskRecon insights for the account or zone.
  *
  * `GET /accounts/{account_id}/security-center/insights/partner-count` or `GET /zones/{zone_id}/security-center/insights/partner-count`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  *
  * @beta
  */
@@ -70,6 +74,8 @@ export type BySeverityResult = {
  * Retrieves Security Center insight counts aggregated by severity level (critical, high, medium, low).
  *
  * `GET /accounts/{account_id}/security-center/insights/severity` or `GET /zones/{zone_id}/security-center/insights/severity`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const bySeverity: Operation<BySeverityRequest, BySeverityResult>;
 
@@ -97,5 +103,7 @@ export type ByTypeResult = {
  * Retrieves Security Center insight counts aggregated by insight type.
  *
  * `GET /accounts/{account_id}/security-center/insights/type` or `GET /zones/{zone_id}/security-center/insights/type`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const byType: Operation<ByTypeRequest, ByTypeResult>;

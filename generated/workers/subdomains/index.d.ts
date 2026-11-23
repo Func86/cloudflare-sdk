@@ -14,7 +14,7 @@ export type DeleteResult = void;
  *
  * `DELETE /accounts/{account_id}/workers/subdomain`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -31,7 +31,7 @@ export type GetResult = $workers.Subdomain2;
  *
  * `GET /accounts/{account_id}/workers/subdomain`
  *
- * Token permissions (any one): Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -48,6 +48,6 @@ export type UpdateResult = $workers.Subdomain2;
  *
  * `PUT /accounts/{account_id}/workers/subdomain`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

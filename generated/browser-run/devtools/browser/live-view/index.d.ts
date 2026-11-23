@@ -42,6 +42,6 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/live_view`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;

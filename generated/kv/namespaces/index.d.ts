@@ -52,7 +52,7 @@ export type GetResult = $workers_kv.Namespace;
  *
  * `GET /accounts/{account_id}/storage/kv/namespaces/{namespace_id}`
  *
- * Token permissions (any one): Workers KV Storage Write, Workers KV Storage Read.
+ * Token permissions (any one): Workers KV Storage Metadata Read, Workers KV Storage Write, Workers KV Storage Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -77,7 +77,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/storage/kv/namespaces`
  *
- * Token permissions (any one): Workers KV Storage Write, Workers KV Storage Read.
+ * Token permissions (any one): Workers KV Storage Metadata Read, Workers KV Storage Write, Workers KV Storage Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 

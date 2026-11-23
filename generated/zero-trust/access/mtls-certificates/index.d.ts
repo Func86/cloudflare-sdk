@@ -21,7 +21,7 @@ export type CreateResult = $access.Certificates;
  *
  * `POST /accounts/{account_id}/access/certificates` or `POST /zones/{zone_id}/access/certificates`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -40,7 +40,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/certificates/{certificate_id}` or `DELETE /zones/{zone_id}/access/certificates/{certificate_id}`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -57,7 +57,7 @@ export type GetResult = $access.Certificates;
  *
  * `GET /accounts/{account_id}/access/certificates/{certificate_id}` or `GET /zones/{zone_id}/access/certificates/{certificate_id}`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -76,7 +76,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/certificates` or `GET /zones/{zone_id}/access/certificates`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -98,6 +98,6 @@ export type UpdateResult = $access.Certificates;
  *
  * `PUT /accounts/{account_id}/access/certificates/{certificate_id}` or `PUT /zones/{zone_id}/access/certificates/{certificate_id}`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

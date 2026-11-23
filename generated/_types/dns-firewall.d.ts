@@ -123,7 +123,9 @@ export type DnsFirewallCluster = {
 	upstream_ips?: UpstreamIps;
 };
 
-export type DnsFirewallClusterPatch = {
+export type DnsFirewallClusterPatch = DnsFirewallCluster;
+
+export type DnsFirewallClusterPost = {
 	/** Attack mitigation settings */
 	attack_mitigation?: AttackMitigation;
 	/** Whether to refuse to answer queries for the ANY type */
@@ -158,7 +160,7 @@ export type DnsFirewallClusterPatch = {
 	 */
 	minimum_cache_ttl?: MinimumCacheTtl;
 	/** DNS Firewall cluster name */
-	name?: Name;
+	name: Name;
 	/**
 	 * This setting controls how long DNS Firewall should cache negative
 	 * responses (e.g., NXDOMAIN) from the upstream servers.
@@ -172,28 +174,30 @@ export type DnsFirewallClusterPatch = {
 	ratelimit?: Ratelimit;
 	/** Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
 	retries?: Retries;
-	upstream_ips?: UpstreamIps;
-};
-
-export type DnsFirewallClusterPost = DnsFirewallCluster & {
+	upstream_ips: UpstreamIps;
+} & {
 	/** Number of IPv4 addresses to assign to the DNS Firewall cluster. Only used during cluster creation and cannot be changed later. */
 	dns_firewall_ip_count?: DnsFirewallIpCount;
-} & {
-	/** DNS Firewall cluster name */
-	name: Name;
-	upstream_ips: UpstreamIps;
 };
 
-export type DnsFirewallClusterResponse = DnsFirewallCluster & {
-	dns_firewall_ips: DnsFirewallIps;
-	/** Identifier. */
-	id: Identifier;
-	/** Last modification of DNS Firewall cluster */
-	modified_on: ModifiedOn;
-} & {
-	/** DNS Firewall cluster name */
-	name: Name;
-	upstream_ips: UpstreamIps;
+export type DnsFirewallClusterResponse = {
+	/** Attack mitigation settings */
+	attack_mitigation?: AttackMitigation;
+	/** Whether to refuse to answer queries for the ANY type */
+	deprecate_any_requests: DeprecateAnyRequests;
+	/** Whether to forward client IP (resolver) subnet if no EDNS Client Subnet is sent */
+	ecs_fallback: EcsFallback;
+	/**
+	 * By default, Cloudflare attempts to cache responses for as long as
+	 * indicated by the TTL received from upstream nameservers. This setting
+	 * sets an upper bound on this duration. For caching purposes, higher TTLs
+	 * will be decreased to the maximum value defined by this setting.
+	 *
+	 * This setting does not affect the TTL value in the DNS response
+	 * Cloudflare returns to clients. Cloudflare will always forward the TTL
+	 * value received from upstream nameservers.
+	 */
+	maximum_cache_ttl: MaximumCacheTtl;
 	/**
 	 * By default, Cloudflare attempts to cache responses for as long as
 	 * indicated by the TTL received from upstream nameservers. This setting
@@ -210,17 +214,8 @@ export type DnsFirewallClusterResponse = DnsFirewallCluster & {
 	 * reasons.
 	 */
 	minimum_cache_ttl: MinimumCacheTtl;
-	/**
-	 * By default, Cloudflare attempts to cache responses for as long as
-	 * indicated by the TTL received from upstream nameservers. This setting
-	 * sets an upper bound on this duration. For caching purposes, higher TTLs
-	 * will be decreased to the maximum value defined by this setting.
-	 *
-	 * This setting does not affect the TTL value in the DNS response
-	 * Cloudflare returns to clients. Cloudflare will always forward the TTL
-	 * value received from upstream nameservers.
-	 */
-	maximum_cache_ttl: MaximumCacheTtl;
+	/** DNS Firewall cluster name */
+	name: Name;
 	/**
 	 * This setting controls how long DNS Firewall should cache negative
 	 * responses (e.g., NXDOMAIN) from the upstream servers.
@@ -230,22 +225,27 @@ export type DnsFirewallClusterResponse = DnsFirewallCluster & {
 	 * value received from upstream nameservers.
 	 */
 	negative_cache_ttl: NegativeCacheTtl;
-	/** Whether to refuse to answer queries for the ANY type */
-	deprecate_any_requests: DeprecateAnyRequests;
-	/** Whether to forward client IP (resolver) subnet if no EDNS Client Subnet is sent */
-	ecs_fallback: EcsFallback;
 	/** Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured value. The actual aggregate rate for a data center may vary depending on how many servers are present. Responses served from cache do not count toward this limit. Set to null to disable rate limiting. */
 	ratelimit: Ratelimit;
 	/** Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
 	retries: Retries;
+	upstream_ips: UpstreamIps;
+} & {
+	dns_firewall_ips: DnsFirewallIps;
+	/** Identifier. */
+	id: Identifier;
+	/** Last modification of DNS Firewall cluster */
+	modified_on: ModifiedOn;
 };
 
 export type DnsFirewallIps = string[];
 
-export type DnsFirewallReverseDnsPatch = {
+export type DnsFirewallReverseDns = {
 	/** Map of cluster IP addresses to PTR record contents */
 	ptr?: { [key: string]: string };
 };
+
+export type DnsFirewallReverseDnsPatch = DnsFirewallReverseDns;
 
 export type DnsFirewallReverseDnsResponseWithPtr = {
 	/** Map of cluster IP addresses to PTR record contents */

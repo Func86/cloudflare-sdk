@@ -38,7 +38,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs`
  *
- * Token permissions (any one): Secrets Store Write.
+ * Token permissions (any one): Secrets Store Write, AI Gateway Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -70,7 +70,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}`
  *
- * Token permissions (any one): Secrets Store Write.
+ * Token permissions (any one): Secrets Store Write, AI Gateway Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -157,7 +157,7 @@ export type TestResult = {
  *
  * `POST /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}/test`
  *
- * Token permissions (any one): Secrets Store Write.
+ * Token permissions (any one): Secrets Store Write, AI Gateway Write.
  */
 export declare const test: Operation<TestRequest, TestResult>;
 
@@ -193,6 +193,6 @@ export type UpdateResult = {
  *
  * `PUT /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/provider_configs/{id}`
  *
- * Token permissions (any one): Secrets Store Write.
+ * Token permissions (any one): Secrets Store Write, AI Gateway Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

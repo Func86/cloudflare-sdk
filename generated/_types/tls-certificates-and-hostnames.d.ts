@@ -989,12 +989,7 @@ export type CustomHostname = {
 	id: CustomHostnameIdentifier;
 	/** SSL properties for the custom hostname. */
 	ssl?: Ssl;
-} & Customhostname & {
-	/** Custom hostname identifier tag. */
-	id: CustomHostnameIdentifier;
-	/** The custom hostname that will point to your hostname via CNAME. */
-	hostname: Hostname;
-};
+} & Customhostname;
 
 export type CustomHostnameQuota = {
 	/** The allocated custom hostname quota. */
@@ -1143,28 +1138,7 @@ export type HostnameCertidObject = {
 
 export type Hosts = string[];
 
-export type KeylessCertificate = {
-	/** When the Keyless SSL was created. */
-	created_on: string;
-	/** Whether or not the Keyless SSL is on or off. */
-	enabled: Enabled;
-	/** The keyless SSL name. */
-	host: Host;
-	/** Keyless certificate identifier tag. */
-	id: KeylessCertificateIdentifier;
-	/** When the Keyless SSL was last modified. */
-	modified_on: string;
-	/** The keyless SSL name. */
-	name: Name;
-	/** Available permissions for the Keyless SSL for the current user requesting the item. */
-	permissions: string[];
-	/** The keyless SSL port used to communicate between Cloudflare and the client's Keyless SSL server. */
-	port: Port;
-	/** Status of the Keyless SSL. */
-	status: Status2;
-	/** Configuration for using Keyless SSL through a Cloudflare Tunnel. */
-	tunnel?: KeylessTunnel;
-};
+export type KeylessCertificate = Base;
 
 export type Quota = {
 	/** Quantity Allocated. */

@@ -13,6 +13,8 @@ export type CreateResult = $custom_pages.PreviewToken;
  *
  * `POST /accounts/{account_id}/custom_pages/preview_tokens` or `POST /zones/{zone_id}/custom_pages/preview_tokens`
  *
- * Token permissions (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ * Token permissions on an account (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ *
+ * Token permissions on a zone (any one): Custom Pages Write, Custom Pages Read, Zone Settings Write, Zone Settings Read.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;

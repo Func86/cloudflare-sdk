@@ -20,7 +20,7 @@ export type DeleteResult = $workers.ApiResponseCommon;
  *
  * `DELETE /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  *
  * @beta
  */

@@ -190,7 +190,7 @@ export type CreateResult = string;
  *
  * `POST /accounts/{account_id}/browser-rendering/crawl`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -298,6 +298,6 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/crawl/{job_id}`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

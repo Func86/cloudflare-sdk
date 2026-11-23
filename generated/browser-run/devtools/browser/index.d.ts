@@ -37,7 +37,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/devtools/browser`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -97,7 +97,7 @@ export type ProtocolResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/protocol`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const protocol: Operation<ProtocolRequest, ProtocolResult>;
 
@@ -126,6 +126,6 @@ export type VersionResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/browser/{session_id}/json/version`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const version: Operation<VersionRequest, VersionResult>;

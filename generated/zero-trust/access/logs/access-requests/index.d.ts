@@ -72,6 +72,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/logs/access_requests`
  *
- * Token permissions (any one): Access: Audit Logs Read.
+ * Token permissions (any one): Access: Audit Logs Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

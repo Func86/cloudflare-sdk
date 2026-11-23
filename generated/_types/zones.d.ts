@@ -335,7 +335,8 @@ export type WebmcpEnabledInput = BaseInput & {
 
 /**
  * When enabled, Cloudflare provisions an AI Search instance for the zone
- * and exposes a /.well-known/ai-search endpoint that AI agents can query.
+ * and exposes a /.well-known/search endpoint that AI agents can query.
+ * Available on all plans.
  * Markdown responses also receive an agent: YAML capability block advertising
  * the search endpoint.
  */
@@ -348,7 +349,8 @@ export type SearchForAgents = Base & {
 
 /**
  * When enabled, Cloudflare provisions an AI Search instance for the zone
- * and exposes a /.well-known/ai-search endpoint that AI agents can query.
+ * and exposes a /.well-known/search endpoint that AI agents can query.
+ * Available on all plans.
  * Markdown responses also receive an agent: YAML capability block advertising
  * the search endpoint.
  */

@@ -19,6 +19,6 @@ export type GetResult = { [key: string]: { [key: string]: unknown } | null };
  *
  * `GET /accounts/{account_id}/browser-rendering/recording/{session_id}/network`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

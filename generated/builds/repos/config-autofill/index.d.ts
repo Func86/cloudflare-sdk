@@ -24,6 +24,6 @@ export type GetResult = $builds.ConfigAutofillResponse;
  *
  * `GET /accounts/{account_id}/builds/repos/{provider_type}/{provider_account_id}/{repo_id}/config_autofill`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

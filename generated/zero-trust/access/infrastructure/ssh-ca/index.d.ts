@@ -14,7 +14,7 @@ export type CreateResult = $access.Certificates2;
  *
  * `POST /accounts/{account_id}/access/gateway_ca`
  *
- * Token permissions (any one): Access: SSH Auditing Write.
+ * Token permissions (any one): Access: SSH Auditing Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -35,7 +35,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/gateway_ca/{certificate_id}`
  *
- * Token permissions (any one): Access: SSH Auditing Write.
+ * Token permissions (any one): Access: SSH Auditing Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -52,6 +52,6 @@ export type ListResult = $access.Certificates2[];
  *
  * `GET /accounts/{account_id}/access/gateway_ca`
  *
- * Token permissions (any one): Access: SSH Auditing Write, Access: SSH Auditing Read.
+ * Token permissions (any one): Access: SSH Auditing Write, Access: SSH Auditing Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

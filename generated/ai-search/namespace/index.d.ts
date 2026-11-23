@@ -79,6 +79,8 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -94,6 +96,8 @@ export type DeleteResult = { [key: string]: unknown };
  * Deletes a namespace permanently. The namespace must not contain any instances (instances whose deletion is still in progress do not count), and the default namespace cannot be deleted.
  *
  * `DELETE /accounts/{account_id}/ai-search/namespaces/{name}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */
@@ -145,6 +149,8 @@ export type GetResult = {
  * Retrieve a namespace and its description.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{name}`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -201,6 +207,8 @@ export type ListItem = RootItem<ListResult>;
  * Lists namespaces in the account, including their descriptions and creation times.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -283,6 +291,8 @@ export type UpdateResult = {
  * Updates the description and/or the public endpoint configuration of an existing namespace. The default namespace's description cannot be modified, but its public endpoint can.
  *
  * `PUT /accounts/{account_id}/ai-search/namespaces/{name}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */

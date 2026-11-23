@@ -42,6 +42,6 @@ export type CreateSessionResult = {
  *
  * `POST /accounts/{account_id}/workers/scripts/{script_name}/assets-upload-session`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const createSession: Operation<CreateSessionRequest, CreateSessionResult>;

@@ -16,7 +16,7 @@ export type ListResult = $realtimekit.WebhookEventsSuccessResponse;
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/webhooks/all`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */

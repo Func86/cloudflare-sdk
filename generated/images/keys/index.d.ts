@@ -47,6 +47,6 @@ export type ListResult = $images.ImageKeysResponse;
  *
  * `GET /accounts/{account_id}/images/v1/keys`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -43,6 +43,8 @@ export type CreateResult = {
  * Creates a suppression for every sending domain of the account (default) or for one sending domain (`scope.type = sending_domain`). Creating an existing active suppression returns its identifier.
  *
  * `POST /accounts/{account_id}/email/sending/suppressions`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -163,6 +165,8 @@ export type GetResult = {
  * Gets an Email Sending suppression owned by the account.
  *
  * `GET /accounts/{account_id}/email/sending/suppressions/{suppression_id}`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -234,6 +238,8 @@ export type ImportResult = {
  * Imports up to 1,000 Email Sending suppressions in one request. Each item applies to every sending domain of the account (default) or to one sending domain.
  *
  * `POST /accounts/{account_id}/email/sending/suppressions/bulk`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 declare const import_: Operation<ImportRequest, ImportResult>;
 export { import_ as import };
@@ -289,5 +295,7 @@ export type ListItem = RootItem<ListResult>;
  * Lists every active Email Sending suppression owned by the account: sending-domain suppressions and account-wide suppressions. Each scope is listed newest first. The order between sending-domain and account-wide suppressions is not fixed; use `scope_type` to list one scope.
  *
  * `GET /accounts/{account_id}/email/sending/suppressions`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

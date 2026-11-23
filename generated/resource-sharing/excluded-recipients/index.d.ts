@@ -53,6 +53,8 @@ export type GetResult = $resource_sharing.ShareExcludedRecipientObject;
  * Gets a single excluded recipient of a share by its identifier tag.
  *
  * `GET /accounts/{account_id}/shares/{share_id}/excluded-recipients/{excluded_recipient_id}`
+ *
+ * Token permissions (any one): Resource Sharing Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -74,17 +76,19 @@ export type ListItem = RootItem<ListResult>;
  * Lists the accounts excluded from an organization-targeted share. Returns an empty list for account-targeted shares.
  *
  * `GET /accounts/{account_id}/shares/{share_id}/excluded-recipients`
+ *
+ * Token permissions (any one): Resource Sharing Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
-export type UpdateRequest = {
+export type ReplaceRequest = {
 	/** Account identifier. */
 	account_id: string;
 	/** Share identifier tag. */
 	share_id: string;
 	body: $resource_sharing.UpdateShareExcludedRecipientsRequest;
 };
-export type UpdateResult = void;
+export type ReplaceResult = void;
 /**
  * Trigger excluded-account reconciliation on a share
  *
@@ -92,4 +96,4 @@ export type UpdateResult = void;
  *
  * `PUT /accounts/{account_id}/shares/{share_id}/excluded-recipients`
  */
-export declare const update: Operation<UpdateRequest, UpdateResult>;
+export declare const replace: Operation<ReplaceRequest, ReplaceResult>;

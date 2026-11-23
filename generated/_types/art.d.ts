@@ -67,18 +67,7 @@ export type DataSecurityContentFindingsTopNQuery = {
 	to: string;
 };
 
-export type QuerySummary = {
-	/** Filters to apply before aggregating results. */
-	filters: Filter[];
-	/** The start of the query time range (inclusive). RFC3339 format with timezone is required (e.g. `2024-11-05T00:00:00Z`). */
-	from: string;
-	/** Specifies the column names to group results by. Requires valid columns for the target dataset. */
-	groupBy: string[];
-	/** Specifies the stat names to include in results. Requires valid stats for the target dataset (e.g. `attemptsTotal`, `bytesTotal`). */
-	stats: string[];
-	/** Specifies the end of the query time range (exclusive). Requires RFC3339 format with timezone. */
-	to: string;
-};
+export type QuerySummary = CommonQuery;
 
 export type QueryTimeseries = CommonQuery & {
 	/** Time bucket size for grouping results. Controls the granularity of the returned time slots. */

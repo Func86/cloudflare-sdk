@@ -102,14 +102,14 @@ export type ListItem = RootItem<ListResult>;
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
-export type UpdateRequest = {
+export type ReplaceRequest = {
 	/** Account identifier. */
 	account_id: string;
 	/** Share identifier tag. */
 	share_id: string;
 	body: $resource_sharing.UpdateShareRecipientsRequest;
 };
-export type UpdateResult = void;
+export type ReplaceResult = void;
 /**
  * Trigger recipient reconciliation on a share
  *
@@ -126,4 +126,4 @@ export type UpdateResult = void;
  *
  * `PUT /accounts/{account_id}/shares/{share_id}/recipients`
  */
-export declare const update: Operation<UpdateRequest, UpdateResult>;
+export declare const replace: Operation<ReplaceRequest, ReplaceResult>;

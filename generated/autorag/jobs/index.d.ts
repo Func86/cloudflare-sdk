@@ -22,7 +22,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/autorag/rags/{id}/jobs/{job_id}`
  *
- * Token permissions (any one): Auto Rag Write, Auto Rag Read.
+ * Token permissions (any one): AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -49,7 +49,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/autorag/rags/{id}/jobs`
  *
- * Token permissions (any one): Auto Rag Write, Auto Rag Read.
+ * Token permissions (any one): AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -75,6 +75,6 @@ export type LogsItem = RootItem<LogsResult>;
  *
  * `GET /accounts/{account_id}/autorag/rags/{id}/jobs/{job_id}/logs`
  *
- * Token permissions (any one): Auto Rag Write, Auto Rag Read.
+ * Token permissions (any one): AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  */
 export declare const logs: PagedOperation<LogsRequest, LogsResult, LogsItem>;

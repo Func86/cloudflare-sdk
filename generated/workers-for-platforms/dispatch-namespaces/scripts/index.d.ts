@@ -26,7 +26,7 @@ export type BulkDeleteResult = $workers.NamespaceScriptDeleteBulkResponse;
  *
  * `DELETE /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const bulkDelete: Operation<BulkDeleteRequest, BulkDeleteResult>;
 
@@ -48,7 +48,7 @@ export type DeleteResult = null;
  *
  * `DELETE /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -69,7 +69,7 @@ export type GetResult = $workers.NamespaceScriptResponse;
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -89,7 +89,7 @@ export type ListResult = $workers.NamespaceScriptResponse[];
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -125,6 +125,6 @@ export type UpdateResult = $workers.ScriptResponseUpload;
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

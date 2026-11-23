@@ -74,7 +74,7 @@ export type ListResult = $intel_sinkholes.IngressItem[];
  *
  * `GET /accounts/{account_id}/intel/sinkholes/{sinkhole_id}/ingresses` or `GET /zones/{zone_id}/intel/sinkholes/{sinkhole_id}/ingresses`
  *
- * Token permissions (any one): Intel Write, Intel Read.
+ * Token permissions on an account (any one): Intel Write, Intel Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

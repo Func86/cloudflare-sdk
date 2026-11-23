@@ -259,7 +259,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-gateway/gateways`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -403,7 +403,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/ai-gateway/gateways/{id}`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -548,7 +548,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/ai-gateway/gateways/{id}`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -566,7 +566,7 @@ export type GetUrlResult = string;
  *
  * `GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/url/{provider}`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  *
  * @beta
  */
@@ -715,7 +715,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-gateway/gateways`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -976,6 +976,6 @@ export type UpdateResult = {
  *
  * `PUT /accounts/{account_id}/ai-gateway/gateways/{id}`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

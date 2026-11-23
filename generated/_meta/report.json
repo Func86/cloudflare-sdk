@@ -36,6 +36,7 @@
    "GET /accounts/{account_id}/magic/connectors/{connector_id}/telemetry/events",
    "GET /accounts/{account_id}/magic/connectors/{connector_id}/telemetry/snapshots",
    "GET /accounts/{account_id}/pay-per-use/enabled-domains",
+   "GET /accounts/{account_id}/pay-per-use/enabled-publishers",
    "GET /accounts/{account_id}/r2-catalog/{bucket_name}/namespaces/{namespace}/tables/{table_name}/maintenance-runs",
    "GET /accounts/{account_id}/stream",
    "GET /accounts/{account_id}/vectorize/v2/indexes/{index_name}/list",

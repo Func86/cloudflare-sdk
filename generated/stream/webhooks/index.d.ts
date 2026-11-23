@@ -38,7 +38,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/stream/webhook`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 

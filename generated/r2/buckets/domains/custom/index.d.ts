@@ -63,7 +63,7 @@ export type DeleteResult = $r2.RemoveCustomDomainResponse;
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom/{domain}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -89,7 +89,7 @@ export type DeleteLegacyResult = $r2.CustomDomainLegacyResponse;
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/custom_domains/{domain}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  *
  * @deprecated
  */
@@ -113,7 +113,7 @@ export type GetResult = $r2.GetCustomDomainResponse;
  *
  * `GET /accounts/{account_id}/r2/buckets/{bucket_name}/domains/custom/{domain}`
  *
- * Token permissions (any one): Workers R2 Storage Write, Workers R2 Storage Read.
+ * Token permissions (any one): Workers R2 Storage Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers R2 Storage Write, Workers R2 Storage Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 

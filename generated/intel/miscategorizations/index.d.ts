@@ -20,5 +20,7 @@ export type CreateResult = $intel.ApiResponseSingle;
  *
  *
  * `POST /accounts/{account_id}/intel/miscategorization`
+ *
+ * Token permissions (any one): Intel Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;

@@ -20,7 +20,7 @@ export type StartResult = $mq.Queue;
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/purge`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const start: Operation<StartRequest, StartResult>;
 
@@ -43,6 +43,6 @@ export type StatusResult = {
  *
  * `GET /accounts/{account_id}/queues/{queue_id}/purge`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const status: Operation<StatusRequest, StatusResult>;

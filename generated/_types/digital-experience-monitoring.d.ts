@@ -217,7 +217,7 @@ export type ClientNotification = {
 	id: Uuid;
 	/** Plain-text notification message. */
 	message: string;
-	/** Weighted delivery outcome counts derived from sampled delivery events. */
+	/** Exact delivery outcome counts. */
 	outcome_counts?: NotificationOutcomeCounts;
 	/** Number of targeted device registrations. Omitted for account-wide notifications. */
 	recipient_count?: number;
@@ -553,8 +553,6 @@ export type NotificationOutcome = {
 	duration_ms: number;
 	/** Registration ID of the device that produced the outcome. */
 	registration_id: string;
-	/** Sampling interval for this event. Values above one indicate a sampled result. */
-	sample_interval: number;
 	/** Observed notification delivery status. */
 	status: "delivered" | "failed" | "expired";
 	/** Time when the outcome was observed. */
@@ -564,8 +562,6 @@ export type NotificationOutcome = {
 export type NotificationOutcomeCounts = {
 	/** Number of delivered outcomes. */
 	delivered: number;
-	/** Whether these weighted counts may be affected by equitable sampling before full-resolution storage. */
-	estimated: boolean;
 	/** Number of expired outcomes. */
 	expired: number;
 	/** Number of failed outcomes. */

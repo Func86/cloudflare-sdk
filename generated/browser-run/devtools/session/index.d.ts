@@ -38,7 +38,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/session/{session_id}`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -79,6 +79,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/browser-rendering/devtools/session`
  *
- * Token permissions (any one): Browser Rendering Write, Browser Rendering Read.
+ * Token permissions (any one): Browser Run Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write, Browser Run Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

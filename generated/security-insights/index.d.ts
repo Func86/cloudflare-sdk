@@ -35,6 +35,8 @@ export type DismissResult = $security_center.ApiResponseSingle;
  * Archives a Security Center insight for an account or zone, removing it from the active insights list while preserving historical data.
  *
  * `PUT /accounts/{account_id}/security-center/insights/{issue_id}/dismiss` or `PUT /zones/{zone_id}/security-center/insights/{issue_id}/dismiss`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write.
  */
 export declare const dismiss: Operation<DismissRequest, DismissResult>;
 
@@ -70,5 +72,7 @@ export type ListItem = ItemOf<ListResult, "issues">;
  * Lists all Security Center insights for the account or zone, showing security findings and recommendations.
  *
  * `GET /accounts/{account_id}/security-center/insights` or `GET /zones/{zone_id}/security-center/insights`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

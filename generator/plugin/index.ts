@@ -96,8 +96,9 @@ function operationDoc(operation: ResolvedOperation): string {
 	for (const { status, description } of operation.throws3xx) {
 		lines.push('', `Throws an \`ApiError\` with status ${status}${description ? `: ${description}` : '.'}`);
 	}
-	if (operation.permissions.length > 0) {
-		lines.push('', `Token permissions (any one): ${operation.permissions.join(', ')}.`);
+	for (const { scope, names } of operation.permissions) {
+		const on = scope === undefined ? '' : scope === 'account' ? ' on an account' : ' on a zone';
+		lines.push('', `Token permissions${on} (any one): ${names.join(', ')}.`);
 	}
 	if (operation.availability === 'beta' || operation.availability === 'alpha') {
 		lines.push('', `@${operation.availability}`);

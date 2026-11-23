@@ -42,7 +42,7 @@ export type DeleteResult = $workers.ApiResponseCommon;
  *
  * `DELETE /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  *
  * @beta
  */
@@ -91,7 +91,7 @@ export type GetResult = $workers.PreviewDeployment;
  *
  * `GET /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */
@@ -118,7 +118,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */

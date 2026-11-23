@@ -14,7 +14,7 @@ export type FieldDefinition = {
 	/** Enum values unavailable for new writes but retained in allowedValues for historical display. */
 	deprecatedValues?: string[];
 	/** Nested FieldDefinition describing the element type of an array field. Required when kind is 'array'. See FieldDefinition (recursive). */
-	element?: { [key: string]: unknown } & { [key: string]: unknown };
+	element?: { [key: string]: unknown } & FieldDefinition;
 	enforcement?: "error" | "warn" | "off";
 	format?: "date" | "url" | "duration" | "country";
 	key: string;
@@ -27,7 +27,7 @@ export type FieldDefinition = {
 		min?: number;
 	};
 	/** Map of property key to FieldDefinition for object fields. Required when kind is 'object'. See FieldDefinition (recursive). */
-	properties?: { [key: string]: { [key: string]: unknown } };
+	properties?: { [key: string]: FieldDefinition };
 	required?: boolean;
 };
 

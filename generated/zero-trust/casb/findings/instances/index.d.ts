@@ -20,7 +20,7 @@ export type ArchiveResult = $posture_api.FindingInstance;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/{finding_id}/instances/archive`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const archive: Operation<ArchiveRequest, ArchiveResult>;
 
@@ -47,7 +47,7 @@ export type ExportResult = $posture_api.ExportJob;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/{storage_namespace_id}/instances/export`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 declare const export_: Operation<ExportRequest, ExportResult>;
 export { export_ as export };
@@ -71,7 +71,7 @@ export type GetResult = $posture_api.FindingInstance;
  *
  * `GET /accounts/{account_id}/data-security/posture/findings/{finding_id}/instances/{instance_id}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -124,7 +124,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/findings/{finding_id}/instances`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -146,6 +146,6 @@ export type UnarchiveResult = $posture_api.FindingInstance;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/{finding_id}/instances/unarchive`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const unarchive: Operation<UnarchiveRequest, UnarchiveResult>;

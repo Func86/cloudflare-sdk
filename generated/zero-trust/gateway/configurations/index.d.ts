@@ -18,6 +18,8 @@ export type EditResult = $zero_trust_gateway.GatewayAccountSettings & {
  * Update (PATCH) a single subcollection of settings such as `antivirus`, `tls_decrypt`, `activity_log`, `block_page`, `browser_isolation`, `fips`, `body_scanning`, `certificate`, or `max_ttl_secs` without updating the entire configuration object. This endpoint returns an error if any settings collection lacks proper configuration.
  *
  * `PATCH /accounts/{account_id}/gateway/configuration`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -35,6 +37,8 @@ export type GetResult = $zero_trust_gateway.GatewayAccountSettings & {
  * Retrieve the current Zero Trust account configuration.
  *
  * `GET /accounts/{account_id}/gateway/configuration`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -53,5 +57,7 @@ export type UpdateResult = $zero_trust_gateway.GatewayAccountSettings & {
  * Update the current Zero Trust account configuration.
  *
  * `PUT /accounts/{account_id}/gateway/configuration`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -151,22 +151,7 @@ export type DnsSettingsBase = {
 	zone_mode?: ZoneMode;
 };
 
-export type DnsSettingsPatch = {
-	/** Whether to flatten all CNAME records in the zone. Note that, due to DNS limitations, a CNAME record at the zone apex will always be flattened. */
-	flatten_all_cnames?: FlattenAllCnames;
-	/** Settings for this internal zone. */
-	internal_dns?: InternalDnsBase;
-	/** Whether to enable multi-provider DNS, which causes Cloudflare to activate the zone even when non-Cloudflare NS records exist, and to respect NS records at the zone apex during outbound zone transfers. */
-	multi_provider?: MultiProvider;
-	/** The time to live (TTL) of the zone's nameserver (NS) records. */
-	ns_ttl?: NsTtl;
-	/** Allows a Secondary DNS zone to use (proxied) override records and CNAME flattening at the zone apex. */
-	secondary_overrides?: SecondaryOverrides;
-	/** Components of the zone's SOA record. */
-	soa?: SoaBase;
-	/** Whether the zone mode is a regular or CDN/DNS only zone. */
-	zone_mode?: ZoneMode;
-};
+export type DnsSettingsPatch = DnsSettingsBase;
 
 export type DnsSettingsResponse = DnsSettingsBase & {
 	internal_dns: InternalDnsResponse;
@@ -184,7 +169,7 @@ export type DnsSettingsResponse = DnsSettingsBase & {
 	zone_mode: ZoneMode;
 };
 
-export type DnsView = {
+export type DnsViewInput = {
 	/** When the view was created. */
 	created_time?: CreatedTime;
 	/** When the view was last modified. */
@@ -195,16 +180,7 @@ export type DnsView = {
 	zones?: Zones;
 };
 
-export type DnsViewPatchInput = {
-	/** When the view was created. */
-	created_time?: CreatedTime;
-	/** When the view was last modified. */
-	modified_time?: ModifiedTime;
-	/** The name of the view. */
-	name?: Name;
-	/** The list of zones linked to this view. */
-	zones?: Zones;
-};
+export type DnsViewPatchInput = DnsViewInput;
 
 export type DnsViewPostInput = {
 	/** When the view was created. */
@@ -217,20 +193,18 @@ export type DnsViewPostInput = {
 	zones: Zones;
 };
 
-export type DnsViewResponse = DnsView & {
-	/** Identifier. */
-	id: Identifier;
-} & {
-	/** Identifier. */
-	id: Identifier;
-	/** The name of the view. */
-	name: Name;
-	/** The list of zones linked to this view. */
-	zones: Zones;
+export type DnsViewResponse = {
 	/** When the view was created. */
 	created_time: CreatedTime;
 	/** When the view was last modified. */
 	modified_time: ModifiedTime;
+	/** The name of the view. */
+	name: Name;
+	/** The list of zones linked to this view. */
+	zones: Zones;
+} & {
+	/** Identifier. */
+	id: Identifier;
 };
 
 export type InternalDnsResponse = {

@@ -23,7 +23,7 @@ export type CreateResult = $mq.Queue;
  *
  * `POST /accounts/{account_id}/queues`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -41,7 +41,7 @@ export type DeleteResult = $mq.ApiV4Success;
  *
  * `DELETE /accounts/{account_id}/queues/{queue_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -61,7 +61,7 @@ export type EditResult = $mq.Queue;
  *
  * `PATCH /accounts/{account_id}/queues/{queue_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -79,7 +79,7 @@ export type GetResult = $mq.Queue;
  *
  * `GET /accounts/{account_id}/queues/{queue_id}`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -100,7 +100,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/queues`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -119,6 +119,6 @@ export type UpdateResult = $mq.Queue;
  *
  * `PUT /accounts/{account_id}/queues/{queue_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

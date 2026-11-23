@@ -42,6 +42,6 @@ export type StatusResult = {
  *
  * `GET /accounts/{account_id}/basin-catalog/{bucket_name}/credential/status`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  */
 export declare const status: Operation<StatusRequest, StatusResult>;

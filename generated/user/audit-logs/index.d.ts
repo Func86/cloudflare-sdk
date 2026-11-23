@@ -35,6 +35,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /user/audit_logs`
  *
- * Token permissions (any one): Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Audit Logs Read, Account Settings Write, Account Settings Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

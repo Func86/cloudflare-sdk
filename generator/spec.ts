@@ -12,6 +12,11 @@ export interface OpenApiDocument {
 /** The extension `prepare` adds for the plugin, naming the path parameters that keep their slashes. */
 export const LITERAL_SLASHES = 'x-sdk-literal-slashes';
 /**
+ * The extension `prepare` adds for the plugin to an operation that takes the account or the zone:
+ * the token permissions for each, as `{ account?: string[]; zone?: string[] }`, any one of which it takes.
+ */
+export const SCOPED_PERMISSIONS = 'x-sdk-scoped-permissions';
+/**
  * The extension a spec patch adds for the plugin: the operation's body is one of its alternatives
  * only, as `oneOf` says, so a field one of them declares is absent from the others.
  */
@@ -72,7 +77,7 @@ export class Spec {
 			this.flatProperties(branch, into, depth + 1);
 		}
 		for (const [name, value] of Object.entries<Schema>(resolved['properties'] ?? {})) {
-			if (!(name in into) || Object.keys(value).length > 0) {
+			if (!Object.hasOwn(into, name) || Object.keys(value).length > 0) {
 				into[name] = value;
 			}
 		}

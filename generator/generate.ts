@@ -1,12 +1,12 @@
 /**
- * Generates the operations the way the cf CLI generates its commands: a pinned
- * release of Forge's OpenAPI document, prepared, normalized by `forge normalize`,
- * and run through this package's Forge plugin.
+ * Generates the operations the way the cf CLI generates its commands: the OpenAPI
+ * document at a pinned commit of cloudflare/api-schemas, prepared, normalized by
+ * `forge normalize`, and run through this package's Forge plugin.
  *
  *     npm run generate   # builds the plugin to generator/sdk.wasm, then runs this
  *     node generator/generate.ts [--spec PATH] [--out DIR]
  *
- * `FORGE_OPENAPI_BUNDLE` also names a local document, as it does in cf.
+ * `OPENAPI_BUNDLE` also names a local document, as it does in cf.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { once } from 'node:events';
@@ -21,24 +21,37 @@ import { type ManifestEntry, nameChanges, reportNameChanges } from './manifest.t
 import { prepare } from './prepare.ts';
 import type { OpenApiDocument } from './spec.ts';
 
-// Bump this SHA to generate from a new release.
-const FORGE_OPENAPI_VERSION = '2b2a4d864560ba802f264202316ec9eaf8595dd6';
-const FORGE_OPENAPI_URL = `https://github.com/cloudflare/forge/releases/download/openapi@${FORGE_OPENAPI_VERSION}/openapi.forge.json`;
+// Bump this SHA, a commit of cloudflare/api-schemas, to generate from a newer document.
+const OPENAPI_VERSION = '76c66fb2fa6a6b494a075a83da032fc5bdb83582';
+const OPENAPI_URL = `https://raw.githubusercontent.com/cloudflare/api-schemas/${OPENAPI_VERSION}/openapi.json`;
 
 async function loadDocument(path: string | undefined): Promise<OpenApiDocument> {
 	if (path !== undefined) {
 		return JSON.parse(readFileSync(path, 'utf8')) as OpenApiDocument;
 	}
-	const cached = join('.cache', `openapi.${FORGE_OPENAPI_VERSION}.json`);
-	if (!existsSync(cached)) {
-		const response = await fetch(FORGE_OPENAPI_URL);
-		if (!response.ok) {
-			throw new Error(`Failed to fetch ${FORGE_OPENAPI_URL}: ${response.status} ${response.statusText}`);
-		}
-		mkdirSync('.cache', { recursive: true });
-		writeFileSync(cached, await response.text());
+	// Not `openapi.<sha>.json`, which held Forge's release of the same commit, a different document.
+	const cached = join('.cache', `api-schemas.${OPENAPI_VERSION}.json`);
+	if (existsSync(cached)) {
+		return JSON.parse(readFileSync(cached, 'utf8')) as OpenApiDocument;
 	}
-	return JSON.parse(readFileSync(cached, 'utf8')) as OpenApiDocument;
+	const response = await fetch(OPENAPI_URL);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch ${OPENAPI_URL}: ${response.status} ${response.statusText}`);
+	}
+	const text = await response.text();
+	// Parsed before it's kept, and written beside it first, under a name of this process's own,
+	// so neither a cut write nor another generator's write is read as the document.
+	const doc = JSON.parse(text) as OpenApiDocument;
+	mkdirSync('.cache', { recursive: true });
+	const partial = `${cached}.${process.pid}.partial`;
+	try {
+		writeFileSync(partial, text);
+		renameSync(partial, cached);
+	} catch (error) {
+		rmSync(partial, { force: true });
+		throw error;
+	}
+	return doc;
 }
 
 /** Pipes the document through `forge normalize` into the plugin. */
@@ -104,7 +117,7 @@ if (!existsSync(plugin)) {
 }
 
 const started = performance.now();
-const doc = await loadDocument(values.spec ?? process.env['FORGE_OPENAPI_BUNDLE']);
+const doc = await loadDocument(values.spec ?? process.env['OPENAPI_BUNDLE']);
 const { skipped, flags, restatedRequired } = prepare(doc);
 
 const out = values.out.replace(/[\\/]+$/, '');

@@ -34,7 +34,7 @@ export type GetResult = $r2_data_catalog.GetTableResponse;
  *
  * `GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces/{namespace}/tables/{table_name}`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -79,6 +79,6 @@ export type ListResult = $r2_data_catalog.TableListResponse;
  *
  * `GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces/{namespace}/tables`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

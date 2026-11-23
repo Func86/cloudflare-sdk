@@ -26,7 +26,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/workflows/concurrency`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  *
  * @beta
  */
@@ -48,7 +48,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/workflows/concurrency/{key_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  *
  * @beta
  */
@@ -80,7 +80,7 @@ export type EditResult = {
  *
  * `PATCH /accounts/{account_id}/workflows/concurrency/{key_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  *
  * @beta
  */
@@ -112,7 +112,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/workflows/concurrency/{key_id}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */
@@ -140,7 +140,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/workflows/concurrency`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */

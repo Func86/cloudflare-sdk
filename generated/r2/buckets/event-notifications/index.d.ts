@@ -24,7 +24,7 @@ export type DeleteResult = { [key: string]: unknown };
  *
  * `DELETE /accounts/{account_id}/event_notifications/r2/{bucket_name}/configuration/queues/{queue_id}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -47,7 +47,7 @@ export type GetResult = $r2.QueuesConfig;
  *
  * `GET /accounts/{account_id}/event_notifications/r2/{bucket_name}/configuration/queues/{queue_id}`
  *
- * Token permissions (any one): Workers R2 Storage Write, Workers R2 Storage Read.
+ * Token permissions (any one): Workers R2 Storage Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers R2 Storage Write, Workers R2 Storage Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -67,7 +67,7 @@ export type ListResult = $r2.BucketConfig;
  *
  * `GET /accounts/{account_id}/event_notifications/r2/{bucket_name}/configuration`
  *
- * Token permissions (any one): Workers R2 Storage Write, Workers R2 Storage Read.
+ * Token permissions (any one): Workers R2 Storage Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers R2 Storage Write, Workers R2 Storage Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -93,6 +93,6 @@ export type UpdateResult = { [key: string]: unknown };
  *
  * `PUT /accounts/{account_id}/event_notifications/r2/{bucket_name}/configuration/queues/{queue_id}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

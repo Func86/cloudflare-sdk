@@ -29,7 +29,7 @@ export type CreateResult = string | number | boolean | { [key: string]: unknown 
  *
  * `POST /accounts/{account_id}/browser-rendering/script`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -57,6 +57,6 @@ export type ExecuteResult = string | number | boolean | { [key: string]: unknown
  *
  * `POST /accounts/{account_id}/browser-rendering/script/{session_id}`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const execute: Operation<ExecuteRequest, ExecuteResult>;

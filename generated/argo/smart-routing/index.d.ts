@@ -14,7 +14,7 @@ export type CountZonesEnabledForAccountResult = number;
  *
  * `GET /accounts/{account_id}/argo/count_zones_enabled`
  *
- * Token permissions (any one): Trust and Safety Write, Trust and Safety Read, Zone Read, Zone Write.
+ * Token permissions (any one): Zone Security Insights Partner Assets Read, Zone Security Center Insights Write, Zone Security Center Insights Read, Trust and Safety Write, Trust and Safety Read, Zone Read, Zone Write.
  */
 export declare const countZonesEnabledForAccount: Operation<CountZonesEnabledForAccountRequest, CountZonesEnabledForAccountResult>;
 
@@ -27,7 +27,7 @@ export type CountZonesEnabledForUserResult = number;
  *
  * `GET /user/argo/count_zones_enabled`
  *
- * Token permissions (any one): Trust and Safety Write, Trust and Safety Read, Zone Read, Zone Write.
+ * Token permissions (any one): Zone Security Insights Partner Assets Read, Zone Security Center Insights Write, Zone Security Center Insights Read, Trust and Safety Write, Trust and Safety Read, Zone Read, Zone Write.
  */
 export declare const countZonesEnabledForUser: Operation<CountZonesEnabledForUserRequest, CountZonesEnabledForUserResult>;
 
@@ -44,7 +44,7 @@ export type EditResult = $argo_config.ResultObject;
  *
  * `PATCH /zones/{zone_id}/argo/smart_routing`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -60,6 +60,6 @@ export type GetResult = $argo_config.ResultObject;
  *
  * `GET /zones/{zone_id}/argo/smart_routing`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

@@ -68,6 +68,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/email-security/submissions`
  *
+ * Token permissions (any one): Cloud Email Security: Write, Cloud Email Security: Read.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

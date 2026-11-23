@@ -15,7 +15,7 @@ export type CreditBalanceResult = $aig_billing.GetCreditBalanceResult;
  *
  * `GET /accounts/{account_id}/ai-gateway/billing/credit-balance`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const creditBalance: Operation<CreditBalanceRequest, CreditBalanceResult>;
 
@@ -33,7 +33,7 @@ export type InvoiceHistoryResult = $aig_billing.GetInvoiceHistoryResult;
  *
  * `GET /accounts/{account_id}/ai-gateway/billing/invoice-history`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const invoiceHistory: Operation<InvoiceHistoryRequest, InvoiceHistoryResult>;
 
@@ -49,7 +49,7 @@ export type InvoicePreviewResult = $aig_billing.GetInvoicePreviewResult;
  *
  * `GET /accounts/{account_id}/ai-gateway/billing/invoice-preview`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const invoicePreview: Operation<InvoicePreviewRequest, InvoicePreviewResult>;
 
@@ -71,6 +71,6 @@ export type UsageHistoryResult = $aig_billing.GetUsageHistoryResult;
  *
  * `GET /accounts/{account_id}/ai-gateway/billing/usage-history`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const usageHistory: Operation<UsageHistoryRequest, UsageHistoryResult>;

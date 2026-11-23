@@ -13,6 +13,8 @@ export type GetResult = $zero_trust_gateway.Settings;
  * Retrieve SSH with Access for Infrastructure settings for an account.
  *
  * `GET /accounts/{account_id}/gateway/audit_ssh_settings`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -27,6 +29,8 @@ export type RotateSeedResult = $zero_trust_gateway.Settings;
  * Rotate the SSH account seed that generates the host key identity when connecting through the Cloudflare SSH Proxy.
  *
  * `POST /accounts/{account_id}/gateway/audit_ssh_settings/rotate_seed`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const rotateSeed: Operation<RotateSeedRequest, RotateSeedResult>;
 
@@ -45,5 +49,7 @@ export type UpdateResult = $zero_trust_gateway.Settings;
  * Update SSH with Access for Infrastructure settings for an account.
  *
  * `PUT /accounts/{account_id}/gateway/audit_ssh_settings`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

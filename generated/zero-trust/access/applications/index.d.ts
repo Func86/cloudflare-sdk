@@ -18,7 +18,7 @@ export type CreateResult = $access.AppResponse;
  *
  * `POST /accounts/{account_id}/access/apps` or `POST /zones/{zone_id}/access/apps`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -36,7 +36,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/apps/{app_id}` or `DELETE /zones/{zone_id}/access/apps/{app_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -52,7 +52,7 @@ export type GetResult = $access.AppResponse;
  *
  * `GET /accounts/{account_id}/access/apps/{app_id}` or `GET /zones/{zone_id}/access/apps/{app_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -83,7 +83,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/apps` or `GET /zones/{zone_id}/access/apps`
  *
- * Token permissions (any one): Access: Apps and Policies Revoke, Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Revoke, Access: Apps Read, Access: Apps and Policies Revoke, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -98,7 +98,7 @@ export type RevokeTokensResult = { [key: string]: unknown } | null;
  *
  * `POST /accounts/{account_id}/access/apps/{app_id}/revoke_tokens` or `POST /zones/{zone_id}/access/apps/{app_id}/revoke_tokens`
  *
- * Token permissions (any one): Access: Apps and Policies Revoke, Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Access: Apps Revoke, Access: Apps and Policies Revoke, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const revokeTokens: Operation<RevokeTokensRequest, RevokeTokensResult>;
 
@@ -114,6 +114,6 @@ export type UpdateResult = $access.AppResponse;
  *
  * `PUT /accounts/{account_id}/access/apps/{app_id}` or `PUT /zones/{zone_id}/access/apps/{app_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

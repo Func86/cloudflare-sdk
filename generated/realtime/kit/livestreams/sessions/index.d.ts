@@ -20,7 +20,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/livestreams/sessions/{livestream-session-id}`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */
@@ -47,7 +47,7 @@ export type ListActiveResult = {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/livestreams/{livestream_id}/active-livestream-session`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */

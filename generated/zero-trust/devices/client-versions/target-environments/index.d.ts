@@ -13,6 +13,8 @@ export type ListResult = $teams_devices.TargetEnvironmentInfo[];
  *
  * `GET /accounts/{account_id}/devices/client-versions/target-environments`
  *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ *
  * @beta
  */
 export declare const list: Operation<ListRequest, ListResult>;

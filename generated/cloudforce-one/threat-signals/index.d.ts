@@ -11,7 +11,7 @@ export type SearchRequest = {
 	/** Keyword and semantic article-search text, from 1 to 1000 characters. */
 	query: string;
 	/** Maximum search matches to request, an integer from 1 to 50. Defaults to 20 when omitted or empty; multiple matches from one article can produce fewer returned articles. */
-	max_results?: string;
+	max_results?: string | "";
 	/** Optional feed UUID that restricts results to articles from that feed. */
 	feed_id?: string;
 };

@@ -14,6 +14,6 @@ export type GetResult = $builds.GetAccountLimitResponse;
  *
  * `GET /accounts/{account_id}/builds/account/limits`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

@@ -30,7 +30,7 @@ export type GetModelSchemaResult = {
  *
  * `GET /accounts/{account_id}/ai/models/schema`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): Workers AI Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const getModelSchema: Operation<GetModelSchemaRequest, GetModelSchemaResult>;
 
@@ -49,7 +49,7 @@ export type ListMarkdownSupportedFormatsResult = {
  *
  * `GET /accounts/{account_id}/ai/tomarkdown/supported`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): Workers AI Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const listMarkdownSupportedFormats: Operation<ListMarkdownSupportedFormatsRequest, ListMarkdownSupportedFormatsResult>;
 
@@ -87,7 +87,7 @@ export type RunResult = { [key: string]: unknown };
  *
  * `POST /accounts/{account_id}/ai/run`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const run: Operation<RunRequest, RunResult>;
 
@@ -443,7 +443,7 @@ export type RunModelResult = {
  *
  * `POST /accounts/{account_id}/ai/run/{model_name}`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const runModel: Operation<RunModelRequest, RunModelResult>;
 
@@ -469,7 +469,7 @@ export type ToMarkdownResult = {
  *
  * `POST /accounts/{account_id}/ai/tomarkdown`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const toMarkdown: Operation<ToMarkdownRequest, ToMarkdownResult>;
 

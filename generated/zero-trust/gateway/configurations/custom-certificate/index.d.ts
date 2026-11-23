@@ -14,6 +14,8 @@ export type GetResult = $zero_trust_gateway.CustomCertificateSettings;
  *
  * `GET /accounts/{account_id}/gateway/configuration/custom_certificate`
  *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ *
  * @deprecated
  */
 export declare const get: Operation<GetRequest, GetResult>;

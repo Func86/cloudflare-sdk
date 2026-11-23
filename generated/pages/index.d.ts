@@ -208,7 +208,7 @@ export type GetResult = $pages.Project;
  *
  * `GET /accounts/{account_id}/pages/projects/{project_name}`
  *
- * Token permissions (any one): Pages Read, Pages Write.
+ * Token permissions (any one): Pages Metadata Read, Pages Read, Pages Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -229,6 +229,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/pages/projects`
  *
- * Token permissions (any one): Pages Read, Pages Write.
+ * Token permissions (any one): Pages Metadata Read, Pages Read, Pages Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

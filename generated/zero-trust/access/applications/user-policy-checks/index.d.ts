@@ -39,6 +39,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/access/apps/{app_id}/user_policy_checks` or `GET /zones/{zone_id}/access/apps/{app_id}/user_policy_checks`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

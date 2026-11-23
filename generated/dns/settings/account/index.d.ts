@@ -2,7 +2,6 @@
 import type { AccountOrZone, Operation } from "#runtime";
 import type * as $dns_settings from "../../../_types/dns-settings.js";
 export * as nameserverSets from "./nameserver-sets/index.js";
-export * as views from "./views/index.js";
 
 export type EditRequest = AccountOrZone & {
 	body: $dns_settings.AccountSettingsPatch;
@@ -15,7 +14,9 @@ export type EditResult = $dns_settings.AccountSettings;
  *
  * `PATCH /accounts/{account_id}/dns_settings` or `PATCH /zones/{zone_id}/dns_settings`
  *
- * Token permissions (any one): Account DNS Settings Write.
+ * Token permissions on an account (any one): Account DNS Settings Write.
+ *
+ * Token permissions on a zone (any one): Zone DNS Settings Write, DNS Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -28,6 +29,8 @@ export type GetResult = $dns_settings.AccountSettings;
  *
  * `GET /accounts/{account_id}/dns_settings` or `GET /zones/{zone_id}/dns_settings`
  *
- * Token permissions (any one): Account DNS Settings Write, Account DNS Settings Read.
+ * Token permissions on an account (any one): Account DNS Settings Write, Account DNS Settings Read.
+ *
+ * Token permissions on a zone (any one): Zone DNS Settings Write, Zone DNS Settings Read, DNS Read, DNS Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;

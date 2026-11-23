@@ -640,10 +640,16 @@ export type Match = "any" | "all";
 /** Whether to match all tag search requirements or at least one (any). If set to `all`, acts like a logical AND between tag filters. If set to `any`, acts like a logical OR instead. Note that the regular `match` parameter is still used to combine the resulting condition with other filters that aren't related to tags. The legacy `tag-match` parameter is an alias for this parameter. */
 export type TagMatch = "any" | "all";
 
+export type ApiResponseCommon = {
+	errors: Messages;
+	messages: Messages;
+	/** Whether the API call was successful. */
+	success: true;
+};
+
+export type ApiResponseSingle = ApiResponseCommon;
+
 export type DnsRecordBatchDelete = {
-	/** Identifier. */
-	id?: Identifier;
-} & {
 	/** Identifier. */
 	id: Identifier;
 };
@@ -651,20 +657,14 @@ export type DnsRecordBatchDelete = {
 export type DnsRecordBatchPatchInput = {
 	/** Identifier. */
 	id: Identifier;
-} & DnsRecordPatchInput & {
-	/** Identifier. */
-	id: Identifier;
-};
+} & DnsRecordPatchInput;
 
 export type DnsRecordBatchPostInput = DnsRecordPostInput;
 
 export type DnsRecordBatchPutInput = {
 	/** Identifier. */
 	id: Identifier;
-} & DnsRecordPostInput & {
-	/** Identifier. */
-	id: Identifier;
-};
+} & DnsRecordPostInput;
 
 export type DnsRecordPatchInput = DnsRecordWithoutData | DnsRecordWithDataInput;
 
@@ -709,9 +709,6 @@ export type DnsRecordResponse = (DnsRecordWithoutData | DnsRecordWithData) & {
 export type DnsRecordScanBatchAcceptInput = DnsRecordPatchInput;
 
 export type DnsRecordScanBatchReject = {
-	/** Identifier. */
-	id?: Identifier;
-} & {
 	/** Identifier. */
 	id: Identifier;
 };
@@ -761,12 +758,7 @@ export type DnsResponseReviewScanObject = {
 	rejects?: Identifier[];
 };
 
-export type DnsResponseTriggerScan = {
-	errors: Messages;
-	messages: Messages;
-	/** Whether the API call was successful. */
-	success: true;
-};
+export type DnsResponseTriggerScan = ApiResponseSingle;
 
 export type Messages = {
 	code: number;

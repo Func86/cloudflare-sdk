@@ -22,6 +22,8 @@ export type FixResult = {
  * Idempotently re-applies the sending DNS records (creates missing records, re-applies the email_routing lock on records whose lock has been cleared). Refuses with a 409 if foreign MX, multiple SPF, multiple DMARC, or multiple DKIM records exist at the relevant DNS names — those require manual cleanup.
  *
  * `POST /zones/{zone_id}/email/sending/subdomains/{subdomain_id}/dns`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const fix: Operation<FixRequest, FixResult>;
 
@@ -38,6 +40,8 @@ export type GetResult = $email.DnsRecord[];
  * Returns the expected DNS records for a sending subdomain.
  *
  * `GET /zones/{zone_id}/email/sending/subdomains/{subdomain_id}/dns`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -61,5 +65,7 @@ export type StatusResult = {
  * Returns the desired DNS records for a sending subdomain along with a live diff against actual DNS state. Use this to detect missing, unlocked, foreign, or multi-record conflicts before deciding whether to call the fix endpoint. For wildcard sending rows, each call also rechecks the governing organizational-domain DMARC policy and reports policy drift that DNS Fix cannot repair.
  *
  * `GET /zones/{zone_id}/email/sending/subdomains/{subdomain_id}/dns/status`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const status: Operation<StatusRequest, StatusResult>;

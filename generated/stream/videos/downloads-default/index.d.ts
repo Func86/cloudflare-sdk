@@ -65,7 +65,7 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/stream/{identifier}/downloads`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  *
  * @deprecated
  */

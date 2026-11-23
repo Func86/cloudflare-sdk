@@ -136,7 +136,7 @@ export type CostAndUsageData = {
 	SubAccountName?: string;
 	/** Tag values for the requested `GroupBy` keys. Omitted when `GroupBy` is not provided. Missing keys are omitted, and key-only tags are returned as boolean `true`. All other tag values are strings. */
 	Tags?: { [key: string]: string | true };
-	/** The unique identifier for the billable metric in the Cloudflare catalog. Cloudflare extension; replaces FOCUS SkuId. */
+	/** The unique identifier for the billable metric in the Cloudflare catalog. For cost billed under a since-archived billable metric this is the metric's catalog public id (a UUID) rather than its usage metric name, so it stays separate from the live metric that replaced it. Cloudflare extension; replaces FOCUS SkuId. */
 	x_BillableMetricId: string;
 	/** The display name of the billable metric. Cloudflare extension; replaces FOCUS SkuMeter. */
 	x_BillableMetricName?: string;
@@ -176,7 +176,7 @@ export type V2UsageQuery = {
 
 /** Usage filters. Filters of different kinds are combined with AND, so a record must match every filter present to be returned. */
 export type V2FilterBy = {
-	/** Restrict results to rows whose `x_BillableMetricId` matches one of these billable metric ids (e.g. `workers_standard_requests`). Values must be unique. */
+	/** Restrict results to rows whose `x_BillableMetricId` matches one of these billable metric ids (e.g. `workers_standard_requests`). Values must be unique. Cost billed under an archived billable metric carries that metric's catalog public id as `x_BillableMetricId` and is never matched by this filter; omit the filter to include it. */
 	BillableMetricIds?: string[];
 	/** Restrict results to billable metrics belonging to these product families. Values must be unique UUIDs. */
 	ProductFamilyIds?: string[];

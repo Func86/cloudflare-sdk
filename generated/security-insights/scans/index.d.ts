@@ -10,6 +10,8 @@ export type ListResult = $security_center.ScansListResponse;
  * Returns the most recent on-demand scans for the account or zone, up to a maximum of 5. Each scan includes its ID, start time, and current status. This includes both account or zone-wide and zone-scoped scans. Also returns quota information showing how many scans have been used and how many remain in the current 24-hour window.
  *
  * `GET /accounts/{account_id}/security-center/insights/scans` or `GET /zones/{zone_id}/security-center/insights/scans`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -23,5 +25,7 @@ export type StartResult = $security_center.NewScanResponse;
  * Initiates an on-demand security scan for the entire account or zone, scanning all zones associated with the account or zone. Rate limited to 5 scans per account or zone per 24-hour window.
  *
  * `POST /accounts/{account_id}/security-center/insights/scans` or `POST /zones/{zone_id}/security-center/insights/scans`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write.
  */
 export declare const start: Operation<StartRequest, StartResult>;

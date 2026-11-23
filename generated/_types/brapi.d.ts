@@ -4,7 +4,7 @@
 export type SerializedAXNode = {
 	autocomplete?: string;
 	checked?: boolean | "mixed";
-	children?: { [key: string]: unknown }[];
+	children?: SerializedAXNode[];
 	description?: string;
 	disabled?: boolean;
 	expanded?: boolean;
@@ -30,4 +30,4 @@ export type SerializedAXNode = {
 	valuetext?: string;
 };
 
-export type CrawlJsonValue = string | number | boolean | { [key: string]: unknown }[] | { [key: string]: { [key: string]: unknown } } | null;
+export type CrawlJsonValue = string | number | boolean | CrawlJsonValue[] | { [key: string]: CrawlJsonValue } | null;

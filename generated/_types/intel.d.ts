@@ -36,12 +36,7 @@ export type ResolvesToRefs = ResolvesToRef[];
 /** Total results returned based on your search parameters. */
 export type Count = number;
 
-export type ApiResponseSingle = {
-	errors: SchemasMessages;
-	messages: SchemasMessages;
-	/** Whether the API call was successful. */
-	success: true;
-};
+export type ApiResponseSingle = SchemasApiResponseCommon;
 
 export type Asn = number;
 
@@ -144,6 +139,13 @@ export type ResolvesToRef = {
 	id?: StixIdentifier;
 	/** IP address or domain name. */
 	value?: string;
+};
+
+export type SchemasApiResponseCommon = {
+	errors: SchemasMessages;
+	messages: SchemasMessages;
+	/** Whether the API call was successful. */
+	success: true;
 };
 
 export type SchemasIp = {

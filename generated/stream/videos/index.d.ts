@@ -94,7 +94,7 @@ export type EmbedResult = string;
  *
  * `GET /accounts/{account_id}/stream/{identifier}/embed`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  *
  * @deprecated
  */
@@ -114,7 +114,7 @@ export type GetResult = $stream.Videos;
  *
  * `GET /accounts/{account_id}/stream/{identifier}`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -160,6 +160,6 @@ export type ListResult = $stream.Videos[];
  *
  * `GET /accounts/{account_id}/stream`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

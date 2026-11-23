@@ -7,6 +7,85 @@ change something few callers rely on; its entry says how to update a call.
 
 ## [Unreleased]
 
+This release breaks calls: each breaking change below says how to update one.
+
+### Breaking
+
+- **30 operations are renamed by the spec,** now generated from cloudflare/api-schemas `76c66fb2` rather than Forge's
+  `openapi@2b2a4d86`, as below. cf's commands take the same names. Each keeps the shape of its request and result, but
+  their types take the new name, so import them from the new path under that name, such as `BulkDeleteRequest` from
+  `vectorize/vectors` for `DeleteByIdsRequest` from `vectorize`:
+
+  | Was | Now |
+  | --- | --- |
+  | `addressing/address-maps/accounts`: `update` | `addressing/address-maps/accounts`: `create` |
+  | `update`, `updateBulk` and `deleteBulk` in `addressing/address-maps/ips` and `addressing/address-maps/zones` | `create`, `bulkCreate` and `bulkDelete` |
+  | `cache/origin-cloud-regions/bulk`: `delete`, `update` | `cache/origin-cloud-regions`: `bulkDelete`, `bulkReplace` |
+  | `dns/settings/account/views`: `create`, `delete`, `edit`, `get`, `list` | `dns/views`: the same |
+  | `intel/indicator-feeds/permissions`: `create`, `delete` | `intel/indicator-feeds/permissions`: `grant`, `revoke` |
+  | `o11y/telemetry`: `heartbeat`, `liveTail` | `observability/telemetry`: the same |
+  | `update` in `resource-sharing/recipients` and `resource-sharing/excluded-recipients` | `replace` |
+  | `vectorize`: `insert`, `upsert`, `query`, `listVectors`, `getByIds`, `deleteByIds` | `vectorize/vectors`: `insert`, `upsert`, `query`, `list`, `bulkGet`, `bulkDelete` |
+  | `vectorize/metadata-index`: `create`, `delete`, `list` | `vectorize/metadata-indexes`: the same |
+  | `waiting-rooms/rules`: `get` | `waiting-rooms/rules`: `list` |
+
+- **`cloudforce-one.requests.list`, `create`, `get` and `update` call the v2 routes,** as the spec and cf name them,
+  in place of `getRequestList`, `postRequestCreate`, `getRequestRead` and `putRequestUpdate`. The hidden v1 routes
+  they called are `cloudforce-one.requests.legacy.list`, `create`, `get` and `update`, and
+  `cloudforce-one.requests.delete`, which v2 doesn't have, is `cloudforce-one.requests.legacy.delete` beside them. A
+  call written for v1 no longer compiles, as v2 takes a `project_type`: import it from `cloudforce-one/requests/legacy`
+  to keep calling v1.
+- **`types/bill-subs-api` and `types/botnet-feed-api` are `types/bill-subs` and `types/botnet-feed`,** with the same
+  types. `types/rulesets` no longer exports `ManagedTransform`, `ManagedTransformInput`, `ManagedTransforms`,
+  `ManagedTransformsPatchInput`, `ManagedTransformId` and `UrlNormalization`, which `types/managed-transforms` and
+  `types/url-normalization` do. Change the import path.
+- **`cloudforce-one.threat-intel.events.legacy.bulkCreateWithRelationships` is gone,** as the spec no longer has its
+  route.
+
+### Added
+
+- 14 operations: `ai-gateway.model-aliases.create`, `delete`, `get`, `list` and `update`; `feedback.diagnose` and
+  `feedback.send`, which reports a problem to Cloudflare, with a `User-Agent` the spec says starts with `cf-cli/` or
+  `cloudflare-mcp`; `flagship.apps.ofrep.evaluate` and `evaluateAll`, by the OpenFeature Remote Evaluation Protocol;
+  `images.config.get` and `edit`, for an account's Images settings; and `pay-per-use.agreements.create` and `list` and
+  `pay-per-use.enabled-publishers.list`.
+  `ai-gateway.model-aliases.list` and `pay-per-use.agreements.list` are paginated.
+- Doc comments say `flagship.apps.ofrep.evaluateAll` throws an `ApiError` with status 304 given a matching
+  `If-None-Match`.
+- `queues.subscriptions.list` takes `queue_id`, and Spectrum applications take `edge_alpn_protocols`.
+- `types/*` export the models that Forge's release wrote in place, such as `DnsFirewallCluster`, `DnsViewInput` and
+  the `ApiResponseCommon` of several modules.
+
+### Changed
+
+- The spec is the `openapi.json` of a cloudflare/api-schemas commit, as cf's is since 2026-11-23, rather than Forge's
+  `openapi.forge.json` release of it, which leaves the account-or-zone operations hidden and unnamed from `0c348dc4`
+  on. Types follow it where the release changed the spec:
+  - A recursive type refers to itself where the release cut it short as `{ [key: string]: unknown }`, such as
+    `JsonValue` in `types/flagship`, `CrawlJsonValue` in `types/brapi` and an `ActiveSession`'s `breakout_rooms` in
+    `types/realtimekit`.
+  - A value whose alternatives include `""` takes only those, where the release took any string: `model` and
+    `reranking.model` in `autorag.aiSearch` and `autorag.search` take the listed models or `""`, and
+    `notification_email` in `load-balancers.pools.bulkEdit` and `user.load-balancers.pools.bulkEdit` takes only `""`,
+    as its description says.
+- Doc comments of the account-or-zone operations list token permissions for an account and for a zone apart where the
+  two differ, such as `Account Custom Pages Write` and `Custom Pages Write`, rather than one set for both.
+- Forge is 0.3.0, which reads a `required` beside an `allOf`, as a restated branch already did, so no field changes. It
+  writes some models in place, so `types/access` no longer exports `AppRespEmbeddedTargetCriteriaInfra` and
+  `AppRespEmbeddedTargetCriteriaSelfHosted`, `types/dns-settings` `DnsView`, `types/smartshield`
+  `SmartShieldSettings`, and `types/waf-managed-rules` `Base`, `Group` and `SchemasBase`. Name the type that holds
+  one instead, such as `DnsViewResponse`.
+- Types follow the spec's other changes. Those that can break a call:
+  - `turnstile.widgets.create` no longer takes `page`, `per_page`, `order`, `direction` and `filter`, which are
+    `list`'s, and `turnstile.widgets.update` no longer takes `region`, which can't change after creation.
+  - `web3.hostnames.delete` and `web3.hostnames.ipfs-universal-paths.content-lists.entries.delete` no longer take a
+    `body`.
+  - `url-scanner.scans.create` no longer takes `CD`, `CW`, `GD`, `GU`, `HT`, `LR`, `MA`, `MM`, `MW`, `TJ` and `UZ`
+    as its `country`.
+  - DEX notification outcomes from `zero-trust.dex.notifications` no longer have `sample_interval`, nor their counts
+    `estimated`, as the counts are exact. The results of `pay-per-use.enabled-domains.list`,
+    `pay-per-use.pricing.listOperators` and `pay-per-use.proposals.list` no longer have `non_billable_since`.
+
 ## [0.4.0] - 2026-11-22
 
 This release breaks calls: each breaking change below says how to update one.

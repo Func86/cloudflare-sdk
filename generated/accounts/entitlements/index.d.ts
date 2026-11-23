@@ -12,6 +12,8 @@ export type GetResult = $entitlements.Entitlement[] | undefined;
  *
  * `GET /accounts/{account_id}/entitlements` or `GET /zones/{zone_id}/entitlements`
  *
- * Token permissions (any one): Account Read.
+ * Token permissions on an account (any one): Account Read.
+ *
+ * Token permissions on a zone (any one): Zone Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

@@ -46,6 +46,6 @@ export type ListResult = $r2_data_catalog.NamespaceListResponse;
  *
  * `GET /accounts/{account_id}/basin-catalog/{bucket_name}/namespaces`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

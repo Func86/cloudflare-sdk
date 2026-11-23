@@ -17,7 +17,7 @@ export type Trace = {
 	name?: string;
 	/** Tracing step identifying name */
 	step_name?: string;
-	trace?: { [key: string]: unknown };
+	trace?: Trace;
 	/** Tracing step type */
 	type?: string;
 }[];

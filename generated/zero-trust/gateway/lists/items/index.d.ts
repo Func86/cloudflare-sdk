@@ -20,5 +20,7 @@ export type ListItem = RootItem<ListResult>;
  * Fetch all items in a single Zero Trust list.
  *
  * `GET /accounts/{account_id}/gateway/lists/{list_id}/items`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

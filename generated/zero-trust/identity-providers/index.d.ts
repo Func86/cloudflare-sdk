@@ -16,7 +16,7 @@ export type CreateResult = $access.IdentityProviders;
  *
  * `POST /accounts/{account_id}/access/identity_providers` or `POST /zones/{zone_id}/access/identity_providers`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Individual Access Identity Provider Admin, Access: Identity Providers Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -35,7 +35,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/identity_providers/{identity_provider_id}` or `DELETE /zones/{zone_id}/access/identity_providers/{identity_provider_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Individual Access Identity Provider Admin, Access: Identity Providers Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -52,7 +52,7 @@ export type GetResult = $access.IdentityProviders;
  *
  * `GET /accounts/{account_id}/access/identity_providers/{identity_provider_id}` or `GET /zones/{zone_id}/access/identity_providers/{identity_provider_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Individual Access Identity Provider Read, Individual Access Identity Provider Admin, Access: Identity Providers Write, Access: Identity Providers Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -73,7 +73,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/identity_providers` or `GET /zones/{zone_id}/access/identity_providers`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Individual Access Identity Provider Read, Individual Access Identity Provider Admin, Access: Identity Providers Write, Access: Identity Providers Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -90,6 +90,6 @@ export type UpdateResult = $access.IdentityProviders;
  *
  * `PUT /accounts/{account_id}/access/identity_providers/{identity_provider_id}` or `PUT /zones/{zone_id}/access/identity_providers/{identity_provider_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Individual Access Identity Provider Admin, Access: Identity Providers Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

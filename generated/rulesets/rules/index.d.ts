@@ -36,7 +36,9 @@ export type CreateResult = $rulesets.Ruleset & {
  *
  * `POST /accounts/{account_id}/rulesets/{ruleset_id}/rules` or `POST /zones/{zone_id}/rulesets/{ruleset_id}/rules`
  *
- * Token permissions (any one): Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Pages Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Response Compression Write, Account Custom Pages Write, Custom Pages Write, Config Settings Write, Dynamic URL Redirects Write, Cache Settings Write, Custom Errors Write, Origin Write, Managed headers Write, Zone Transform Rules Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Write, Sanitize Write, Transform Rules Write, Select Configuration Write, Bot Management Write, Zone WAF Write, Account WAF Write, Account Rulesets Write, Logs Write.
  */
 export declare const create: DryRunOperation<CreateRequest, CreateResult>;
 
@@ -64,7 +66,9 @@ export type DeleteResult = $rulesets.Ruleset & {
  *
  * `DELETE /accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}` or `DELETE /zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}`
  *
- * Token permissions (any one): Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Pages Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Response Compression Write, Account Custom Pages Write, Custom Pages Write, Config Settings Write, Dynamic URL Redirects Write, Cache Settings Write, Custom Errors Write, Origin Write, Managed headers Write, Zone Transform Rules Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Write, Sanitize Write, Transform Rules Write, Select Configuration Write, Bot Management Write, Zone WAF Write, Account WAF Write, Account Rulesets Write, Logs Write.
  */
 declare const delete_: DryRunOperation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -130,6 +134,8 @@ export type UpdateResult = $rulesets.Ruleset & {
  *
  * `PATCH /accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}` or `PATCH /zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}`
  *
- * Token permissions (any one): Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Pages Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Response Compression Write, Account Custom Pages Write, Custom Pages Write, Config Settings Write, Dynamic URL Redirects Write, Cache Settings Write, Custom Errors Write, Origin Write, Managed headers Write, Zone Transform Rules Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Write, Sanitize Write, Transform Rules Write, Select Configuration Write, Bot Management Write, Zone WAF Write, Account WAF Write, Account Rulesets Write, Logs Write.
  */
 export declare const update: DryRunOperation<UpdateRequest, UpdateResult>;

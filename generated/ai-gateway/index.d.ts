@@ -9,3 +9,4 @@ export * as evaluations from "./evaluations/index.js";
 export * as gateways from "./gateways/index.js";
 export * as loggingState from "./logging-state/index.js";
 export * as logs from "./logs/index.js";
+export * as modelAliases from "./model-aliases/index.js";

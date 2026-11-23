@@ -23,7 +23,7 @@ export type CreateResult = $dls.RegionalHostnameResponse;
  *
  * `POST /zones/{zone_id}/addressing/regional_hostnames`
  *
- * Token permissions (any one): DNS Write.
+ * Token permissions (any one): DLS: Write, DNS Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -41,7 +41,7 @@ export type DeleteResult = $dls.ApiResponseCommon;
  *
  * `DELETE /zones/{zone_id}/addressing/regional_hostnames/{hostname}`
  *
- * Token permissions (any one): DNS Write.
+ * Token permissions (any one): DLS: Write, DNS Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -64,7 +64,7 @@ export type EditResult = $dls.RegionalHostnameResponse;
  *
  * `PATCH /zones/{zone_id}/addressing/regional_hostnames/{hostname}`
  *
- * Token permissions (any one): DNS Write.
+ * Token permissions (any one): DLS: Write, DNS Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -82,7 +82,7 @@ export type GetResult = $dls.RegionalHostnameResponse;
  *
  * `GET /zones/{zone_id}/addressing/regional_hostnames/{hostname}`
  *
- * Token permissions (any one): DNS Read, DNS Write.
+ * Token permissions (any one): DLS: Write, DLS: Read, DNS Read, DNS Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -98,6 +98,6 @@ export type ListResult = $dls.RegionalHostnameResponse[];
  *
  * `GET /zones/{zone_id}/addressing/regional_hostnames`
  *
- * Token permissions (any one): DNS Read, DNS Write.
+ * Token permissions (any one): DLS: Write, DLS: Read, DNS Read, DNS Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

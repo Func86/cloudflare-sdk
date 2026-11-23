@@ -15,7 +15,7 @@ export type CreateResult = $calls.AppWithSecret;
  *
  * `POST /accounts/{account_id}/calls/apps`
  *
- * Token permissions (any one): Calls Write.
+ * Token permissions (any one): Realtime Admin, Realtime, Calls Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -33,7 +33,7 @@ export type DeleteResult = $calls.App;
  *
  * `DELETE /accounts/{account_id}/calls/apps/{app_id}`
  *
- * Token permissions (any one): Calls Write.
+ * Token permissions (any one): Realtime Admin, Realtime, Calls Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -52,7 +52,7 @@ export type GetResult = $calls.App;
  *
  * `GET /accounts/{account_id}/calls/apps/{app_id}`
  *
- * Token permissions (any one): Calls Write, Calls Read.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime, Calls Write, Calls Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -68,7 +68,7 @@ export type ListResult = $calls.App[];
  *
  * `GET /accounts/{account_id}/calls/apps`
  *
- * Token permissions (any one): Calls Write, Calls Read.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime, Calls Write, Calls Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -87,6 +87,6 @@ export type UpdateResult = $calls.App;
  *
  * `PUT /accounts/{account_id}/calls/apps/{app_id}`
  *
- * Token permissions (any one): Calls Write.
+ * Token permissions (any one): Realtime Admin, Realtime, Calls Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -139,6 +139,8 @@ export type ChatCompletionsResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/chat/completions`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const chatCompletions: Operation<ChatCompletionsRequest, ChatCompletionsResult>;
@@ -465,6 +467,8 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -641,6 +645,8 @@ export type DeleteResult = {
  * Deletes an AI Search instance and all its indexed data permanently.
  *
  * `DELETE /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */
@@ -819,6 +825,8 @@ export type GetResult = {
  * Retrieve the configuration and status of an AI Search instance.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -1004,6 +1012,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances`
  *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
@@ -1026,6 +1036,8 @@ export type MoveResult = { [key: string]: unknown };
  * Moves an instance from its current namespace to the specified target namespace. Use 'default' with --destination-namespace to move the instance back to the default namespace. Fails with 400 if the target namespace already has an instance with the same id (ids must be unique within a namespace — the same id can exist in different namespaces).
  *
  * `PATCH /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  */
 export declare const move: Operation<MoveRequest, MoveResult>;
 
@@ -1167,6 +1179,8 @@ export type MultiChatCompletionsResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{name}/chat/completions`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const multiChatCompletions: Operation<MultiChatCompletionsRequest, MultiChatCompletionsResult>;
@@ -1283,6 +1297,8 @@ export type MultiSearchResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{name}/search`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const multiSearch: Operation<MultiSearchRequest, MultiSearchResult>;
@@ -1303,6 +1319,8 @@ export type PurgeCacheResult = {
  * Purges all cached search results for an AI Search instance. A new internal cache key is generated, immediately orphaning all prior cached entries.
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/purge_cache`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */
@@ -1416,6 +1434,8 @@ export type SearchResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/search`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const search: Operation<SearchRequest, SearchResult>;
@@ -1460,6 +1480,8 @@ export type StatsResult = {
  * Retrieve usage and indexing statistics for an AI Search instance.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/stats`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -1796,6 +1818,8 @@ export type UpdateResult = {
  * Updates the configuration of an AI Search instance.
  *
  * `PUT /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}`
+ *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  *
  * @beta
  */

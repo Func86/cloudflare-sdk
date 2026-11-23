@@ -2,4 +2,3 @@
 export const edit = {"method":"PATCH","route":"/{account_or_zone}/{account_or_zone_id}/dns_settings","accountOrZone":true,"body":"json"};
 export const get = {"method":"GET","route":"/{account_or_zone}/{account_or_zone_id}/dns_settings","accountOrZone":true};
 export * as nameserverSets from "./nameserver-sets/index.js";
-export * as views from "./views/index.js";

@@ -87,7 +87,7 @@ export type GetResult = $stream.LiveInput_2;
  *
  * `GET /accounts/{account_id}/stream/live_inputs/{live_input_identifier}`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -111,7 +111,7 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/stream/live_inputs`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

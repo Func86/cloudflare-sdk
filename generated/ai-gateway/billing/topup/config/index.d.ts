@@ -51,7 +51,7 @@ export type DeleteResult = $aig_billing.DeleteTopupConfigResult;
  *
  * `DELETE /accounts/{account_id}/ai-gateway/billing/topup/config`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

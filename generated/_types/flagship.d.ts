@@ -117,7 +117,7 @@ export type FlagDefinitions = {
 
 export type FlagsPage = Flag[];
 
-export type JsonValue = string | number | boolean | { [key: string]: { [key: string]: unknown } } | { [key: string]: unknown }[] | null;
+export type JsonValue = string | number | boolean | { [key: string]: JsonValue } | JsonValue[] | null;
 
 export type LogicalCondition = {
 	clauses: Condition1[];
@@ -142,6 +142,37 @@ export type LogicalCondition3 = {
 export type LogicalCondition4 = {
 	clauses: BaseCondition[];
 	logical_operator: "AND" | "OR";
+};
+
+export type OfrepBulkEvaluationResponse = {
+	/** One entry per flag in the app. A flag with an invalid config is reported as a failure entry. */
+	flags: (OfrepEvaluationSuccess | OfrepEvaluationFailure)[];
+};
+
+export type OfrepEvaluationFailure = {
+	/** OpenFeature error code for the failed evaluation. */
+	errorCode: "PROVIDER_NOT_READY" | "FLAG_NOT_FOUND" | "PARSE_ERROR" | "TYPE_MISMATCH" | "TARGETING_KEY_MISSING" | "INVALID_CONTEXT" | "GENERAL";
+	/** Human-readable description of the failure. */
+	errorDetails?: string;
+	/** Key of the flag that failed. Omitted on request-level errors. */
+	key?: string;
+};
+
+export type OfrepEvaluationRequest = {
+	/** Evaluation attributes keyed by name. Values may be any JSON value; the context supports up to 100 entries, nesting depth of 10, 10,000 values, and 32 KB. Omit for an empty context. */
+	context?: { [key: string]: JsonValue };
+};
+
+export type OfrepEvaluationSuccess = {
+	/** Key of the evaluated flag. */
+	key: string;
+	/** Key-value metadata associated with the flag. Returned only when the flag has metadata. */
+	metadata?: { [key: string]: boolean | string | number };
+	/** Reason the evaluator selected this variation. */
+	reason: "STATIC" | "TARGETING_MATCH" | "DEFAULT" | "DISABLED" | "SPLIT";
+	value?: JsonValue;
+	/** Name of the variation that supplied the resolved value. Omitted when the flag is disabled. */
+	variant?: string;
 };
 
 export type Rule = {

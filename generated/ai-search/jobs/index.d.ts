@@ -28,6 +28,8 @@ export type CancelResult = {
  *
  * `PATCH /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/jobs/{job_id}`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const cancel: Operation<CancelRequest, CancelResult>;
@@ -58,6 +60,8 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/jobs`
  *
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -85,6 +89,8 @@ export type GetResult = {
  * Retrieves details for a specific AI Search indexing job.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/jobs/{job_id}`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */
@@ -116,6 +122,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/jobs`
  *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
@@ -143,6 +151,8 @@ export type LogsItem = RootItem<LogsResult>;
  * Lists log entries for an AI Search indexing job.
  *
  * `GET /accounts/{account_id}/ai-search/namespaces/{namespace}/instances/{id}/jobs/{job_id}/logs`
+ *
+ * Token permissions (any one): AI Search Metadata Read, AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  *
  * @beta
  */

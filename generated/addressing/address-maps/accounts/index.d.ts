@@ -2,6 +2,24 @@
 import type { Operation } from "#runtime";
 import type * as $addressing from "../../../_types/addressing.js";
 
+export type CreateRequest = {
+	/** Identifier of a Cloudflare account. */
+	account_id: string;
+	/** Identifier of an Address Map. */
+	address_map_id: string;
+	/** Identifier of a Cloudflare account. */
+	member_account_id: string;
+};
+export type CreateResult = $addressing.ApiResponseCollection;
+/**
+ * Add an account membership to an Address Map
+ *
+ * Add an account as a member of a particular address map.
+ *
+ * `PUT /accounts/{account_id}/addressing/address_maps/{address_map_id}/accounts/{member_account_id}`
+ */
+export declare const create: Operation<CreateRequest, CreateResult>;
+
 export type DeleteRequest = {
 	/** Identifier of a Cloudflare account. */
 	account_id: string;
@@ -22,21 +40,3 @@ export type DeleteResult = $addressing.ApiResponseCollection;
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
-
-export type UpdateRequest = {
-	/** Identifier of a Cloudflare account. */
-	account_id: string;
-	/** Identifier of an Address Map. */
-	address_map_id: string;
-	/** Identifier of a Cloudflare account. */
-	member_account_id: string;
-};
-export type UpdateResult = $addressing.ApiResponseCollection;
-/**
- * Add an account membership to an Address Map
- *
- * Add an account as a member of a particular address map.
- *
- * `PUT /accounts/{account_id}/addressing/address_maps/{address_map_id}/accounts/{member_account_id}`
- */
-export declare const update: Operation<UpdateRequest, UpdateResult>;

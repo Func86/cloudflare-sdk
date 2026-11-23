@@ -24,7 +24,7 @@ export type EditResult = $speed.TransformationsAllowedOriginsResponse;
  *
  * `PATCH /zones/{zone_id}/settings/transformations_allowed_origins`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -43,6 +43,6 @@ export type GetResult = $speed.TransformationsAllowedOriginsResponse;
  *
  * `GET /zones/{zone_id}/settings/transformations_allowed_origins`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

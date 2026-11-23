@@ -19,7 +19,7 @@ export type GetResult = $access.Identity & {
  *
  * `GET /accounts/{account_id}/access/users/{user_id}/active_sessions/{nonce}`
  *
- * Token permissions (any one): Access: Audit Logs Read.
+ * Token permissions (any one): Access: Users Write, Access: Users Read, Access: Audit Logs Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -52,6 +52,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/access/users/{user_id}/active_sessions`
  *
- * Token permissions (any one): Access: Audit Logs Read.
+ * Token permissions (any one): Access: Users Write, Access: Users Read, Access: Audit Logs Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

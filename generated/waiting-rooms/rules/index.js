@@ -3,5 +3,5 @@ export const create = {"method":"POST","route":"/zones/{zone_id}/waiting_rooms/{
 const delete_ = {"method":"DELETE","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules/{rule_id}"};
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules/{rule_id}","body":"json"};
-export const get = {"method":"GET","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules"};
+export const list = {"method":"GET","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules"};
 export const update = {"method":"PUT","route":"/zones/{zone_id}/waiting_rooms/{waiting_room_id}/rules","body":"json"};

@@ -20,7 +20,7 @@ export type DisableResult = {
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/sippy`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const disable: Operation<DisableRequest, DisableResult>;
 

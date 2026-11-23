@@ -17,6 +17,6 @@ export type ListResult = $stream.Captions[];
  *
  * `GET /accounts/{account_id}/stream/{identifier}/captions`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

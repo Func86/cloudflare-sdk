@@ -23,7 +23,7 @@ export type GetBookmarkResult = {
  *
  * `GET /accounts/{account_id}/d1/database/{database_id}/time_travel/bookmark`
  *
- * Token permissions (any one): D1 Read, D1 Write.
+ * Token permissions (any one): D1 Metadata Read, AI Search Index Engine, D1 Read, D1 Write.
  */
 export declare const getBookmark: Operation<GetBookmarkRequest, GetBookmarkResult>;
 

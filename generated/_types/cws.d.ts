@@ -27,7 +27,7 @@ export type BatchTenantNodesInputBody = {
 };
 
 export type BundleCategory = {
-	children?: { [key: string]: unknown }[];
+	children?: BundleCategory[];
 	definitions: BundleDefinition[];
 	description?: string;
 	id: string;
@@ -299,7 +299,7 @@ export type FilterSchema = {
 
 export type JSONDocument = { [key: string]: JSONValue } | JSONValue[] | string | number | boolean;
 
-export type JSONValue = { [key: string]: { [key: string]: unknown } } | { [key: string]: unknown }[] | string | number | boolean | null;
+export type JSONValue = { [key: string]: JSONValue } | JSONValue[] | string | number | boolean | null;
 
 export type Policy = {
 	created_at: string;

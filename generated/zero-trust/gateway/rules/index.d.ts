@@ -25,6 +25,8 @@ export type BulkEditResult = $zero_trust_gateway.Rules[];
  * Update select fields of multiple Zero Trust Gateway rules in a single request. This is commonly used to reorder rules by updating their precedence values. Only the fields provided for each rule are updated.
  *
  * `PATCH /accounts/{account_id}/gateway/rules`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const bulkEdit: Operation<BulkEditRequest, BulkEditResult>;
 
@@ -40,7 +42,7 @@ export type CreateRequest = {
 		device_posture?: $zero_trust_gateway.DevicePosture;
 		/** Specify whether the rule is enabled. */
 		enabled?: $zero_trust_gateway.Enabled;
-		/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This  does not apply to HTTP or network policies. Settable only for `dns` rules. */
+		/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This does not apply to HTTP or network policies. Settable only for `dns` rules. */
 		expiration?: $zero_trust_gateway.ExpirationInput;
 		/** Specify the protocol or layer to evaluate the traffic, identity, and device posture expressions. Can only contain a single value. */
 		filters?: $zero_trust_gateway.Filters;
@@ -65,6 +67,8 @@ export type CreateResult = $zero_trust_gateway.Rules;
  * Create a new Zero Trust Gateway rule.
  *
  * `POST /accounts/{account_id}/gateway/rules`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -81,6 +85,8 @@ export type DeleteResult = { [key: string]: unknown };
  * Delete a Zero Trust Gateway rule.
  *
  * `DELETE /accounts/{account_id}/gateway/rules/{rule_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -108,6 +114,8 @@ export type EditResult = $zero_trust_gateway.Rules;
  * Update select fields of an existing Zero Trust Gateway rule. Only the fields provided in the request body are updated. This endpoint supports a limited subset of fields (`name`, `description`, `precedence`, `enabled`). To update other fields such as `action`, `traffic`, `identity`, `device_posture`, `rule_settings`, `schedule`, or `expiration`, use the PUT endpoint for a full rule replacement.
  *
  * `PATCH /accounts/{account_id}/gateway/rules/{rule_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -124,6 +132,8 @@ export type GetResult = $zero_trust_gateway.Rules;
  * Get a single Zero Trust Gateway rule.
  *
  * `GET /accounts/{account_id}/gateway/rules/{rule_id}`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -163,6 +173,8 @@ export type ListResult = $zero_trust_gateway.Rules[];
  * List Zero Trust Gateway rules for an account.
  *
  * `GET /accounts/{account_id}/gateway/rules`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -177,6 +189,8 @@ export type ListTenantResult = $zero_trust_gateway.Rules[];
  * List Zero Trust Gateway rules for the parent account of an account in the MSP configuration.
  *
  * `GET /accounts/{account_id}/gateway/rules/tenant`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const listTenant: Operation<ListTenantRequest, ListTenantResult>;
 
@@ -190,9 +204,11 @@ export type ResetExpirationResult = $zero_trust_gateway.Rules;
 /**
  * Reset the expiration of a Zero Trust Gateway Rule
  *
- * Resets the expiration of a Zero Trust Gateway Rule if its duration elapsed and it has a default duration. The Zero Trust Gateway Rule must have values  for both `expiration.expires_at` and `expiration.duration`.
+ * Resets the expiration of a Zero Trust Gateway Rule if its duration elapsed and it has a default duration. The Zero Trust Gateway Rule must have values for both `expiration.expires_at` and `expiration.duration`.
  *
  * `POST /accounts/{account_id}/gateway/rules/{rule_id}/reset_expiration`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const resetExpiration: Operation<ResetExpirationRequest, ResetExpirationResult>;
 
@@ -210,7 +226,7 @@ export type UpdateRequest = {
 		device_posture?: $zero_trust_gateway.DevicePosture;
 		/** Specify whether the rule is enabled. */
 		enabled?: $zero_trust_gateway.Enabled;
-		/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This  does not apply to HTTP or network policies. Settable only for `dns` rules. */
+		/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This does not apply to HTTP or network policies. Settable only for `dns` rules. */
 		expiration?: $zero_trust_gateway.ExpirationInput;
 		/** Specify the protocol or layer to evaluate the traffic, identity, and device posture expressions. Can only contain a single value. */
 		filters?: $zero_trust_gateway.Filters;
@@ -235,5 +251,7 @@ export type UpdateResult = $zero_trust_gateway.Rules;
  * Update a configured Zero Trust Gateway rule.
  *
  * `PUT /accounts/{account_id}/gateway/rules/{rule_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

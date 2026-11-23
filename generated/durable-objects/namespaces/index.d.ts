@@ -23,7 +23,7 @@ export type ExportResult = Uint8Array;
  *
  * `GET /accounts/{account_id}/workers/durable_objects/namespaces/{id}/export`
  *
- * Token permissions (any one): Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */
@@ -66,6 +66,6 @@ export type QueryResult = $workers.QueryResult;
  *
  * `POST /accounts/{account_id}/workers/durable_objects/namespaces/{id}/query/v2`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Workers Scripts Write.
  */
 export declare const query: Operation<QueryRequest, QueryResult>;

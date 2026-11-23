@@ -13,6 +13,8 @@ export type GetResult = $web3.ContentListDetails;
 /**
  * IPFS Universal Path Gateway Content List Details
  *
+ * Retrieves the IPFS Universal Path Gateway content list configuration for a Web3 hostname.
+ *
  * `GET /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list`
  *
  * Token permissions (any one): Web3 Hostnames Write, Web3 Hostnames Read.
@@ -29,6 +31,8 @@ export type UpdateRequest = {
 export type UpdateResult = $web3.ContentListDetails;
 /**
  * Update IPFS Universal Path Gateway Content List
+ *
+ * Updates the IPFS Universal Path Gateway content list for a Web3 hostname.
  *
  * `PUT /zones/{zone_id}/web3/hostnames/{identifier}/ipfs_universal_path/content_list`
  *

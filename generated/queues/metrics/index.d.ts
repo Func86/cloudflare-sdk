@@ -16,6 +16,6 @@ export type GetResult = $mq.QueueMetrics | ReadableStream<Uint8Array>;
  *
  * `GET /accounts/{account_id}/queues/{queue_id}/metrics`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

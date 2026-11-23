@@ -15,7 +15,7 @@ export type BulkEditResult = ($zones._0rtt | $zones.AdvancedDdos | $zones.CacheR
  *
  * `PATCH /zones/{zone_id}/settings`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  *
  * @deprecated This endpoint is deprecated. Zone settings should instead be managed individually.
  */
@@ -36,7 +36,7 @@ export type EditResult = $zones.Setting;
  *
  * `PATCH /zones/{zone_id}/settings/{setting_id}`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -54,7 +54,7 @@ export type GetResult = $zones.Setting;
  *
  * `GET /zones/{zone_id}/settings/{setting_id}`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -70,7 +70,7 @@ export type ListResult = ($zones._0rtt | $zones.AdvancedDdos | $zones.CacheRules
  *
  * `GET /zones/{zone_id}/settings`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  *
  * @deprecated This endpoint is deprecated. Zone settings should instead be managed individually.
  */

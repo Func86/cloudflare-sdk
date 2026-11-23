@@ -160,7 +160,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes/{id}/versions`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  *
  * @beta
  */
@@ -259,7 +259,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes/{id}/versions/{version_id}`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  *
  * @beta
  */
@@ -297,7 +297,7 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/ai-gateway/gateways/{gateway_id}/routes/{id}/versions`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  *
  * @beta
  */

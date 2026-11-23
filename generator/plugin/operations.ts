@@ -7,7 +7,7 @@ import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
 import { afterAccountOrZone } from '../../src/routes.ts';
 import { DRY_RUNS, type EnumValue, PAGINATION_OVERRIDES, REQUEST_VARIANTS, type RequestVariant } from '../patches.ts';
-import { EXCLUSIVE_BODY, LITERAL_SLASHES } from '../spec.ts';
+import { EXCLUSIVE_BODY, LITERAL_SLASHES, SCOPED_PERMISSIONS } from '../spec.ts';
 
 /**
  * Headers the runtime or fetch sets, which a request field must not override. A declared
@@ -80,7 +80,11 @@ export interface ResolvedOperation {
 	description: string;
 	availability: string | undefined;
 	deprecated: string | undefined;
-	permissions: string[];
+	/**
+	 * The token permissions, any one of which the operation takes. One that takes the account
+	 * or the zone can list them for each apart.
+	 */
+	permissions: { scope: 'account' | 'zone' | undefined; names: string[] }[];
 	/** The 3xx responses that reach the caller, which throw an `ApiError` though a caller may take one for success. */
 	throws3xx: StatusNote[];
 	/**
@@ -837,6 +841,18 @@ export function throws3xx(method: Pick<Method, 'errors'>): StatusNote[] {
 		.map(({ status, description }) => ({ status, description: description.trim() }));
 }
 
+function permissionsOf(method: Method): ResolvedOperation['permissions'] {
+	const names = method.extension('x-api-token-group');
+	const scoped = method.extension(SCOPED_PERMISSIONS) as Partial<Record<'account' | 'zone', string[]>> | undefined;
+	return [
+		...(Array.isArray(names) && names.length > 0 ? [{ scope: undefined, names: names as string[] }] : []),
+		...(['account', 'zone'] as const).flatMap((scope) => {
+			const forScope = scoped?.[scope];
+			return forScope === undefined ? [] : [{ scope, names: forScope }];
+		}),
+	];
+}
+
 export function resolveOperation(method: Method, report: Report, model: VariantContext['model'] = () => undefined): ResolvedOperation {
 	const key = `${method.httpMethod} ${method.path}`;
 	const resolved = resolveParams(method);
@@ -848,7 +864,6 @@ export function resolveOperation(method: Method, report: Report, model: VariantC
 	const body = resolveBody(method);
 	const variants = readVariants(key, { params, accountOrZone, body, model });
 	const page = resolvePagination(method, key, params, response, report);
-	const permissions = method.extension('x-api-token-group');
 	const slashes = method.extension(LITERAL_SLASHES);
 	return {
 		id: [...method.group.path.map((name) => name.kebab()), method.name.camel()].join('.'),
@@ -860,7 +875,7 @@ export function resolveOperation(method: Method, report: Report, model: VariantC
 		description: method.description,
 		availability: method.availability,
 		deprecated: deprecationOf(method),
-		permissions: Array.isArray(permissions) ? (permissions as string[]) : [],
+		permissions: permissionsOf(method),
 		throws3xx: throws3xx(method),
 		accountOrZone,
 		dryRun: readDryRun(key, params, response),

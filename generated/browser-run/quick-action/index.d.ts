@@ -110,7 +110,7 @@ export type AccessibilityTreeResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/accessibilityTree`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const accessibilityTree: Operation<AccessibilityTreeRequest, AccessibilityTreeResult>;
 
@@ -218,7 +218,7 @@ export type ContentResult = string;
  *
  * `POST /accounts/{account_id}/browser-rendering/content`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const content: Operation<ContentRequest, ContentResult>;
 
@@ -339,7 +339,7 @@ export type JsonResult = { [key: string]: { [key: string]: unknown } | null };
  *
  * `POST /accounts/{account_id}/browser-rendering/json`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const json: Operation<JsonRequest, JsonResult>;
 
@@ -449,7 +449,7 @@ export type LinksResult = string[];
  *
  * `POST /accounts/{account_id}/browser-rendering/links`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const links: Operation<LinksRequest, LinksResult>;
 
@@ -557,7 +557,7 @@ export type MarkdownResult = string;
  *
  * `POST /accounts/{account_id}/browser-rendering/markdown`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const markdown: Operation<MarkdownRequest, MarkdownResult>;
 
@@ -705,7 +705,7 @@ export type PdfResult = Uint8Array;
  *
  * `POST /accounts/{account_id}/browser-rendering/pdf`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const pdf: Operation<PdfRequest, PdfResult>;
 
@@ -839,7 +839,7 @@ export type ScrapeResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/scrape`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const scrape: Operation<ScrapeRequest, ScrapeResult>;
 
@@ -976,7 +976,7 @@ export type ScreenshotResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/screenshot`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const screenshot: Operation<ScreenshotRequest, ScreenshotResult>;
 
@@ -1194,6 +1194,6 @@ export type SnapshotResult = {
  *
  * `POST /accounts/{account_id}/browser-rendering/snapshot`
  *
- * Token permissions (any one): Browser Rendering Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Browser Run Write.
  */
 export declare const snapshot: Operation<SnapshotRequest, SnapshotResult>;

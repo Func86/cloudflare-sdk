@@ -17,5 +17,7 @@ export type GetComplaintsResult = $email.SendingSubdomainReputationComplaints;
  * Returns the matched complaint count for a sending subdomain in a half-open time window of up to seven days.
  *
  * `GET /zones/{zone_id}/email/sending/subdomains/{subdomain_id}/reputation/complaints`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const getComplaints: Operation<GetComplaintsRequest, GetComplaintsResult>;

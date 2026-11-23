@@ -43,7 +43,7 @@ export type Jurisdiction = "eu" | "fedramp" | "us";
 /** The mode of the Workers KV namespace. Specify `instant` when creating a namespace to create a KV Instant namespace. Omit this field when creating a namespace to create a classic namespace. Currently, `instant` is the only supported explicit value. */
 export type NamespaceMode = "instant";
 
-export type Any = string | number | boolean | { [key: string]: unknown } | { [key: string]: unknown }[] | null;
+export type Any = string | number | boolean | { [key: string]: unknown } | Any[] | null;
 
 export type BulkDelete = KeyNameBulk[];
 

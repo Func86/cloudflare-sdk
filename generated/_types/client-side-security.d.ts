@@ -136,19 +136,6 @@ export type Policy = {
 export type PolicyWithId = Policy & {
 	/** Identifier */
 	id: Id;
-} & {
-	/** Identifier */
-	id: Id;
-	/** A description for the policy */
-	description: PolicyDescription;
-	/** The action to take if the expression matches */
-	action: PolicyAction;
-	/** The expression which must match for the policy to be applied, using the Cloudflare Firewall rule expression syntax */
-	expression: PolicyExpression;
-	/** Whether the policy is enabled */
-	enabled: PolicyEnabled;
-	/** The policy which will be applied */
-	value: PolicyValue;
 };
 
 export type Script = {

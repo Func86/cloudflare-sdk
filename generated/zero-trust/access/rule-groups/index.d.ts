@@ -24,7 +24,7 @@ export type CreateResult = $access.Groups2;
  *
  * `POST /accounts/{account_id}/access/groups` or `POST /zones/{zone_id}/access/groups`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Groups Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -43,7 +43,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/groups/{group_id}` or `DELETE /zones/{zone_id}/access/groups/{group_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Groups Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -60,7 +60,7 @@ export type GetResult = $access.Groups2;
  *
  * `GET /accounts/{account_id}/access/groups/{group_id}` or `GET /zones/{zone_id}/access/groups/{group_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Access: Groups Write, Access: Groups Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -83,7 +83,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/groups` or `GET /zones/{zone_id}/access/groups`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Access: Groups Write, Access: Groups Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -111,6 +111,6 @@ export type UpdateResult = $access.Groups2;
  *
  * `PUT /accounts/{account_id}/access/groups/{group_id}` or `PUT /zones/{zone_id}/access/groups/{group_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Groups Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

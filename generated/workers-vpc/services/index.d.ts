@@ -15,6 +15,8 @@ export type CreateResult = $infra.ServiceConfig;
  *
  * `POST /accounts/{account_id}/connectivity/directory/services`
  *
+ * Token permissions (any one): Connectivity Directory Admin.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -32,6 +34,8 @@ export type DeleteResult = void;
  *
  * `DELETE /accounts/{account_id}/connectivity/directory/services/{service_id}`
  *
+ * Token permissions (any one): Connectivity Directory Admin.
+ *
  * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
@@ -48,6 +52,8 @@ export type GetResult = $infra.ServiceConfig;
  * Fetches a single Workers VPC connectivity service by its ID.
  *
  * `GET /accounts/{account_id}/connectivity/directory/services/{service_id}`
+ *
+ * Token permissions (any one): Connectivity Directory Read, Connectivity Directory Bind, Connectivity Directory Admin.
  *
  * @beta
  */
@@ -71,6 +77,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/connectivity/directory/services`
  *
+ * Token permissions (any one): Connectivity Directory Read, Connectivity Directory Bind, Connectivity Directory Admin.
+ *
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
@@ -87,6 +95,8 @@ export type UpdateResult = $infra.ServiceConfig;
  * Updates an existing Workers VPC connectivity service by its ID.
  *
  * `PUT /accounts/{account_id}/connectivity/directory/services/{service_id}`
+ *
+ * Token permissions (any one): Connectivity Directory Admin.
  *
  * @beta
  */

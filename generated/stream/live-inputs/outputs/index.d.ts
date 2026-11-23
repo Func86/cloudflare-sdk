@@ -54,7 +54,7 @@ export type ListResult = $stream.Output[];
  *
  * `GET /accounts/{account_id}/stream/live_inputs/{live_input_identifier}/outputs`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

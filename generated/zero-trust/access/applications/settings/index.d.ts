@@ -28,6 +28,6 @@ export type UpdateResult = $access.AppSettingsResponse;
  *
  * `PUT /accounts/{account_id}/access/apps/{app_id}/settings` or `PUT /zones/{zone_id}/access/apps/{app_id}/settings`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -13,7 +13,7 @@ export type GetResult = $cache.Result;
  *
  * `GET /zones/{zone_id}/settings/ssl_automatic_mode`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read, SSL and Certificates Write, SSL and Certificates Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read, SSL and Certificates Write, SSL and Certificates Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -29,6 +29,6 @@ export type PatchResult = $cache.Result;
  *
  * `PATCH /zones/{zone_id}/settings/ssl_automatic_mode`
  *
- * Token permissions (any one): Zone Settings Write, SSL and Certificates Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write, SSL and Certificates Write.
  */
 export declare const patch: Operation<PatchRequest, PatchResult>;

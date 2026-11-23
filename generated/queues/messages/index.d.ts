@@ -35,7 +35,7 @@ export type AckResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/ack`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const ack: Operation<AckRequest, AckResult>;
 
@@ -59,7 +59,7 @@ export type BulkPushResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/batch`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const bulkPush: Operation<BulkPushRequest, BulkPushResult>;
 
@@ -90,7 +90,7 @@ export type ExtendLeasesResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/extend`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const extendLeases: Operation<ExtendLeasesRequest, ExtendLeasesResult>;
 
@@ -114,7 +114,7 @@ export type PeekResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/peek`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const peek: Operation<PeekRequest, PeekResult>;
 
@@ -146,7 +146,7 @@ export type PullResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/pull`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const pull: Operation<PullRequest, PullResult>;
 
@@ -177,7 +177,7 @@ export type PurgeResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages/purge`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const purge: Operation<PurgeRequest, PurgeResult>;
 
@@ -201,6 +201,6 @@ export type PushResult = {
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/messages`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const push: Operation<PushRequest, PushResult>;

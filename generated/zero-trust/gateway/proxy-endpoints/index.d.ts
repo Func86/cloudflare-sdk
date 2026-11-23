@@ -17,6 +17,8 @@ export type CreateResult = $zero_trust_gateway.ProxyEndpoints;
  * Create a new Zero Trust Gateway proxy endpoint.
  *
  * `POST /accounts/{account_id}/gateway/proxy_endpoints`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -32,6 +34,8 @@ export type DeleteResult = { [key: string]: unknown };
  * Delete a configured Zero Trust Gateway proxy endpoint.
  *
  * `DELETE /accounts/{account_id}/gateway/proxy_endpoints/{proxy_endpoint_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -54,6 +58,8 @@ export type EditResult = $zero_trust_gateway.ProxyEndpoints;
  * Update a configured Zero Trust Gateway proxy endpoint.
  *
  * `PATCH /accounts/{account_id}/gateway/proxy_endpoints/{proxy_endpoint_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -69,6 +75,8 @@ export type GetResult = $zero_trust_gateway.ProxyEndpoints;
  * Get a single Zero Trust Gateway proxy endpoint.
  *
  * `GET /accounts/{account_id}/gateway/proxy_endpoints/{proxy_endpoint_id}`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -120,5 +128,7 @@ export type ListResult = $zero_trust_gateway.ProxyEndpoints[];
  * List all Zero Trust Gateway proxy endpoints for an account.
  *
  * `GET /accounts/{account_id}/gateway/proxy_endpoints`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

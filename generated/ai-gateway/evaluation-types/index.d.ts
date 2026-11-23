@@ -26,7 +26,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai-gateway/evaluation-types`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  *
  * @deprecated
  */

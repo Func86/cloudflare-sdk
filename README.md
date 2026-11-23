@@ -1,8 +1,8 @@
 # @libreflare/cloudflare-sdk
 
 A small, always-current Cloudflare API client, generated the way the [cf CLI](https://github.com/cloudflare/cf)
-generates its commands: a pinned `openapi.forge.json`, prepared, normalized by `forge normalize`, and run through a
-Forge plugin.
+generates its commands: the `openapi.json` of a pinned [cloudflare/api-schemas](https://github.com/cloudflare/api-schemas)
+commit, prepared, normalized by `forge normalize`, and run through a Forge plugin.
 
 ```sh
 npm install @libreflare/cloudflare-sdk
@@ -135,7 +135,9 @@ lint and tests first.
 `npm run lint` runs Knip twice: over everything, and then over `src/` alone for exports that only tests or the
 generator use, since only `src/` ships as code.
 
-Forge comes from npm, pinned to the release cf pins.
+Forge comes from npm, pinned to the release cf pins. The spec is the `openapi.json` of a cloudflare/api-schemas commit,
+as cf's has been since 2026-11-23. Forge's `openapi.forge.json` releases of it hide and leave unnamed the account-or-zone
+operations from `0c348dc4` on.
 
 | File | What it does |
 | --- | --- |
@@ -161,13 +163,13 @@ Forge comes from npm, pinned to the release cf pins.
 
 - **Pagination is inferred from the response shape.** Only 2 operations state it with `x-fern-pagination`. A GET with
   page, cursor or offset parameters paginates over `result`, or over the one array inside it. Anything ambiguous isn't
-  paginated and is listed in `generated/_meta/report.json` (47 operations today). An override in `generator/patches.ts`
+  paginated and is listed in `generated/_meta/report.json` (48 operations today). An override in `generator/patches.ts`
   decides what the shape gets wrong: `dns.records.list` pages by number, as its cursor starts only when the first
   request sends one, even empty. When the caller sends `cursor`, it follows that instead, as the API refuses a page
   number beside one, and when the caller sends `prev_cursor`, it goes back to the first page, which comes last.
 - **`readOnly` fields get a separate input type,** `FooInput`, where they're optional. A value read from the API can
   still be sent back.
-- **Lengths and ranges aren't typed.** The spec has 395 arrays with `minItems: 1`, such as R2's `actions`, but a type
+- **Lengths and ranges aren't typed.** The spec has 407 arrays with `minItems: 1`, such as R2's `actions`, but a type
   for a non-empty array, `[T, ...T[]]`, refuses an ordinary one, such as an array from `filter`, so every caller would
   need a cast or a check. The same goes for string lengths, patterns and number ranges. The API refuses what's out of
   range.
@@ -203,9 +205,10 @@ Forge comes from npm, pinned to the release cf pins.
   `Content-Type`, which otherwise defaults to the declared `application/octet-stream`, and 2 operations choose a format
   with `Accept`.
 - **A declared 3xx that `fetch` doesn't follow is in the doc comment.** It throws an `ApiError`, as any status outside
-  2xx does, though a caller may take it for success, so the comment says so, with the spec's description. 8 operations
-  declare a 304: 7 GETs, when the caller's `If-None-Match` or `If-Modified-Since` matches, such as `r2.objects.get`,
-  and `pages.deploy-hooks.trigger`, when the branch's latest commit is already deployed.
+  2xx does, though a caller may take it for success, so the comment says so, with the spec's description. 9 operations
+  declare a 304: 7 GETs and `flagship.apps.ofrep.evaluateAll`, when the caller's `If-None-Match` or
+  `If-Modified-Since` matches, such as `r2.objects.get`, and `pages.deploy-hooks.trigger`, when the branch's latest
+  commit is already deployed.
 - **An account-or-zone route takes `account_id` or `zone_id`.** The spec writes 78 routes, used by 134 operations, as
   `/{account_or_zone}/{account_or_zone_id}/...`, with a selector and an ID. Their request types take the account's or the
   zone's ID instead, as other operations do, and their docs show both routes. Each literal is marked `accountOrZone`, and
@@ -252,8 +255,8 @@ Forge comes from npm, pinned to the release cf pins.
   its action alone, as the API refuses any other key; let a ruleset's `rules` be absent, as an empty ruleset leaves them
   out; say that Builds keys builds by the version ID asked for; let a Browser Run script's result hold nested arrays;
   put Domain Connect's routes under `/dns/domainconnect`, where the API serves them, and its `verify` at `v2`; add the 3
-  fields a Logpush job has undeclared and stop a listed job from being `null`; declare the `notificationUrl` that
-  Stream's webhook body requires but leaves undeclared, as the spec hides the `notification_url` it declares from SDKs;
+  fields a Logpush job has undeclared and stop a listed job from being `null`; require the `notificationUrl` of
+  Stream's webhook body, which takes it or the `notification_url` that the spec hides from SDKs;
   give a patch of a Worker's latest version a body of its own, whose `env` entries can be `null` to remove one binding,
   as creating a version shares the body; let the tags route take a zone's resource types and body, and an Access
   policy's `access_application_id`; and make temporary R2 credentials take exactly one of `permission` and `actions`, as
@@ -269,16 +272,18 @@ Forge comes from npm, pinned to the release cf pins.
   reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
   `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
   Builds splits, as a live check showed.
-- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,647
-  of its 3,649 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
-  Cloudflare's own CLI. Forge would name the other 2, for the NEL setting, by their `operationId`, outside any group, so
-  `UNNAMED_OPERATIONS` in `generator/patches.ts` leaves them out, as `zones.settings.get` and `edit` reach them with
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,660
+  of its 3,933 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
+  Cloudflare's own CLI. Forge would name the other 273 by their `operationId`, outside any group. 271 are hidden copies,
+  on one account or one zone, of operations that take either, which stay out, as below. `UNNAMED_OPERATIONS` in
+  `generator/patches.ts` leaves out the 2 for the NEL setting, as `zones.settings.get` and `edit` reach them with
   `setting_id: 'nel'`. Another operation without a name stops generation. A rename in `generator/patches.ts` fixes a
-  mistake, with its reason, and stops generation once the spec names the operation otherwise. 32 are renamed, to the
+  mistake, with its reason, and stops generation once the spec names the operation otherwise. 33 are renamed, to the
   official SDK's names where it has them: an `account-` group from before account and zone routes were merged, such as
-  `logpush.account-jobs` for `logpush.jobs`; Logpush validations named `delete` and `create`; 4 hidden Cloudforce One
-  methods that repeat their group, such as `cloudforceOneRequestGet` for `get`, as a hidden operation's name is never
-  shown; and the hidden Email Security move described below. Forge stops when two operations take one name, so a rename
+  `logpush.account-jobs` for `logpush.jobs`; Logpush validations named `delete` and `create`; 5 hidden Cloudforce One
+  v1 request methods, 4 of which the spec names as the v2 ones that replace them, which move to
+  `cloudforce-one.requests.legacy`, as the spec's other legacy Cloudforce One routes do; and the hidden Email Security
+  move described below. Forge stops when two operations take one name, so a rename
   can't take another's. Every name passes three rules, which `npm test` checks: its verb is one its HTTP method does,
   apart from an RPC-style route such as `POST …/bulk/delete`, a read by POST whose body says what to read, such as
   `ai-audit.robots.bulkGet`, and a bulk method by POST whose body lists what it acts on, such as
@@ -295,17 +300,17 @@ output with a direct reading of the spec. No type check catches them, because th
 
 | In the spec | What Forge does | What `prepare.ts` does |
 | --- | --- | --- |
-| `required` beside an `allOf` or a `oneOf`, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (250 names) |
-| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (600 properties) |
-| `writeOnly` | Has no such flag | Stops requiring the field (20), also where a branch of its schema requires it, so responses don't promise it |
+| `required` beside a `oneOf`, beside an `allOf` for a property no branch declares, such as one only an `anyOf` in a branch has, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (146 names) |
+| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (558 properties) |
+| `writeOnly` | Has no such flag | Stops requiring the field (20), also where a branch of its schema, or a schema built on it with `allOf`, requires it, so responses don't promise it |
 | `nullable` in one `allOf` branch, such as Pages' `latest_deployment` | Drops it, or intersects it away | Makes the `allOf` nullable (9 that reach a type, and an error body), whether a property, an item or a map's values, as the official SDK types Pages' |
 
 A spec patch exempts API Shield's `operation`, whose nullable branch only adds `features`: read as written, every
 operation listed, created or read would be nullable. Any other named schema that would turn nullable as a whole stops
 generation until a patch like that one decides it, because every use of it would change.
 
-These apply to schemas wherever they're declared, including shared request bodies such as `rulesets.create`'s, which
-now requires `name`, `kind` and `phase`.
+These apply to schemas wherever they're declared, including shared request bodies. Forge 0.3.0 reads a `required`
+beside an `allOf` itself, as `rulesets.create`'s, which requires `name`, `kind` and `phase`.
 
 The `writeOnly` change is a trade-off: a request type no longer requires a field like `password`, and the API reports
 that with a clear error. Fields with `x-stainless-skip`, such as `access.Tag.app_count`, are left out, as they are in cf.
@@ -313,15 +318,21 @@ that with a clear error. Fields with `x-stainless-skip`, such as `access.Tag.app
 Forge also has no `allowReserved`, which R2 object keys declare because the spec requires their slashes to stay literal.
 `prepare.ts` names such parameters in an `x-sdk-literal-slashes` extension, which the plugin reads.
 
+The spec gives an operation's name, hiding and availability twice, in Forge's own keys, such as `x-forge-skip`, beside
+the Fern ones, such as `x-fern-ignore`, and `forge normalize` keeps Forge's. `prepare.ts` reads and writes the Fern
+keys, so it moves Forge's onto them first, which keeps a rename or a hidden operation shown, and stops generation where
+the two say different things.
+
 ### Hidden operations
 
-The spec marks 526 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
+The spec marks 799 operations `x-fern-ignore` without saying why, and Forge drops them. This generator removes the mark
 unless there's a concrete reason not to, because the mark doesn't mean an operation is broken: Libreflare calls
 `POST /secrets_store/stores`, which is one of them.
 
 | Left out | Operations | Reason |
 | --- | --- | --- |
-| Deprecated | 288 | The spec marks them deprecated |
+| Deprecated | 344 | The spec marks them deprecated |
+| Copies, on one account or one zone, of an operation that takes either | 215 | The operation that takes either is generated, as above, and its doc comment lists the token permissions of every copy, deprecated ones too, for an account and a zone apart where they differ |
 | For Terraform alone | 9 | `x-fern-audiences` names only Terraform |
 | `PUT` and `DELETE /zones/{zone_id}/subscriptions` | 2 | Documented as replaced by the singular `/zones/{zone_id}/subscription` |
 | `cloudforce-one/requests/{constants,quota,types}` | 3 | Replaced by generally available `/v2/` routes, whose groups take these names |
@@ -330,7 +341,9 @@ The rest are generated, subject to the rule below. The last two rows are `EXCLUD
 and an entry that no longer matches a hidden operation stops generation. `POST .../events/{event_id}/raw/{raw_id}` stays
 in although it says "legacy", because it also says it has no direct replacement. The hidden single-message move is
 renamed to `email-security.investigate.moveOne`, so it doesn't collide with the visible bulk
-`email-security.investigate.move`.
+`email-security.investigate.move`. The hidden v1 Cloudforce One requests' `list`, `create`, `get` and `update`, which
+the spec names as the v2 ones that replace them, move to `cloudforce-one.requests.legacy`, and so does their `delete`,
+which v2 doesn't have.
 
 None of these has been called against the live API. Since the spec doesn't say why they're hidden, some may turn out to
 be unfinished.
@@ -436,6 +449,11 @@ Expect to write patches.
   operations generated, the SDK paginates none that this doesn't.
 - The plugin's types against those of that earlier generator, with TypeScript's checker: 5,119 of 5,136 models are
   identical across 29,917 fields, and each of the 17 others is explained.
+- Forge 0.3.0 against 0.2.0 on spec `2b2a4d86`, with TypeScript's checker: every type both export is the same, and the
+  7 models 0.3.0 writes in place are no longer exported.
+- cloudflare/api-schemas at `2b2a4d86`, given the merged routes and names of Forge's release of it, generates the same
+  3,312 operations as that release. Types differ where the release cut a recursive type short, dropped an `enum: [""]`,
+  or wrote a model in place.
 
 ### Not verified
 
@@ -483,10 +501,10 @@ Expect to write patches.
 
 ## Forge dependencies
 
-Forge is early. Its plugin interface is pre-1.0 (WIT 0.4.0), and it says breaking changes will bump the minor version.
+Forge is early. Its plugin interface is pre-1.0 (WIT 0.5.0), and it says breaking changes will bump the minor version.
 Pinning an exact version means nothing moves until the pin does, and a change in the spec's extensions reaches this code
-through `forge normalize`. Aliases replace the name they rename, so the output has `o11y.*` and not `observability.*`,
-as cf does.
+through `forge normalize`. Aliases replace the name they rename, so the output has `o11y.agents.traces` and not
+`observability.agents.traces`, as cf does.
 
 ## Why not Forge's built-in `--target ts`
 

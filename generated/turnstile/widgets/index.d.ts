@@ -5,27 +5,6 @@ import type * as $turnstile from "../../_types/turnstile.js";
 export type CreateRequest = {
 	/** Identifier */
 	account_id: string;
-	/** Page number of paginated results. */
-	page?: number;
-	/** Number of items per page. */
-	per_page?: number;
-	/** Field to order widgets by. */
-	order?: "id" | "sitekey" | "name" | "created_on" | "modified_on";
-	/** Direction to order widgets. */
-	direction?: "asc" | "desc";
-	/**
-	 * Filter widgets by field. The `name` field uses case-insensitive
-	 * substring matching; `sitekey` uses exact matching.
-	 * Format: `field:value`
-	 *
-	 * Supported fields:
-	 * - `name` - Filter by widget name (e.g., `filter=name:login-form`)
-	 * - `sitekey` - Filter by sitekey (e.g., `filter=sitekey:0x4AAA`)
-	 *
-	 * Returns 400 Bad Request if the field is unsupported or format is invalid.
-	 * An empty filter value returns all results.
-	 */
-	filter?: string;
 	body: {
 		/**
 		 * If bot_fight_mode is set to `true`, Cloudflare issues computationally
@@ -198,8 +177,6 @@ export type UpdateRequest = {
 		name: $turnstile.Name;
 		/** Do not show any Cloudflare branding on the widget (ENT only). */
 		offlabel?: $turnstile.Offlabel;
-		/** Region where this widget can be used. This cannot be changed after creation. */
-		region?: $turnstile.Region;
 	};
 };
 export type UpdateResult = $turnstile.WidgetDetail;

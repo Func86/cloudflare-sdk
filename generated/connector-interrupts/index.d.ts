@@ -5,7 +5,7 @@ import type * as $mconn from "../_types/mconn.js";
 export type CreateRequest = {
 	account_id: string;
 	connector_id: string;
-	body: $mconn.Interrupt;
+	body: $mconn.ConnectorInterruptsCreateRequest;
 };
 export type CreateResult = $mconn.ConnectorInterruptsResult;
 /**

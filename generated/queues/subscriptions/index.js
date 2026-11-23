@@ -4,4 +4,4 @@ const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/event_subscri
 export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}","body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/event_subscriptions/subscriptions/{subscription_id}"};
-export const list = {"method":"GET","route":"/accounts/{account_id}/event_subscriptions/subscriptions","query":["page","per_page","order","direction"],"page":{"kind":"page"}};
+export const list = {"method":"GET","route":"/accounts/{account_id}/event_subscriptions/subscriptions","query":["queue_id","page","per_page","order","direction"],"page":{"kind":"page"}};

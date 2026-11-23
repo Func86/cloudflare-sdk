@@ -13,5 +13,7 @@ export type GetResult = $email.SendingReputationProperties;
  * Returns the authoritative Email Sending reputation state and active evaluation policy. Accounts without an evaluation are Healthy with null evaluation timestamps.
  *
  * `GET /accounts/{account_id}/email/sending/reputation`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

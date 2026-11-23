@@ -16,7 +16,7 @@ export type DeleteResult = $workers.ApiResponseCommon;
  *
  * `DELETE /accounts/{account_id}/workers/domains/{domain_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -35,7 +35,7 @@ export type GetResult = $workers.Domain;
  *
  * `GET /accounts/{account_id}/workers/domains/{domain_id}`
  *
- * Token permissions (any one): Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -65,36 +65,14 @@ export type ListResult = $workers.Domain[];
  *
  * `GET /accounts/{account_id}/workers/domains`
  *
- * Token permissions (any one): Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
 export type UpdateRequest = {
 	/** Identifier. */
 	account_id: string;
-	body: {
-		/** ID of the TLS certificate issued for the domain. */
-		cert_id?: string;
-		/** Whether the configured hostname is routable for the domain. If disabled, then requests to the configured hostname will not be routed to the configured Worker. If disabled, then preview routing must be enabled, and only subdomains of the configured hostname will be routable. */
-		enabled: boolean;
-		/**
-		 * Worker environment associated with the domain.
-		 * @deprecated
-		 */
-		environment?: string;
-		/** Hostname of the domain. Can be either the zone apex or a subdomain of the zone. Requests to this hostname will be routed to the configured Worker. */
-		hostname: string;
-		/** Immutable ID of the domain. */
-		id?: string;
-		/** Whether previews are routable for the domain. If enabled, previews will be routable as subdomains of the configured hostname. For example, if the configured hostname is `app.example.com`, then requests to `my-feature.app.example.com` will be routed to the preview with slug `my-feature`, if such a preview exists. If preview routing is disabled, then hostname routing must be enabled. */
-		previews_enabled: boolean;
-		/** Name of the Worker associated with the domain. Requests to the configured hostname will be routed to this Worker. */
-		service: string;
-		/** ID of the zone containing the domain hostname. */
-		zone_id: string;
-		/** Name of the zone containing the domain hostname. */
-		zone_name: string;
-	} & {
+	body: $workers.DomainInput & {
 		/** Hostname of the domain. Can be either the zone apex or a subdomain of the zone. Requests to this hostname will be routed to the configured Worker. */
 		hostname: string;
 		/** Name of the Worker associated with the domain. Requests to the configured hostname will be routed to this Worker. */
@@ -109,6 +87,6 @@ export type UpdateResult = $workers.Domain;
  *
  * `PUT /accounts/{account_id}/workers/domains`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

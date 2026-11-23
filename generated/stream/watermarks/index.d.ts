@@ -65,7 +65,7 @@ export type GetResult = $stream.Watermarks;
  *
  * `GET /accounts/{account_id}/stream/watermarks/{identifier}`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -81,6 +81,6 @@ export type ListResult = $stream.Watermarks[];
  *
  * `GET /accounts/{account_id}/stream/watermarks`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

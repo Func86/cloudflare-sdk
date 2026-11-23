@@ -11,78 +11,7 @@ export type CreateRequest = {
 	/** If true, preview base config from the parent Worker is ignored. */
 	ignore_base_config?: boolean;
 	/** Preview creation parameters. */
-	body: ({
-		/** When the Preview was created. */
-		created_on?: string;
-		/** When the Preview's most recent deployment was created. `null` if the Preview has never been deployed. */
-		deployed_on?: string | null;
-		/** Immutable ID of the Preview. */
-		id?: string;
-		/** Whether logpush is enabled for the Preview. */
-		logpush: boolean;
-		/** Human-readable name of the Preview. */
-		name: string;
-		/** Observability settings for the Preview. */
-		observability: {
-			/** Agents observability settings for the Preview. */
-			agents?: {
-				/** Whether Agents observability is enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether Agents observability data is persisted for the Preview. */
-				persist?: boolean;
-			} | null;
-			/** Whether observability is enabled for the Preview. */
-			enabled?: boolean;
-			/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-			head_sampling_rate?: number;
-			/** Real-time Issues settings for the Preview. */
-			issues?: {
-				/** Whether real-time Issues are enabled for the Preview. */
-				enabled?: boolean;
-			} | null;
-			/** Log settings for the Preview. */
-			logs?: {
-				/** A list of destinations where logs will be exported to. */
-				destinations?: string[];
-				/** Whether logs are enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for logs. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether invocation logs are enabled for the Preview. */
-				invocation_logs?: boolean;
-				/** Whether log persistence is enabled for the Preview. */
-				persist?: boolean;
-			};
-			/** Whether query strings are removed from request URLs in logs and traces. */
-			redact_query_string?: boolean;
-			/** Trace settings for the Preview. */
-			traces?: {
-				/** A list of destinations where traces will be exported to. */
-				destinations?: string[];
-				/** Whether traces are enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for traces. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether trace persistence is enabled for the Preview. */
-				persist?: boolean;
-			};
-		};
-		/** Immutable URL-safe identifier for the Preview. */
-		slug?: string;
-		/** Tags associated with the Preview. */
-		tags: string[];
-		/** Other Workers that should consume logs from the Preview. */
-		tail_consumers: {
-			/** Name of the consumer Worker. */
-			name: string;
-		}[];
-		/** When the Preview was most recently updated. */
-		updated_on?: string;
-		/** Routable URLs for the Preview. */
-		urls?: string[];
-	}) & {
+	body: $workers.PreviewInput & {
 		/** Human-readable name of the Preview. */
 		name: string;
 	};
@@ -137,7 +66,7 @@ export type GetResult = $workers.Preview;
  *
  * `GET /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */
@@ -170,7 +99,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/workers/workers/{worker_id}/previews`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  *
  * @beta
  */
@@ -186,78 +115,7 @@ export type UpdateRequest = {
 	/** If true, preview base config from the parent Worker is ignored. */
 	ignore_base_config?: boolean;
 	/** Preview update parameters. */
-	body: ({
-		/** When the Preview was created. */
-		created_on?: string;
-		/** When the Preview's most recent deployment was created. `null` if the Preview has never been deployed. */
-		deployed_on?: string | null;
-		/** Immutable ID of the Preview. */
-		id?: string;
-		/** Whether logpush is enabled for the Preview. */
-		logpush: boolean;
-		/** Human-readable name of the Preview. */
-		name: string;
-		/** Observability settings for the Preview. */
-		observability: {
-			/** Agents observability settings for the Preview. */
-			agents?: {
-				/** Whether Agents observability is enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for Agents observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether Agents observability data is persisted for the Preview. */
-				persist?: boolean;
-			} | null;
-			/** Whether observability is enabled for the Preview. */
-			enabled?: boolean;
-			/** The sampling rate for observability. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-			head_sampling_rate?: number;
-			/** Real-time Issues settings for the Preview. */
-			issues?: {
-				/** Whether real-time Issues are enabled for the Preview. */
-				enabled?: boolean;
-			} | null;
-			/** Log settings for the Preview. */
-			logs?: {
-				/** A list of destinations where logs will be exported to. */
-				destinations?: string[];
-				/** Whether logs are enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for logs. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether invocation logs are enabled for the Preview. */
-				invocation_logs?: boolean;
-				/** Whether log persistence is enabled for the Preview. */
-				persist?: boolean;
-			};
-			/** Whether query strings are removed from request URLs in logs and traces. */
-			redact_query_string?: boolean;
-			/** Trace settings for the Preview. */
-			traces?: {
-				/** A list of destinations where traces will be exported to. */
-				destinations?: string[];
-				/** Whether traces are enabled for the Preview. */
-				enabled?: boolean;
-				/** The sampling rate for traces. From 0 to 1 (1 = 100%, 0.1 = 10%). */
-				head_sampling_rate?: number;
-				/** Whether trace persistence is enabled for the Preview. */
-				persist?: boolean;
-			};
-		};
-		/** Immutable URL-safe identifier for the Preview. */
-		slug?: string;
-		/** Tags associated with the Preview. */
-		tags: string[];
-		/** Other Workers that should consume logs from the Preview. */
-		tail_consumers: {
-			/** Name of the consumer Worker. */
-			name: string;
-		}[];
-		/** When the Preview was most recently updated. */
-		updated_on?: string;
-		/** Routable URLs for the Preview. */
-		urls?: string[];
-	}) & {
+	body: $workers.PreviewInput & {
 		/** Human-readable name of the Preview. */
 		name: string;
 	};
@@ -270,7 +128,7 @@ export type UpdateResult = $workers.Preview;
  *
  * `PUT /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  *
  * @beta
  */

@@ -610,16 +610,6 @@ export type TargetAttributes = { [key: string]: string[] };
 /** Contains the Unix usernames that may be used when connecting over SSH. */
 export type Usernames = string[];
 
-/** Contains the targets secured by the application. */
-export type AppRespEmbeddedTargetCriteriaInfra = {
-	target_criteria?: TargetCriteriaInfraApp[];
-};
-
-/** Contains the targets secured by the application. */
-export type AppRespEmbeddedTargetCriteriaSelfHosted = {
-	target_criteria?: TargetCriteriaSelfHostedApp[];
-};
-
 /** Contains zone names to exempt from the `deny_unmatched_requests` feature. Requests to a subdomain in an exempted zone will block unauthenticated traffic by default if there is a configured Access application and policy that matches the request. */
 export type DenyUnmatchedRequestsExemptedZoneNames = string[];
 
@@ -953,11 +943,10 @@ export type InfraProps = ({
 	name?: Name8;
 	/** The maximum duration of a connection to this application's targets. Connections are terminated once it elapses. Must be in the format `30m` or `2h45m`, in whole seconds. Valid time units are: s, m, h. */
 	session_duration?: string;
-	type?: Type & string;
-}) & AppRespEmbeddedTargetCriteriaInfra & ({
 	type: Type & string;
+}) & {
 	target_criteria: TargetCriteriaInfraApp[];
-});
+};
 
 /** JIT request status. `SPENT` is deprecated and interpreted as `APPROVED`. */
 export type JitRequestStatus = "PENDING" | "APPROVED" | "DENIED" | "CANCELED" | "SPENT";
@@ -2124,19 +2113,9 @@ export type AppReqEmbeddedScimConfig = {
 	scim_config?: ScimConfig;
 };
 
-export type AppRequestInput = EndUserProps | SelfHostedProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | SaasProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | SshProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | VncProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | AppLauncherPropsInput & AppReqEmbeddedPolicies | WarpPropsInput & AppReqEmbeddedPolicies | BisoPropsInput & AppReqEmbeddedPolicies | ProxyEndpointProps & AppReqEmbeddedPolicies | BookmarkProps & AppReqEmbeddedPolicies | InfraProps & InfraAppReqEmbeddedPolicies & ({
-	type: Type & string;
-	target_criteria: TargetCriteriaInfraApp[];
-}) | RdpProps & AppReqEmbeddedPolicies & {
-	target_criteria: TargetCriteriaSelfHostedApp[];
-} | McpProps & AppReqEmbeddedPolicies | McpPortalProps & AppReqEmbeddedPolicies;
+export type AppRequestInput = EndUserProps | SelfHostedProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | SaasProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | SshProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | VncProps & AppReqEmbeddedPolicies & AppReqEmbeddedScimConfig | AppLauncherPropsInput & AppReqEmbeddedPolicies | WarpPropsInput & AppReqEmbeddedPolicies | BisoPropsInput & AppReqEmbeddedPolicies | ProxyEndpointProps & AppReqEmbeddedPolicies | BookmarkProps & AppReqEmbeddedPolicies | InfraProps & InfraAppReqEmbeddedPolicies | RdpProps & AppReqEmbeddedPolicies | McpProps & AppReqEmbeddedPolicies | McpPortalProps & AppReqEmbeddedPolicies;
 
-export type AppResponse = BasicAppResponseProps & EndUserProps | BasicAppResponseProps & SelfHostedProps & AppRespEmbeddedPolicies | BasicAppResponseProps & SaasProps & AppRespEmbeddedPolicies | BasicAppResponseProps & SshProps & AppRespEmbeddedPolicies | BasicAppResponseProps & VncProps & AppRespEmbeddedPolicies | BasicAppResponseProps & AppLauncherProps & AppRespEmbeddedPolicies | BasicAppResponseProps & WarpProps & AppRespEmbeddedPolicies | BasicAppResponseProps & BisoProps & AppRespEmbeddedPolicies | BasicAppResponseProps & ProxyEndpointProps & AppRespEmbeddedPolicies | BasicAppResponseProps & BookmarkProps & AppRespEmbeddedPolicies | BasicAppResponseProps & InfraProps & InfraAppRespEmbeddedPolicies & ({
-	type: Type & string;
-	target_criteria: TargetCriteriaInfraApp[];
-}) | BasicAppResponseProps & RdpProps & AppRespEmbeddedPolicies & {
-	target_criteria: TargetCriteriaSelfHostedApp[];
-} | BasicAppResponseProps & McpProps & AppRespEmbeddedPolicies | BasicAppResponseProps & McpPortalProps & AppRespEmbeddedPolicies;
+export type AppResponse = BasicAppResponseProps & EndUserProps | BasicAppResponseProps & SelfHostedProps & AppRespEmbeddedPolicies | BasicAppResponseProps & SaasProps & AppRespEmbeddedPolicies | BasicAppResponseProps & SshProps & AppRespEmbeddedPolicies | BasicAppResponseProps & VncProps & AppRespEmbeddedPolicies | BasicAppResponseProps & AppLauncherProps & AppRespEmbeddedPolicies | BasicAppResponseProps & WarpProps & AppRespEmbeddedPolicies | BasicAppResponseProps & BisoProps & AppRespEmbeddedPolicies | BasicAppResponseProps & ProxyEndpointProps & AppRespEmbeddedPolicies | BasicAppResponseProps & BookmarkProps & AppRespEmbeddedPolicies | BasicAppResponseProps & InfraProps & InfraAppRespEmbeddedPolicies | BasicAppResponseProps & RdpProps & AppRespEmbeddedPolicies | BasicAppResponseProps & McpProps & AppRespEmbeddedPolicies | BasicAppResponseProps & McpPortalProps & AppRespEmbeddedPolicies;
 
 export type AppSettingsRequest = {
 	/** Enables loading application content in an iFrame. */
@@ -2774,11 +2753,11 @@ export type ProxyEndpointProps = FeatureAppProps & ({
 	type?: Type & string;
 });
 
-export type RdpProps = AppRespEmbeddedTargetCriteriaSelfHosted & SelfHostedProps & ({
-	type?: Type & string;
-}) & {
+export type RdpProps = {
 	target_criteria: TargetCriteriaSelfHostedApp[];
-};
+} & SelfHostedProps & ({
+	type?: Type & string;
+});
 
 export type Responses = {
 	/** The unique Cloudflare-generated Id of the SCIM resource. */

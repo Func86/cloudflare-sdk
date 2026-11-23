@@ -20,7 +20,9 @@ export type CreateResult = $firewall.SchemasRule;
  *
  * `POST /accounts/{account_id}/firewall/access_rules/rules` or `POST /zones/{zone_id}/firewall/access_rules/rules`
  *
- * Token permissions (any one): Account Firewall Access Rules Write.
+ * Token permissions on an account (any one): Account Firewall Access Rules Write.
+ *
+ * Token permissions on a zone (any one): Firewall Services Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -41,7 +43,9 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/firewall/access_rules/rules/{rule_id}` or `DELETE /zones/{zone_id}/firewall/access_rules/rules/{rule_id}`
  *
- * Token permissions (any one): Account Firewall Access Rules Write.
+ * Token permissions on an account (any one): Account Firewall Access Rules Write.
+ *
+ * Token permissions on a zone (any one): Firewall Services Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -61,7 +65,9 @@ export type EditResult = $firewall.SchemasRule;
  *
  * `PATCH /accounts/{account_id}/firewall/access_rules/rules/{rule_id}` or `PATCH /zones/{zone_id}/firewall/access_rules/rules/{rule_id}`
  *
- * Token permissions (any one): Account Firewall Access Rules Write.
+ * Token permissions on an account (any one): Account Firewall Access Rules Write.
+ *
+ * Token permissions on a zone (any one): Firewall Services Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -77,7 +83,7 @@ export type GetResult = $firewall.SchemasRule;
  *
  * `GET /accounts/{account_id}/firewall/access_rules/rules/{rule_id}` or `GET /zones/{zone_id}/firewall/access_rules/rules/{rule_id}`
  *
- * Token permissions (any one): Account Firewall Access Rules Write, Account Firewall Access Rules Read.
+ * Token permissions on an account (any one): Account Firewall Access Rules Write, Account Firewall Access Rules Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -116,6 +122,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/firewall/access_rules/rules` or `GET /zones/{zone_id}/firewall/access_rules/rules`
  *
- * Token permissions (any one): Account Firewall Access Rules Write, Account Firewall Access Rules Read.
+ * Token permissions on an account (any one): Account Firewall Access Rules Write, Account Firewall Access Rules Read.
+ *
+ * Token permissions on a zone (any one): Firewall Services Write, Firewall Services Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

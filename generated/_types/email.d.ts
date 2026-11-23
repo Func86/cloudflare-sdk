@@ -270,30 +270,16 @@ export type AccountRulesPlanZone = {
 	zone_name?: string;
 };
 
-export type Addresses = {
-	/** The date and time the destination address has been created. */
-	created?: Created;
-	/** The contact email address of the user. */
-	email?: Email;
-	/** Destination address identifier. */
-	id?: DestinationAddressIdentifier;
-	/** The date and time the destination address was last modified. */
-	modified?: Modified;
-	/**
-	 * Destination address tag. (Deprecated, replaced by destination address identifier)
-	 * @deprecated
-	 */
-	tag?: DestinationAddressTag;
-	/** The date and time the destination address has been verified. Null means not verified yet. */
-	verified?: Verified;
-};
+export type Addresses = DestinationAddressProperties;
 
-export type ApiResponseSingle = {
+export type ApiResponseCommon = {
 	errors: Messages;
 	messages: Messages;
 	/** Whether the API call was successful. */
 	success: true;
 };
+
+export type ApiResponseSingle = ApiResponseCommon;
 
 export type CatchAllRule = {
 	/** List actions for the catch-all routing rule. */
@@ -353,10 +339,52 @@ export type CreateSendingSubdomainProperties = {
 	name: string;
 };
 
+export type DestinationAddressProperties = {
+	/** The date and time the destination address has been created. */
+	created?: Created;
+	/** The contact email address of the user. */
+	email?: Email;
+	/** Destination address identifier. */
+	id?: DestinationAddressIdentifier;
+	/** The date and time the destination address was last modified. */
+	modified?: Modified;
+	/**
+	 * Destination address tag. (Deprecated, replaced by destination address identifier)
+	 * @deprecated
+	 */
+	tag?: DestinationAddressTag;
+	/** The date and time the destination address has been verified. Null means not verified yet. */
+	verified?: Verified;
+};
+
 export type EmailSettingDnsRequestBody = {
 	/** Domain of your zone. */
 	name?: EmailSettingName;
 } | null;
+
+export type EmailSettingsProperties = {
+	/** The date and time the settings have been created. */
+	created?: EmailSettingCreated;
+	/** State of the zone settings for Email Routing. */
+	enabled: EmailSettingEnabled;
+	/** Email Routing settings identifier. */
+	id: EmailSettingIdentifier;
+	/** The date and time the settings have been modified. */
+	modified?: EmailSettingModified;
+	/** Domain of your zone. */
+	name: EmailSettingName;
+	/** Flag to check if the user skipped the configuration wizard. */
+	skip_wizard?: EmailSettingSkipWizard;
+	/** Show the state of your account, and the type or configuration error. */
+	status?: EmailSettingStatus;
+	/** Whether subaddressing (plus-addressing) is honored when matching incoming mail against routing rules. */
+	support_subaddress?: EmailSettingSupportSubaddress;
+	/**
+	 * Email Routing settings tag. (Deprecated, replaced by Email Routing settings identifier)
+	 * @deprecated
+	 */
+	tag?: EmailSettingTag;
+};
 
 export type Messages = {
 	code: number;
@@ -413,31 +441,7 @@ export type RuleProperties = {
 	tag?: RuleTag;
 };
 
-export type Rules = {
-	/** List actions patterns. */
-	actions?: RuleActions;
-	/** Routing rule status. */
-	enabled?: RuleEnabled;
-	/** Routing rule identifier. */
-	id?: RuleIdentifier;
-	/** Matching patterns to forward to your actions. */
-	matchers?: RuleMatchers;
-	/** Routing rule name. */
-	name?: RuleName;
-	/** Priority of the routing rule. */
-	priority?: RulePriority;
-	/**
-	 * Who manages the rule. `api` covers dashboard, generic API, and Terraform;
-	 * `wrangler` means the rule is managed by a Worker's wrangler.jsonc. Defaults
-	 * to `api` when omitted on write.
-	 */
-	source?: RuleSource;
-	/**
-	 * Routing rule tag. (Deprecated, replaced by routing rule identifier)
-	 * @deprecated
-	 */
-	tag?: RuleTag;
-};
+export type Rules = RuleProperties;
 
 export type SendingLimitsProperties = {
 	/** The resolved daily sending quota for the account. Null when the quota is not yet available. */
@@ -473,7 +477,9 @@ export type SendingReputationProperties = {
 	status_since: string | null;
 };
 
-export type SendingSubdomain = {
+export type SendingSubdomain = SendingSubdomainProperties;
+
+export type SendingSubdomainProperties = {
 	/** The date and time the destination address has been created. */
 	created?: Created;
 	/** The DKIM selector used for email signing. Wildcard rows publish the selector and sign with `d=<base>`. */
@@ -503,29 +509,7 @@ export type SendingSubdomainReputationComplaints = {
 	complaints: number;
 };
 
-export type Settings = {
-	/** The date and time the settings have been created. */
-	created?: EmailSettingCreated;
-	/** State of the zone settings for Email Routing. */
-	enabled: EmailSettingEnabled;
-	/** Email Routing settings identifier. */
-	id: EmailSettingIdentifier;
-	/** The date and time the settings have been modified. */
-	modified?: EmailSettingModified;
-	/** Domain of your zone. */
-	name: EmailSettingName;
-	/** Flag to check if the user skipped the configuration wizard. */
-	skip_wizard?: EmailSettingSkipWizard;
-	/** Show the state of your account, and the type or configuration error. */
-	status?: EmailSettingStatus;
-	/** Whether subaddressing (plus-addressing) is honored when matching incoming mail against routing rules. */
-	support_subaddress?: EmailSettingSupportSubaddress;
-	/**
-	 * Email Routing settings tag. (Deprecated, replaced by Email Routing settings identifier)
-	 * @deprecated
-	 */
-	tag?: EmailSettingTag;
-};
+export type Settings = EmailSettingsProperties;
 
 export type UpdateCatchAllRuleProperties = {
 	/** List actions for the catch-all routing rule. */

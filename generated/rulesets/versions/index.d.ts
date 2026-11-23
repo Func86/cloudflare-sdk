@@ -19,7 +19,9 @@ export type DeleteResult = void;
  *
  * `DELETE /accounts/{account_id}/rulesets/{ruleset_id}/versions/{ruleset_version}` or `DELETE /zones/{zone_id}/rulesets/{ruleset_id}/versions/{ruleset_version}`
  *
- * Token permissions (any one): Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Pages Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, Transform Rules Write, Select Configuration Write, Account WAF Write, Account Rulesets Write, Logs Write.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Response Compression Write, Account Custom Pages Write, Custom Pages Write, Config Settings Write, Dynamic URL Redirects Write, Cache Settings Write, Custom Errors Write, Origin Write, Managed headers Write, Zone Transform Rules Write, Mass URL Redirects Write, Magic Firewall Write, L4 DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Write, Sanitize Write, Transform Rules Write, Select Configuration Write, Bot Management Write, Zone WAF Write, Account WAF Write, Account Rulesets Write, Logs Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -46,7 +48,9 @@ export type GetResult = $rulesets.Ruleset & {
  *
  * `GET /accounts/{account_id}/rulesets/{ruleset_id}/versions/{ruleset_version}` or `GET /zones/{zone_id}/rulesets/{ruleset_id}/versions/{ruleset_version}`
  *
- * Token permissions (any one): Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Account Custom Pages Write, Account Custom Pages Read, Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Response Compression Write, Response Compression Read, Account Custom Pages Write, Account Custom Pages Read, Custom Pages Write, Custom Pages Read, Config Settings Write, Config Settings Read, Dynamic URL Redirects Write, Dynamic URL Redirects Read, Cache Settings Write, Cache Settings Read, Custom Errors Write, Custom Errors Read, Origin Write, Origin Read, Managed headers Write, Managed headers Read, Zone Transform Rules Write, Zone Transform Rules Read, Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, HTTP DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Read, Sanitize Write, Sanitize Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Bot Management Write, Bot Management Read, Zone WAF Write, Zone WAF Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -68,6 +72,8 @@ export type ListResult = ($rulesets.Ruleset & {
  *
  * `GET /accounts/{account_id}/rulesets/{ruleset_id}/versions` or `GET /zones/{zone_id}/rulesets/{ruleset_id}/versions`
  *
- * Token permissions (any one): Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Account Custom Pages Write, Account Custom Pages Read, Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
+ *
+ * Token permissions on a zone (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Response Compression Write, Response Compression Read, Account Custom Pages Write, Account Custom Pages Read, Custom Pages Write, Custom Pages Read, Config Settings Write, Config Settings Read, Dynamic URL Redirects Write, Dynamic URL Redirects Read, Cache Settings Write, Cache Settings Read, Custom Errors Write, Custom Errors Read, Origin Write, Origin Read, Managed headers Write, Managed headers Read, Zone Transform Rules Write, Zone Transform Rules Read, Mass URL Redirects Write, Mass URL Redirects Read, Magic Firewall Write, Magic Firewall Read, L4 DDoS Managed Ruleset Write, L4 DDoS Managed Ruleset Read, HTTP DDoS Managed Ruleset Write, HTTP DDoS Managed Ruleset Read, Sanitize Write, Sanitize Read, Transform Rules Write, Transform Rules Read, Select Configuration Write, Select Configuration Read, Bot Management Write, Bot Management Read, Zone WAF Write, Zone WAF Read, Account WAF Write, Account WAF Read, Account Rulesets Read, Account Rulesets Write, Logs Write, Logs Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

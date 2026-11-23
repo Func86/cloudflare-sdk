@@ -16,7 +16,9 @@ export type GetResult = $custom_pages.CustomPage;
  *
  * `GET /accounts/{account_id}/custom_pages/{identifier}` or `GET /zones/{zone_id}/custom_pages/{identifier}`
  *
- * Token permissions (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ * Token permissions on an account (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ *
+ * Token permissions on a zone (any one): Custom Pages Write, Custom Pages Read, Zone Settings Write, Zone Settings Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -29,7 +31,9 @@ export type ListResult = $custom_pages.CustomPage[];
  *
  * `GET /accounts/{account_id}/custom_pages` or `GET /zones/{zone_id}/custom_pages`
  *
- * Token permissions (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ * Token permissions on an account (any one): Zero Trust: PII Read, Account Custom Pages Write, Account Custom Pages Read, Account Settings Write, Account Settings Read.
+ *
+ * Token permissions on a zone (any one): Custom Pages Write, Custom Pages Read, Zone Settings Write, Zone Settings Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -51,6 +55,8 @@ export type UpdateResult = $custom_pages.CustomPage;
  *
  * `PUT /accounts/{account_id}/custom_pages/{identifier}` or `PUT /zones/{zone_id}/custom_pages/{identifier}`
  *
- * Token permissions (any one): Account Custom Pages Write, Account Settings Write.
+ * Token permissions on an account (any one): Account Custom Pages Write, Account Settings Write.
+ *
+ * Token permissions on a zone (any one): Custom Pages Write, Zone Settings Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

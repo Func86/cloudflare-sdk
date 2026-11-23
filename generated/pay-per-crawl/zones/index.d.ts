@@ -14,7 +14,7 @@ export type GetCanBeEnabledResult = $pay_per_crawl.DaricZoneCanBeEnabled;
  *
  * `GET /zones/{zone_id}/pay-per-crawl/can_be_enabled`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const getCanBeEnabled: Operation<GetCanBeEnabledRequest, GetCanBeEnabledResult>;
 
@@ -32,7 +32,7 @@ export type QueryCanBeEnabledResult = $pay_per_crawl.ZonesCanBeEnabledPayload;
  *
  * `POST /accounts/{account_id}/pay-per-crawl/zones_can_be_enabled/query`
  *
- * Token permissions (any one): Trust and Safety Write, Trust and Safety Read, DNS View Write, DNS View Read, SCIM Provisioning, Load Balancers Account Write, Load Balancers Account Read, Zero Trust: PII Read, DDoS Botnet Feed Write, DDoS Botnet Feed Read, Workers R2 Storage Write, Workers R2 Storage Read, DDoS Protection Write, DDoS Protection Read, Workers Tail Read, Workers KV Storage Write, Workers KV Storage Read, Workers Scripts Write, Workers Scripts Read, Load Balancing: Monitors and Pools Write, Load Balancing: Monitors and Pools Read, Account Firewall Access Rules Write, Account Firewall Access Rules Read, DNS Firewall Write, DNS Firewall Read, Billing Write, Billing Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Account Security Insights Partner Integrations Write, Account Security Insights Partner Integrations Read, Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Account Abuse Protection PII Read, Workers R2 Storage Metadata Read, AI Search Index Engine, Account Security Center Insights Write, Account Security Center Insights Read, Auto Rag Write Run Engine, Trust and Safety Write, Trust and Safety Read, DNS View Write, DNS View Read, SCIM Provisioning, Load Balancers Account Write, Load Balancers Account Read, Zero Trust: PII Read, DDoS Botnet Feed Write, DDoS Botnet Feed Read, Workers R2 Storage Write, Workers R2 Storage Read, DDoS Protection Write, DDoS Protection Read, Workers Tail Read, Workers KV Storage Write, Workers KV Storage Read, Workers Scripts Write, Workers Scripts Read, Load Balancing: Monitors and Pools Write, Load Balancing: Monitors and Pools Read, Account Firewall Access Rules Write, Account Firewall Access Rules Read, DNS Firewall Write, DNS Firewall Read, Billing Write, Billing Read, Account Settings Write, Account Settings Read.
  */
 export declare const queryCanBeEnabled: Operation<QueryCanBeEnabledRequest, QueryCanBeEnabledResult>;
 

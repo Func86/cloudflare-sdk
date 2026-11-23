@@ -18,7 +18,7 @@ export type DeleteResult = void;
  *
  * `DELETE /accounts/{account_id}/access/identity_providers/{identity_provider_id}/scim/groups/{group_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Individual Access Identity Provider Admin, Access: Identity Providers Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -39,7 +39,7 @@ export type GetResult = $access.GroupDetails;
  *
  * `GET /accounts/{account_id}/access/identity_providers/{identity_provider_id}/scim/groups/{group_id}`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Individual Access Identity Provider Read, Individual Access Identity Provider Admin, Access: Identity Providers Write, Access: Identity Providers Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -89,6 +89,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/identity_providers/{identity_provider_id}/scim/groups`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Individual Access Identity Provider Read, Individual Access Identity Provider Admin, Access: Identity Providers Write, Access: Identity Providers Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

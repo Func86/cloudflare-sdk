@@ -227,7 +227,7 @@ export type MemberPolicyScope = {
 	/** An Organization (`com.cloudflare.api.tenant.unit.<tag>`) or Account (`com.cloudflare.api.account.<tag>`) key. */
 	key: string;
 	/** The route Organization for Account scopes. Optional in requests and always returned for Account scopes. */
-	subset_of?: { [key: string]: unknown }[];
+	subset_of?: MemberPolicyScope[];
 };
 
 export type MemberSubjectUser = {
@@ -278,7 +278,7 @@ export type UserTenantAllocation = {
 	value: UserTenantAllocationValue;
 };
 
-export type UserTenantAllocationValue = boolean | number | string | { [key: string]: unknown } | { [key: string]: unknown }[] | null;
+export type UserTenantAllocationValue = boolean | number | string | { [key: string]: unknown } | UserTenantAllocationValue[] | null;
 
 export type UserTenantEntitlement = {
 	allocation: UserTenantAllocation;

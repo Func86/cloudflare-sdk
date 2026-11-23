@@ -27,6 +27,8 @@ export type GetItem = RootItem<GetResult>;
  * Lists audit log entries for a specific Security Center insight, showing changes to its status and classification over time.
  *
  * `GET /accounts/{account_id}/security-center/insights/{issue_id}/audit-log` or `GET /zones/{zone_id}/security-center/insights/{issue_id}/audit-log`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const get: PagedOperation<GetRequest, GetResult, GetItem>;
 
@@ -54,5 +56,7 @@ export type ListItem = RootItem<ListResult>;
  * Lists audit log entries for all Security Center insights in the account or zone, showing changes to insight status and classification.
  *
  * `GET /accounts/{account_id}/security-center/insights/audit-log` or `GET /zones/{zone_id}/security-center/insights/audit-log`
+ *
+ * Token permissions on a zone (any one): Zone Settings Write, Zone Settings Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

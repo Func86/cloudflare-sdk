@@ -40,6 +40,6 @@ export type GetResult = $workers.Version;
  *
  * `GET /accounts/{account_id}/workers/workers/{worker_id}/versions/latest`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

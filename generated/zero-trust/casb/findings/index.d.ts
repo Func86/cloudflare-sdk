@@ -16,7 +16,7 @@ export type ExportResult = $posture_api.ExportJob;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/export`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 declare const export_: Operation<ExportRequest, ExportResult>;
 export { export_ as export };
@@ -38,7 +38,7 @@ export type GetResult = $posture_api.Finding;
  *
  * `GET /accounts/{account_id}/data-security/posture/findings/{finding_id}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -55,7 +55,7 @@ export type IgnoreResult = $posture_api.Finding;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/ignore`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const ignore: Operation<IgnoreRequest, IgnoreResult>;
 
@@ -105,7 +105,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/findings`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -127,7 +127,7 @@ export type ResetSeverityResult = $posture_api.Finding;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/{finding_id}/reset_finding_severity`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const resetSeverity: Operation<ResetSeverityRequest, ResetSeverityResult>;
 
@@ -150,7 +150,7 @@ export type TuneSeverityResult = $posture_api.Finding;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/{finding_id}/tune_finding_severity`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const tuneSeverity: Operation<TuneSeverityRequest, TuneSeverityResult>;
 
@@ -167,6 +167,6 @@ export type UnignoreResult = $posture_api.Finding;
  *
  * `POST /accounts/{account_id}/data-security/posture/findings/unignore`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const unignore: Operation<UnignoreRequest, UnignoreResult>;

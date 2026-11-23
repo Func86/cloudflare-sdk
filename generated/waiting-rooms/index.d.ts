@@ -94,7 +94,9 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/waiting_rooms` or `GET /zones/{zone_id}/waiting_rooms`
  *
- * Token permissions (any one): Account Waiting Rooms Read.
+ * Token permissions on an account (any one): Account Waiting Rooms Read.
+ *
+ * Token permissions on a zone (any one): Waiting Rooms Read, Waiting Rooms Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 

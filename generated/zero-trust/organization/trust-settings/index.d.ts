@@ -19,7 +19,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/organizations/trust_settings`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -41,7 +41,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/access/organizations/trust_settings`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Revoke, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Access: Organizations Write, Access: Organizations Revoke, Access: Organizations Read, Access: Organizations, Identity Providers, and Groups Revoke, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -68,7 +68,7 @@ export type ReplaceResult = {
  *
  * `PUT /accounts/{account_id}/access/organizations/trust_settings`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const replace: Operation<ReplaceRequest, ReplaceResult>;
 
@@ -95,6 +95,6 @@ export type UpdateResult = {
  *
  * `PATCH /accounts/{account_id}/access/organizations/trust_settings`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

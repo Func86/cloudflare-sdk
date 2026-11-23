@@ -23,7 +23,7 @@ export type CreateResult = {
  *
  * `POST /zones/{zone_id}/speed_api/schedule/{url}`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -45,7 +45,7 @@ export type DeleteResult = {
  *
  * `DELETE /zones/{zone_id}/speed_api/schedule/{url}`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -65,6 +65,6 @@ export type GetResult = $observatory.Schedule;
  *
  * `GET /zones/{zone_id}/speed_api/schedule/{url}`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

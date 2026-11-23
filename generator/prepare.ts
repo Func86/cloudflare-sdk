@@ -14,7 +14,7 @@ import {
 	REQUEST_VARIANTS,
 	UNNAMED_OPERATIONS,
 } from './patches.ts';
-import { LITERAL_SLASHES, type OpenApiDocument, type Schema, Spec } from './spec.ts';
+import { LITERAL_SLASHES, type OpenApiDocument, SCOPED_PERMISSIONS, type Schema, Spec } from './spec.ts';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
 const SDK_AUDIENCE = 'sdk';
@@ -57,6 +57,102 @@ function servedElsewhere(doc: OpenApiDocument, pathItem: Schema, operation: Sche
 	return Array.isArray(servers) && servers.length > 0 && !servers.some((server: Schema) => base.has(server['url']));
 }
 
+/**
+ * Forge's own keys for what the Fern keys beside them say, which the document has carried
+ * since November 2026. `forge normalize` keeps one over its Fern key, so it would undo a
+ * rename or showing a hidden operation.
+ */
+const NATIVE_KEYS = {
+	'x-forge-group-name': 'x-fern-sdk-group-name',
+	'x-forge-method-name': 'x-fern-sdk-method-name',
+	'x-forge-skip': 'x-fern-ignore',
+	'x-forge-availability': 'x-fern-availability',
+} as const;
+
+/**
+ * Moves Forge's own keys for an operation's name, hiding and availability onto the Fern
+ * keys, which this module reads and writes, and Forge reads when they're alone. Stops
+ * generation where the two say different things, as which one is meant needs a look.
+ */
+export function foldNativeKeys(doc: OpenApiDocument): void {
+	const conflicts: string[] = [];
+	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
+		for (const verb of HTTP_METHODS) {
+			const operation: Schema | undefined = pathItem[verb];
+			if (!operation) {
+				continue;
+			}
+			for (const [native, fern] of Object.entries(NATIVE_KEYS)) {
+				if (!(native in operation)) {
+					continue;
+				}
+				// `x-fern-ignore: false` and no `x-fern-ignore` say the same, as `a.b` and `['a', 'b']` do of a group.
+				const same =
+					!(fern in operation) ||
+					(fern === 'x-fern-ignore'
+						? (operation[native] === true) === (operation[fern] === true)
+						: fern === 'x-fern-sdk-group-name'
+							? JSON.stringify(groupSegments(operation[native])) === JSON.stringify(groupSegments(operation[fern]))
+							: JSON.stringify(operation[native]) === JSON.stringify(operation[fern]));
+				if (!same) {
+					conflicts.push(`${verb.toUpperCase()} ${route} ${native}`);
+					continue;
+				}
+				if (operation[native] !== false) {
+					operation[fern] = operation[native];
+				}
+				delete operation[native];
+			}
+		}
+	}
+	if (conflicts.length > 0) {
+		throw new Error(`These Forge keys say something else than their Fern keys, so check which one is meant: ${conflicts.join(', ')}`);
+	}
+}
+
+/**
+ * A group name's segments: `a.b` has two, as `['a', 'b']` does, but `['a.b']` has one, and
+ * `''` has none, as `[]` and no name, or one that is neither, do.
+ */
+function groupSegments(group: unknown): string[] {
+	if (Array.isArray(group)) {
+		return group.map(String);
+	}
+	return typeof group === 'string' && group !== '' ? group.split('.') : [];
+}
+
+/** The route of an operation that takes the account or the zone, after its scope. */
+const ACCOUNT_OR_ZONE = /^\/\{account_or_zone\}\/\{account_or_zone_id\}(?=\/|$)/;
+/** The route of an operation on one account or one zone, after its scope. */
+const ONE_SCOPE = /^\/(?:accounts|zones)\/\{[^}]+\}(?=\/|$)/;
+
+/** An operation of the document, by its route and verb. */
+type OperationAt = { route: string; verb: (typeof HTTP_METHODS)[number] };
+
+/** `VERB /rest`, the route after its scope with the parameter names left out, which copies share. */
+function afterScope(verb: string, route: string, scope: RegExp): string {
+	return `${verb} ${route.replace(scope, '').replaceAll(/\{[^}]+\}/g, '{}')}`;
+}
+
+/**
+ * The operations of the routes that take the account or the zone, by `VERB /rest` with
+ * the parameter names left out, which their copies on one account or one zone share. One
+ * on another host has no copies on the API's.
+ */
+function accountOrZoneOperations(doc: OpenApiDocument): Map<string, OperationAt> {
+	const operations = new Map<string, OperationAt>();
+	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
+		if (ACCOUNT_OR_ZONE.test(route)) {
+			for (const verb of HTTP_METHODS) {
+				if (pathItem[verb] && !servedElsewhere(doc, pathItem, pathItem[verb])) {
+					operations.set(afterScope(verb, route, ACCOUNT_OR_ZONE), { route, verb });
+				}
+			}
+		}
+	}
+	return operations;
+}
+
 /** An operation's name as the spec spells it, `group.method`. */
 function nameOf(operation: Schema): string {
 	const group: unknown = operation['x-fern-sdk-group-name'];
@@ -68,7 +164,10 @@ const OPERATION_NAME = /^[^.\s]+(\.[^.\s]+)+$/;
 
 /**
  * Decides which operations Forge sees. One marked `x-fern-ignore` is generated
- * unless it's deprecated or listed in `exclusions`; one for other audiences isn't.
+ * unless it's deprecated, listed in `exclusions`, or a copy, on one account or one zone,
+ * of an operation that takes either, which stops generation if that one isn't generated;
+ * one for other audiences isn't. A generated operation that takes either lists its copies'
+ * token permissions, whether they're left out as copies or as deprecated.
  * Nor is one served from another host, or one that doesn't describe its response,
  * until a spec patch or Cloudflare does, apart from a DELETE, whose caller doesn't
  * depend on the body, and a HEAD, which has none. One with no group or method name
@@ -97,7 +196,11 @@ export function selectOperations(
 	const renamed = new Set<string>();
 	const leftUnnamed = new Set<string>();
 	const unlisted: string[] = [];
+	const copies: { key: string; either: OperationAt }[] = [];
 	const spec = new Spec(doc);
+	const accountOrZone = accountOrZoneOperations(doc);
+	// Before any copy is left out.
+	const copiedPermissions = permissionsOfCopies(doc, accountOrZone);
 	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
 		for (const verb of HTTP_METHODS) {
 			const operation: Schema | undefined = pathItem[verb];
@@ -121,6 +224,16 @@ export function selectOperations(
 					skip('excluded');
 					continue;
 				}
+				// One on another host is another route, which isn't a copy.
+				const either =
+					ONE_SCOPE.test(route) && !servedElsewhere(doc, pathItem, operation)
+						? accountOrZone.get(afterScope(verb, route, ONE_SCOPE))
+						: undefined;
+				if (either) {
+					copies.push({ key, either });
+					skip('account or zone');
+					continue;
+				}
 				delete operation['x-fern-ignore'];
 			}
 			if (servedElsewhere(doc, pathItem, operation)) {
@@ -133,7 +246,7 @@ export function selectOperations(
 				skip('no response schema');
 				continue;
 			}
-			if (!operation['x-fern-sdk-group-name'] || !operation['x-fern-sdk-method-name']) {
+			if (groupSegments(operation['x-fern-sdk-group-name']).length === 0 || !operation['x-fern-sdk-method-name']) {
 				if (key in unnamed) {
 					leftUnnamed.add(key);
 				} else {
@@ -158,6 +271,16 @@ export function selectOperations(
 			}
 		}
 	}
+	const uncovered = copies.filter(({ either }) => {
+		const operation: Schema | undefined = doc.paths[either.route]?.[either.verb];
+		return operation === undefined || operation['x-fern-ignore'] === true;
+	});
+	if (uncovered.length > 0) {
+		throw new Error(
+			`These copies, on one account or one zone, are left out for the operation that takes either, but that one isn't generated, so check whether each should be: ${uncovered.map(({ key }) => key).join(', ')}`,
+		);
+	}
+	givePermissionsOfCopies(doc, copiedPermissions);
 	if (unlisted.length > 0) {
 		throw new Error(
 			`These have no group or method name, so Forge would name them by their operationId outside any group. List each in UNNAMED_OPERATIONS with a reason: ${unlisted.join(', ')}`,
@@ -175,6 +298,76 @@ export function selectOperations(
 	);
 	throwIfUnmatched(renames, renamed, 'These renames no longer match a generated operation.');
 	return skipped;
+}
+
+/** The token permissions the copies of an operation that takes the account or the zone list, by scope. */
+type CopiedPermissions = { at: OperationAt; account: Set<string>; zone: Set<string> };
+
+/**
+ * The token permissions of the copies, on one account or one zone, of each operation that
+ * takes either, by its `VERB /route`. Every copy counts, deprecated too, as the operation
+ * still reaches its route: both copies of the Access application policies are. One
+ * served from another host is another route, so it doesn't.
+ */
+function permissionsOfCopies(doc: OpenApiDocument, accountOrZone: ReadonlyMap<string, OperationAt>): Map<string, CopiedPermissions> {
+	const copied = new Map<string, CopiedPermissions>();
+	for (const [route, pathItem] of Object.entries<Schema>(doc.paths)) {
+		if (!ONE_SCOPE.test(route)) {
+			continue;
+		}
+		for (const verb of HTTP_METHODS) {
+			const copy: Schema | undefined = pathItem[verb];
+			const names: unknown = copy?.['x-api-token-group'];
+			const either = accountOrZone.get(afterScope(verb, route, ONE_SCOPE));
+			if (copy === undefined || either === undefined || !Array.isArray(names) || names.length === 0 || servedElsewhere(doc, pathItem, copy)) {
+				continue;
+			}
+			const key = `${either.verb.toUpperCase()} ${either.route}`;
+			const scopes = copied.get(key) ?? { at: either, account: new Set<string>(), zone: new Set<string>() };
+			copied.set(key, scopes);
+			for (const name of names as string[]) {
+				scopes[route.startsWith('/accounts/') ? 'account' : 'zone'].add(name);
+			}
+		}
+	}
+	return copied;
+}
+
+/**
+ * Gives each generated operation that takes the account or the zone its copies' token
+ * permissions, which the spec lists, and lists for few of those that take either, and then
+ * as its account copy's. They're kept apart where an account and a zone take different
+ * ones, such as "Account Custom Pages Write" and "Custom Pages Write". One whose copies
+ * list none keeps its own, and one whose own list names what no copy does stops
+ * generation, as which scope that is for needs a look.
+ */
+function givePermissionsOfCopies(doc: OpenApiDocument, copied: ReadonlyMap<string, CopiedPermissions>): void {
+	const generated = [...copied].flatMap(([key, { at, account, zone }]) => {
+		const operation: Schema | undefined = doc.paths[at.route]?.[at.verb];
+		return operation === undefined || operation['x-fern-ignore'] === true ? [] : [{ key, operation, account, zone }];
+	});
+	const unlisted = generated.flatMap(({ key, operation, account, zone }) => {
+		const own: unknown = operation['x-api-token-group'];
+		const lacking = (Array.isArray(own) ? (own as string[]) : []).filter((name) => !account.has(name) && !zone.has(name));
+		return lacking.length > 0 ? [`${key} (${lacking.join(', ')})`] : [];
+	});
+	if (unlisted.length > 0) {
+		throw new Error(
+			`These list token permissions that none of their copies on one account or one zone do, so check which scope each is for: ${unlisted.join(', ')}`,
+		);
+	}
+	for (const { operation, account, zone } of generated) {
+		if (account.size === zone.size && [...account].every((name) => zone.has(name))) {
+			operation['x-api-token-group'] = [...account];
+			continue;
+		}
+		delete operation['x-api-token-group'];
+		operation[SCOPED_PERMISSIONS] = Object.fromEntries(
+			Object.entries({ account, zone })
+				.filter(([, names]) => names.size > 0)
+				.map(([scope, names]) => [scope, [...names]]),
+		);
+	}
 }
 
 /** Stops generation when a listed entry matched nothing, as what it was listed for has gone. */
@@ -247,8 +440,9 @@ function losesNull(spec: Spec, branches: readonly Schema[]): boolean {
  *
  * Forge's model has no `writeOnly`, so such a field can't be left out of what the API
  * sends, and a response type would promise a password or a secret that never arrives.
- * It stops being required, by its schema and by any `allOf`, `oneOf` or `anyOf` branch of
- * it: sending too little gets a clear error from the API, and a wrong response type doesn't.
+ * It stops being required, by its schema, by any `allOf`, `oneOf` or `anyOf` branch of it,
+ * and by a schema whose `allOf` declares it, as Hyperdrive's full connection options do:
+ * sending too little gets a clear error from the API, and a wrong response type doesn't.
  *
  * Forge drops `nullable` from an `allOf` branch, as in `allOf: [{ $ref }, { nullable: true }]`,
  * and intersects it away when only one branch allows `null`. OpenAPI 3.0 reads that the
@@ -288,6 +482,14 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 			counts.nullable += 1;
 		}
 		const writeOnly = new Set(inherited);
+		// Forge reads a `required` beside an `allOf` for what its branches declare.
+		for (const branch of Array.isArray(schema['allOf']) ? (schema['allOf'] as Schema[]) : []) {
+			for (const [name, property] of Object.entries(spec.flatProperties(branch))) {
+				if (isWriteOnly(property)) {
+					writeOnly.add(name);
+				}
+			}
+		}
 		const properties: Schema | undefined = schema['properties'];
 		if (typeof properties === 'object' && properties !== null) {
 			for (const [name, property] of Object.entries<Schema>(properties)) {
@@ -326,21 +528,25 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 }
 
 /**
- * Restates `required` where Forge reads it. Forge applies a `required` only to the
- * properties beside it, so `allOf: [{ $ref }, { required: [a] }]`, or a `required`
- * next to the `allOf`, leaves `a` optional. A branch that declares those properties
- * and requires them keeps the spec's meaning. A `required` beside a `oneOf` or
- * `anyOf` applies to each of its object branches, so each gets such a branch. Run it
- * after `normalizeFlags`, so a copied property keeps its flags.
+ * Restates `required` where Forge doesn't read it. Forge applies a `required` to the
+ * properties beside it, and one beside an `allOf` to the properties its branches
+ * declare, so `allOf: [{ $ref }, { required: [a] }]` leaves `a` optional, as does a
+ * `required` beside the `allOf` for an `a` that only an `anyOf` in a branch declares.
+ * A branch that declares those properties and requires them keeps the spec's meaning.
+ * A `required` beside a `oneOf` or `anyOf` applies to each of its object branches, so
+ * each gets such a branch. Run it after `normalizeFlags`, so a copied property keeps
+ * its flags.
  */
 export function restateRequired(doc: OpenApiDocument): number {
 	const spec = new Spec(doc);
 	let count = 0;
+	const own = (properties: Record<string, Schema>, name: string): Schema | undefined =>
+		Object.hasOwn(properties, name) ? properties[name] : undefined;
 	const writable = (properties: Record<string, Schema>) => (name: string): boolean =>
-		properties[name]?.['writeOnly'] !== true && spec.deref(properties[name])['writeOnly'] !== true;
+		own(properties, name)?.['writeOnly'] !== true && spec.deref(own(properties, name))['writeOnly'] !== true;
 	const requiring = (properties: Record<string, Schema>, names: string[]): Schema => ({
 		type: 'object',
-		properties: Object.fromEntries(names.map((name) => [name, properties[name] ?? {}])),
+		properties: Object.fromEntries(names.map((name) => [name, own(properties, name) ?? {}])),
 		required: names,
 	});
 	const walk = (node: unknown): void => {
@@ -353,17 +559,21 @@ export function restateRequired(doc: OpenApiDocument): number {
 		}
 		const schema = node as Schema;
 		if (Array.isArray(schema['allOf'])) {
-			const names = new Set<string>(schema['required'] ?? []);
+			const flat = spec.flatProperties(schema);
+			// Forge makes required what a `required` beside the `allOf` names, unless no branch
+			// declares it as a property, as when an `anyOf` in a branch does.
+			const names = new Set<string>(((schema['required'] ?? []) as string[]).filter((name) => !Object.hasOwn(flat, name)));
 			for (const branch of schema['allOf'] as Schema[]) {
-				// A referenced base can require what only the schemas built on it declare.
+				// A branch can require what only the schemas built on it declare, as a referenced
+				// base or `{ required: [a] }` does.
 				const target = spec.deref(branch);
+				const declared = spec.flatProperties(target);
 				for (const name of (target['required'] ?? []) as string[]) {
-					if (!target['properties']?.[name]) {
+					if (!Object.hasOwn(declared, name)) {
 						names.add(name);
 					}
 				}
 			}
-			const flat = spec.flatProperties(schema);
 			const restated = [...names].filter(writable(flat));
 			if (restated.length > 0) {
 				count += restated.length;
@@ -372,7 +582,7 @@ export function restateRequired(doc: OpenApiDocument): number {
 		} else if (Array.isArray(schema['required'])) {
 			const key = Array.isArray(schema['oneOf']) ? 'oneOf' : Array.isArray(schema['anyOf']) ? 'anyOf' : undefined;
 			// Names beside their properties are already read.
-			const names = (schema['required'] as string[]).filter((name) => !schema['properties']?.[name]);
+			const names = (schema['required'] as string[]).filter((name) => !Object.hasOwn(schema['properties'] ?? {}, name));
 			if (key !== undefined && names.length > 0) {
 				schema[key] = (schema[key] as Schema[]).map((branch) => {
 					const type = spec.deref(branch)['type'];
@@ -499,6 +709,7 @@ export function joinCommaLists(doc: OpenApiDocument, lists: Readonly<Record<stri
 }
 
 export function prepare(doc: OpenApiDocument): Prepared {
+	foldNativeKeys(doc);
 	applyPatches(doc);
 	const skipped = selectOperations(doc);
 	checkPaginationOverrides(doc);

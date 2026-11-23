@@ -19,6 +19,8 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/email-security/analytics/monthly_report`
  *
+ * Token permissions (any one): Cloud Email Security: Write, Cloud Email Security: Read.
+ *
  * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;

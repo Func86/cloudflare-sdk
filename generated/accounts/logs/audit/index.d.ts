@@ -37,7 +37,7 @@ export type HistoryItem = RootItem<HistoryResult>;
  *
  * `GET /accounts/{account_id}/logs/audit/{id}/history`
  *
- * Token permissions (any one): Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Audit Logs Read, Account Settings Write, Account Settings Read.
  */
 export declare const history: PagedOperation<HistoryRequest, HistoryResult, HistoryItem>;
 
@@ -170,7 +170,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/logs/audit`
  *
- * Token permissions (any one): Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Audit Logs Read, Account Settings Write, Account Settings Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -186,6 +186,6 @@ export type ProductCategoriesResult = $aaa.AuditLogsV2ProductCategory[];
  *
  * `GET /accounts/{account_id}/logs/audit/product_categories`
  *
- * Token permissions (any one): Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Audit Logs Read, Account Settings Write, Account Settings Read.
  */
 export declare const productCategories: Operation<ProductCategoriesRequest, ProductCategoriesResult>;

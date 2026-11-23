@@ -68,7 +68,7 @@ export type GetResult = $images.ImageVariantResponse;
  *
  * `GET /accounts/{account_id}/images/v1/variants/{variant_id}`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -84,6 +84,6 @@ export type ListResult = $images.ImageVariantsResponse;
  *
  * `GET /accounts/{account_id}/images/v1/variants`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

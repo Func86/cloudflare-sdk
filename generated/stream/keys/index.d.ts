@@ -56,6 +56,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/stream/keys`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, Stream Write, Stream Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

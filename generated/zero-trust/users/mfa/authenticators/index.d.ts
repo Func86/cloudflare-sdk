@@ -16,6 +16,8 @@ export type DeleteResult = { [key: string]: unknown } | null;
  * Deletes a specific MFA device or passkey, including a PIV key or FIDO2 key enrollment, for a user. Admin deletion remains available when MFA is disabled. Successful deletion revokes the enrollment and returns a null result.
  *
  * `DELETE /accounts/{account_id}/access/users/{user_id}/mfa_authenticators/{authenticator_id}`
+ *
+ * Token permissions (any one): Access: Users Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

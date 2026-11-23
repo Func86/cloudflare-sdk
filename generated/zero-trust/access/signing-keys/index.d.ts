@@ -14,7 +14,7 @@ export type GetResult = $access.KeyConfig;
  *
  * `GET /accounts/{account_id}/access/keys`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Access: Keys Write, Access: Keys Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -30,7 +30,7 @@ export type RotateResult = $access.KeyConfig;
  *
  * `POST /accounts/{account_id}/access/keys/rotate`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Keys Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const rotate: Operation<RotateRequest, RotateResult>;
 
@@ -50,6 +50,6 @@ export type UpdateResult = $access.KeyConfig;
  *
  * `PUT /accounts/{account_id}/access/keys`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Keys Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

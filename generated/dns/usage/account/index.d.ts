@@ -19,6 +19,8 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/dns_records/usage` or `GET /zones/{zone_id}/dns_records/usage`
  *
- * Token permissions (any one): Account DNS Settings Write, Account DNS Settings Read.
+ * Token permissions on an account (any one): Account DNS Settings Write, Account DNS Settings Read.
+ *
+ * Token permissions on a zone (any one): Zone DNS Settings Write, Zone DNS Settings Read, DNS Read, DNS Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;

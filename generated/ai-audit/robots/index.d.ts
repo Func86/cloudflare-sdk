@@ -15,7 +15,7 @@ export type BulkGetResult = $ai_audit.BulkRobotsRules;
  *
  * `POST /zones/{zone_id}/ai-audit/robots/bulk`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const bulkGet: Operation<BulkGetRequest, BulkGetResult>;
 
@@ -33,6 +33,6 @@ export type GetResult = $ai_audit.RobotsRules;
  *
  * `GET /zones/{zone_id}/ai-audit/robots`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

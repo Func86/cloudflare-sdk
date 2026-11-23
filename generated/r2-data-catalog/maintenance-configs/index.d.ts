@@ -18,7 +18,7 @@ export type GetResult = $r2_data_catalog.CatalogMaintenanceConfigResponse;
  *
  * `GET /accounts/{account_id}/r2-catalog/{bucket_name}/maintenance-configs`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  *
  * @deprecated Use `GET /accounts/{account_id}/basin-catalog/{bucket_name}/maintenance-configs` instead.
  */

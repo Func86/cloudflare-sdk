@@ -199,23 +199,6 @@ export type RuleInput = {
 
 export type SchemasRule = Rule & ({
 	/** All zones owned by the user will have the rule applied. */
-	scope?: {
-		/** The contact email address of the user. */
-		email?: Email;
-		/** Defines an identifier. */
-		id?: Identifier;
-		/** Defines the scope of the rule. */
-		type?: "user" | "organization";
-	};
-}) & ({
-	/** The unique identifier of the IP Access rule. */
-	id: SchemasIdentifier;
-	mode: SchemasMode;
-	/** The available actions that a rule can apply to a matched request. */
-	allowed_modes: SchemasMode[];
-	/** The rule configuration. */
-	configuration: Configuration;
-	/** All zones owned by the user will have the rule applied. */
 	scope: {
 		/** The contact email address of the user. */
 		email?: Email;
@@ -227,23 +210,6 @@ export type SchemasRule = Rule & ({
 });
 
 export type SchemasRuleInput = RuleInput & ({
-	/** All zones owned by the user will have the rule applied. */
-	scope?: {
-		/** The contact email address of the user. */
-		email?: Email;
-		/** Defines an identifier. */
-		id?: Identifier;
-		/** Defines the scope of the rule. */
-		type?: "user" | "organization";
-	};
-}) & ({
-	/** The unique identifier of the IP Access rule. */
-	id?: SchemasIdentifier;
-	mode: SchemasMode;
-	/** The available actions that a rule can apply to a matched request. */
-	allowed_modes?: SchemasMode[];
-	/** The rule configuration. */
-	configuration: Configuration;
 	/** All zones owned by the user will have the rule applied. */
 	scope?: {
 		/** The contact email address of the user. */

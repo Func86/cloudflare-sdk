@@ -12,6 +12,8 @@ export type CreateResult = $web3.Web3Hostname;
 /**
  * Create Web3 Hostname
  *
+ * Creates a new Web3 hostname for serving decentralized web content.
+ *
  * `POST /zones/{zone_id}/web3/hostnames`
  *
  * Token permissions (any one): Web3 Hostnames Write.
@@ -23,7 +25,6 @@ export type DeleteRequest = {
 	zone_id: string;
 	/** Specify the identifier of the hostname. */
 	identifier: string;
-	body: unknown;
 };
 export type DeleteResult = {
 	/** Specify the identifier of the hostname. */
@@ -31,6 +32,8 @@ export type DeleteResult = {
 } | null;
 /**
  * Delete Web3 Hostname
+ *
+ * Deletes a Web3 hostname and its configuration from the zone.
  *
  * `DELETE /zones/{zone_id}/web3/hostnames/{identifier}`
  *
@@ -50,6 +53,8 @@ export type EditResult = $web3.Web3Hostname;
 /**
  * Edit Web3 Hostname
  *
+ * Updates a Web3 hostname configuration.
+ *
  * `PATCH /zones/{zone_id}/web3/hostnames/{identifier}`
  *
  * Token permissions (any one): Web3 Hostnames Write.
@@ -66,6 +71,8 @@ export type GetResult = $web3.Web3Hostname;
 /**
  * Web3 Hostname Details
  *
+ * Retrieves details for a specific Web3 hostname, including its target gateway and DNSLink settings.
+ *
  * `GET /zones/{zone_id}/web3/hostnames/{identifier}`
  *
  * Token permissions (any one): Web3 Hostnames Write, Web3 Hostnames Read.
@@ -79,6 +86,8 @@ export type ListRequest = {
 export type ListResult = $web3.Web3Hostname[];
 /**
  * List Web3 Hostnames
+ *
+ * Lists all Web3 hostnames configured for the zone.
  *
  * `GET /zones/{zone_id}/web3/hostnames`
  *

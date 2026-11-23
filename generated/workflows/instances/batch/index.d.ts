@@ -32,7 +32,7 @@ export type CreateResult = ({
  *
  * `POST /accounts/{account_id}/workflows/{workflow_name}/instances/batch`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -60,7 +60,7 @@ export type DeleteResult = {
  *
  * `POST /accounts/{account_id}/workflows/{workflow_name}/instances/batch/delete`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -81,7 +81,7 @@ export type TerminateResult = {
  *
  * `POST /accounts/{account_id}/workflows/{workflow_name}/instances/batch/terminate`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const terminate: Operation<TerminateRequest, TerminateResult>;
 
@@ -99,6 +99,6 @@ export type TerminationStatusResult = {
  *
  * `GET /accounts/{account_id}/workflows/{workflow_name}/instances/terminate`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const terminationStatus: Operation<TerminationStatusRequest, TerminationStatusResult>;

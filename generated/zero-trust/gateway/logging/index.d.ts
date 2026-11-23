@@ -13,6 +13,8 @@ export type GetResult = $zero_trust_gateway.GatewayAccountLoggingSettings;
  * Retrieve the current logging settings for the Zero Trust account.
  *
  * `GET /accounts/{account_id}/gateway/logging`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -28,5 +30,7 @@ export type UpdateResult = $zero_trust_gateway.GatewayAccountLoggingSettings;
  * Update logging settings for the current Zero Trust account.
  *
  * `PUT /accounts/{account_id}/gateway/logging`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

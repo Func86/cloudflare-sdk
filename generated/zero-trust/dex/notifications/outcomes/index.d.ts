@@ -18,7 +18,7 @@ export type ListResult = $digital_experience_monitoring.GetNotificationOutcomesR
 /**
  * List notification outcomes
  *
- * Lists observed device outcomes for a notification sendout. Sampling may omit outcomes; each result includes its sampling interval.
+ * Lists observed device outcomes for a notification sendout.
  *
  * `GET /accounts/{account_id}/dex/notifications/{notification_id}/outcomes`
  *

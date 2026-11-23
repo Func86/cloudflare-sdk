@@ -20,7 +20,7 @@ export type AiSearchRequest = {
 			type: "and" | "or";
 		};
 		max_num_results?: number;
-		model?: string | "@cf/meta/llama-3.3-70b-instruct-fp8-fast" | "@cf/meta/llama-3.1-8b-instruct-fast" | "@cf/meta/llama-3.1-8b-instruct-fp8" | "@cf/meta/llama-4-scout-17b-16e-instruct" | "@cf/qwen/qwen3-30b-a3b-fp8" | "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b" | "@cf/moonshotai/kimi-k2-instruct" | "anthropic/claude-3-7-sonnet" | "anthropic/claude-sonnet-4" | "anthropic/claude-opus-4" | "anthropic/claude-3-5-haiku" | "cerebras/qwen-3-235b-a22b-instruct" | "cerebras/qwen-3-235b-a22b-thinking" | "cerebras/llama-3.3-70b" | "cerebras/llama-4-maverick-17b-128e-instruct" | "cerebras/llama-4-scout-17b-16e-instruct" | "cerebras/gpt-oss-120b" | "google-ai-studio/gemini-2.5-flash" | "google-ai-studio/gemini-2.5-pro" | "grok/grok-4" | "groq/llama-3.3-70b-versatile" | "groq/llama-3.1-8b-instant" | "openai/gpt-5" | "openai/gpt-5-mini" | "openai/gpt-5-nano";
+		model?: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" | "@cf/meta/llama-3.1-8b-instruct-fast" | "@cf/meta/llama-3.1-8b-instruct-fp8" | "@cf/meta/llama-4-scout-17b-16e-instruct" | "@cf/qwen/qwen3-30b-a3b-fp8" | "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b" | "@cf/moonshotai/kimi-k2-instruct" | "anthropic/claude-3-7-sonnet" | "anthropic/claude-sonnet-4" | "anthropic/claude-opus-4" | "anthropic/claude-3-5-haiku" | "cerebras/qwen-3-235b-a22b-instruct" | "cerebras/qwen-3-235b-a22b-thinking" | "cerebras/llama-3.3-70b" | "cerebras/llama-4-maverick-17b-128e-instruct" | "cerebras/llama-4-scout-17b-16e-instruct" | "cerebras/gpt-oss-120b" | "google-ai-studio/gemini-2.5-flash" | "google-ai-studio/gemini-2.5-pro" | "grok/grok-4" | "groq/llama-3.3-70b-versatile" | "groq/llama-3.1-8b-instant" | "openai/gpt-5" | "openai/gpt-5-mini" | "openai/gpt-5-nano" | "";
 		query: string;
 		ranking_options?: {
 			ranker?: string;
@@ -28,7 +28,7 @@ export type AiSearchRequest = {
 		};
 		reranking?: {
 			enabled?: boolean;
-			model?: string | "@cf/baai/bge-reranker-base";
+			model?: "@cf/baai/bge-reranker-base" | "";
 		};
 		rewrite_query?: boolean;
 		stream?: boolean;
@@ -59,7 +59,7 @@ export type AiSearchResult = {
  *
  * `POST /accounts/{account_id}/autorag/rags/{id}/ai-search`
  *
- * Token permissions (any one): Auto Rag Write.
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  */
 export declare const aiSearch: Operation<AiSearchRequest, AiSearchResult>;
 
@@ -84,7 +84,7 @@ export type FilesItem = RootItem<FilesResult>;
  *
  * `GET /accounts/{account_id}/autorag/rags/{id}/files`
  *
- * Token permissions (any one): Auto Rag Write, Auto Rag Read.
+ * Token permissions (any one): AI Search Write, AI Search Read, Auto Rag Write, Auto Rag Read.
  */
 export declare const files: PagedOperation<FilesRequest, FilesResult, FilesItem>;
 
@@ -113,7 +113,7 @@ export type SearchRequest = {
 		};
 		reranking?: {
 			enabled?: boolean;
-			model?: string | "@cf/baai/bge-reranker-base";
+			model?: "@cf/baai/bge-reranker-base" | "";
 		};
 		rewrite_query?: boolean;
 	};
@@ -141,7 +141,7 @@ export type SearchResult = {
  *
  * `POST /accounts/{account_id}/autorag/rags/{id}/search`
  *
- * Token permissions (any one): Auto Rag Write.
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  */
 export declare const search: Operation<SearchRequest, SearchResult>;
 
@@ -160,6 +160,6 @@ export type SyncResult = {
  *
  * `PATCH /accounts/{account_id}/autorag/rags/{id}/sync`
  *
- * Token permissions (any one): Auto Rag Write.
+ * Token permissions (any one): AI Search Write, Auto Rag Write.
  */
 export declare const sync: Operation<SyncRequest, SyncResult>;

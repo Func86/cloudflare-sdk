@@ -13,7 +13,9 @@ export type CreateResult = $tls_certificates_and_hostnames.CustomCsr2;
  *
  * `POST /accounts/{account_id}/custom_csrs` or `POST /zones/{zone_id}/custom_csrs`
  *
- * Token permissions (any one): Account: SSL and Certificates Write.
+ * Token permissions on an account (any one): Account: SSL and Certificates Write.
+ *
+ * Token permissions on a zone (any one): SSL and Certificates Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -32,7 +34,9 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/custom_csrs/{custom_csr_id}` or `DELETE /zones/{zone_id}/custom_csrs/{custom_csr_id}`
  *
- * Token permissions (any one): Account: SSL and Certificates Write.
+ * Token permissions on an account (any one): Account: SSL and Certificates Write.
+ *
+ * Token permissions on a zone (any one): SSL and Certificates Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -49,7 +53,9 @@ export type GetResult = $tls_certificates_and_hostnames.CustomCsr2;
  *
  * `GET /accounts/{account_id}/custom_csrs/{custom_csr_id}` or `GET /zones/{zone_id}/custom_csrs/{custom_csr_id}`
  *
- * Token permissions (any one): Account: SSL and Certificates Read, Account: SSL and Certificates Write.
+ * Token permissions on an account (any one): Account: SSL and Certificates Read, Account: SSL and Certificates Write.
+ *
+ * Token permissions on a zone (any one): SSL and Certificates Write, SSL and Certificates Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -72,6 +78,8 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/custom_csrs` or `GET /zones/{zone_id}/custom_csrs`
  *
- * Token permissions (any one): Account: SSL and Certificates Read, Account: SSL and Certificates Write.
+ * Token permissions on an account (any one): Account: SSL and Certificates Read, Account: SSL and Certificates Write.
+ *
+ * Token permissions on a zone (any one): SSL and Certificates Write, SSL and Certificates Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

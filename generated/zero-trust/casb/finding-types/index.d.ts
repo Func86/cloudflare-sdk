@@ -16,7 +16,7 @@ export type CreateResult = $posture_api.CustomFindingTypeResponse;
  *
  * `POST /accounts/{account_id}/data-security/posture/finding_types`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -36,7 +36,7 @@ export type DeleteResult = void;
  *
  * `DELETE /accounts/{account_id}/data-security/posture/finding_types/{finding_type_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -55,7 +55,7 @@ export type GetResult = $posture_api.BaseFindingType;
  *
  * `GET /accounts/{account_id}/data-security/posture/finding_types/{finding_type_id}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -104,7 +104,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/finding_types`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -127,7 +127,7 @@ export type UpdateResult = $posture_api.CustomFindingTypeResponse;
  *
  * `PUT /accounts/{account_id}/data-security/posture/finding_types/{finding_type_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;
 
@@ -155,6 +155,6 @@ export type ValidateResult = $posture_api.ValidateFindingTypeResult;
  *
  * `POST /accounts/{account_id}/data-security/posture/finding_types/validate`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const validate: Operation<ValidateRequest, ValidateResult>;

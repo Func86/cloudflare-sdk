@@ -20,7 +20,7 @@ export type EditResult = $speed.CloudflareSpeedBrainResponse;
  *
  * `PATCH /zones/{zone_id}/settings/speed_brain`
  *
- * Token permissions (any one): Zone Settings Write.
+ * Token permissions (any one): Zone Settings Write, Workers Routes Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -38,6 +38,6 @@ export type GetResult = $speed.CloudflareSpeedBrainResponse;
  *
  * `GET /zones/{zone_id}/settings/speed_brain`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

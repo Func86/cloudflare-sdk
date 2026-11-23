@@ -27,6 +27,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/ai/finetunes/public`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): Workers AI Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

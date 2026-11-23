@@ -14,7 +14,7 @@ export type CreateResult = $access.Ca;
  *
  * `POST /accounts/{account_id}/access/apps/{app_id}/ca` or `POST /zones/{zone_id}/access/apps/{app_id}/ca`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -33,7 +33,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/apps/{app_id}/ca` or `DELETE /zones/{zone_id}/access/apps/{app_id}/ca`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -50,7 +50,7 @@ export type GetResult = $access.Ca;
  *
  * `GET /accounts/{account_id}/access/apps/{app_id}/ca` or `GET /zones/{zone_id}/access/apps/{app_id}/ca`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -69,6 +69,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/apps/ca` or `GET /zones/{zone_id}/access/apps/ca`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

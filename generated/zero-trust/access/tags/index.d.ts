@@ -15,6 +15,8 @@ export type CreateResult = $access.Tag;
  * Create a tag
  *
  * `POST /accounts/{account_id}/access/tags`
+ *
+ * Token permissions (any one): Access: Tags Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -32,6 +34,8 @@ export type DeleteResult = {
  * Delete a tag
  *
  * `DELETE /accounts/{account_id}/access/tags/{tag_name}`
+ *
+ * Token permissions (any one): Access: Tags Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -47,6 +51,8 @@ export type GetResult = $access.Tag;
  * Get a tag
  *
  * `GET /accounts/{account_id}/access/tags/{tag_name}`
+ *
+ * Token permissions (any one): Access: Tags Write, Access: Tags Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -64,6 +70,8 @@ export type ListItem = RootItem<ListResult>;
  * List tags
  *
  * `GET /accounts/{account_id}/access/tags`
+ *
+ * Token permissions (any one): Access: Tags Write, Access: Tags Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -79,5 +87,7 @@ export type UpdateResult = $access.Tag;
  * Update a tag
  *
  * `PUT /accounts/{account_id}/access/tags/{tag_name}`
+ *
+ * Token permissions (any one): Access: Tags Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

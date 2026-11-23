@@ -19,6 +19,10 @@ export type CreateResult = $custom_pages.CustomAsset;
  * Creates a custom asset for an account or zone.
  *
  * `POST /accounts/{account_id}/custom_pages/assets` or `POST /zones/{zone_id}/custom_pages/assets`
+ *
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Asset Write, Account Custom Pages Write.
+ *
+ * Token permissions on a zone (any one): Zone Custom Asset Write, Custom Pages Write, Custom Errors Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -33,6 +37,10 @@ export type DeleteResult = void;
  * Deletes a custom asset from an account or zone.
  *
  * `DELETE /accounts/{account_id}/custom_pages/assets/{asset_name}` or `DELETE /zones/{zone_id}/custom_pages/assets/{asset_name}`
+ *
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Asset Write, Account Custom Pages Write.
+ *
+ * Token permissions on a zone (any one): Zone Custom Asset Write, Custom Pages Write, Custom Errors Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -48,6 +56,10 @@ export type GetResult = $custom_pages.CustomAsset;
  * Returns a custom asset for an account or zone.
  *
  * `GET /accounts/{account_id}/custom_pages/assets/{asset_name}` or `GET /zones/{zone_id}/custom_pages/assets/{asset_name}`
+ *
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Account Custom Asset Write, Account Custom Asset Read, Account Custom Pages Write, Account Custom Pages Read.
+ *
+ * Token permissions on a zone (any one): Zone Custom Asset Write, Zone Custom Asset Read, Custom Pages Write, Custom Pages Read, Custom Errors Write, Custom Errors Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -65,6 +77,10 @@ export type ListItem = RootItem<ListResult>;
  * Lists custom assets for an account or zone.
  *
  * `GET /accounts/{account_id}/custom_pages/assets` or `GET /zones/{zone_id}/custom_pages/assets`
+ *
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Error Rules Read, Account Custom Asset Write, Account Custom Asset Read, Account Custom Pages Write, Account Custom Pages Read.
+ *
+ * Token permissions on a zone (any one): Zone Custom Asset Write, Zone Custom Asset Read, Custom Pages Write, Custom Pages Read, Custom Errors Write, Custom Errors Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -85,5 +101,9 @@ export type UpdateResult = $custom_pages.CustomAsset;
  * Updates a custom asset for an account or zone.
  *
  * `PUT /accounts/{account_id}/custom_pages/assets/{asset_name}` or `PUT /zones/{zone_id}/custom_pages/assets/{asset_name}`
+ *
+ * Token permissions on an account (any one): Account Custom Error Rules Write, Account Custom Asset Write, Account Custom Pages Write.
+ *
+ * Token permissions on a zone (any one): Zone Custom Asset Write, Custom Pages Write, Custom Errors Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

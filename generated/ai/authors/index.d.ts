@@ -12,6 +12,6 @@ export type ListResult = { [key: string]: unknown }[];
  *
  * `GET /accounts/{account_id}/ai/authors/search`
  *
- * Token permissions (any one): Workers AI Write, Workers AI Read.
+ * Token permissions (any one): Workers AI Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write, Workers AI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

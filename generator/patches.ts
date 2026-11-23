@@ -446,18 +446,13 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 	{
 		id: 'stream-webhook-notification-url',
 		evidence:
-			"The body requires notificationUrl or notification_url but declares only notification_url, which the spec hides from SDKs. Stream's webhook docs send notificationUrl, and the response declares it. Not called: the playground account has no Stream, 2026-11-12.",
+			"The body requires notificationUrl or notification_url, and the spec hides notification_url from SDKs, so notificationUrl is the one to require. Stream's webhook docs send notificationUrl, and the response declares it. Not called: the playground account has no Stream, 2026-11-12.",
 		pointer: '/components/schemas/stream_webhook_request',
 		applies: (node) =>
-			node['properties']?.['notificationUrl'] === undefined &&
-			node['properties']?.['notification_url']?.['x-stainless-skip'] === true &&
+			node['properties']?.['notificationUrl'] !== undefined &&
+			node['properties']?.['notification_url']?.['x-fern-ignore'] === true &&
 			(node['anyOf'] as Schema[] | undefined)?.some((branch) => branch['required']?.includes('notificationUrl')) === true,
 		apply: (node) => {
-			const field = structuredClone(node['properties']['notification_url'] as Schema);
-			delete field['x-fern-ignore'];
-			delete field['x-stainless-skip'];
-			node['properties']['notificationUrl'] = field;
-			// The SDK spelling is the only one left, so it's the one required.
 			node['required'] = [...((node['required'] as string[] | undefined) ?? []), 'notificationUrl'];
 			delete node['anyOf'];
 		},
@@ -593,8 +588,9 @@ const VALIDATES =
 	'Besides its `account-` group, as above, its method names a verb it does not do: it validates, by POST. The new name is the official SDK\'s.';
 
 const CLOUDFORCE_REQUESTS = '/accounts/{account_id}/cloudforce-one/requests';
-const REPEATS_GROUP =
-	"Hidden in the spec, where a name is never shown, and it repeats its group, as `cloudforceOneRequestGet`. The new name is the official SDK's.";
+const NAMED_AS_V2 =
+	'Hidden in the spec, which gives it the name of the generally available /v2/ operation that replaces it. The new name follows the `legacy` groups the spec has for other Cloudforce One routes.';
+const BESIDE_V1 = 'Hidden v1, as the operations named as their /v2/ ones are, so it joins them in `legacy`. /v2/ has no delete.';
 
 function renames(
 	reason: string,
@@ -663,19 +659,14 @@ export const OPERATION_RENAMES: Readonly<Record<string, OperationRename>> = byKe
 		[`PUT ${AOZ}/tags`, 'tags.account-resources.update', 'tags.resources.update'],
 		[`GET ${AOZ}/waiting_rooms`, 'waiting-rooms.account-waiting-rooms.list', 'waiting-rooms.list'],
 	]),
-	...renames(REPEATS_GROUP, [
-		[
-			`GET ${CLOUDFORCE_REQUESTS}/{request_id}`,
-			'cloudforce-one.requests.cloudforceOneRequestGet',
-			'cloudforce-one.requests.get',
-		],
-		[`POST ${CLOUDFORCE_REQUESTS}`, 'cloudforce-one.requests.cloudforceOneRequestList', 'cloudforce-one.requests.list'],
-		[`POST ${CLOUDFORCE_REQUESTS}/new`, 'cloudforce-one.requests.cloudforceOneRequestNew', 'cloudforce-one.requests.create'],
-		[
-			`PUT ${CLOUDFORCE_REQUESTS}/{request_id}`,
-			'cloudforce-one.requests.cloudforceOneRequestUpdate',
-			'cloudforce-one.requests.update',
-		],
+	...renames(NAMED_AS_V2, [
+		[`GET ${CLOUDFORCE_REQUESTS}/{request_id}`, 'cloudforce-one.requests.get', 'cloudforce-one.requests.legacy.get'],
+		[`POST ${CLOUDFORCE_REQUESTS}`, 'cloudforce-one.requests.list', 'cloudforce-one.requests.legacy.list'],
+		[`POST ${CLOUDFORCE_REQUESTS}/new`, 'cloudforce-one.requests.create', 'cloudforce-one.requests.legacy.create'],
+		[`PUT ${CLOUDFORCE_REQUESTS}/{request_id}`, 'cloudforce-one.requests.update', 'cloudforce-one.requests.legacy.update'],
+	]),
+	...renames(BESIDE_V1, [
+		[`DELETE ${CLOUDFORCE_REQUESTS}/{request_id}`, 'cloudforce-one.requests.delete', 'cloudforce-one.requests.legacy.delete'],
 	]),
 	...renames(VALIDATES, [
 		[

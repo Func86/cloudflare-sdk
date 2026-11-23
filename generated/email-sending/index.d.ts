@@ -17,6 +17,8 @@ export type GetResult = Uint8Array;
  * Returns the raw RFC 5322 MIME message for the given account and message id.
  *
  * `GET /accounts/{account_id}/email/sending/messages/{message_id}`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -32,6 +34,8 @@ export type SendResult = $email_sending.EmailSendResponse;
  * Send an email for the specified account using the structured builder. Provide the sender, recipients, subject, and at least one of text or html; attachments are optional.
  *
  * `POST /accounts/{account_id}/email/sending/send`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const send: Operation<SendRequest, SendResult>;
 
@@ -47,5 +51,7 @@ export type SendRawResult = $email_sending.EmailSendResponse;
  * Send a raw RFC 5322 (MIME) email for the specified account. Provide the full MIME message plus the SMTP envelope (from and recipients).
  *
  * `POST /accounts/{account_id}/email/sending/send_raw`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const sendRaw: Operation<SendRawRequest, SendRawResult>;

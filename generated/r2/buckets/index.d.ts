@@ -33,7 +33,7 @@ export type CreateResult = $r2.Bucket;
  *
  * `POST /accounts/{account_id}/r2/buckets`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -54,7 +54,7 @@ export type CreateByNameResult = $r2.Bucket;
  *
  * `PUT /accounts/{account_id}/r2/buckets/{bucket_name}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const createByName: Operation<CreateByNameRequest, CreateByNameResult>;
 
@@ -74,7 +74,7 @@ export type DeleteResult = { [key: string]: unknown };
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -145,6 +145,6 @@ export type ListItem = ItemOf<ListResult, "buckets">;
  *
  * `GET /accounts/{account_id}/r2/buckets`
  *
- * Token permissions (any one): Workers R2 Storage Write, Workers R2 Storage Read.
+ * Token permissions (any one): Workers R2 Storage Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, Workers R2 Storage Write, Workers R2 Storage Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

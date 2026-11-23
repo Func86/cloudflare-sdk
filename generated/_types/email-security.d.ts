@@ -79,8 +79,54 @@ export type BlockedSender = {
 	pattern_type?: PatternType;
 };
 
+/** A blocked sender pattern. */
+export type BlockedSenderInput = {
+	comments?: string | null;
+	created_at?: Timestamp;
+	/** Timestamp at which the pattern expires. After this time, Email Security ignores the pattern. The value must lie in the future. Send `null` to clear the expiration. */
+	expires_at?: string | null;
+	id?: BlockedSenderId;
+	/** Whether `pattern` is a regular expression instead of a literal value. */
+	is_regex?: boolean;
+	/**
+	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
+	 * @deprecated
+	 */
+	last_modified?: Timestamp;
+	modified_at?: Timestamp;
+	/** The pattern value to match. The format depends on `pattern_type`: a valid email address for EMAIL (e.g. `user@example.com`), a valid domain name for DOMAIN (e.g. `example.com`), or a plain IPv4 or IPv6 address or CIDR block for IP (e.g. `1.2.3.4`, `1.2.3.0/24`, `2606:4700:4700::1111`, or `2606:4700:4700::/48`); the API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents. */
+	pattern?: string;
+	/**
+	 * Type of pattern matching.
+	 * - EMAIL: matches a full email address (e.g. `user@example.com`)
+	 * - DOMAIN: matches a domain name (e.g. `example.com`)
+	 * - IP: matches a plain IPv4 or IPv6 address (e.g. `1.2.3.4` or `2606:4700:4700::1111`) or CIDR block (e.g. `1.2.3.0/24` or `2606:4700:4700::/48`). The API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents.
+	 * - UNKNOWN: deprecated; you cannot use this when creating or updating policies, but it may appear on existing entries.
+	 */
+	pattern_type?: PatternType;
+};
+
 /** A content policy pattern that matches against the subject or body of an email. */
 export type ContentPolicy = {
+	created_at?: Timestamp;
+	/** Whether the policy is active. */
+	enabled?: boolean;
+	/** Timestamp at which the policy expires. After this time, Email Security ignores the policy. The value must lie in the future. Send `null` to clear the expiration. */
+	expires_at?: string | null;
+	id?: ContentPolicyId;
+	modified_at?: Timestamp;
+	/** Human-readable name of the policy. */
+	name?: string;
+	/** Optional note describing the purpose of the policy. */
+	notes?: string | null;
+	/** Regular expression the policy matches against. */
+	pattern?: string;
+	/** Parts of the email the pattern is matched against. */
+	targets?: ContentPolicyTarget[];
+};
+
+/** A content policy pattern that matches against the subject or body of an email. */
+export type ContentPolicyInput = {
 	created_at?: Timestamp;
 	/** Whether the policy is active. */
 	enabled?: boolean;
@@ -115,6 +161,23 @@ export type SendingDomainRestriction = {
 	modified_at?: Timestamp;
 };
 
+/** A sending domain restriction that enforces TLS (Transport Layer Security) requirements for emails from specific domains. If TLS is required, the system drops mail without TLS from the specified domain. */
+export type SendingDomainRestrictionInput = {
+	comments?: string | null;
+	created_at?: Timestamp;
+	/** Domain that requires TLS enforcement. */
+	domain?: string;
+	/** Subdomains to exempt from TLS requirements. */
+	exclude?: string[];
+	id?: SendingDomainRestrictionId;
+	/**
+	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
+	 * @deprecated
+	 */
+	last_modified?: Timestamp;
+	modified_at?: Timestamp;
+};
+
 /** A single detection finding for a message. */
 export type Finding = {
 	attachment?: string | null;
@@ -131,6 +194,27 @@ export type Finding = {
 
 /** A trusted email domain. */
 export type TrustedDomain = {
+	comments?: string | null;
+	created_at?: Timestamp;
+	id?: TrustedDomainId;
+	/** Select to prevent recently registered domains from triggering a Suspicious or Malicious disposition. */
+	is_recent?: boolean;
+	/** Whether `pattern` is a regular expression instead of a literal domain. */
+	is_regex?: boolean;
+	/** Select for partner or other approved domains that have similar spelling to your connected domains. Prevents listed domains from triggering a Spoof disposition. */
+	is_similarity?: boolean;
+	/**
+	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
+	 * @deprecated
+	 */
+	last_modified?: Timestamp;
+	modified_at?: Timestamp;
+	/** The domain pattern to trust, e.g. `example.com`. */
+	pattern?: string;
+};
+
+/** A trusted email domain. */
+export type TrustedDomainInput = {
 	comments?: string | null;
 	created_at?: Timestamp;
 	id?: TrustedDomainId;
@@ -202,8 +286,88 @@ export type AllowPolicy = {
 	verify_sender?: boolean;
 };
 
+/** An email allow policy. */
+export type AllowPolicyInput = {
+	comments?: string | null;
+	created_at?: Timestamp;
+	/** Timestamp at which the policy expires. After this time, Email Security ignores the policy. The value must lie in the future. Send `null` to clear the expiration. */
+	expires_at?: string | null;
+	id?: AllowPolicyId;
+	/** Exempts messages from this sender from Spam, Spoof and Bulk dispositions only; Malicious and Suspicious dispositions still apply. */
+	is_acceptable_sender?: boolean;
+	/** Bypasses all detections for messages to this recipient. */
+	is_exempt_recipient?: boolean;
+	/**
+	 * Deprecated as of July 1, 2025. Use `is_exempt_recipient` instead. End of life: July 1, 2026.
+	 * @deprecated
+	 */
+	is_recipient?: boolean;
+	is_regex?: boolean;
+	/**
+	 * Deprecated as of July 1, 2025. Use `is_trusted_sender` instead. End of life: July 1, 2026.
+	 * @deprecated
+	 */
+	is_sender?: boolean;
+	/**
+	 * Deprecated as of July 1, 2025. Use `is_acceptable_sender` instead. End of life: July 1, 2026.
+	 * @deprecated
+	 */
+	is_spoof?: boolean;
+	/** Bypasses all detections and link following for messages from this sender. */
+	is_trusted_sender?: boolean;
+	/**
+	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
+	 * @deprecated
+	 */
+	last_modified?: Timestamp;
+	modified_at?: Timestamp;
+	/** The pattern value to match. The format depends on `pattern_type`: a valid email address for EMAIL (e.g. `user@example.com`), a valid domain name for DOMAIN (e.g. `example.com`), or a plain IPv4 or IPv6 address or CIDR block for IP (e.g. `1.2.3.4`, `1.2.3.0/24`, `2606:4700:4700::1111`, or `2606:4700:4700::/48`); the API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents. The API also rejects a pattern that equals a domain onboarded to the account, ignoring case. */
+	pattern?: string;
+	/**
+	 * Type of pattern matching.
+	 * - EMAIL: matches a full email address (e.g. `user@example.com`)
+	 * - DOMAIN: matches a domain name (e.g. `example.com`)
+	 * - IP: matches a plain IPv4 or IPv6 address (e.g. `1.2.3.4` or `2606:4700:4700::1111`) or CIDR block (e.g. `1.2.3.0/24` or `2606:4700:4700::/48`). The API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents.
+	 * - UNKNOWN: deprecated; you cannot use this when creating or updating policies, but it may appear on existing entries.
+	 */
+	pattern_type?: PatternType;
+	/** Enforce DMARC, SPF or DKIM authentication. When on, Email Security only honors policies that pass authentication. */
+	verify_sender?: boolean;
+};
+
 /** An impersonation registry entry. */
 export type ImpersonationRegistry = {
+	/** Optional note describing the entry. */
+	comments?: string | null;
+	created_at?: Timestamp;
+	/** Identifier of the directory the entry was synced from, when directory-synced. */
+	directory_id?: number | null;
+	/** Identifier of the directory node the entry was synced from, when directory-synced. */
+	directory_node_id?: number | null;
+	/** Email address (or pattern) of the protected identity. */
+	email?: string;
+	/**
+	 * Deprecated. External identifier of the directory node.
+	 * @deprecated
+	 */
+	external_directory_node_id?: string | null;
+	id?: ImpersonationRegistryId;
+	/** Whether `email` is a regular expression instead of a literal address. */
+	is_email_regex?: boolean;
+	/**
+	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
+	 * @deprecated
+	 */
+	last_modified?: Timestamp;
+	modified_at?: Timestamp;
+	/** Display name of the protected identity. */
+	name?: string;
+	/** Source the entry was created from. */
+	provenance?: Provenance | null;
+};
+
+/** An impersonation registry entry. */
+export type ImpersonationRegistryInput = {
 	/** Optional note describing the entry. */
 	comments?: string | null;
 	created_at?: Timestamp;
@@ -460,168 +624,22 @@ export type UrlIgnorePatternId = string;
 export type InvestigateId = string;
 
 /** Update a blocked sender pattern. */
-export type UpdateBlockedSenderInput = {
-	comments?: string | null;
-	created_at?: Timestamp;
-	/** Timestamp at which the pattern expires. After this time, Email Security ignores the pattern. The value must lie in the future. Send `null` to clear the expiration. */
-	expires_at?: string | null;
-	id?: BlockedSenderId;
-	/** Whether `pattern` is a regular expression instead of a literal value. */
-	is_regex?: boolean;
-	/**
-	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
-	 * @deprecated
-	 */
-	last_modified?: Timestamp;
-	modified_at?: Timestamp;
-	/** The pattern value to match. The format depends on `pattern_type`: a valid email address for EMAIL (e.g. `user@example.com`), a valid domain name for DOMAIN (e.g. `example.com`), or a plain IPv4 or IPv6 address or CIDR block for IP (e.g. `1.2.3.4`, `1.2.3.0/24`, `2606:4700:4700::1111`, or `2606:4700:4700::/48`); the API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents. */
-	pattern?: string;
-	/**
-	 * Type of pattern matching.
-	 * - EMAIL: matches a full email address (e.g. `user@example.com`)
-	 * - DOMAIN: matches a domain name (e.g. `example.com`)
-	 * - IP: matches a plain IPv4 or IPv6 address (e.g. `1.2.3.4` or `2606:4700:4700::1111`) or CIDR block (e.g. `1.2.3.0/24` or `2606:4700:4700::/48`). The API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents.
-	 * - UNKNOWN: deprecated; you cannot use this when creating or updating policies, but it may appear on existing entries.
-	 */
-	pattern_type?: PatternType;
-};
+export type UpdateBlockedSenderInput = BlockedSenderInput;
 
 /** Update a content policy. */
-export type UpdateContentPolicyInput = {
-	created_at?: Timestamp;
-	/** Whether the policy is active. */
-	enabled?: boolean;
-	/** Timestamp at which the policy expires. After this time, Email Security ignores the policy. The value must lie in the future. Send `null` to clear the expiration. */
-	expires_at?: string | null;
-	id?: ContentPolicyId;
-	modified_at?: Timestamp;
-	/** Human-readable name of the policy. */
-	name?: string;
-	/** Optional note describing the purpose of the policy. */
-	notes?: string | null;
-	/** Regular expression the policy matches against. */
-	pattern?: string;
-	/** Parts of the email the pattern is matched against. */
-	targets?: ContentPolicyTarget[];
-};
+export type UpdateContentPolicyInput = ContentPolicyInput;
 
 /** Update a sending domain restriction. */
-export type UpdateSendingDomainRestrictionInput = {
-	comments?: string | null;
-	created_at?: Timestamp;
-	/** Domain that requires TLS enforcement. */
-	domain?: string;
-	/** Subdomains to exempt from TLS requirements. */
-	exclude?: string[];
-	id?: SendingDomainRestrictionId;
-	/**
-	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
-	 * @deprecated
-	 */
-	last_modified?: Timestamp;
-	modified_at?: Timestamp;
-};
+export type UpdateSendingDomainRestrictionInput = SendingDomainRestrictionInput;
 
 /** Update a trusted domain. */
-export type UpdateTrustedDomainInput = {
-	comments?: string | null;
-	created_at?: Timestamp;
-	id?: TrustedDomainId;
-	/** Select to prevent recently registered domains from triggering a Suspicious or Malicious disposition. */
-	is_recent?: boolean;
-	/** Whether `pattern` is a regular expression instead of a literal domain. */
-	is_regex?: boolean;
-	/** Select for partner or other approved domains that have similar spelling to your connected domains. Prevents listed domains from triggering a Spoof disposition. */
-	is_similarity?: boolean;
-	/**
-	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
-	 * @deprecated
-	 */
-	last_modified?: Timestamp;
-	modified_at?: Timestamp;
-	/** The domain pattern to trust, e.g. `example.com`. */
-	pattern?: string;
-};
+export type UpdateTrustedDomainInput = TrustedDomainInput;
 
 /** Update an allow policy. */
-export type UpdateAllowPolicyInput = {
-	comments?: string | null;
-	created_at?: Timestamp;
-	/** Timestamp at which the policy expires. After this time, Email Security ignores the policy. The value must lie in the future. Send `null` to clear the expiration. */
-	expires_at?: string | null;
-	id?: AllowPolicyId;
-	/** Exempts messages from this sender from Spam, Spoof and Bulk dispositions only; Malicious and Suspicious dispositions still apply. */
-	is_acceptable_sender?: boolean;
-	/** Bypasses all detections for messages to this recipient. */
-	is_exempt_recipient?: boolean;
-	/**
-	 * Deprecated as of July 1, 2025. Use `is_exempt_recipient` instead. End of life: July 1, 2026.
-	 * @deprecated
-	 */
-	is_recipient?: boolean;
-	is_regex?: boolean;
-	/**
-	 * Deprecated as of July 1, 2025. Use `is_trusted_sender` instead. End of life: July 1, 2026.
-	 * @deprecated
-	 */
-	is_sender?: boolean;
-	/**
-	 * Deprecated as of July 1, 2025. Use `is_acceptable_sender` instead. End of life: July 1, 2026.
-	 * @deprecated
-	 */
-	is_spoof?: boolean;
-	/** Bypasses all detections and link following for messages from this sender. */
-	is_trusted_sender?: boolean;
-	/**
-	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
-	 * @deprecated
-	 */
-	last_modified?: Timestamp;
-	modified_at?: Timestamp;
-	/** The pattern value to match. The format depends on `pattern_type`: a valid email address for EMAIL (e.g. `user@example.com`), a valid domain name for DOMAIN (e.g. `example.com`), or a plain IPv4 or IPv6 address or CIDR block for IP (e.g. `1.2.3.4`, `1.2.3.0/24`, `2606:4700:4700::1111`, or `2606:4700:4700::/48`); the API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents. The API also rejects a pattern that equals a domain onboarded to the account, ignoring case. */
-	pattern?: string;
-	/**
-	 * Type of pattern matching.
-	 * - EMAIL: matches a full email address (e.g. `user@example.com`)
-	 * - DOMAIN: matches a domain name (e.g. `example.com`)
-	 * - IP: matches a plain IPv4 or IPv6 address (e.g. `1.2.3.4` or `2606:4700:4700::1111`) or CIDR block (e.g. `1.2.3.0/24` or `2606:4700:4700::/48`). The API rejects private or unique-local, loopback, link-local, unspecified, and IPv4 broadcast addresses, including their IPv4-mapped IPv6 equivalents.
-	 * - UNKNOWN: deprecated; you cannot use this when creating or updating policies, but it may appear on existing entries.
-	 */
-	pattern_type?: PatternType;
-	/** Enforce DMARC, SPF or DKIM authentication. When on, Email Security only honors policies that pass authentication. */
-	verify_sender?: boolean;
-};
+export type UpdateAllowPolicyInput = AllowPolicyInput;
 
 /** Update an impersonation registry entry. */
-export type UpdateImpersonationRegistryInput = {
-	/** Optional note describing the entry. */
-	comments?: string | null;
-	created_at?: Timestamp;
-	/** Identifier of the directory the entry was synced from, when directory-synced. */
-	directory_id?: number | null;
-	/** Identifier of the directory node the entry was synced from, when directory-synced. */
-	directory_node_id?: number | null;
-	/** Email address (or pattern) of the protected identity. */
-	email?: string;
-	/**
-	 * Deprecated. External identifier of the directory node.
-	 * @deprecated
-	 */
-	external_directory_node_id?: string | null;
-	id?: ImpersonationRegistryId;
-	/** Whether `email` is a regular expression instead of a literal address. */
-	is_email_regex?: boolean;
-	/**
-	 * Deprecated, use `modified_at` instead. End of life: November 1, 2026.
-	 * @deprecated
-	 */
-	last_modified?: Timestamp;
-	modified_at?: Timestamp;
-	/** Display name of the protected identity. */
-	name?: string;
-	/** Source the entry was created from. */
-	provenance?: Provenance | null;
-};
+export type UpdateImpersonationRegistryInput = ImpersonationRegistryInput;
 
 /** Updates a URL rewrite ignore pattern; modifies only the provided fields. */
 export type UpdateUrlIgnorePattern = {

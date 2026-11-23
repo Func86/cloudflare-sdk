@@ -16,7 +16,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/ai-gateway/logging-state`
  *
- * Token permissions (any one): AI Gateway Write, AI Gateway Read.
+ * Token permissions (any one): AI Gateway Metadata Read, AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write, AI Gateway Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -35,6 +35,6 @@ export type UpdateResult = {
  *
  * `PATCH /accounts/{account_id}/ai-gateway/logging-state`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

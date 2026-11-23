@@ -77,7 +77,9 @@ export type CreateResult = $load_balancing.LoadBalancer;
  *
  * `POST /accounts/{account_id}/load_balancers` or `POST /zones/{zone_id}/load_balancers`
  *
- * Token permissions (any one): Load Balancers Account Write.
+ * Token permissions on an account (any one): Load Balancers Account Write.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -94,7 +96,9 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/load_balancers/{load_balancer_id}` or `DELETE /zones/{zone_id}/load_balancers/{load_balancer_id}`
  *
- * Token permissions (any one): Load Balancers Account Write.
+ * Token permissions on an account (any one): Load Balancers Account Write.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -111,7 +115,9 @@ export type EditResult = $load_balancing.LoadBalancer;
  *
  * `PATCH /accounts/{account_id}/load_balancers/{load_balancer_id}` or `PATCH /zones/{zone_id}/load_balancers/{load_balancer_id}`
  *
- * Token permissions (any one): Load Balancers Account Write.
+ * Token permissions on an account (any one): Load Balancers Account Write.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -126,7 +132,9 @@ export type GetResult = $load_balancing.LoadBalancer;
  *
  * `GET /accounts/{account_id}/load_balancers/{load_balancer_id}` or `GET /zones/{zone_id}/load_balancers/{load_balancer_id}`
  *
- * Token permissions (any one): Load Balancers Account Write, Load Balancers Account Read.
+ * Token permissions on an account (any one): Load Balancers Account Write, Load Balancers Account Read.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write, Load Balancers Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -139,7 +147,9 @@ export type ListResult = $load_balancing.LoadBalancer[];
  *
  * `GET /accounts/{account_id}/load_balancers` or `GET /zones/{zone_id}/load_balancers`
  *
- * Token permissions (any one): Load Balancers Account Write, Load Balancers Account Read.
+ * Token permissions on an account (any one): Load Balancers Account Write, Load Balancers Account Read.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write, Load Balancers Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -218,6 +228,8 @@ export type UpdateResult = $load_balancing.LoadBalancer;
  *
  * `PUT /accounts/{account_id}/load_balancers/{load_balancer_id}` or `PUT /zones/{zone_id}/load_balancers/{load_balancer_id}`
  *
- * Token permissions (any one): Load Balancers Account Write.
+ * Token permissions on an account (any one): Load Balancers Account Write.
+ *
+ * Token permissions on a zone (any one): Load Balancers Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -21,6 +21,6 @@ export type SendResult = {
  *
  * `POST /accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/events/{event_type}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Workers Scripts Write.
  */
 export declare const send: Operation<SendRequest, SendResult>;

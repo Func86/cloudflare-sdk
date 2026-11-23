@@ -13,5 +13,7 @@ export type GetResult = $email.SendingLimitsProperties;
  * Returns the current daily sending quota for the account and, when a quota is resolved, the account's current usage against it. Quota is null when not yet available; usage is null when there is no resolved quota or usage is temporarily unavailable.
  *
  * `GET /accounts/{account_id}/email/sending/limits`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

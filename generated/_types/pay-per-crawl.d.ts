@@ -63,8 +63,6 @@ export type EnabledDomain = {
 	license_expires_at: string | null;
 	/** Whether the selected accepted price agreement is currently active or retained after expiration */
 	license_status: "active" | "expired";
-	/** When the publisher zone was classified for local-only, non-billable settlement. Null for billable zones. */
-	non_billable_since: string | null;
 	/** Price of the selected accepted agreement in microcents. For an active license this is the price currently in effect; for an expired license it is the last accepted price. */
 	price_usd_microcents: number;
 };
@@ -75,6 +73,27 @@ export type EnabledDomainsResult = {
 	domains: EnabledDomain[];
 };
 
+export type EnabledPublisher = {
+	/** Domains the publisher covers, sorted. Empty when the publisher covers no domains. */
+	domains: string[];
+	/** Earlier non-null exclusive expiration from the accepted offer and the publisher lifecycle, or null when neither expires */
+	license_expires_at: string | null;
+	/** Whether the selected accepted offer is currently active or retained after expiration */
+	license_status: "active" | "expired";
+	/** Price of the selected accepted offer in microcents. For an active license this is the price currently in effect; for an expired license it is the last accepted price. */
+	price_usd_microcents: number;
+	/** Identifier of the publisher whose accepted offer this is. Report usage for this publisher with this publisher_id. */
+	publisher_id: string;
+	/** Display name of the publisher. */
+	publisher_name: string;
+};
+
+export type EnabledPublishersResult = {
+	/** Opaque, account-bound cursor for the next page. It expires after one hour and is null on the final page. */
+	cursor: string | null;
+	publishers: EnabledPublisher[];
+};
+
 export type IronCladContract = {
 	body?: string;
 	id?: string;
@@ -83,7 +102,7 @@ export type IronCladContract = {
 export type Msg = {
 	code?: number;
 	documentation_url?: string;
-	error_chain?: { [key: string]: unknown }[];
+	error_chain?: Msg[];
 	message?: string;
 	/**
 	 * Meta object containing non-standard meta-information about the error.
@@ -91,6 +110,29 @@ export type Msg = {
 	 */
 	meta?: { [key: string]: unknown } | null;
 	source?: Source;
+};
+
+export type PPUAgreement = {
+	created_at: string;
+	/** Offered price per use in USD microcents, or null when no price is agreed yet. */
+	price_usd_microcents: number | null;
+	/** Identifier of the publisher the offer is made to. */
+	publisher_id: string;
+	/** Display name of the publisher. */
+	publisher_name: string;
+	/** Open offers are proposed. */
+	status: "proposed";
+};
+
+export type PPUAgreementRequest = {
+	/** Offered price per use in USD microcents. Omit it or send null when no price is agreed yet. */
+	price_usd_microcents?: number | null;
+	/** Identifier of the publisher the offer is made to. */
+	publisher_id: string;
+};
+
+export type PPUAgreements = {
+	agreements: PPUAgreement[];
 };
 
 export type PPUOperatorConfiguration = {
@@ -121,8 +163,6 @@ export type PPUOperatorPrice = {
 	current_price?: PPUPrice;
 	default_price_usd_microcents: number;
 	name: string;
-	/** When this operator was classified for local-only, non-billable settlement. Null for billable operators. Always matches the requesting zone's classification. */
-	non_billable_since: string | null;
 	/** Stable pay-per-use operator identifier. */
 	operator_id: string;
 	/** Price proposal awaiting operator acceptance. */
@@ -154,8 +194,6 @@ export type PPUPrice = {
 
 export type PPUProposal = {
 	created_at: string;
-	/** When the proposing publisher zone was classified for local-only, non-billable settlement. Null for billable zones. */
-	non_billable_since: string | null;
 	/** Use this value to accept or reject this specific pending proposal. */
 	price_id: number;
 	price_usd_microcents: number;

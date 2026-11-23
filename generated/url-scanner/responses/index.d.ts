@@ -15,6 +15,6 @@ export type GetResult = string;
  *
  * `GET /accounts/{account_id}/urlscanner/v2/responses/{response_id}`
  *
- * Token permissions (any one): URL Scanner Write, URL Scanner Read.
+ * Token permissions (any one): Cloudforce One Write, Cloudforce One Read, URL Scanner Write, URL Scanner Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

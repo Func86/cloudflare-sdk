@@ -94,7 +94,7 @@ export type GetResult = $r2_data_catalog.Catalog;
  *
  * `GET /accounts/{account_id}/r2-catalog/{bucket_name}`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  *
  * @deprecated Use `GET /accounts/{account_id}/basin-catalog/{bucket_name}` instead.
  */
@@ -115,7 +115,7 @@ export type ListResult = $r2_data_catalog.CatalogList;
  *
  * `GET /accounts/{account_id}/r2-catalog`
  *
- * Token permissions (any one): Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
+ * Token permissions (any one): Workers R2 SQL Read, Workers R2 Data Catalog Write, Workers R2 Data Catalog Read.
  *
  * @deprecated Use `GET /accounts/{account_id}/basin-catalog` instead.
  */

@@ -71,7 +71,7 @@ export type GetResult = $images.SourcingkitMigration;
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/migrations/{migration_id}`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -94,7 +94,7 @@ export type ListItem = ItemOf<ListResult, "migrations">;
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/migrations`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -119,7 +119,7 @@ export type LogsItem = ItemOf<LogsResult, "logs">;
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/migrations/{migration_id}/logs`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const logs: PagedOperation<LogsRequest, LogsResult, LogsItem>;
 
@@ -164,7 +164,7 @@ export type ProgressResult = {
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/migrations/{migration_id}/lifecycle`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const progress: Operation<ProgressRequest, ProgressResult>;
 

@@ -4,4 +4,5 @@ export * as domainconnect from "./domainconnect/index.js";
 export * as records from "./records/index.js";
 export * as settings from "./settings/index.js";
 export * as usage from "./usage/index.js";
+export * as views from "./views/index.js";
 export * as zoneTransfers from "./zone-transfers/index.js";

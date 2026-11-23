@@ -44,7 +44,7 @@ export type BulkDeleteResult = $r2.R2DeleteObjectResult[] | null | $r2.PrefixDel
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/objects`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 export declare const bulkDelete: Operation<BulkDeleteRequest, BulkDeleteResult>;
 
@@ -73,7 +73,7 @@ export type DeleteResult = $r2.R2DeleteObjectResult;
  *
  * `DELETE /accounts/{account_id}/r2/buckets/{bucket_name}/objects/{object_key}`
  *
- * Token permissions (any one): Workers R2 Storage Write.
+ * Token permissions (any one): Auto Rag Write Run Engine, Workers R2 Storage Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

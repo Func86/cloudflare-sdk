@@ -19,6 +19,8 @@ export type CreateResult = $custom_indicator_feeds.IndicatorFeedItem;
  * Creates a new custom threat indicator feed for sharing threat intelligence data.
  *
  * `POST /accounts/{account_id}/intel/indicator-feeds`
+ *
+ * Token permissions (any one): Intel Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 

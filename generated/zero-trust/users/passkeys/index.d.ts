@@ -16,6 +16,8 @@ export type DeleteResult = { [key: string]: unknown } | null;
  * Alias of the authenticator deletion endpoint for passkey management. The identifier is the passkey's authenticator ID from the last-seen identity response. Successful deletion revokes the enrollment and returns a null result.
  *
  * `DELETE /accounts/{account_id}/access/users/{user_id}/passkeys/{authenticator_id}`
+ *
+ * Token permissions (any one): Access: Users Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

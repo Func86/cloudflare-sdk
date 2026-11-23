@@ -77,7 +77,7 @@ export type MaxTtl = {
 
 /** Define the proxy inspection mode. */
 export type InspectionSettings = {
-	/** Define the proxy inspection mode.   1. static: Gateway applies static inspection to HTTP on TCP(80). With TLS decryption on, Gateway inspects HTTPS traffic on TCP(443) and UDP(443).   2. dynamic: Gateway applies protocol detection to inspect HTTP and HTTPS traffic on any port. TLS decryption must remain on to inspect HTTPS traffic. */
+	/** Define the proxy inspection mode. 1. static: Gateway applies static inspection to HTTP on TCP(80). With TLS decryption on, Gateway inspects HTTPS traffic on TCP(443) and UDP(443). 2. dynamic: Gateway applies protocol detection to inspect HTTP and HTTPS traffic on any port. TLS decryption must remain on to inspect HTTPS traffic. */
 	mode?: "static" | "dynamic";
 } | null;
 
@@ -232,7 +232,7 @@ export type RuleSettings = {
 /** Defines the automatically generated IPv6 destination IP assigned to this location. Gateway counts all DNS requests sent to this IP as requests under this location. */
 export type Ip = string;
 
-/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This  does not apply to HTTP or network policies. Settable only for `dns` rules. */
+/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This does not apply to HTTP or network policies. Settable only for `dns` rules. */
 export type Expiration = {
 	/** Defines the default duration a policy active in minutes. Must set in order to use the `reset_expiration` endpoint on this rule. */
 	duration?: number;
@@ -241,7 +241,7 @@ export type Expiration = {
 	expires_at: Timestamp & string;
 } | null;
 
-/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This  does not apply to HTTP or network policies. Settable only for `dns` rules. */
+/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This does not apply to HTTP or network policies. Settable only for `dns` rules. */
 export type ExpirationInput = {
 	/** Defines the default duration a policy active in minutes. Must set in order to use the `reset_expiration` endpoint on this rule. */
 	duration?: number;
@@ -901,7 +901,7 @@ export type GatewayAccountLoggingSettings = {
 export type GenerateCertRequest = {
 	/** Pin the generated certificate authority's key material to one of the account's selected Data Localization Suite regions. **Important**: This field is only settable during certificate creation. Certificates become immutable after creation - use the `/activate` and `/deactivate` endpoints to manage certificate lifecycle. */
 	region?: string;
-	/** Sets the certificate validity period in days (range: 1-10,950 days / ~30 years). Defaults to 1,825 days (5 years). **Important**: This field is only settable during the certificate creation.  Certificates becomes immutable after creation - use the `/activate` and `/deactivate` endpoints to manage certificate lifecycle. */
+	/** Sets the certificate validity period in days (range: 1-10,950 days / ~30 years). Defaults to 1,825 days (5 years). **Important**: This field is only settable during the certificate creation. Certificates becomes immutable after creation - use the `/activate` and `/deactivate` endpoints to manage certificate lifecycle. */
 	validity_period_days?: number;
 };
 
@@ -1070,7 +1070,7 @@ export type Rules = {
 	device_posture?: DevicePosture;
 	/** Specify whether the rule is enabled. */
 	enabled: Enabled;
-	/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This  does not apply to HTTP or network policies. Settable only for `dns` rules. */
+	/** Defines the expiration time stamp and default duration of a DNS policy. Takes precedence over the policy's `schedule` configuration, if any. This does not apply to HTTP or network policies. Settable only for `dns` rules. */
 	expiration?: Expiration;
 	/** Specify the protocol or layer to evaluate the traffic, identity, and device posture expressions. Can only contain a single value. */
 	filters: Filters;

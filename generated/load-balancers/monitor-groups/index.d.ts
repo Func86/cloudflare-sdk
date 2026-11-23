@@ -15,6 +15,8 @@ export type CreateResult = $load_balancing.MonitorGroup;
  * Create a new monitor group.
  *
  * `POST /accounts/{account_id}/load_balancers/monitor_groups`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -30,6 +32,8 @@ export type DeleteResult = $load_balancing.MonitorGroup;
  * Delete a configured monitor group.
  *
  * `DELETE /accounts/{account_id}/load_balancers/monitor_groups/{monitor_group_id}`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -47,6 +51,8 @@ export type EditResult = $load_balancing.MonitorGroup;
  * Apply changes to an existing monitor group, overwriting the supplied properties.
  *
  * `PATCH /accounts/{account_id}/load_balancers/monitor_groups/{monitor_group_id}`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -62,6 +68,8 @@ export type GetResult = $load_balancing.MonitorGroup;
  * Fetch a single configured monitor group.
  *
  * `GET /accounts/{account_id}/load_balancers/monitor_groups/{monitor_group_id}`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write, Load Balancing: Monitors and Pools Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -76,6 +84,8 @@ export type ListResult = $load_balancing.MonitorGroup[];
  * List configured monitor groups.
  *
  * `GET /accounts/{account_id}/load_balancers/monitor_groups`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write, Load Balancing: Monitors and Pools Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -92,5 +102,7 @@ export type UpdateResult = $load_balancing.MonitorGroup;
  * Modify a configured monitor group.
  *
  * `PUT /accounts/{account_id}/load_balancers/monitor_groups/{monitor_group_id}`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

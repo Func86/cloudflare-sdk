@@ -32,6 +32,7 @@ import type { DnsRecordBatchDelete } from '@libreflare/cloudflare-sdk/types/dns-
 import type {
 	HyperdriveConfigResponse,
 	HyperdriveConfigInput,
+	HyperdriveOriginFull,
 	OverAccessOrigin,
 } from '@libreflare/cloudflare-sdk/types/hyperdrive';
 import type { GetResult as ZarazConfigs } from '@libreflare/cloudflare-sdk/zaraz/history/configs';
@@ -257,6 +258,11 @@ export const writeConfig: Pick<HyperdriveConfigInput, 'id'> = {};
 
 // A `writeOnly` field isn't promised in what the API sends.
 export const origin: Pick<OverAccessOrigin, 'access_client_secret'> = {};
+// Through an `allOf` of a schema whose own `allOf` declares the fields and a `required` beside it requires them:
+// the full origin requires the database, but not its write-only password.
+export const publicOrigin: HyperdriveOriginFull = { scheme: 'postgres', database: 'db', user: 'u', host: 'db.example.com', port: 5432 };
+// @ts-expect-error `database` is required, though the full origin's own schema doesn't declare it.
+export const noDatabase: HyperdriveOriginFull = { scheme: 'postgres', user: 'u', host: 'db.example.com', port: 5432 };
 
 export function isForbidden(error: ApiError): boolean {
 	return error.status === 403 && error.errors.some((entry) => entry.code === 10000);

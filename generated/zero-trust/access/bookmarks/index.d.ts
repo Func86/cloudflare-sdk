@@ -35,7 +35,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/bookmarks/{bookmark_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  *
  * @deprecated This endpoint is deprecated in favor of using a specialized Access Application App Type.
  */
@@ -55,7 +55,7 @@ export type GetResult = $access.Bookmarks;
  *
  * `GET /accounts/{account_id}/access/bookmarks/{bookmark_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  *
  * @deprecated This endpoint is deprecated in favor of using a specialized Access Application App Type.
  */
@@ -72,7 +72,7 @@ export type ListResult = $access.Bookmarks[];
  *
  * `GET /accounts/{account_id}/access/bookmarks`
  *
- * Token permissions (any one): Access: Apps and Policies Revoke, Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access App Read, Individual Access App Admin, Access: Apps Write, Access: Apps Revoke, Access: Apps Read, Access: Apps and Policies Revoke, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  *
  * @deprecated This endpoint is deprecated in favor of using a specialized Access Application App Type.
  */
@@ -91,7 +91,7 @@ export type UpdateResult = $access.Bookmarks;
  *
  * `PUT /accounts/{account_id}/access/bookmarks/{bookmark_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access App Admin, Access: Apps Write, Zero Trust Write, Access: Apps and Policies Write.
  *
  * @deprecated This endpoint is deprecated in favor of using a specialized Access Application App Type.
  */

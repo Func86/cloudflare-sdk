@@ -438,7 +438,7 @@ export type QueryRun = {
 /** Supports nested groups via kind: 'group'. */
 export type FilterNode = {
 	filterCombination: "and" | "or" | "AND" | "OR";
-	filters: { [key: string]: unknown }[];
+	filters: FilterNode[];
 	kind: "group";
 } | FilterLeaf;
 

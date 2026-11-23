@@ -22,7 +22,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/ai/finetunes/{finetune_id}/finetune-assets`
  *
- * Token permissions (any one): Workers AI Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, Workers AI Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 

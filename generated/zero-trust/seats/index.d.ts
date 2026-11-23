@@ -14,6 +14,6 @@ export type EditResult = $access.Seats[];
  *
  * `PATCH /accounts/{account_id}/access/seats`
  *
- * Token permissions (any one): Zero Trust: Seats Write.
+ * Token permissions (any one): Access: Users Write, Zero Trust: Seats Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;

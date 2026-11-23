@@ -21,7 +21,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/workflows/{workflow_name}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -55,7 +55,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/workflows/{workflow_name}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -92,7 +92,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/workflows`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -144,6 +144,6 @@ export type UpdateResult = {
  *
  * `PUT /accounts/{account_id}/workflows/{workflow_name}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

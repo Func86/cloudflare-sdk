@@ -1066,7 +1066,7 @@ export type StopReason = {
 export type ActiveSession = {
 	/** ID of the meeting this session is associated with. In the case of V2 meetings, it is always a UUID. In V1 meetings, it is a room name of the form `abcdef-ghijkl` */
 	associated_id: string;
-	breakout_rooms?: { [key: string]: unknown }[];
+	breakout_rooms?: ActiveSession[];
 	/** timestamp when session created */
 	created_at: string;
 	/** timestamp when session ended */

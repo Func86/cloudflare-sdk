@@ -58,12 +58,12 @@ export type EditResult = $waitingroom.RuleResult[];
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
-export type GetRequest = {
+export type ListRequest = {
 	/** Identifier. */
 	zone_id: string;
 	waiting_room_id: string;
 };
-export type GetResult = $waitingroom.RuleResult[];
+export type ListResult = $waitingroom.RuleResult[];
 /**
  * List Waiting Room Rules
  *
@@ -73,7 +73,7 @@ export type GetResult = $waitingroom.RuleResult[];
  *
  * Token permissions (any one): Waiting Rooms Read, Waiting Rooms Write.
  */
-export declare const get: Operation<GetRequest, GetResult>;
+export declare const list: Operation<ListRequest, ListResult>;
 
 export type UpdateRequest = {
 	/** Identifier. */

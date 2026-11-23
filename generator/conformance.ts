@@ -26,7 +26,7 @@ const { values, positionals } = parseArgs({
 	allowPositionals: true,
 	options: { spec: { type: 'string' } },
 });
-const specPath = values.spec ?? process.env['FORGE_OPENAPI_BUNDLE'];
+const specPath = values.spec ?? process.env['OPENAPI_BUNDLE'];
 if (positionals[0] === undefined || specPath === undefined) {
 	throw new Error('usage: conformance.ts CAPTURES.json --spec PATH');
 }

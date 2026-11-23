@@ -18,5 +18,7 @@ export type ListResult = ({
  * Get the list of resources that reference the provided monitor group.
  *
  * `GET /accounts/{account_id}/load_balancers/monitor_groups/{monitor_group_id}/references`
+ *
+ * Token permissions (any one): Load Balancing: Monitors and Pools Write, Load Balancing: Monitors and Pools Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -746,7 +746,7 @@ export type GreTunnel = {
 	ttl?: Ttl;
 };
 
-export type GreTunnelUpdateRequestInput = {
+export type GreTunnelAddSingleRequestInput = {
 	/** True if automatic stateful return routing should be enabled for a tunnel, false otherwise. Requires the `coupler_integration` account flag to be enabled; requests setting this to `true` without that flag will be rejected. */
 	automatic_return_routing?: AutomaticReturnRouting;
 	/** The IP address assigned to the Cloudflare side of the GRE tunnel. */
@@ -767,6 +767,8 @@ export type GreTunnelUpdateRequestInput = {
 	/** Time To Live (TTL) in number of hops of the GRE tunnel. */
 	ttl?: Ttl;
 };
+
+export type GreTunnelUpdateRequestInput = GreTunnelAddSingleRequestInput;
 
 export type HealthCheckBase = {
 	/** Determines whether to run healthchecks for a tunnel. */
@@ -950,29 +952,7 @@ export type IpsecTunnel = {
 	replay_protection?: ReplayProtection;
 };
 
-export type IpsecTunnelAddRequestInput = {
-	/** True if automatic stateful return routing should be enabled for a tunnel, false otherwise. Requires the `coupler_integration` account flag to be enabled; requests setting this to `true` without that flag will be rejected. */
-	automatic_return_routing?: AutomaticReturnRouting;
-	bgp?: BgpConfig;
-	/** The IP address assigned to the Cloudflare side of the IPsec tunnel. */
-	cloudflare_endpoint: CloudflareIpsecEndpoint;
-	custom_remote_identities?: CustomRemoteIdentities;
-	/** The IP address assigned to the customer side of the IPsec tunnel. Not required, but must be set for proactive traceroutes to work. */
-	customer_endpoint?: CustomerIpsecEndpoint;
-	/** An optional description forthe IPsec tunnel. */
-	description?: ComponentsSchemasDescription;
-	health_check?: TunnelHealthCheckInput;
-	/** A 31-bit prefix (/31 in CIDR notation) supporting two hosts, one for each side of the tunnel. Select the subnet from the following private IP space: 10.0.0.0–10.255.255.255, 172.16.0.0–172.31.255.255, 192.168.0.0–192.168.255.255. */
-	interface_address: InterfaceAddress;
-	/** A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space with the address being the first IP of the subnet and not same as the address of virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 , interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127 */
-	interface_address6?: InterfaceAddress6;
-	/** The name of the IPsec tunnel. The name cannot share a name with other tunnels. */
-	name: IpsecTunnelName;
-	/** A randomly generated or provided string for use in the IPsec tunnel. */
-	psk?: Psk;
-	/** If `true`, then IPsec replay protection will be supported in the Cloudflare-to-customer direction. */
-	replay_protection?: ReplayProtection;
-};
+export type IpsecTunnelAddRequestInput = IpsecTunnelAddSingleRequestInput;
 
 export type IpsecTunnelAddSingleRequestInput = {
 	/** True if automatic stateful return routing should be enabled for a tunnel, false otherwise. Requires the `coupler_integration` account flag to be enabled; requests setting this to `true` without that flag will be rejected. */
@@ -1189,20 +1169,7 @@ export type RouteUpdateManyRequestInput = {
 	routes: RouteUpdateSingleRequestInput[];
 };
 
-export type RouteUpdateRequest = {
-	/** An optional human provided description of the static route. */
-	description?: Description;
-	/** The next-hop IP Address for the static route. */
-	nexthop: Nexthop;
-	/** IP Prefix in Classless Inter-Domain Routing format. */
-	prefix: Prefix;
-	/** Priority of the static route. */
-	priority: Priority;
-	/** Used only for ECMP routes. */
-	scope?: Scope;
-	/** Optional weight of the ECMP scope - if provided. */
-	weight?: Weight;
-};
+export type RouteUpdateRequest = RouteAddSingleRequest;
 
 export type RouteUpdateSingleRequestInput = {
 	/** Identifier */

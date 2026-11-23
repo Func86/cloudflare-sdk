@@ -11,7 +11,7 @@ export type GetResult = $access.Settings[];
  *
  * `GET /accounts/{account_id}/access/certificates/settings` or `GET /zones/{zone_id}/access/certificates/settings`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Access: Mutual TLS Certificates Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -28,6 +28,6 @@ export type UpdateResult = $access.Settings[];
  *
  * `PUT /accounts/{account_id}/access/certificates/settings` or `PUT /zones/{zone_id}/access/certificates/settings`
  *
- * Token permissions (any one): Access: Mutual TLS Certificates Write.
+ * Token permissions (any one): Access: Mutual TLS Certificates Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

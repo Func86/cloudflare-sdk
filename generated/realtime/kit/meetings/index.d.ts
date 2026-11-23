@@ -148,7 +148,7 @@ export type GetResult = $realtimekit.GenericSuccessResponse & {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/meetings/{meeting_id}`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */
@@ -182,7 +182,7 @@ export type ListResult = $realtimekit.PagingResponse & {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/meetings`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */

@@ -4,6 +4,7 @@ import {
 	checkDryRuns,
 	checkPaginationOverrides,
 	checkRequestVariants,
+	foldNativeKeys,
 	joinCommaLists,
 	markLiteralSlashes,
 	normalizeFlags,
@@ -11,7 +12,7 @@ import {
 	selectOperations,
 } from '../generator/prepare.ts';
 import { byKey, SPEC_PATCHES } from '../generator/patches.ts';
-import { LITERAL_SLASHES, type OpenApiDocument, type Schema } from '../generator/spec.ts';
+import { LITERAL_SLASHES, type OpenApiDocument, SCOPED_PERMISSIONS, type Schema } from '../generator/spec.ts';
 
 function document(paths: Record<string, Record<string, Schema>>): OpenApiDocument {
 	return { paths, components: { schemas: {} } };
@@ -43,6 +44,131 @@ test('a hidden operation is included unless it is deprecated or excluded', () =>
 	assert.equal(doc.paths['/kept']?.['get']?.['x-fern-ignore'], undefined);
 	assert.equal(doc.paths['/old']?.['get']?.['x-fern-ignore'], true);
 	assert.equal(doc.paths['/excluded']?.['get']?.['x-fern-ignore'], true);
+});
+
+test('a hidden copy, on one account or one zone, of an operation that takes either is left out', () => {
+	const doc = document({
+		'/{account_or_zone}/{account_or_zone_id}/things/{thing_id}': { get: op() },
+		// Parameter names differ between the copies.
+		'/accounts/{account_id}/things/{id}': { get: hidden(), put: hidden() },
+		'/zones/{zone_id}/things/{thing_id}': { get: hidden() },
+		'/zones/{zone_id}/things/{thing_id}/more': { get: hidden() },
+		'/users/{user_id}/things/{thing_id}': { get: hidden() },
+	});
+	assert.deepEqual(select(doc), { 'account or zone': 2 });
+	assert.equal(doc.paths['/accounts/{account_id}/things/{id}']?.['get']?.['x-fern-ignore'], true);
+	assert.equal(doc.paths['/zones/{zone_id}/things/{thing_id}']?.['get']?.['x-fern-ignore'], true);
+	// No route takes either for these, so they're shown as any hidden operation is.
+	assert.equal(doc.paths['/accounts/{account_id}/things/{id}']?.['put']?.['x-fern-ignore'], undefined);
+	assert.equal(doc.paths['/zones/{zone_id}/things/{thing_id}/more']?.['get']?.['x-fern-ignore'], undefined);
+	assert.equal(doc.paths['/users/{user_id}/things/{thing_id}']?.['get']?.['x-fern-ignore'], undefined);
+	// The copy is left out for the operation that takes either, so that one has to be generated.
+	const uncovered = document({
+		'/{account_or_zone}/{account_or_zone_id}/things': { get: hidden({ deprecated: true }) },
+		'/accounts/{account_id}/things': { get: hidden() },
+	});
+	assert.throws(() => select(uncovered), /so check whether each should be: GET \/accounts\/\{account_id\}\/things$/);
+	// A route on another host is no copy, so it needs none.
+	const hosted = document({
+		'/{account_or_zone}/{account_or_zone_id}/things': { get: hidden({ deprecated: true }) },
+		'/accounts/{account_id}/things': { get: hidden({ servers: [{ url: 'https://data.example.com' }] }) },
+	});
+	assert.deepEqual(select(hosted), { deprecated: 1, 'other server': 1 });
+	// Nor is a route on the API's host a copy of one on another host, so it's shown as any hidden one is.
+	const foreign = document({
+		'/{account_or_zone}/{account_or_zone_id}/things': { get: op({ servers: [{ url: 'https://data.example.com' }] }) },
+		'/accounts/{account_id}/things': { get: hidden() },
+	});
+	assert.deepEqual(select(foreign), { 'other server': 1 });
+	assert.equal(foreign.paths['/accounts/{account_id}/things']?.['get']?.['x-fern-ignore'], undefined);
+});
+
+test("an operation that takes either lists its copies' token permissions, for an account and a zone apart where they differ", () => {
+	const groups = (...names: string[]): Schema => ({ 'x-api-token-group': names });
+	const doc = document({
+		'/{account_or_zone}/{account_or_zone_id}/apart': { get: op() },
+		'/accounts/{account_id}/apart': { get: hidden(groups('Account Things Read', 'Things Admin')) },
+		'/zones/{zone_id}/apart': { get: hidden(groups('Things Read', 'Things Admin', 'Things Read')) },
+		// As entitlements, whose own list is its account copy's.
+		'/{account_or_zone}/{account_or_zone_id}/own': { get: op(groups('Account Read')) },
+		'/accounts/{account_id}/own': { get: hidden(groups('Account Read')) },
+		'/zones/{zone_id}/own': { get: hidden(groups('Zone Read')) },
+		'/{account_or_zone}/{account_or_zone_id}/same': { get: op() },
+		'/accounts/{account_id}/same': { get: hidden(groups('Logs Write')) },
+		'/zones/{zone_id}/same': { get: hidden(groups('Logs Write')) },
+		'/{account_or_zone}/{account_or_zone_id}/usage': { get: op(groups('Stream Read')) },
+		'/accounts/{account_id}/usage': { get: hidden() },
+		// A deprecated copy's route is still reached through the operation that takes either.
+		'/{account_or_zone}/{account_or_zone_id}/deprecated': { get: op() },
+		'/accounts/{account_id}/deprecated': { get: hidden(groups('Account Read')) },
+		'/zones/{zone_id}/deprecated': { get: hidden({ ...groups('Zone Read'), deprecated: true }) },
+		// A route on another host isn't a copy's, though its path is.
+		'/{account_or_zone}/{account_or_zone_id}/hosted': { get: op() },
+		'/accounts/{account_id}/hosted': { get: hidden(groups('Account Read')) },
+		'/zones/{zone_id}/hosted': { get: hidden({ ...groups('Data Plane Write'), servers: [{ url: 'https://data.example.com' }] }) },
+	});
+	assert.deepEqual(select(doc), { 'account or zone': 9, deprecated: 1, 'other server': 1 });
+	const listed = (route: string): Schema => {
+		const operation = doc.paths[`/{account_or_zone}/{account_or_zone_id}/${route}`]?.['get'];
+		return { own: operation?.['x-api-token-group'], scoped: operation?.[SCOPED_PERMISSIONS] };
+	};
+	assert.deepEqual(listed('apart'), { own: undefined, scoped: { account: ['Account Things Read', 'Things Admin'], zone: ['Things Read', 'Things Admin'] } });
+	assert.deepEqual(listed('own'), { own: undefined, scoped: { account: ['Account Read'], zone: ['Zone Read'] } });
+	// The same for both are listed once.
+	assert.deepEqual(listed('same'), { own: ['Logs Write'], scoped: undefined });
+	// Its own stay where no copy lists any.
+	assert.deepEqual(listed('usage'), { own: ['Stream Read'], scoped: undefined });
+	assert.deepEqual(listed('deprecated'), { own: undefined, scoped: { account: ['Account Read'], zone: ['Zone Read'] } });
+	assert.deepEqual(listed('hosted'), { own: undefined, scoped: { account: ['Account Read'] } });
+	// And stop generation where they name what no copy does, as it isn't clear which scope that's for.
+	const unlisted = document({
+		'/{account_or_zone}/{account_or_zone_id}/both': { get: op(groups('Account Read', 'Both Read')) },
+		'/accounts/{account_id}/both': { get: hidden(groups('Account Read')) },
+	});
+	assert.throws(() => select(unlisted), /check which scope each is for: GET \/\{account_or_zone\}\/\{account_or_zone_id\}\/both \(Both Read\)$/);
+	// Only for one that's generated.
+	const gone = document({
+		'/{account_or_zone}/{account_or_zone_id}/gone': { get: hidden({ ...groups('Only Here'), deprecated: true }) },
+		'/accounts/{account_id}/gone': { get: hidden({ ...groups('Account Read'), deprecated: true }) },
+	});
+	assert.deepEqual(select(gone), { deprecated: 2 });
+});
+
+test("Forge's own keys move onto the Fern keys, and stop generation where the two say different things", () => {
+	const doc = document({
+		'/both': {
+			get: {
+				'x-fern-sdk-group-name': 'g',
+				'x-forge-group-name': 'g',
+				'x-fern-sdk-method-name': 'm',
+				'x-forge-method-name': 'm',
+				'x-fern-ignore': true,
+				'x-forge-skip': true,
+			},
+		},
+		// A group written as a path on one key and as its parts on the other, and no group either way.
+		'/forms': {
+			get: { 'x-fern-sdk-group-name': ['g', 'h'], 'x-forge-group-name': 'g.h' },
+			post: { 'x-fern-sdk-group-name': [], 'x-forge-group-name': '' },
+		},
+		'/native': {
+			get: { 'x-forge-group-name': ['g', 'h'], 'x-forge-method-name': 'm', 'x-forge-availability': 'beta', 'x-forge-skip': false },
+			post: { 'x-forge-skip': true, 'x-forge-hidden': true },
+		},
+	});
+	foldNativeKeys(doc);
+	assert.deepEqual(doc.paths['/both']?.['get'], { 'x-fern-sdk-group-name': 'g', 'x-fern-sdk-method-name': 'm', 'x-fern-ignore': true });
+	assert.deepEqual(doc.paths['/native']?.['get'], { 'x-fern-sdk-group-name': ['g', 'h'], 'x-fern-sdk-method-name': 'm', 'x-fern-availability': 'beta' });
+	assert.deepEqual(doc.paths['/forms']?.['get'], { 'x-fern-sdk-group-name': 'g.h' });
+	assert.deepEqual(doc.paths['/forms']?.['post'], { 'x-fern-sdk-group-name': '' });
+	// Keys with no Fern counterpart stay.
+	assert.deepEqual(doc.paths['/native']?.['post'], { 'x-fern-ignore': true, 'x-forge-hidden': true });
+	const clash = document({
+		'/a': { get: { 'x-fern-sdk-method-name': 'm', 'x-forge-method-name': 'n' }, post: { 'x-fern-ignore': true, 'x-forge-skip': false } },
+		// Forge makes `a-b/c` of the first, and `a/b/c` of the second.
+		'/c': { get: { 'x-fern-sdk-group-name': ['a.b', 'c'], 'x-forge-group-name': 'a.b.c' } },
+	});
+	assert.throws(() => foldNativeKeys(clash), /GET \/a x-forge-method-name, POST \/a x-forge-skip, GET \/c x-forge-group-name$/);
 });
 
 test('an operation for another audience is removed, and one for the SDK is kept', () => {
@@ -96,16 +222,19 @@ test('an operation without a group or method name is left out when listed, and o
 		document({
 			'/named': { get: op() },
 			'/unnamed': { get: { operationId: 'nel-settings-get' }, patch: { 'x-fern-sdk-group-name': 'zones' } },
+			// An empty group is none, as `''` is.
+			'/empty': { get: { 'x-fern-sdk-group-name': [], 'x-fern-sdk-method-name': 'm' } },
 			// Forge skips it, so it needs no name.
 			'/old': { get: { 'x-fern-ignore': true, deprecated: true } },
 		});
-	const both = { 'GET /unnamed': reason, 'PATCH /unnamed': reason };
+	const both = { 'GET /unnamed': reason, 'PATCH /unnamed': reason, 'GET /empty': reason };
 	const doc = unnamed();
-	assert.deepEqual(select(doc, {}, {}, both), { 'no name': 2, deprecated: 1 });
+	assert.deepEqual(select(doc, {}, {}, both), { 'no name': 3, deprecated: 1 });
+	assert.deepEqual(Object.keys(doc.paths['/empty'] ?? {}), []);
 	assert.deepEqual(Object.keys(doc.paths['/named'] ?? {}), ['get']);
 	assert.deepEqual(Object.keys(doc.paths['/unnamed'] ?? {}), []);
 	assert.deepEqual(Object.keys(doc.paths['/old'] ?? {}), ['get']);
-	assert.throws(() => select(unnamed(), {}, {}, { 'GET /unnamed': reason }), /UNNAMED_OPERATIONS with a reason: PATCH \/unnamed$/);
+	assert.throws(() => select(unnamed(), {}, {}, { 'GET /unnamed': reason, 'GET /empty': reason }), /UNNAMED_OPERATIONS with a reason: PATCH \/unnamed$/);
 	assert.throws(
 		() => select(unnamed(), {}, {}, { ...both, 'GET /named': reason }),
 		/no longer left out for having no name.*GET \/named/,
@@ -243,7 +372,7 @@ test('a reference to a readOnly schema is marked readOnly, and keeps its documen
 	assert.deepEqual(properties.plain, { allOf: [{ $ref: '#/components/schemas/plain' }], readOnly: true });
 });
 
-test('a writeOnly field stops being required, by its schema and by the branches of it', () => {
+test('a writeOnly field stops being required, by its schema, by the branches of it and by a schema built on it', () => {
 	const doc = document({});
 	doc.components.schemas = {
 		// As Realtime's storage configuration, whose branches require fields it marks writeOnly.
@@ -261,8 +390,12 @@ test('a writeOnly field stops being required, by its schema and by the branches 
 				{ oneOf: [{ required: ['password'] }] },
 			],
 		},
+		// As Hyperdrive's full connection options, which require what the schema they're built on marks writeOnly.
+		options: { type: 'object', properties: { user: { type: 'string' }, password: { type: 'string', writeOnly: true } } },
+		full: { allOf: [{ $ref: '#/components/schemas/options' }], required: ['user', 'password'] },
 	};
-	assert.equal(normalizeFlags(doc).writeOnly, 3);
+	assert.equal(normalizeFlags(doc).writeOnly, 4);
+	assert.deepEqual(doc.components.schemas['full']?.['required'], ['user']);
 	const storage = doc.components.schemas['storage'];
 	assert.deepEqual(storage?.['required'], ['type']);
 	assert.deepEqual(storage?.['oneOf'][0].required, ['type']);
@@ -301,22 +434,33 @@ test('a pagination override that has gone stale stops generation', () => {
 	}
 });
 
-test('a required in a shared request body, or beside a oneOf, is restated where Forge reads it', () => {
+test('a required that Forge does not read is restated where it does', () => {
 	const doc = document({});
 	doc.components.schemas = {
 		base: { type: 'object', properties: { name: { type: 'string' }, kind: { type: 'string' } } },
+		either: { anyOf: [{ type: 'object', properties: { kind: { type: 'string' } } }] },
 		url: { type: 'object', properties: { target: { type: 'string' } } },
 		text: { type: 'string' },
 		target: { oneOf: [{ $ref: '#/components/schemas/url' }, { $ref: '#/components/schemas/text' }], required: ['target'] },
+		full: { allOf: [{ $ref: '#/components/schemas/base' }], required: ['name'] },
 	};
+	// Forge reads a `required` beside an `allOf` for what its branches declare.
 	const create = { allOf: [{ $ref: '#/components/schemas/base' }], required: ['name', 'kind'] };
-	doc.components['requestBodies'] = { create: { content: { 'application/json': { schema: create } } } };
+	// Not for what only an `anyOf` in a branch declares, nor for a name every object has.
+	const record = {
+		allOf: [{ $ref: '#/components/schemas/either' }, { type: 'object', properties: { id: { type: 'string' } } }],
+		required: ['id', 'kind', 'constructor'],
+	};
+	// A base that declares what it requires through its own `allOf` is read as it is.
+	const built = { allOf: [{ $ref: '#/components/schemas/full' }, { $ref: '#/components/schemas/url' }] };
+	doc.components['requestBodies'] = {
+		create: { content: { 'application/json': { schema: create } } },
+		record: { content: { 'application/json': { schema: record } } },
+		built: { content: { 'application/json': { schema: built } } },
+	};
+	// `record`'s two names and `target`'s one: Forge reads what `create` and `built` require, as test/types.ts checks.
 	assert.equal(restateRequired(doc), 3);
-	assert.deepEqual(create.allOf.at(-1), {
-		type: 'object',
-		properties: { name: { type: 'string' }, kind: { type: 'string' } },
-		required: ['name', 'kind'],
-	});
+	assert.deepEqual(record.allOf.at(-1), { type: 'object', properties: { kind: {}, constructor: {} }, required: ['kind', 'constructor'] });
 	const [url, text] = doc.components.schemas['target']?.['oneOf'] as Schema[];
 	assert.deepEqual(url, {
 		allOf: [{ $ref: '#/components/schemas/url' }, { type: 'object', properties: { target: { type: 'string' } }, required: ['target'] }],

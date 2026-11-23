@@ -53,7 +53,7 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/realtime/kit/{app_id}/analytics/daywise`
  *
- * Token permissions (any one): Realtime Admin, Realtime.
+ * Token permissions (any one): Realtime Read, Realtime Admin, Realtime.
  *
  * @beta
  */

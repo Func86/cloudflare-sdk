@@ -88,7 +88,7 @@ export type GetResult = $tunnel.CfdTunnel;
  *
  * `GET /accounts/{account_id}/cfd_tunnel/{tunnel_id}`
  *
- * Token permissions (any one): Cloudflare One Connectors Write, Cloudflare One Connectors Read, Cloudflare One Connector: cloudflared Write, Cloudflare One Connector: cloudflared Read, Cloudflare Tunnel Write, Cloudflare Tunnel Read.
+ * Token permissions (any one): Connectivity Directory Read, Connectivity Directory Bind, Connectivity Directory Admin, Cloudflare One Connectors Write, Cloudflare One Connectors Read, Cloudflare One Connector: cloudflared Write, Cloudflare One Connector: cloudflared Read, Cloudflare Tunnel Write, Cloudflare Tunnel Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -125,6 +125,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/tunnels`
  *
- * Token permissions (any one): Cloudflare One Connectors Write, Cloudflare One Connectors Read, Cloudflare One Connector: cloudflared Write, Cloudflare One Connector: cloudflared Read, Cloudflare Tunnel Write, Cloudflare Tunnel Read.
+ * Token permissions (any one): Connectivity Directory Read, Connectivity Directory Bind, Connectivity Directory Admin, Cloudflare One Connectors Write, Cloudflare One Connectors Read, Cloudflare One Connector: cloudflared Write, Cloudflare One Connector: cloudflared Read, Cloudflare Tunnel Write, Cloudflare Tunnel Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

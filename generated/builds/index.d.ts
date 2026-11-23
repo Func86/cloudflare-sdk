@@ -62,7 +62,7 @@ export type GetResult = $builds.BuildResponse;
  *
  * `GET /accounts/{account_id}/builds/builds/{build_uuid}`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -85,7 +85,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/builds/workers/{external_script_id}/builds`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -105,7 +105,7 @@ export type LogsResult = $builds.BuildLogsResponse;
  *
  * `GET /accounts/{account_id}/builds/builds/{build_uuid}/logs`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const logs: Operation<LogsRequest, LogsResult>;
 

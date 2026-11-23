@@ -16,6 +16,8 @@ export type CreateResult = $email.SendingSubdomain;
  * Creates a new sending subdomain or re-enables sending on an existing subdomain that had it disabled. If zone-level Email Sending has not been enabled yet, the zone flag is automatically set when the entitlement is present. A leftmost wildcard such as `*.example.com` is accepted only for accounts with wildcard Email Sending enabled. Wildcard senders share the base domain's DKIM signing identity and `cf-bounce.<base>` return path.
  *
  * `POST /zones/{zone_id}/email/sending/subdomains`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -32,6 +34,8 @@ export type DeleteResult = $email.ApiResponseSingle;
  * Disables sending on a subdomain and removes its DNS records. If routing is still active on the subdomain, only sending is disabled.
  *
  * `DELETE /zones/{zone_id}/email/sending/subdomains/{subdomain_id}`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -49,6 +53,8 @@ export type GetResult = $email.SendingSubdomain;
  * Gets information for a specific sending subdomain.
  *
  * `GET /zones/{zone_id}/email/sending/subdomains/{subdomain_id}`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -63,6 +69,8 @@ export type ListResult = $email.SendingSubdomain[];
  * Lists all sending-enabled subdomains for the zone.
  *
  * `GET /zones/{zone_id}/email/sending/subdomains`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -83,6 +91,8 @@ export type PreviewResult = {
  * Returns the DNS records that would be created for a sending subdomain, flags which records are missing, and reports any conflicts with existing DNS records. This is a read-only dry-run — no records are created or modified. Use before or after creating a subdomain to check DNS status. A leftmost wildcard requires wildcard Email Sending to be enabled for the account and previews base-scoped DKIM and return-path records.
  *
  * `POST /zones/{zone_id}/email/sending/subdomains/preview`
+ *
+ * Token permissions (any one): Email Sending Write, Email Sending Read.
  */
 export declare const preview: Operation<PreviewRequest, PreviewResult>;
 
@@ -100,5 +110,7 @@ export type UpdateResult = $email.SendingSubdomain;
  * Updates the activity-log preview preference for a sending subdomain.
  *
  * `PATCH /zones/{zone_id}/email/sending/subdomains/{subdomain_id}`
+ *
+ * Token permissions (any one): Email Sending Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

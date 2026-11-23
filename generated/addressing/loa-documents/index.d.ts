@@ -34,7 +34,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/addressing/loa_documents`
  *
- * Token permissions (any one): Magic Transit Write.
+ * Token permissions (any one): Magic Transit Write, IP Prefixes: Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -52,7 +52,7 @@ export type GetResult = Uint8Array;
  *
  * `GET /accounts/{account_id}/addressing/loa_documents/{loa_document_id}/download`
  *
- * Token permissions (any one): Magic Transit Read, Magic Transit Write.
+ * Token permissions (any one): Magic Transit Read, Magic Transit Write, IP Prefixes: Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -68,6 +68,6 @@ export type ListResult = $addressing.LoaDocument[];
  *
  * `GET /accounts/{account_id}/addressing/loa_documents`
  *
- * Token permissions (any one): Magic Transit Read, Magic Transit Write.
+ * Token permissions (any one): Magic Transit Read, Magic Transit Write, IP Prefixes: Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

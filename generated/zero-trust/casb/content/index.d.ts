@@ -15,7 +15,7 @@ export type ExportResult = $posture_api.ExportJob;
  *
  * `POST /accounts/{account_id}/data-security/posture/content/export`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 declare const export_: Operation<ExportRequest, ExportResult>;
 export { export_ as export };
@@ -51,6 +51,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/content`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

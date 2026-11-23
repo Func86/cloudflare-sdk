@@ -21,7 +21,7 @@ export type CreateResult = $workers.NamespaceResponse;
  *
  * `POST /accounts/{account_id}/workers/dispatch/namespaces`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -39,7 +39,7 @@ export type DeleteResult = null;
  *
  * `DELETE /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -50,7 +50,7 @@ export type EditRequest = {
 	/** Name of the Workers for Platforms dispatch namespace. */
 	dispatch_namespace: string;
 	body: {
-		/** The name of the dispatch namespace. */
+		/** The name of the dispatch namespace. If set, must match the namespace's current name. Dispatch namespaces cannot be renamed. */
 		name?: string;
 		/** Whether the Workers in the namespace are executed in a "trusted" manner. When a Worker is trusted, it has access to the shared caches for the zone in the Cache API, and has access to the `request.cf` object on incoming Requests. When a Worker is untrusted, caches are not shared across the zone, and `request.cf` is undefined. By default, Workers in a namespace are "untrusted". */
 		trusted_workers?: $workers.TrustedWorkers;
@@ -64,7 +64,7 @@ export type EditResult = $workers.NamespaceResponse;
  *
  * `PATCH /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -82,7 +82,7 @@ export type GetResult = $workers.NamespaceResponse;
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -98,7 +98,7 @@ export type ListResult = $workers.NamespaceResponse[];
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -108,7 +108,7 @@ export type UpdateRequest = {
 	/** Name of the Workers for Platforms dispatch namespace. */
 	dispatch_namespace: string;
 	body: {
-		/** The name of the dispatch namespace. */
+		/** The name of the dispatch namespace. Must match the namespace's current name. Dispatch namespaces cannot be renamed. */
 		name?: string;
 		/** Whether the Workers in the namespace are executed in a "trusted" manner. When a Worker is trusted, it has access to the shared caches for the zone in the Cache API, and has access to the `request.cf` object on incoming Requests. When a Worker is untrusted, caches are not shared across the zone, and `request.cf` is undefined. By default, Workers in a namespace are "untrusted". */
 		trusted_workers?: $workers.TrustedWorkers;
@@ -122,6 +122,6 @@ export type UpdateResult = $workers.NamespaceResponse;
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

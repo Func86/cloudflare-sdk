@@ -59,6 +59,6 @@ export type StatusResult = $aig_billing.TopupStatusResult;
  *
  * `POST /accounts/{account_id}/ai-gateway/billing/topup/status`
  *
- * Token permissions (any one): AI Gateway Write.
+ * Token permissions (any one): AI Search Index Engine, Auto Rag Write Run Engine, AI Gateway Write.
  */
 export declare const status: Operation<StatusRequest, StatusResult>;

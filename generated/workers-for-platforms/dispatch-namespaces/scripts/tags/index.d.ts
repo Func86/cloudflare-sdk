@@ -19,7 +19,7 @@ export type CreateResult = null;
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/tags/{tag}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -49,7 +49,7 @@ export type DeleteResult = $workers.TagsKv | null;
  *
  * `DELETE /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/tags/{tag}`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -100,7 +100,7 @@ export type ListResult = $workers.Tag[];
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/tags`
  *
- * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -121,6 +121,6 @@ export type UpdateResult = $workers.Tag[];
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/tags`
  *
- * Token permissions (any one): Workers Scripts Write.
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

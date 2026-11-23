@@ -127,6 +127,8 @@ export type ListResult = $teams_devices.DeviceSettingsPolicy[];
  * Fetches a list of the device settings profiles for an account.
  *
  * `GET /accounts/{account_id}/devices/policies`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

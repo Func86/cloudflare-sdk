@@ -19,7 +19,7 @@ export type CreateResult = $posture_api.PolicyResponse;
  *
  * `POST /accounts/{account_id}/data-security/posture/policies`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -38,7 +38,7 @@ export type DeleteResult = $posture_api.DeletePolicyResponse;
  *
  * `DELETE /accounts/{account_id}/data-security/posture/policies/{policy_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -59,7 +59,7 @@ export type GetResult = $posture_api.PolicyResponse;
  *
  * `GET /accounts/{account_id}/data-security/posture/policies/{policy_id}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -79,7 +79,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/data-security/posture/policies`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -99,6 +99,6 @@ export type UpdateResult = $posture_api.PolicyResponse;
  *
  * `PUT /accounts/{account_id}/data-security/posture/policies/{policy_id}`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

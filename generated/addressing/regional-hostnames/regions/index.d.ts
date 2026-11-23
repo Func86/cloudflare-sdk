@@ -19,6 +19,6 @@ export type ListResult = {
  *
  * `GET /accounts/{account_id}/addressing/regional_hostnames/regions`
  *
- * Token permissions (any one): DNS Read, DNS Write.
+ * Token permissions (any one): DLS: Write, DLS: Read, DNS Read, DNS Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

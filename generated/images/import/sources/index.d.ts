@@ -23,7 +23,7 @@ export type CheckResult = {
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/sources/{source_id}/connectivity`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const check: Operation<CheckRequest, CheckResult>;
 
@@ -77,7 +77,7 @@ export type GetResult = $images.SourcingkitSource;
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/sources/{source_id}`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -102,7 +102,7 @@ export type ListItem = ItemOf<ListResult, "sources">;
  *
  * `GET /accounts/{account_id}/images/v2/sourcingkit/sources`
  *
- * Token permissions (any one): Images Read, Images Write.
+ * Token permissions (any one): Images Metadata Read, Images Read, Images Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 

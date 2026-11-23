@@ -13,7 +13,7 @@ export type CreateResult = $access.CustomPageWithoutHtml;
  *
  * `POST /accounts/{account_id}/access/custom_pages`
  *
- * Token permissions (any one): Access: Custom Pages Write.
+ * Token permissions (any one): Access: Custom Pages Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -32,7 +32,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/custom_pages/{custom_page_id}`
  *
- * Token permissions (any one): Access: Custom Pages Write.
+ * Token permissions (any one): Access: Custom Pages Write, Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -51,7 +51,7 @@ export type GetResult = $access.CustomPage;
  *
  * `GET /accounts/{account_id}/access/custom_pages/{custom_page_id}`
  *
- * Token permissions (any one): Access: Custom Pages Write, Access: Custom Pages Read.
+ * Token permissions (any one): Access: Custom Pages Write, Access: Custom Pages Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -70,7 +70,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/custom_pages`
  *
- * Token permissions (any one): Access: Custom Pages Write, Access: Custom Pages Read.
+ * Token permissions (any one): Access: Custom Pages Write, Access: Custom Pages Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -87,7 +87,7 @@ export type UpdateResult = $access.CustomPageWithoutHtml;
  *
  * `PUT /accounts/{account_id}/access/custom_pages/{custom_page_id}`
  *
- * Token permissions (any one): Access: Custom Pages Write.
+ * Token permissions (any one): Access: Custom Pages Write, Zero Trust Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;
 
@@ -104,6 +104,6 @@ export type ValidateResult = $access.ValidationResult;
  *
  * `POST /accounts/{account_id}/access/custom_pages/validate`
  *
- * Token permissions (any one): Access: Custom Pages Write.
+ * Token permissions (any one): Access: Custom Pages Write, Zero Trust Write.
  */
 export declare const validate: Operation<ValidateRequest, ValidateResult>;

@@ -20,6 +20,6 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/data-security/posture/webhooks/jobs`
  *
- * Token permissions (any one): Zero Trust Write.
+ * Token permissions (any one): CASB Write, Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;

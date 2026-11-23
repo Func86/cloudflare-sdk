@@ -53,7 +53,7 @@ export type CreateResult = $access.Organizations;
  *
  * `POST /accounts/{account_id}/access/organizations` or `POST /zones/{zone_id}/access/organizations`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -107,7 +107,7 @@ export type EditResult = $access.Organizations;
  *
  * `PATCH /accounts/{account_id}/access/organizations` or `PATCH /zones/{zone_id}/access/organizations`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions on an account (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -123,7 +123,7 @@ export type GetResult = $access.Organizations & {
  *
  * `GET /accounts/{account_id}/access/organizations` or `GET /zones/{zone_id}/access/organizations`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Revoke, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
+ * Token permissions (any one): Access: Organizations Write, Access: Organizations Revoke, Access: Organizations Read, Access: Organizations, Identity Providers, and Groups Revoke, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write, Access: Organizations, Identity Providers, and Groups Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -177,6 +177,6 @@ export type UpdateResult = $access.Organizations;
  *
  * `PUT /accounts/{account_id}/access/organizations` or `PUT /zones/{zone_id}/access/organizations`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

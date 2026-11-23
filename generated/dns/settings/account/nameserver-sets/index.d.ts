@@ -15,6 +15,8 @@ export type CreateResult = $dns_settings.NameserverSetResponse;
  *
  * `POST /accounts/{account_id}/dns_settings/nameserver_sets`
  *
+ * Token permissions (any one): Account Settings Write.
+ *
  * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
@@ -36,6 +38,8 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/dns_settings/nameserver_sets/{nameserver_set_id}`
  *
+ * Token permissions (any one): Account Settings Write.
+ *
  * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
@@ -56,7 +60,7 @@ export type EditResult = $dns_settings.NameserverSetResponse;
  *
  * `PATCH /accounts/{account_id}/dns_settings/nameserver_sets/{nameserver_set_id}`
  *
- * Token permissions (any one): Account DNS Settings Write.
+ * Token permissions (any one): Account Settings Write.
  *
  * @beta
  */
@@ -76,7 +80,7 @@ export type GetResult = $dns_settings.NameserverSetResponse;
  *
  * `GET /accounts/{account_id}/dns_settings/nameserver_sets/{nameserver_set_id}`
  *
- * Token permissions (any one): Account DNS Settings Write, Account DNS Settings Read.
+ * Token permissions (any one): Account Settings Write, Account Settings Read.
  *
  * @beta
  */
@@ -99,7 +103,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/dns_settings/nameserver_sets`
  *
- * Token permissions (any one): Account DNS Settings Write, Account DNS Settings Read.
+ * Token permissions (any one): Account Settings Write, Account Settings Read.
  *
  * @beta
  */

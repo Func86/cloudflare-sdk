@@ -18,6 +18,6 @@ export type GetResult = $pages.DeploymentLog;
  *
  * `GET /accounts/{account_id}/pages/projects/{project_name}/deployments/{deployment_id}/history/logs`
  *
- * Token permissions (any one): Pages Read, Pages Write.
+ * Token permissions (any one): Pages Metadata Read, Pages Read, Pages Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;

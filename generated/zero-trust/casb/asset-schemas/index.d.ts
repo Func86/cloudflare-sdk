@@ -17,7 +17,7 @@ export type GetResult = $posture_api.AssetSchemaDetail;
  *
  * `GET /accounts/{account_id}/data-security/posture/asset_schemas/{asset_class}`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -37,6 +37,6 @@ export type ListResult = $posture_api.AssetSchemaVendorGroup[];
  *
  * `GET /accounts/{account_id}/data-security/posture/asset_schemas`
  *
- * Token permissions (any one): Zero Trust Read, Zero Trust Write.
+ * Token permissions (any one): CASB Write, CASB Read, Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

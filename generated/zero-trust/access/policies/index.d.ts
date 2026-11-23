@@ -15,7 +15,7 @@ export type CreateResult = $access.ReusablePolicyResp;
  *
  * `POST /accounts/{account_id}/access/policies`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access Policy Admin, Access: Policies Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -36,7 +36,7 @@ export type DeleteResult = {
  *
  * `DELETE /accounts/{account_id}/access/policies/{policy_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access Policy Admin, Access: Policies Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -55,7 +55,7 @@ export type GetResult = $access.ReusablePolicyResp;
  *
  * `GET /accounts/{account_id}/access/policies/{policy_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access Policy Read, Individual Access Policy Admin, Access: Policies Write, Access: Policies Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -76,7 +76,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/policies`
  *
- * Token permissions (any one): Access: Apps and Policies Write, Access: Apps and Policies Read.
+ * Token permissions (any one): Individual Access Policy Read, Individual Access Policy Admin, Access: Policies Write, Access: Policies Read, Zero Trust Read, Zero Trust Write, Access: Apps and Policies Write, Access: Apps and Policies Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -95,6 +95,6 @@ export type UpdateResult = $access.ReusablePolicyResp;
  *
  * `PUT /accounts/{account_id}/access/policies/{policy_id}`
  *
- * Token permissions (any one): Access: Apps and Policies Write.
+ * Token permissions (any one): Individual Access Policy Admin, Access: Policies Write, Zero Trust Write, Access: Apps and Policies Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

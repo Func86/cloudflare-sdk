@@ -17,7 +17,7 @@ export type CreateResult = $mq.ConsumerResponse;
  *
  * `POST /accounts/{account_id}/queues/{queue_id}/consumers`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -37,7 +37,7 @@ export type DeleteResult = $mq.ApiV4Success;
  *
  * `DELETE /accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -58,7 +58,7 @@ export type GetResult = $mq.ConsumerResponse;
  *
  * `GET /accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -76,7 +76,7 @@ export type ListResult = $mq.ConsumerResponse[];
  *
  * `GET /accounts/{account_id}/queues/{queue_id}/consumers`
  *
- * Token permissions (any one): Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Queues Metadata Read, Queues Write, Queues Read, Workers Scripts Write, Workers Scripts Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -97,6 +97,6 @@ export type UpdateResult = $mq.ConsumerResponse;
  *
  * `PUT /accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}`
  *
- * Token permissions (any one): Queues Write, Workers Scripts Write.
+ * Token permissions (any one): Workers Admin, Queues Write, Workers Scripts Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

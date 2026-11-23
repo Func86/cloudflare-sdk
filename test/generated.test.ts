@@ -136,6 +136,12 @@ test('a hidden operation is renamed when it would collide, and the visible one k
 	);
 	assert.equal(byId.get('email-security.investigate.move')?.route, '/accounts/{account_id}/email-security/investigate/move');
 	assert.ok(byId.has('cloudforce-one.requests.types.list'));
+	// The spec names this hidden v1 route as the v2 one that replaces it.
+	assert.equal(byId.get('cloudforce-one.requests.legacy.get')?.route, '/accounts/{account_id}/cloudforce-one/requests/{request_id}');
+	assert.equal(byId.get('cloudforce-one.requests.get')?.route, '/accounts/{account_id}/cloudforce-one/v2/requests/{project_type}/{request_id}');
+	// And the v1 delete with them, which v2 doesn't have.
+	assert.equal(byId.get('cloudforce-one.requests.legacy.delete')?.route, '/accounts/{account_id}/cloudforce-one/requests/{request_id}');
+	assert.equal(byId.has('cloudforce-one.requests.delete'), false);
 });
 
 test('an operation that does not describe its response is left out, apart from a DELETE', () => {
@@ -277,7 +283,6 @@ test('names the spec gets wrong are renamed, so every name passes the naming rul
 	}
 	const scoped = manifest.filter((entry) => entry.route.startsWith('/{account_or_zone}/') && /(^|\.)(account|zone)s?-/.test(entry.id));
 	assert.deepEqual(scoped, []);
-	assert.ok(byId.has('cloudforce-one.requests.get'));
 	// Every name passes the naming rules: a spec update that breaks one needs a rename, or a better rule.
 	const report = JSON.parse(readFileSync('generated/_meta/report.json', 'utf8')) as { naming: Record<string, string[]> };
 	assert.deepEqual(report.naming, {});

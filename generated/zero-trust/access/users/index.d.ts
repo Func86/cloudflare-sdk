@@ -22,6 +22,8 @@ export type CreateResult = $access.Users2;
  * Creates a new user.
  *
  * `POST /accounts/{account_id}/access/users`
+ *
+ * Token permissions (any one): Access: Users Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -38,6 +40,8 @@ export type DeleteResult = { [key: string]: unknown } | null;
  * Deletes a specific user for an account. This will also revoke any active seats and tokens for the user.
  *
  * `DELETE /accounts/{account_id}/access/users/{user_id}`
+ *
+ * Token permissions (any one): Access: Users Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -56,7 +60,7 @@ export type GetResult = $access.Users2;
  *
  * `GET /accounts/{account_id}/access/users/{user_id}`
  *
- * Token permissions (any one): Access: Audit Logs Read.
+ * Token permissions (any one): Access: Users Write, Access: Users Read, Access: Audit Logs Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -83,7 +87,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/access/users`
  *
- * Token permissions (any one): Access: Audit Logs Read.
+ * Token permissions (any one): Access: Users Write, Access: Users Read, Access: Audit Logs Read, Zero Trust Read, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -109,7 +113,7 @@ export type RevokeResult = true | false;
  *
  * `POST /accounts/{account_id}/access/organizations/revoke_user` or `POST /zones/{zone_id}/access/organizations/revoke_user`
  *
- * Token permissions (any one): Access: Organizations, Identity Providers, and Groups Write.
+ * Token permissions (any one): Access: Organizations Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const revoke: Operation<RevokeRequest, RevokeResult>;
 
@@ -133,6 +137,6 @@ export type UpdateResult = $access.Users2;
  *
  * `PUT /accounts/{account_id}/access/users/{user_id}`
  *
- * Token permissions (any one): Zero Trust: Seats Write.
+ * Token permissions (any one): Access: Users Write, Zero Trust: Seats Write, Zero Trust Write, Access: Organizations, Identity Providers, and Groups Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

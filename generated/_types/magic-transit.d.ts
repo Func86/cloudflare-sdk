@@ -114,14 +114,7 @@ export type EndpointHealthCheck = {
 
 export type EndpointHealthCheckResponse = EndpointHealthCheck & {
 	/** UUID. */
-	id?: Uuid;
-} & {
-	/** UUID. */
 	id: Uuid;
-	/** type of check to perform */
-	check_type: CheckType;
-	/** the IP address of the host to perform checks against */
-	endpoint: string;
 };
 
 export type HopResult = {

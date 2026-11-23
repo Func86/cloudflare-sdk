@@ -148,6 +148,14 @@ export type CatalogMaintenanceConfigResponse = {
 	maintenance_config: CatalogMaintenanceConfig;
 };
 
+/** Contains maintenance update parameters. */
+export type MaintenanceUpdateParams = {
+	/** Updates compaction configuration (all fields optional). */
+	compaction?: CompactionUpdateParams;
+	/** Updates snapshot expiration configuration (all fields optional). */
+	snapshot_expiration?: SnapshotExpirationUpdateParams;
+};
+
 /** Contains namespace with metadata details. */
 export type NamespaceDetails = {
 	/** Indicates the creation timestamp in ISO 8601 format. */
@@ -170,12 +178,7 @@ export type CatalogCredentialRequest = {
 };
 
 /** Contains request to update catalog maintenance configuration. */
-export type CatalogMaintenanceUpdateRequest = {
-	/** Updates compaction configuration (all fields optional). */
-	compaction?: CompactionUpdateParams;
-	/** Updates snapshot expiration configuration (all fields optional). */
-	snapshot_expiration?: SnapshotExpirationUpdateParams;
-};
+export type CatalogMaintenanceUpdateRequest = MaintenanceUpdateParams;
 
 /** Contains request to update table maintenance configuration. */
 export type TableMaintenanceUpdateRequest = {

@@ -16,6 +16,8 @@ export type CreateResult = $addressing.IpamBgpPrefixes;
  * Create a BGP prefix, controlling the BGP advertisement status of a specific subnet. When created, BGP prefixes are initially withdrawn, and can be advertised with the Update BGP Prefix API.
  *
  * `POST /accounts/{account_id}/addressing/prefixes/{prefix_id}/bgp/prefixes`
+ *
+ * Token permissions (any one): IP Prefixes: Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -34,6 +36,8 @@ export type DeleteResult = $addressing.ApiResponseCommon;
  * Delete a BGP Prefix associated with the specified IP Prefix. A BGP Prefix must be withdrawn before it can be deleted.
  *
  * `DELETE /accounts/{account_id}/addressing/prefixes/{prefix_id}/bgp/prefixes/{bgp_prefix_id}`
+ *
+ * Token permissions (any one): IP Prefixes: Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

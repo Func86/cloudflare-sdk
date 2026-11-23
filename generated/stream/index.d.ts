@@ -31,6 +31,6 @@ export type StorageUsageResult = {
  *
  * `GET /accounts/{account_id}/stream/storage-usage`
  *
- * Token permissions (any one): Stream Write, Stream Read.
+ * Token permissions (any one): Stream Metadata Read, AI Search Index Engine, Stream Write, Stream Read.
  */
 export declare const storageUsage: Operation<StorageUsageRequest, StorageUsageResult>;

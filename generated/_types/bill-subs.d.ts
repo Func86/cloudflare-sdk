@@ -423,7 +423,7 @@ export type PlanComponentValue = {
 	unit_price?: UnitPrice;
 };
 
-export type SchemasRatePlan = {
+export type PlanRatePlan = {
 	/** Array of available components values for the plan. */
 	components?: SchemasComponentValues;
 	/** The monetary unit in which pricing information is displayed. */
@@ -438,39 +438,13 @@ export type SchemasRatePlan = {
 	name?: SchemasName;
 };
 
+export type SchemasRatePlan = PlanRatePlan;
+
 export type SchemasZone = {
 	name?: string;
 };
 
-export type Subscription = {
-	/**
-	 * Cloudflare Apps Marketplace is sunset. This field is retained for legacy grandfathered app subscriptions only.
-	 * @deprecated
-	 */
-	app?: {
-		/** app install id. */
-		install_id?: InstallId;
-	};
-	/** Configurable component values for the subscription. */
-	component_values?: ComponentValues;
-	/** The monetary unit in which pricing information is displayed. */
-	currency?: Currency;
-	/** The end of the current period and also when the next billing is due. */
-	current_period_end?: CurrentPeriodEnd;
-	/** When the current billing period started. May match initial_period_start if this is the first period. */
-	current_period_start?: CurrentPeriodStart;
-	/** How often the subscription is renewed automatically. */
-	frequency?: Frequency;
-	/** Subscription identifier tag. */
-	id?: SchemasIdentifier;
-	/** The price of the subscription that will be billed, in US dollars. */
-	price?: Price;
-	/** The rate plan applied to the subscription. */
-	rate_plan?: RatePlan;
-	/** The state that the subscription is in. */
-	state?: State;
-	zone?: Zone;
-};
+export type Subscription = SubscriptionV2;
 
 export type SubscriptionResponse = SubscriptionV2 & {
 	/** How often the subscription is renewed automatically (computed field). */

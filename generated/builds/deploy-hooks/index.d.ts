@@ -58,7 +58,7 @@ export type GetResult = $builds.DeployHookResponse;
  *
  * `GET /accounts/{account_id}/builds/workers/{script_name}/deploy_hooks/{deploy_hook_uuid}`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -76,7 +76,7 @@ export type ListResult = $builds.DetailedDeployHookResponse[];
  *
  * `GET /accounts/{account_id}/builds/workers/{script_name}/deploy_hooks`
  *
- * Token permissions (any one): Workers CI Write, Workers CI Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers CI Write, Workers CI Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 

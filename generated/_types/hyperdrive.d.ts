@@ -31,10 +31,7 @@ export type HyperdriveCachingCreateDisabled = {
 };
 
 /** Caching disabled */
-export type HyperdriveCachingDisabled = {
-	/** Set to true to disable caching of SQL responses. Default is false. */
-	disabled?: boolean;
-};
+export type HyperdriveCachingDisabled = HyperdriveCachingCommon;
 
 /** Caching enabled */
 export type HyperdriveCachingCreateEnabled = {

@@ -84,6 +84,8 @@ export type ListItem = RootItem<ListResult>;
  * Lists WARP devices.
  *
  * `GET /accounts/{account_id}/devices/physical-devices`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 

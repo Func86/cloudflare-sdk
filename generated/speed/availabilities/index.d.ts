@@ -14,6 +14,6 @@ export type ListResult = $observatory.Availabilities;
  *
  * `GET /zones/{zone_id}/speed_api/availabilities`
  *
- * Token permissions (any one): Zone Settings Write, Zone Settings Read.
+ * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Zone Settings Write, Zone Settings Read, Workers Routes Write, Workers Routes Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

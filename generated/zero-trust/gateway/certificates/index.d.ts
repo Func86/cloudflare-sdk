@@ -15,6 +15,8 @@ export type ActivateResult = $zero_trust_gateway.Certificates;
  * Bind a single Zero Trust certificate to the edge.
  *
  * `POST /accounts/{account_id}/gateway/certificates/{certificate_id}/activate`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const activate: Operation<ActivateRequest, ActivateResult>;
 
@@ -30,6 +32,8 @@ export type CreateResult = $zero_trust_gateway.Certificates;
  * Create a new Zero Trust certificate.
  *
  * `POST /accounts/{account_id}/gateway/certificates`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -46,6 +50,8 @@ export type DeactivateResult = $zero_trust_gateway.Certificates;
  * Unbind a single Zero Trust certificate from the edge.
  *
  * `POST /accounts/{account_id}/gateway/certificates/{certificate_id}/deactivate`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 export declare const deactivate: Operation<DeactivateRequest, DeactivateResult>;
 
@@ -62,6 +68,8 @@ export type DeleteResult = $zero_trust_gateway.Certificates;
  * Delete a gateway-managed Zero Trust certificate. You must deactivate the certificate from the edge (inactive) before deleting it.
  *
  * `DELETE /accounts/{account_id}/gateway/certificates/{certificate_id}`
+ *
+ * Token permissions (any one): Zero Trust Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -79,6 +87,8 @@ export type GetResult = $zero_trust_gateway.Certificates;
  * Get a single Zero Trust certificate.
  *
  * `GET /accounts/{account_id}/gateway/certificates/{certificate_id}`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -93,5 +103,7 @@ export type ListResult = $zero_trust_gateway.Certificates[];
  * List all Zero Trust certificates for an account.
  *
  * `GET /accounts/{account_id}/gateway/certificates`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write.
  */
 export declare const list: Operation<ListRequest, ListResult>;

@@ -30,6 +30,8 @@ export type CreateResult = $addressing.IpamPrefixes;
  * Add a new prefix under the account.
  *
  * `POST /accounts/{account_id}/addressing/prefixes`
+ *
+ * Token permissions (any one): Magic Transit Write, IP Prefixes: Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -47,7 +49,7 @@ export type DeleteResult = $addressing.ApiResponseSingle;
  *
  * `DELETE /accounts/{account_id}/addressing/prefixes/{prefix_id}`
  *
- * Token permissions (any one): Magic Transit Write.
+ * Token permissions (any one): Magic Transit Write, IP Prefixes: Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };

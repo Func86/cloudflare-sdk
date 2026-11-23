@@ -409,7 +409,7 @@ export type ScimSchemaAttr = {
 	/** Indicates when an attribute and associated values are returned in response to a GET request or in response to a PUT, POST, or PATCH request. */
 	returned: "always" | "never" | "default" | "request";
 	/** Defines a set of sub-attributes when the attribute type is `complex`. */
-	subAttributes?: { [key: string]: unknown }[];
+	subAttributes?: ScimSchemaAttr[];
 	/** The attribute's data type. */
 	type: "string" | "boolean" | "decimal" | "integer" | "dateTime" | "reference" | "complex";
 	/** Indicates how the service provider enforces uniqueness of attribute values. */
@@ -1179,16 +1179,7 @@ export type Account = {
 	type: AccountType;
 };
 
-export type AccountType = "standard" | "enterprise";
-
-export type ApiResponseSingle = {
-	errors: Messages;
-	messages: Messages;
-	/** Whether the API call was successful. */
-	success: true;
-};
-
-export type ComponentsSchemasAccountInput = {
+export type AccountInput = {
 	/** Timestamp for the creation of the account */
 	created_on?: string;
 	/** Identifier */
@@ -1230,6 +1221,19 @@ export type ComponentsSchemasAccountInput = {
 	};
 	type?: AccountType;
 };
+
+export type AccountType = "standard" | "enterprise";
+
+export type ApiResponseCommon = {
+	errors: Messages;
+	messages: Messages;
+	/** Whether the API call was successful. */
+	success: true;
+};
+
+export type ApiResponseSingle = ApiResponseCommon;
+
+export type ComponentsSchemasAccountInput = AccountInput;
 
 export type Condition = {
 	/** Client IP restrictions. */
@@ -1366,48 +1370,7 @@ export type RoleInput = {
 	permissions?: Permissions;
 };
 
-export type SchemasAccount = {
-	/** Timestamp for the creation of the account */
-	created_on?: string;
-	/** Identifier */
-	id: CommonComponentsSchemasIdentifier;
-	/** Legacy account flags. */
-	legacy_flags?: {
-		/** Enterprise zone quota for standard and enterprise accounts. Accounts without a quota have a maximum of 0. */
-		enterprise_zone_quota?: {
-			/** Number of additional Enterprise zones available. Returns 0 if the quota is not allocated or is exhausted. */
-			available?: number;
-			/** Current number of Enterprise zones. */
-			current?: number;
-			/** Maximum number of Enterprise zones allowed. */
-			maximum?: number;
-		};
-	};
-	/** Parent container details */
-	managed_by?: {
-		/** ID of the parent Organization, if one exists */
-		parent_org_id?: string;
-		/** Name of the parent Organization, if one exists */
-		parent_org_name?: string;
-		/** ID of the root Organization, if one exists */
-		root_org_id?: string;
-		/** Indicates whether the parent Organization hierarchy should be displayed */
-		should_display_parent_orgs?: boolean;
-	};
-	/** Account name. When creating or updating an account, the name is limited to 65 UTF-8 bytes. */
-	name: string;
-	/** Account settings */
-	settings?: {
-		/** Sets an abuse contact email to notify for abuse reports. */
-		abuse_contact_email?: string;
-		/**
-		 * Indicates whether membership in this account requires that
-		 * Two-Factor Authentication is enabled
-		 */
-		enforce_twofactor?: boolean;
-	};
-	type: AccountType;
-};
+export type SchemasAccount = Account;
 
 export type SsoConnector = {
 	/** Timestamp for the creation of the SSO connector */

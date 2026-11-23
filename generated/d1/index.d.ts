@@ -147,7 +147,7 @@ export type GetResult = $d1.DatabaseDetailsResponse;
  *
  * `GET /accounts/{account_id}/d1/database/{database_id}`
  *
- * Token permissions (any one): D1 Read, D1 Write.
+ * Token permissions (any one): D1 Metadata Read, AI Search Index Engine, D1 Read, D1 Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -237,7 +237,7 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/d1/database`
  *
- * Token permissions (any one): D1 Read, D1 Write.
+ * Token permissions (any one): D1 Metadata Read, AI Search Index Engine, D1 Read, D1 Write.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -256,7 +256,7 @@ export type QueryResult = $d1.QueryResultResponse[];
  *
  * `POST /accounts/{account_id}/d1/database/{database_id}/query`
  *
- * Token permissions (any one): D1 Read, D1 Write.
+ * Token permissions (any one): D1 Metadata Read, AI Search Index Engine, D1 Read, D1 Write.
  */
 export declare const query: Operation<QueryRequest, QueryResult>;
 
@@ -275,7 +275,7 @@ export type RawResult = $d1.RawResultResponse[];
  *
  * `POST /accounts/{account_id}/d1/database/{database_id}/raw`
  *
- * Token permissions (any one): D1 Read, D1 Write.
+ * Token permissions (any one): D1 Metadata Read, AI Search Index Engine, D1 Read, D1 Write.
  */
 export declare const raw: Operation<RawRequest, RawResult>;
 
