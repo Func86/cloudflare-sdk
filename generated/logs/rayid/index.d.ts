@@ -20,6 +20,6 @@ export type GetResult = $logshare.LogsResponseJsonLines;
  *
  * `GET /zones/{zone_id}/logs/rayids/{ray_id}`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

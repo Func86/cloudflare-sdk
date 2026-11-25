@@ -46,6 +46,15 @@ test('each paginated operation names the array the API really sends', () => {
 	assert.deepEqual(pageOf('workers.legacy.scripts.versions.list'), { kind: 'page', items: 'items' });
 });
 
+test('an override names an array that is further down than the shape is read', () => {
+	assert.deepEqual(pageOf('d1.insights.recommendations'), {
+		kind: 'cursor',
+		items: 'recommendations.items',
+		param: 'cursor',
+		next: 'next_cursor',
+	});
+});
+
 test('a result that is the array itself has no items key', () => {
 	assert.deepEqual(pageOf('accounts.list'), { kind: 'page' });
 	assert.deepEqual(pageOf('zones.list'), { kind: 'page' });
@@ -201,6 +210,28 @@ test('a declared Accept or Content-Type is a field of the request', async () => 
 test('an alias takes the place of the name it renames, as it does in cf', () => {
 	assert.ok(byId.has('o11y.agents.traces.list'));
 	assert.equal(byId.has('observability.agents.traces.list'), false);
+	// With the token permissions and the availability of its own operation, which Forge gives only a
+	// method of the operation's own name.
+	const docOf = (module: string, name: string): string => {
+		const declarations = readFileSync(`generated/${module}/index.d.ts`, 'utf8');
+		const declared = new RegExp(String.raw`(/\*\*(?:(?!\*/)[^])*\*/)\n(?:export )?declare const ${name}: `).exec(declarations);
+		assert.ok(declared, `${module} ${name} has no declaration with a doc comment`);
+		return declared[1]!;
+	};
+	for (const [module, name, permission, beta] of [
+		['o11y/issues', 'list', 'Workers Observability Read', true],
+		['o11y/issues', 'update', 'Workers Observability Write', true],
+		['o11y/queries', 'list', 'Workers Observability Read', false],
+		['o11y/tracing/rules', 'get', 'Zone Observability Read', true],
+		['hyperdrive/integration/planetscale', 'signature', 'Hyperdrive PlanetScale Setup', true],
+		['workflows/instances', 'pause', 'Individual Workers Editor', false],
+	] as const) {
+		const doc = docOf(module, name);
+		assert.ok(doc.includes(permission), `${module} ${name}: ${permission}`);
+		assert.equal(/^ \* @beta$/m.test(doc), beta, `${module} ${name}`);
+	}
+	// A write's own permissions, not those of the reads beside it.
+	assert.doesNotMatch(docOf('o11y/issues', 'update'), /Observability Read/);
 });
 
 test('JSON with no schema is still unwrapped from the envelope', () => {

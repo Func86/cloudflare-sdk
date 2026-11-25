@@ -206,6 +206,8 @@ export type DomainTransferCheckResult = {
 		code: DomainTransferCheckReason;
 	}[];
 	transferable: true;
+} & {
+	pricing: PricingTransfer;
 } | {
 	reasons?: {
 		/**

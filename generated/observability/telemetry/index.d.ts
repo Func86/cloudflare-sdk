@@ -18,7 +18,7 @@ export type HeartbeatResult = { [key: string]: unknown };
  *
  * `POST /accounts/{account_id}/workers/observability/telemetry/live-tail/heartbeat`
  *
- * Token permissions (any one): Workers Observability Write.
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const heartbeat: Operation<HeartbeatRequest, HeartbeatResult>;
 
@@ -52,6 +52,6 @@ export type LiveTailResult = {
  *
  * `POST /accounts/{account_id}/workers/observability/telemetry/live-tail`
  *
- * Token permissions (any one): Workers Observability Write.
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const liveTail: Operation<LiveTailRequest, LiveTailResult>;

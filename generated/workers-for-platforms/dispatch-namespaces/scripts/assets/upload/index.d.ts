@@ -23,5 +23,7 @@ export type CreateSessionResult = {
  * Start uploading a collection of assets for use in a Workers for Platforms script version. To learn more about the direct uploads of assets, see https://developers.cloudflare.com/workers/static-assets/direct-upload/.
  *
  * `POST /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/assets-upload-session`
+ *
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Namespace Admin, Workers Namespace Editor.
  */
 export declare const createSession: Operation<CreateSessionRequest, CreateSessionResult>;

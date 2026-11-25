@@ -42,5 +42,7 @@ export type UsageResult = {
  * Event counts and sizes broken down by dataset and service, bucketed by day, for up to 90 days. The top-level events field is the sum of all breakdown counts.
  *
  * `GET /accounts/{account_id}/workers/observability/usage`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const usage: Operation<UsageRequest, UsageResult>;

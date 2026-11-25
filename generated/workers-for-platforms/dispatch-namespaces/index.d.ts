@@ -21,7 +21,7 @@ export type CreateResult = $workers.NamespaceResponse;
  *
  * `POST /accounts/{account_id}/workers/dispatch/namespaces`
  *
- * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Editor.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -39,7 +39,7 @@ export type DeleteResult = null;
  *
  * `DELETE /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Admin, Individual Workers Admin, Workers Scripts Write.
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Namespace Admin.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -64,7 +64,7 @@ export type EditResult = $workers.NamespaceResponse;
  *
  * `PATCH /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Editor, Workers Namespace Admin.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -82,7 +82,7 @@ export type GetResult = $workers.NamespaceResponse;
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read, Workers Admin, Workers Editor, Workers Content Read-Only, Workers Metadata Read-Only, Workers Namespace Admin.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -98,7 +98,7 @@ export type ListResult = $workers.NamespaceResponse[];
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces`
  *
- * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read, Workers Admin, Workers Editor, Workers Content Read-Only, Workers Metadata Read-Only.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -122,6 +122,6 @@ export type UpdateResult = $workers.NamespaceResponse;
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}`
  *
- * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Editor, Workers Namespace Admin.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

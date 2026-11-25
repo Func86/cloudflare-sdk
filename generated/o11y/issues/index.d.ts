@@ -36,6 +36,10 @@ export type AddResult = {
  * Add one or more ungrouped issues to an existing issue group.
  *
  * `POST /accounts/{account_id}/workers/observability/issues/groups/{groupId}/members`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const add: Operation<AddRequest, AddResult>;
 
@@ -90,6 +94,10 @@ export type GetResult = {
  * Retrieve an issue.
  *
  * `GET /accounts/{account_id}/workers/observability/issues/{issueId}`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -126,6 +134,10 @@ export type GroupResult = {
  * Group two or more issues under a new customer-defined identity.
  *
  * `POST /accounts/{account_id}/workers/observability/issues/groups`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const group: Operation<GroupRequest, GroupResult>;
 
@@ -186,6 +198,10 @@ export type ListItem = RootItem<ListResult>;
  * List detected issues.
  *
  * `GET /accounts/{account_id}/workers/observability/issues`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -223,6 +239,10 @@ export type NotifyResult = {
  * Send the issue to one ANS policy, or every matching Real-Time Issue policy when no policy ID is provided.
  *
  * `POST /accounts/{account_id}/workers/observability/issues/{issueId}/notification-runs`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const notify: Operation<NotifyRequest, NotifyResult>;
 
@@ -243,6 +263,10 @@ export type OccurrencesItem = RootItem<OccurrencesResult>;
  * List the retained error occurrences grouped into an issue, newest first.
  *
  * `GET /accounts/{account_id}/workers/observability/issues/{issueId}/occurrences`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const occurrences: PagedOperation<OccurrencesRequest, OccurrencesResult, OccurrencesItem>;
 
@@ -277,6 +301,10 @@ export type RemoveResult = {
  * Remove an issue from a group, dissolving the group when fewer than two members remain.
  *
  * `DELETE /accounts/{account_id}/workers/observability/issues/groups/{groupId}/members/{issueId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const remove: Operation<RemoveRequest, RemoveResult>;
 
@@ -297,6 +325,10 @@ export type SummaryResult = {
  * Retrieve aggregate issue counts for the account.
  *
  * `GET /accounts/{account_id}/workers/observability/issues/summary`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const summary: Operation<SummaryRequest, SummaryResult>;
 
@@ -314,6 +346,10 @@ export type UngroupResult = {
  * Dissolve an issue group and restore its members as standalone issues.
  *
  * `DELETE /accounts/{account_id}/workers/observability/issues/groups/{groupId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const ungroup: Operation<UngroupRequest, UngroupResult>;
 
@@ -352,5 +388,9 @@ export type UpdateResult = {
  * Modify an issue status or group title.
  *
  * `PATCH /accounts/{account_id}/workers/observability/issues/{issueId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -39,6 +39,8 @@ export type CreateResult = {
  * Create a new Workers Observability Telemetry Destination.
  *
  * `POST /accounts/{account_id}/workers/observability/destinations`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -70,9 +72,45 @@ export type DeleteResult = {
  * Delete a Workers Observability Telemetry Destination.
  *
  * `DELETE /accounts/{account_id}/workers/observability/destinations/{slug}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
+
+export type GetRequest = {
+	/** Your Cloudflare account ID. */
+	account_id: string;
+	/** The destination's slug, which is its name. */
+	slug: string;
+};
+export type GetResult = {
+	configuration: {
+		headers: { [key: string]: string | null };
+		jobStatus: {
+			error_message: string;
+			last_complete: string;
+			last_error: string;
+		};
+		logpushDataset: "opentelemetry-traces" | "opentelemetry-logs" | "opentelemetry-metrics";
+		type: "logpush";
+		url: string;
+	};
+	enabled: boolean;
+	name: string;
+	scripts: string[];
+	slug: string;
+};
+/**
+ * Get Destination
+ *
+ * Get a Workers Observability Telemetry Destination.
+ *
+ * `GET /accounts/{account_id}/workers/observability/destinations/{slug}`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ */
+export declare const get: Operation<GetRequest, GetResult>;
 
 export type ListRequest = {
 	/** Your Cloudflare account ID. */
@@ -106,6 +144,8 @@ export type ListItem = RootItem<ListResult>;
  * List your Workers Observability Telemetry Destinations.
  *
  * `GET /accounts/{account_id}/workers/observability/destinations`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
 
@@ -146,5 +186,7 @@ export type UpdateResult = {
  * Update an existing Workers Observability Telemetry Destination.
  *
  * `PATCH /accounts/{account_id}/workers/observability/destinations/{slug}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

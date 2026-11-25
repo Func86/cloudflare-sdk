@@ -2,14 +2,14 @@
 import type { Operation, PagedOperation, RootItem } from "#runtime";
 import type * as $cws from "../../../../_types/cws.js";
 
-export type BatchRequest = {
+export type BulkApplyRequest = {
 	/** Cloudflare account ID (32-character hexadecimal string) */
 	account_id: string;
 	/** ID of the parent tenant structure */
 	structure_id: string;
 	body: $cws.BatchTenantNodesInputBody;
 };
-export type BatchResult = $cws.TenantNodeBatchResult;
+export type BulkApplyResult = $cws.TenantNodeBatchResult;
 /**
  * Apply a batch of tenant node mutations
  *
@@ -19,7 +19,7 @@ export type BatchResult = $cws.TenantNodeBatchResult;
  *
  * @beta
  */
-export declare const batch: Operation<BatchRequest, BatchResult>;
+export declare const bulkApply: Operation<BulkApplyRequest, BulkApplyResult>;
 
 export type CreateRequest = {
 	/** Cloudflare account ID (32-character hexadecimal string) */

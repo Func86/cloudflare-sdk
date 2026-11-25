@@ -29,7 +29,7 @@ export type DeleteResult = $cws.DeletedResult;
 /**
  * Delete a policy
  *
- * Deletes the policy and cascades its policy-set membership rows. The policy sets remain.
+ * Deletes the policy when no policy set references it. If referenced, the request is rejected with the policy set IDs and names; detach the policy first.
  *
  * `DELETE /accounts/{account_id}/cws/policies/{policy_id}`
  *

@@ -83,8 +83,10 @@ export type Organization = {
 
 export type Account = {
 	created_on: string;
+	enterprise_provisioning_status?: "pending" | "completed" | "rejected" | "cancelled";
 	id: string;
 	name: string | null;
+	provisioning_mode?: "assisted";
 	settings: {
 		abuse_contact_email: string | null;
 		access_approval_expiry: string | null;

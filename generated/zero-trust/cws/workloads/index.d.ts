@@ -29,7 +29,7 @@ export type DeleteResult = $cws.DeletedResult;
 /**
  * Delete a workload
  *
- * Deletes the workload if it is not targeted by a policy set.
+ * Deletes the workload if it is not targeted by a policy set. When policy sets still reference it, the error identifies each policy set by ID and name so those relationships can be removed first.
  *
  * `DELETE /accounts/{account_id}/cws/workloads/{workload_id}`
  *

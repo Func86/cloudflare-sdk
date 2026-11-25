@@ -281,17 +281,6 @@ export type AddinAuth = {
 	type: "NoAuth";
 };
 
-export type Behavior = {
-	description: string;
-	enabled: boolean;
-	name: string;
-	risk_level: RiskLevel;
-};
-
-export type Behaviors = {
-	behaviors: { [key: string]: Behavior };
-};
-
 export type Confidence = "low" | "medium" | "high" | "very_high";
 
 export type CreateEmailRule = {
@@ -1030,24 +1019,6 @@ export type RegexValidationResult = {
 	valid: boolean;
 };
 
-export type RiskEvent = {
-	event_details?: { [key: string]: unknown };
-	id: string;
-	name: string;
-	risk_level: RiskLevel;
-	timestamp: string;
-};
-
-export type RiskEvents = {
-	email: string;
-	events: RiskEvent[];
-	last_reset_time?: string | null;
-	name: string;
-	risk_level?: RiskLevel;
-};
-
-export type RiskLevel = "info" | "low" | "medium" | "high";
-
 export type RiskScoreIntegration = {
 	/** The Cloudflare account tag. */
 	account_tag: string;
@@ -1073,10 +1044,6 @@ export type RiskScoreIntegration = {
 export type RiskScoreIntegrationArray = RiskScoreIntegration[];
 
 export type RiskScoreIntegrationType = "Okta";
-
-export type RiskSummary = {
-	users: UserRiskInfo[];
-};
 
 export type SensitivityGroup = {
 	created_at: string;
@@ -1148,15 +1115,6 @@ export type UpdateAddinAccountMapping = {
 	auth_requirements: AddinAuth;
 };
 
-export type UpdateBehavior = {
-	enabled: boolean;
-	risk_level: RiskLevel;
-};
-
-export type UpdateBehaviors = {
-	behaviors: { [key: string]: UpdateBehavior };
-};
-
 export type UpdateDocumentFingerprint = {
 	description?: string | null;
 	match_percent?: number | null;
@@ -1173,15 +1131,6 @@ export type UpdateIntegrationBody = {
 	reference_id?: string | null;
 	/** The base url of the tenant, e.g. "https://tenant.okta.com". */
 	tenant_url: string;
-};
-
-export type UserRiskInfo = {
-	email: string;
-	event_count: number;
-	last_event: string;
-	max_risk_level: RiskLevel;
-	name: string;
-	user_id: string;
 };
 
 export type Validation = "luhn";

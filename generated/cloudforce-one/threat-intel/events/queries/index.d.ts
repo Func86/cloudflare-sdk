@@ -5,10 +5,7 @@ export type CreateRequest = {
 	/** Account ID. */
 	account_id: string;
 	body?: {
-		/**
-		 * Deprecated and ignored: saved-query alerting and rules were removed.
-		 * @deprecated
-		 */
+		/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 		alert_enabled?: boolean;
 		/**
 		 * Deprecated and ignored: saved-query alerting and rules were removed.
@@ -34,10 +31,7 @@ export type CreateRequest = {
 export type CreateResult = {
 	/** Account ID */
 	account_id: number;
-	/**
-	 * Deprecated: saved-query alerting and rules were removed. Always false.
-	 * @deprecated
-	 */
+	/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 	alert_enabled: boolean;
 	/**
 	 * Deprecated: saved-query alerting and rules were removed. Always false.
@@ -116,10 +110,7 @@ export type GetRequest = {
 export type GetResult = {
 	/** Account ID */
 	account_id: number;
-	/**
-	 * Deprecated: saved-query alerting and rules were removed. Always false.
-	 * @deprecated
-	 */
+	/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 	alert_enabled: boolean;
 	/**
 	 * Deprecated: saved-query alerting and rules were removed. Always false.
@@ -177,10 +168,7 @@ export type ListRequest = {
 export type ListResult = ({
 	/** Account ID */
 	account_id: number;
-	/**
-	 * Deprecated: saved-query alerting and rules were removed. Always false.
-	 * @deprecated
-	 */
+	/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 	alert_enabled: boolean;
 	/**
 	 * Deprecated: saved-query alerting and rules were removed. Always false.
@@ -237,10 +225,7 @@ export type ReplaceRequest = {
 	/** Event query ID */
 	query_id: number | string;
 	body?: {
-		/**
-		 * Deprecated and ignored: saved-query alerting and rules were removed.
-		 * @deprecated
-		 */
+		/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 		alert_enabled?: boolean;
 		/**
 		 * Deprecated and ignored: saved-query alerting and rules were removed.
@@ -266,10 +251,7 @@ export type ReplaceRequest = {
 export type ReplaceResult = {
 	/** Account ID */
 	account_id: number;
-	/**
-	 * Deprecated: saved-query alerting and rules were removed. Always false.
-	 * @deprecated
-	 */
+	/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 	alert_enabled: boolean;
 	/**
 	 * Deprecated: saved-query alerting and rules were removed. Always false.
@@ -326,10 +308,7 @@ export type UpdateRequest = {
 	/** Event query ID */
 	query_id: number | string;
 	body?: {
-		/**
-		 * Deprecated and ignored: saved-query alerting and rules were removed.
-		 * @deprecated
-		 */
+		/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 		alert_enabled?: boolean;
 		/**
 		 * Deprecated and ignored: saved-query alerting and rules were removed.
@@ -355,10 +334,7 @@ export type UpdateRequest = {
 export type UpdateResult = {
 	/** Account ID */
 	account_id: number;
-	/**
-	 * Deprecated: saved-query alerting and rules were removed. Always false.
-	 * @deprecated
-	 */
+	/** Send an hourly notification when new events match this saved view. Receive it by adding the view to a Threat Events saved query notification policy. */
 	alert_enabled: boolean;
 	/**
 	 * Deprecated: saved-query alerting and rules were removed. Always false.

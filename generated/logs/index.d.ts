@@ -31,6 +31,6 @@ export type QueryResult = $lex.QueryRow[] | null;
  *
  * `POST /accounts/{account_id}/logs/explorer/query/sql` or `POST /zones/{zone_id}/logs/explorer/query/sql`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const query: Operation<QueryRequest, QueryResult>;

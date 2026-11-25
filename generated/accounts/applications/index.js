@@ -5,4 +5,5 @@ export { delete_ as delete };
 export const get = {"method":"GET","route":"/accounts/{account_id}/resource-library/applications/{id}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/resource-library/applications","query":["filter","limit","offset","cursor","order_by","search","lookup","fields"],"page":{"kind":"cursor","param":"cursor","next":"cursor"}};
 export const lookup = {"method":"POST","route":"/accounts/{account_id}/resource-library/applications/lookup","query":["filter","limit","fields"],"body":"json"};
+export const references = {"method":"GET","route":"/accounts/{account_id}/resource-library/applications/{id}/references"};
 export const update = {"method":"PATCH","route":"/accounts/{account_id}/resource-library/applications/{id}","body":"json"};

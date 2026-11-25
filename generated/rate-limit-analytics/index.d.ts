@@ -31,7 +31,7 @@ export type GetResult = $rlanalytics.RateLimitAnalytics;
  *
  * `GET /zones/{zone_id}/rate_limit_analytics`
  *
- * Token permissions (any one): Analytics Read.
+ * Token permissions (any one): Observability Write, Observability Read, Analytics Read.
  *
  * @deprecated
  */

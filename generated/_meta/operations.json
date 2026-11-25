@@ -161,6 +161,12 @@
   "body": "json"
  },
  {
+  "id": "accounts.applications.references",
+  "method": "GET",
+  "route": "/accounts/{account_id}/resource-library/applications/{id}/references",
+  "response": "envelope"
+ },
+ {
   "id": "accounts.applications.update",
   "method": "PATCH",
   "route": "/accounts/{account_id}/resource-library/applications/{id}",
@@ -6142,6 +6148,31 @@
   "response": "envelope"
  },
  {
+  "id": "d1.insights.recommendations",
+  "method": "GET",
+  "route": "/accounts/{account_id}/d1/insights/recommendations",
+  "response": "envelope",
+  "page": {
+   "kind": "cursor",
+   "items": "recommendations.items",
+   "param": "cursor",
+   "next": "next_cursor"
+  }
+ },
+ {
+  "id": "d1.insights.settings.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/d1/insights/settings",
+  "response": "envelope"
+ },
+ {
+  "id": "d1.insights.settings.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/d1/insights/settings",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "d1.time-travel.getBookmark",
   "method": "GET",
   "route": "/accounts/{account_id}/d1/database/{database_id}/time_travel/bookmark",
@@ -10991,6 +11022,26 @@
   "response": "json"
  },
  {
+  "id": "network-quality.settings.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/networkquality/settings",
+  "response": "envelope"
+ },
+ {
+  "id": "network-quality.settings.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/networkquality/settings",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "network-quality.tokens.create",
+  "method": "POST",
+  "route": "/accounts/{account_id}/networkquality/token",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "o11y.usage",
   "method": "GET",
   "route": "/accounts/{account_id}/workers/observability/usage",
@@ -11034,6 +11085,12 @@
  {
   "id": "o11y.destinations.delete",
   "method": "DELETE",
+  "route": "/accounts/{account_id}/workers/observability/destinations/{slug}",
+  "response": "envelope"
+ },
+ {
+  "id": "o11y.destinations.get",
+  "method": "GET",
   "route": "/accounts/{account_id}/workers/observability/destinations/{slug}",
   "response": "envelope"
  },
@@ -11399,6 +11456,13 @@
   }
  },
  {
+  "id": "organizations.members.bulkCreate",
+  "method": "POST",
+  "route": "/organizations/{organization_id}/members:batchCreate",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
   "id": "organizations.members.create",
   "method": "POST",
   "route": "/organizations/{organization_id}/members",
@@ -11427,13 +11491,6 @@
    "param": "page_token",
    "next": "next_page_token"
   }
- },
- {
-  "id": "organizations.members.batch.create",
-  "method": "POST",
-  "route": "/organizations/{organization_id}/members:batchCreate",
-  "response": "envelope",
-  "body": "json"
  },
  {
   "id": "organizations.profile.get",
@@ -16829,6 +16886,12 @@
   "response": "json"
  },
  {
+  "id": "user.subscriptions.get",
+  "method": "GET",
+  "route": "/user/subscriptions/{identifier}",
+  "response": "envelope"
+ },
+ {
   "id": "user.subscriptions.list",
   "method": "GET",
   "route": "/user/subscriptions",
@@ -17737,6 +17800,13 @@
   "page": {
    "kind": "page"
   }
+ },
+ {
+  "id": "workers.previews.deployments.profile",
+  "method": "POST",
+  "route": "/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}/profile",
+  "response": "bytes",
+  "body": "json"
  },
  {
   "id": "workers.routes.create",
@@ -19934,7 +20004,7 @@
   "body": "json"
  },
  {
-  "id": "zero-trust.cws.tenant-structures.nodes.batch",
+  "id": "zero-trust.cws.tenant-structures.nodes.bulkApply",
   "method": "POST",
   "route": "/accounts/{account_id}/cws/tenant-structures/{structure_id}/nodes/batch",
   "response": "envelope",
@@ -21872,7 +21942,11 @@
   "id": "zero-trust.risk-scoring.get",
   "method": "GET",
   "route": "/accounts/{account_id}/zt_risk_scoring/{user_id}",
-  "response": "envelope"
+  "response": "envelope",
+  "page": {
+   "kind": "page",
+   "items": "events"
+  }
  },
  {
   "id": "zero-trust.risk-scoring.reset",
@@ -21892,6 +21966,42 @@
   "route": "/accounts/{account_id}/zt_risk_scoring/behaviors",
   "response": "envelope",
   "body": "json"
+ },
+ {
+  "id": "zero-trust.risk-scoring.behaviours.high-dlp.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/zt_risk_scoring/behaviors/high_dlp",
+  "response": "envelope"
+ },
+ {
+  "id": "zero-trust.risk-scoring.behaviours.high-dlp.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/zt_risk_scoring/behaviors/high_dlp",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "zero-trust.risk-scoring.behaviours.single.get",
+  "method": "GET",
+  "route": "/accounts/{account_id}/zt_risk_scoring/behaviors/{behavior_id}",
+  "response": "envelope"
+ },
+ {
+  "id": "zero-trust.risk-scoring.behaviours.single.update",
+  "method": "PUT",
+  "route": "/accounts/{account_id}/zt_risk_scoring/behaviors/{behavior_id}",
+  "response": "envelope",
+  "body": "json"
+ },
+ {
+  "id": "zero-trust.risk-scoring.event-clusters.list",
+  "method": "GET",
+  "route": "/accounts/{account_id}/zt_risk_scoring/{user_id}/event_clusters",
+  "response": "envelope",
+  "page": {
+   "kind": "page",
+   "items": "clusters"
+  }
  },
  {
   "id": "zero-trust.risk-scoring.integrations.create",
@@ -21935,7 +22045,11 @@
   "id": "zero-trust.risk-scoring.summary.get",
   "method": "GET",
   "route": "/accounts/{account_id}/zt_risk_scoring/summary",
-  "response": "envelope"
+  "response": "envelope",
+  "page": {
+   "kind": "page",
+   "items": "users"
+  }
  },
  {
   "id": "zero-trust.seats.edit",

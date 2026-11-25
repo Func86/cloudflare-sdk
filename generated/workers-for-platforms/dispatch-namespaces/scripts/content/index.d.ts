@@ -18,7 +18,7 @@ export type GetResult = Uint8Array;
  *
  * `GET /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/content`
  *
- * Token permissions (any one): Workers Metadata Read-Only, Workers Editor, Workers Content Read-Only, Workers Admin, Individual Workers Metadata Read-Only, Individual Workers Editor, Individual Workers Content Read-Only, Individual Workers Admin, Granular Workers Scripts Read, IAM Test - Granular Workers Read, Workers Tail Read, Workers Scripts Write, Workers Scripts Read.
+ * Token permissions (any one): Workers Tail Read, Workers Scripts Write, Workers Scripts Read, Workers Admin, Workers Editor, Workers Content Read-Only, Workers Namespace Admin, Workers Namespace Editor, Workers Namespace Content Read-Only.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -53,6 +53,6 @@ export type UpdateResult = $workers.ScriptResponse;
  *
  * `PUT /accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/content`
  *
- * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
+ * Token permissions (any one): Workers Scripts Write, Workers Admin, Workers Editor, Workers Namespace Admin, Workers Namespace Editor.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

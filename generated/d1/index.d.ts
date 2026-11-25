@@ -227,6 +227,8 @@ export type ListRequest = {
 	page?: number;
 	/** Number of items per page. */
 	per_page?: number;
+	/** Comma-separated list of fields to include for each database. When omitted, every field except `recommendation_count` is returned. */
+	fields?: ("uuid" | "name" | "created_at" | "version" | "jurisdiction" | "num_tables" | "file_size" | "recommendation_count")[];
 };
 export type ListResult = $d1.DatabaseResponse[];
 export type ListItem = RootItem<ListResult>;

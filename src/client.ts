@@ -10,7 +10,7 @@ import { ACCOUNT_OR_ZONE, afterAccountOrZone } from './routes.ts';
 export type Pagination =
 	| ({
 			kind: 'page';
-			/** The array's key in `result`; `result` itself is the array when absent. */
+			/** The array's key in `result`, dotted for one further down; `result` itself is the array when absent. */
 			items?: string;
 			/**
 			 * Cursors that page the list instead, each when the request sets its `param`, even to
@@ -116,12 +116,16 @@ export type AccountOrZone =
 			account_id?: never;
 	  };
 
-/** The item type of a result that keeps its array under `Key`. */
-export type ItemOf<Res, Key extends string> = Res extends { [K in Key]?: infer List }
-	? NonNullable<List> extends readonly (infer Item)[]
-		? Item
+/** The item type of a result that keeps its array under `Key`, which is dotted for one further down. */
+export type ItemOf<Res, Key extends string> = Key extends `${infer Head}.${infer Rest}`
+	? Res extends { [K in Head]?: infer Inner }
+		? ItemOf<NonNullable<Inner>, Rest>
 		: never
-	: never;
+	: Res extends { [K in Key]?: infer List }
+		? NonNullable<List> extends readonly (infer Item)[]
+			? Item
+			: never
+		: never;
 
 export interface ClientOptions {
 	/** The API token or OAuth access token, sent as a bearer token. */

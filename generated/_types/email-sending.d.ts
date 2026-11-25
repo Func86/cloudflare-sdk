@@ -42,6 +42,21 @@ export type EmailBuilder = ({
 	text?: string;
 	/** Recipient(s). Optional if cc or bcc is provided. A single email string, a named address object, or an array of either. */
 	to?: EmailAddressString | EmailAddressObject | (EmailAddressString | EmailAddressObject)[];
+}) & ({
+	/** Recipient(s). Optional if cc or bcc is provided. A single email string, a named address object, or an array of either. */
+	to: EmailAddressString | EmailAddressObject | (EmailAddressString | EmailAddressObject)[];
+} | {
+	/** Carbon copy recipient(s). Optional. A single email string, a named address object, or an array of either. */
+	cc: EmailAddressString | EmailAddressObject | (EmailAddressString | EmailAddressObject)[];
+} | {
+	/** Blind carbon copy recipient(s). Optional. A single email string, a named address object, or an array of either. */
+	bcc: EmailAddressString | EmailAddressObject | (EmailAddressString | EmailAddressObject)[];
+}) & ({
+	/** Plain text body of the email. Provide at least one of text or html (non-empty). */
+	text: string;
+} | {
+	/** HTML body of the email. Provide at least one of text or html (non-empty). */
+	html: string;
 });
 
 export type EmailInlineAttachment = {

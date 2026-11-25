@@ -5,3 +5,4 @@ export { delete_ as delete };
 export const edit = {"method":"PATCH","route":"/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/latest","body":"json"};
 export const get = {"method":"GET","route":"/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}","query":["include"]};
 export const list = {"method":"GET","route":"/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments","query":["page","per_page"],"page":{"kind":"page"}};
+export const profile = {"method":"POST","route":"/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}/profile","body":"json","response":"bytes","accept":"*/*"};

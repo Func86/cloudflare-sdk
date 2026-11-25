@@ -18,7 +18,7 @@ export type AvailableResult = $lex.AvailableDestination[] | null;
  *
  * `GET /accounts/{account_id}/logs/explorer/datasets/available` or `GET /zones/{zone_id}/logs/explorer/datasets/available`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const available: Operation<AvailableRequest, AvailableResult>;
 
@@ -42,7 +42,7 @@ export type CreateResult = $lex.DatasetResponse;
  *
  * `POST /accounts/{account_id}/logs/explorer/datasets` or `POST /zones/{zone_id}/logs/explorer/datasets`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -75,7 +75,7 @@ export type GetResult = $lex.DatasetResponse;
  *
  * `GET /accounts/{account_id}/logs/explorer/datasets/{dataset_id}` or `GET /zones/{zone_id}/logs/explorer/datasets/{dataset_id}`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -96,7 +96,7 @@ export type ListResult = $lex.DatasetSummary[] | null;
  *
  * `GET /accounts/{account_id}/logs/explorer/datasets` or `GET /zones/{zone_id}/logs/explorer/datasets`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -113,6 +113,6 @@ export type UpdateResult = $lex.DatasetResponse;
  *
  * `PUT /accounts/{account_id}/logs/explorer/datasets/{dataset_id}` or `PUT /zones/{zone_id}/logs/explorer/datasets/{dataset_id}`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

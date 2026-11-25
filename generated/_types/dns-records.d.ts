@@ -196,7 +196,7 @@ export type DSRecordInput = DnsRecordSharedFields & {
 export type Direction = "asc" | "desc";
 
 /** Field to order DNS records by. */
-export type Order = "type" | "name" | "content" | "ttl" | "proxied";
+export type Order = "type" | "name" | "content" | "ttl" | "proxied" | "created_on" | "modified_on";
 
 /** HTTPS Record */
 export type HTTPSRecord = DnsRecordSharedFields & {

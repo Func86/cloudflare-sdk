@@ -11,7 +11,7 @@ export type CreateResult = $bill_subs.SubscriptionResponse;
 /**
  * Create Zone Subscription
  *
- * Create a zone subscription, either plan or add-ons.
+ * Create a zone subscription, either plan or add-ons. Requesting the `free` rate plan does not create a subscription.
  *
  * `POST /zones/{zone_id}/subscription`
  *
@@ -47,7 +47,7 @@ export type GetResult = $bill_subs.SubscriptionResponse;
 /**
  * Zone Subscription Details
  *
- * Lists zone subscription details.
+ * Lists zone subscription details. Zones on the Free plan normally have no zone subscription, so this returns 404 with error code 1207.
  *
  * `GET /zones/{zone_id}/subscription`
  *
@@ -64,7 +64,7 @@ export type UpdateResult = $bill_subs.SubscriptionResponse;
 /**
  * Update Zone Subscription
  *
- * Updates zone subscriptions, either plan or add-ons.
+ * Updates zone subscriptions, either plan or add-ons. Updating to the `free` rate plan downgrades the zone to the Free plan, after which the zone has no zone subscription.
  *
  * `PUT /zones/{zone_id}/subscription`
  *

@@ -14,12 +14,10 @@ import {
 	REQUEST_VARIANTS,
 	UNNAMED_OPERATIONS,
 } from './patches.ts';
-import { LITERAL_SLASHES, type OpenApiDocument, SCOPED_PERMISSIONS, type Schema, Spec } from './spec.ts';
+import { LITERAL_SLASHES, OPERATION_EXTENSIONS, type OpenApiDocument, SCOPED_PERMISSIONS, type Schema, Spec } from './spec.ts';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
 const SDK_AUDIENCE = 'sdk';
-/** Where the document keeps schemas, other than in its paths. */
-const SCHEMA_SECTIONS = ['schemas', 'requestBodies', 'responses', 'parameters', 'headers'] as const;
 
 export interface Prepared {
 	/** The operations left out, by reason. */
@@ -401,12 +399,142 @@ export function markLiteralSlashes(doc: OpenApiDocument): void {
 	}
 }
 
-/** Walks every schema of the document, wherever it's declared. */
-function walkSchemas(doc: OpenApiDocument, walk: (node: unknown) => void): void {
-	for (const section of SCHEMA_SECTIONS) {
-		walk(doc.components[section]);
+/**
+ * Gives an operation's aliases the extensions of it that the plugin reads, such as its token
+ * permissions, as Forge gives a method it makes from an alias only the alias's own. Run it
+ * after what adds them. Returns how many aliases were given any.
+ */
+export function giveAliasesExtensions(doc: OpenApiDocument): number {
+	let count = 0;
+	for (const pathItem of Object.values<Schema>(doc.paths)) {
+		for (const verb of HTTP_METHODS) {
+			const operation: Schema | undefined = pathItem[verb];
+			const aliases: unknown = operation?.['x-forge-aliases'];
+			if (operation === undefined || !Array.isArray(aliases)) {
+				continue;
+			}
+			for (const alias of aliases as Schema[]) {
+				const missing = OPERATION_EXTENSIONS.filter((name) => Object.hasOwn(operation, name) && !Object.hasOwn(alias, name));
+				for (const name of missing) {
+					alias[name] = operation[name];
+				}
+				count += missing.length > 0 ? 1 : 0;
+			}
+		}
 	}
-	walk(doc.paths);
+	return count;
+}
+
+/** What holds schemas in an OpenAPI 3.0 document, and a schema itself. */
+type Holder =
+	| 'components'
+	| 'document'
+	| 'encoding'
+	| 'header'
+	| 'mediaType'
+	| 'operation'
+	| 'parameter'
+	| 'pathItem'
+	| 'requestBody'
+	| 'response'
+	| 'schema';
+/** How a field holds others: one, a list, or a map by name, which is `extensible` where an `x-` name is an extension. */
+type Form = 'one' | 'list' | 'map' | 'extensible';
+
+/**
+ * The fields of each that hold others. Anything else is data, which can look like a schema, such
+ * as an example of one, an extension or the body of a link. The spec has no callbacks.
+ */
+const HOLDS: Readonly<Record<Holder, Readonly<Record<string, readonly [form: Form, held: Holder]>>>> = {
+	document: { components: ['one', 'components'], paths: ['extensible', 'pathItem'] },
+	components: {
+		schemas: ['map', 'schema'],
+		requestBodies: ['map', 'requestBody'],
+		responses: ['map', 'response'],
+		parameters: ['map', 'parameter'],
+		headers: ['map', 'header'],
+	},
+	pathItem: {
+		parameters: ['list', 'parameter'],
+		...Object.fromEntries(HTTP_METHODS.map((verb) => [verb, ['one', 'operation'] as const])),
+	},
+	operation: { parameters: ['list', 'parameter'], requestBody: ['one', 'requestBody'], responses: ['extensible', 'response'] },
+	parameter: { schema: ['one', 'schema'], content: ['map', 'mediaType'] },
+	header: { schema: ['one', 'schema'], content: ['map', 'mediaType'] },
+	requestBody: { content: ['map', 'mediaType'] },
+	response: { headers: ['map', 'header'], content: ['map', 'mediaType'] },
+	mediaType: { schema: ['one', 'schema'], encoding: ['map', 'encoding'] },
+	encoding: { headers: ['map', 'header'] },
+	schema: {
+		allOf: ['list', 'schema'],
+		oneOf: ['list', 'schema'],
+		anyOf: ['list', 'schema'],
+		not: ['one', 'schema'],
+		items: ['one', 'schema'],
+		properties: ['map', 'schema'],
+		additionalProperties: ['one', 'schema'],
+	},
+};
+/** The keywords of a schema that hold data. One that's in neither list stops generation, as it could hold schemas. */
+const SCHEMA_DATA: ReadonlySet<string> = new Set([
+	'default',
+	'discriminator',
+	'enum',
+	'example',
+	'externalDocs',
+	'required',
+	'xml',
+]);
+
+/**
+ * Visits every schema of the document once, wherever it's declared. The visits of a schema's
+ * `allOf`, `oneOf` and `anyOf` branches are given what its own returned.
+ */
+function walkSchemas<Shared>(doc: OpenApiDocument, visit: (schema: Schema, inherited: Shared | undefined) => Shared): void {
+	// A property restated in two places is the same object in both.
+	const walked = new WeakSet();
+	const unknown = new Set<string>();
+	const heldBy = (value: unknown, form: Form): unknown[] => {
+		if (form === 'one') {
+			return [value];
+		}
+		if (form === 'list') {
+			return Array.isArray(value) ? value : [];
+		}
+		return Object.entries(value ?? {}).flatMap(([name, each]): unknown[] => (form === 'extensible' && name.startsWith('x-') ? [] : [each]));
+	};
+	const walk = (node: unknown, kind: Holder, inherited: Shared | undefined): void => {
+		if (typeof node !== 'object' || node === null || Array.isArray(node) || walked.has(node)) {
+			return;
+		}
+		walked.add(node);
+		const shared = kind === 'schema' ? visit(node, inherited) : undefined;
+		for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+			const holding = Object.hasOwn(HOLDS[kind], key) ? HOLDS[kind][key] : undefined;
+			if (holding !== undefined) {
+				const [form, held] = holding;
+				for (const each of heldBy(value, form)) {
+					walk(each, held, kind === 'schema' && form === 'list' ? shared : undefined);
+				}
+			} else if (kind === 'schema' && typeof value === 'object' && value !== null && !SCHEMA_DATA.has(key) && !key.startsWith('x-')) {
+				unknown.add(key);
+			}
+		}
+	};
+	walk(doc, 'document', undefined);
+	if (unknown.size > 0) {
+		throw new Error(
+			`These schema keywords could hold schemas, so check each and add it to HOLDS or SCHEMA_DATA: ${[...unknown].join(', ')}`,
+		);
+	}
+}
+
+/** Whether a schema is another, or has it somewhere inside it other than by reference or in one of `except`. */
+function holds(node: unknown, schema: Schema, except?: WeakSet<Schema>): boolean {
+	if (typeof node !== 'object' || node === null || except?.has(node) === true) {
+		return false;
+	}
+	return node === schema || Object.values(node).some((value) => holds(value, schema, except));
 }
 
 /** Whether a schema allows `null`, itself or through an `allOf` branch. */
@@ -466,17 +594,7 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 		property?.['writeOnly'] === true || spec.deref(property)['writeOnly'] === true;
 	// `inherited` holds the `writeOnly` names of the schemas a branch is in, as Realtime's
 	// storage configuration requires its `secret` in a branch that declares it again without the flag.
-	const walk = (node: unknown, inherited: ReadonlySet<string> = new Set()): void => {
-		if (Array.isArray(node)) {
-			for (const item of node) {
-				walk(item, inherited);
-			}
-			return;
-		}
-		if (typeof node !== 'object' || node === null) {
-			return;
-		}
-		const schema = node as Schema;
+	const visit = (schema: Schema, inherited: ReadonlySet<string> = new Set()): ReadonlySet<string> => {
 		if (Array.isArray(schema['allOf']) && schema['nullable'] !== true && losesNull(spec, schema['allOf'])) {
 			schema['nullable'] = true;
 			counts.nullable += 1;
@@ -519,11 +637,9 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
 				return !writeOnly.has(name);
 			});
 		}
-		for (const [key, value] of Object.entries(schema)) {
-			walk(value, key === 'allOf' || key === 'oneOf' || key === 'anyOf' ? writeOnly : undefined);
-		}
+		return writeOnly;
 	};
-	walkSchemas(doc, walk);
+	walkSchemas(doc, visit);
 	return counts;
 }
 
@@ -534,8 +650,13 @@ export function normalizeFlags(doc: OpenApiDocument): { readOnly: number; writeO
  * `required` beside the `allOf` for an `a` that only an `anyOf` in a branch declares.
  * A branch that declares those properties and requires them keeps the spec's meaning.
  * A `required` beside a `oneOf` or `anyOf` applies to each of its object branches, so
- * each gets such a branch. Run it after `normalizeFlags`, so a copied property keeps
+ * each gets such a branch. So does a branch that requires what only a schema it's in
+ * declares, as `anyOf: [{ required: [a] }, { required: [b] }]` beside `properties` does,
+ * or in an `allOf` beside them. Run it after `normalizeFlags`, so a copied property keeps
  * its flags.
+ *
+ * Stops generation where a property would be restated inside itself, as a tree's `children`
+ * would whose items require `children`. The spec has none, and a patch can name its schema.
  */
 export function restateRequired(doc: OpenApiDocument): number {
 	const spec = new Spec(doc);
@@ -544,21 +665,53 @@ export function restateRequired(doc: OpenApiDocument): number {
 		Object.hasOwn(properties, name) ? properties[name] : undefined;
 	const writable = (properties: Record<string, Schema>) => (name: string): boolean =>
 		own(properties, name)?.['writeOnly'] !== true && spec.deref(own(properties, name))['writeOnly'] !== true;
-	const requiring = (properties: Record<string, Schema>, names: string[]): Schema => ({
-		type: 'object',
-		properties: Object.fromEntries(names.map((name) => [name, own(properties, name) ?? {}])),
-		required: names,
-	});
-	const walk = (node: unknown): void => {
-		if (Array.isArray(node)) {
-			node.forEach(walk);
-			return;
+	const recursive = new Set<string>();
+	/** What restates a property, beside the schema that declares it. */
+	const restatements = new WeakSet<Schema>();
+	const requiring = (properties: Record<string, Schema>, names: string[], into: Schema): Schema => {
+		const restated = Object.fromEntries(names.map((name) => [name, own(properties, name) ?? {}]));
+		for (const name of names) {
+			if (holds(restated[name], into)) {
+				const owner = Object.entries(doc.components.schemas).find(([, schema]) => holds(schema, into, restatements))?.[0];
+				recursive.add(`${name} in ${owner ?? 'an inline schema'}`);
+				restated[name] = {};
+			}
 		}
-		if (typeof node !== 'object' || node === null) {
-			return;
+		const schema = { type: 'object', properties: restated, required: names };
+		restatements.add(schema);
+		return schema;
+	};
+	/** What already restates everything its branch requires, so it isn't restated again as an `allOf`. */
+	const whole = new WeakSet<Schema>();
+	// `inherited` holds the properties of the schemas a branch is in, as Email Sending's `allOf`
+	// holds the `anyOf` that requires `to`, `cc` or `bcc`.
+	const visit = (schema: Schema, inherited: Readonly<Record<string, Schema>> = {}): Readonly<Record<string, Schema>> => {
+		const composed = (['allOf', 'oneOf', 'anyOf'] as const).some((key) => Array.isArray(schema[key]));
+		const shared = composed ? { ...inherited, ...spec.flatProperties(schema) } : inherited;
+		for (const key of ['oneOf', 'anyOf'] as const) {
+			if (!Array.isArray(schema[key])) {
+				continue;
+			}
+			// A branch can require what only a schema it's in declares, as Builds' `{ required: [branch] }` does.
+			schema[key] = (schema[key] as Schema[]).map((branch) => {
+				const target = spec.deref(branch);
+				if (target['type'] !== undefined && target['type'] !== 'object') {
+					return branch;
+				}
+				const declared = spec.flatProperties(target);
+				const restated = ((target['required'] ?? []) as string[])
+					.filter((name) => !Object.hasOwn(declared, name) && Object.hasOwn(shared, name))
+					.filter(writable(shared));
+				if (restated.length === 0) {
+					return branch;
+				}
+				count += restated.length;
+				const restating = { allOf: [branch, requiring(shared, restated, schema)] };
+				whole.add(restating);
+				return restating;
+			});
 		}
-		const schema = node as Schema;
-		if (Array.isArray(schema['allOf'])) {
+		if (Array.isArray(schema['allOf']) && !whole.has(schema)) {
 			const flat = spec.flatProperties(schema);
 			// Forge makes required what a `required` beside the `allOf` names, unless no branch
 			// declares it as a property, as when an `anyOf` in a branch does.
@@ -577,7 +730,7 @@ export function restateRequired(doc: OpenApiDocument): number {
 			const restated = [...names].filter(writable(flat));
 			if (restated.length > 0) {
 				count += restated.length;
-				(schema['allOf'] as Schema[]).push(requiring(flat, restated));
+				(schema['allOf'] as Schema[]).push(requiring(flat, restated, schema));
 			}
 		} else if (Array.isArray(schema['required'])) {
 			const key = Array.isArray(schema['oneOf']) ? 'oneOf' : Array.isArray(schema['anyOf']) ? 'anyOf' : undefined;
@@ -592,15 +745,18 @@ export function restateRequired(doc: OpenApiDocument): number {
 					const flat = spec.flatProperties(branch);
 					const restated = names.filter(writable(flat));
 					count += restated.length;
-					return restated.length > 0 ? { allOf: [branch, requiring(flat, restated)] } : branch;
+					return restated.length > 0 ? { allOf: [branch, requiring(flat, restated, schema)] } : branch;
 				});
 			}
 		}
-		for (const value of Object.values(schema)) {
-			walk(value);
-		}
+		return shared;
 	};
-	walkSchemas(doc, walk);
+	walkSchemas(doc, visit);
+	if (recursive.size > 0) {
+		throw new Error(
+			`These properties are required where they would hold themselves, so patch each, as with a named schema for it: ${[...recursive].join(', ')}`,
+		);
+	}
 	return count;
 }
 
@@ -717,6 +873,7 @@ export function prepare(doc: OpenApiDocument): Prepared {
 	checkRequestVariants(doc);
 	joinCommaLists(doc);
 	markLiteralSlashes(doc);
+	giveAliasesExtensions(doc);
 	const flags = normalizeFlags(doc);
 	return { skipped, flags, restatedRequired: restateRequired(doc) };
 }

@@ -29,7 +29,7 @@ export type DeleteResult = $cws.DeletedResult;
 /**
  * Delete a policy set
  *
- * Deletes the policy set and cascades its deployment attachment and policy and workload membership rows. The referenced deployments, policies, and workloads remain.
+ * Deletes the policy set if it is not attached to a deployment, then removes its policy and workload membership rows. When deployments still reference it, the error identifies each deployment by ID and name so those relationships can be removed first. Referenced policies and workloads remain.
  *
  * `DELETE /accounts/{account_id}/cws/policy-sets/{policy_set_id}`
  *

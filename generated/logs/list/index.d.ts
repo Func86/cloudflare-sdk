@@ -29,6 +29,6 @@ export type GetResult = {
  *
  * `GET /accounts/{account_id}/logs/list`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

@@ -34,7 +34,7 @@ export type CreateResult = {
 /**
  * Create Threat Signals skill
  *
- * Creates a Custom Skill for the account. Free Threat Signals accounts cannot create Custom Skills.
+ * Creates an active Custom Skill for the account. Free Threat Signals accounts cannot create Custom Skills. When the account is at its active Custom Skill limit (`cfone.threat.threat_signals_skills`), returns 403 with `errors[0].reason` `threat_signals_skill_limit`, and `errors[0].custom_skill_limit` and `errors[0].custom_skill_count` give the limit and current count. Managed Default Skills do not count.
  *
  * `POST /accounts/{account_id}/cloudforce-one/v2/threat-signals/skills`
  *
@@ -187,7 +187,7 @@ export type UpdateResult = {
 /**
  * Update Threat Signals skill
  *
- * Updates a Custom Skill. Managed Default Skills cannot be updated. Free Threat Signals accounts cannot update Custom Skills.
+ * Updates a Custom Skill. Managed Default Skills cannot be updated. Free Threat Signals accounts cannot update Custom Skills. Activating an inactive skill (`is_active` true) returns 403 with `errors[0].reason` `threat_signals_skill_limit` when the account is at its active Custom Skill limit, or `threat_signals_feed_skill_limit` (with `errors[0].feed_id`, `errors[0].feed_custom_skill_limit`, and `errors[0].feed_custom_skill_count`) when a feed it is assigned to is at its per-feed limit.
  *
  * `PATCH /accounts/{account_id}/cloudforce-one/v2/threat-signals/skills/{skill_id}`
  *

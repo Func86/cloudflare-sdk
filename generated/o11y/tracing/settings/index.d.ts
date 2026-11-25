@@ -25,6 +25,10 @@ export type DeleteResult = {
  * Reset the zone-level Cloudflare Traces settings to their defaults while preserving the sampling rules.
  *
  * `DELETE /zones/{zone_id}/observability/tracing/settings`
+ *
+ * Token permissions (any one): Zone Observability Write.
+ *
+ * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -53,6 +57,10 @@ export type GetResult = {
  * Retrieve the zone-level Cloudflare Traces settings.
  *
  * `GET /zones/{zone_id}/observability/tracing/settings`
+ *
+ * Token permissions (any one): Zone Observability Write, Zone Observability Read.
+ *
+ * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -95,5 +103,9 @@ export type UpdateResult = {
  * Update the zone-level Cloudflare Traces settings.
  *
  * `PATCH /zones/{zone_id}/observability/tracing/settings`
+ *
+ * Token permissions (any one): Zone Observability Write.
+ *
+ * @beta
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

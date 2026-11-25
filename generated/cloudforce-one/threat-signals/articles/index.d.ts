@@ -210,8 +210,8 @@ export type ListRequest = {
 	cursor?: string;
 	/** Number of articles per cursor page, from 1 to 100. Defaults to 20. */
 	per_page?: number;
-	/** Feed UUID filter. Omit to include articles from every account feed. */
-	feed_id?: string;
+	/** Repeatable feed UUID filter. An article matches any selected feed. Omit to include articles from every account feed. */
+	feed_id?: string[];
 	/** Repeatable article UUID filter. Returns the union of matching account-owned articles; use this to list every Threat Signals article referenced by an indicator's sources. */
 	article_id?: string[];
 	/** Filter by read state. Accepts true, false, 1, or 0; omit to include read and unread articles. */
@@ -236,8 +236,10 @@ export type ListRequest = {
 	fetched_after?: string;
 	/** Include articles fetched at or before this ISO 8601 date-time with Z or a numeric UTC offset; normalized to UTC. */
 	fetched_before?: string;
-	/** Exact feed-category filter after trimming. Omit to include every category. */
+	/** Exact match on a feed's legacy free-form category after trimming. Omit to include every category; to filter by the categories shown on feeds, use feed_category_id. */
 	feed_category?: string;
+	/** Repeatable feed category UUID filter, using the ids from the feed categories list. An article matches when its feed has any selected category; feeds without a category never match. */
+	feed_category_id?: ("b12a0fd6-f7b9-5393-9ef3-f888d506c550" | "d5b70eaa-626f-5761-b55b-6d9590df49fb" | "3b572d2b-890d-5286-9433-f18c85079030" | "17f90d3b-37d3-5241-8ad4-7d6abbc2006c" | "c68f28e9-7e8f-5d4b-853b-f3076893a9ee" | "bb0e4a94-38ab-5c14-80a7-28cee9f4b139" | "b1ef66d9-a73c-58dc-b269-22d34dfd11f4" | "ab02a976-0a20-5c76-a553-7f6325afacfe")[];
 	/** Filter by curated or custom feed source. Omit to include both source types. */
 	source_type?: "curated" | "custom";
 	/** Assignment provenance filter. When combined with tag_id or tag_category_id, the matching assignment must have this provenance. */

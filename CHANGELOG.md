@@ -11,7 +11,7 @@ This release breaks calls: each breaking change below says how to update one.
 
 ### Breaking
 
-- **30 operations are renamed by the spec,** now generated from cloudflare/api-schemas `76c66fb2` rather than Forge's
+- **32 operations are renamed by the spec,** now generated from cloudflare/api-schemas `9a5e4d44` rather than Forge's
   `openapi@2b2a4d86`, as below. cf's commands take the same names. Each keeps the shape of its request and result, but
   their types take the new name, so import them from the new path under that name, such as `BulkDeleteRequest` from
   `vectorize/vectors` for `DeleteByIdsRequest` from `vectorize`:
@@ -24,10 +24,12 @@ This release breaks calls: each breaking change below says how to update one.
   | `dns/settings/account/views`: `create`, `delete`, `edit`, `get`, `list` | `dns/views`: the same |
   | `intel/indicator-feeds/permissions`: `create`, `delete` | `intel/indicator-feeds/permissions`: `grant`, `revoke` |
   | `o11y/telemetry`: `heartbeat`, `liveTail` | `observability/telemetry`: the same |
+  | `organizations/members/batch`: `create` | `organizations/members`: `bulkCreate` |
   | `update` in `resource-sharing/recipients` and `resource-sharing/excluded-recipients` | `replace` |
   | `vectorize`: `insert`, `upsert`, `query`, `listVectors`, `getByIds`, `deleteByIds` | `vectorize/vectors`: `insert`, `upsert`, `query`, `list`, `bulkGet`, `bulkDelete` |
   | `vectorize/metadata-index`: `create`, `delete`, `list` | `vectorize/metadata-indexes`: the same |
   | `waiting-rooms/rules`: `get` | `waiting-rooms/rules`: `list` |
+  | `zero-trust/cws/tenant-structures/nodes`: `batch` | `zero-trust/cws/tenant-structures/nodes`: `bulkApply` |
 
 - **`cloudforce-one.requests.list`, `create`, `get` and `update` call the v2 routes,** as the spec and cf name them,
   in place of `getRequestList`, `postRequestCreate`, `getRequestRead` and `putRequestUpdate`. The hidden v1 routes
@@ -35,24 +37,50 @@ This release breaks calls: each breaking change below says how to update one.
   `cloudforce-one.requests.delete`, which v2 doesn't have, is `cloudforce-one.requests.legacy.delete` beside them. A
   call written for v1 no longer compiles, as v2 takes a `project_type`: import it from `cloudforce-one/requests/legacy`
   to keep calling v1.
-- **`types/bill-subs-api` and `types/botnet-feed-api` are `types/bill-subs` and `types/botnet-feed`,** with the same
-  types. `types/rulesets` no longer exports `ManagedTransform`, `ManagedTransformInput`, `ManagedTransforms`,
-  `ManagedTransformsPatchInput`, `ManagedTransformId` and `UrlNormalization`, which `types/managed-transforms` and
-  `types/url-normalization` do. Change the import path.
+- **`types/bill-subs-api`, `types/botnet-feed-api` and `types/organizations-api` are `types/bill-subs`,
+  `types/botnet-feed` and `types/organizations`,** with the same types, apart from the fields `Account` gains in
+  `types/organizations`, as below. `types/rulesets` no longer exports `ManagedTransform`, `ManagedTransformInput`,
+  `ManagedTransforms`, `ManagedTransformsPatchInput`, `ManagedTransformId` and `UrlNormalization`, which
+  `types/managed-transforms` and `types/url-normalization` do, and `types/dlp` no longer exports the risk scoring models
+  `Behavior`, `Behaviors`, `RiskEvent`, `RiskEvents`, `RiskLevel`, `RiskSummary`, `UpdateBehavior`, `UpdateBehaviors`
+  and `UserRiskInfo`, which `types/risk-scoring` does, with the changes below. Change the import path. `types/tunnel`
+  names the models of a tunnel hostname `HostnameRecord` where it named them `TunnelHostname`, such as
+  `PostHostnameRecordBody` for `PostTunnelHostnameBody`, with the same types: change the name.
 - **`cloudforce-one.threat-intel.events.legacy.bulkCreateWithRelationships` is gone,** as the spec no longer has its
-  route.
+  route, nor any in its place. To keep calling it while the API serves it, write its `Operation` and types by hand, as
+  `{ method: 'POST', route: '/accounts/{account_id}/cloudforce-one/events/create/bulk/relationships', body: 'json',
+  envelope: false }`, or stay on 0.4.0.
 
 ### Added
 
-- 14 operations: `ai-gateway.model-aliases.create`, `delete`, `get`, `list` and `update`; `feedback.diagnose` and
+- 29 operations: `accounts.applications.references`; `ai-gateway.model-aliases.create`, `delete`, `get`, `list` and
+  `update`; `d1.insights.recommendations` and `d1.insights.settings.get` and `update`; `feedback.diagnose` and
   `feedback.send`, which reports a problem to Cloudflare, with a `User-Agent` the spec says starts with `cf-cli/` or
   `cloudflare-mcp`; `flagship.apps.ofrep.evaluate` and `evaluateAll`, by the OpenFeature Remote Evaluation Protocol;
-  `images.config.get` and `edit`, for an account's Images settings; and `pay-per-use.agreements.create` and `list` and
-  `pay-per-use.enabled-publishers.list`.
-  `ai-gateway.model-aliases.list` and `pay-per-use.agreements.list` are paginated.
+  `images.config.get` and `edit`, for an account's Images settings; `network-quality.settings.get` and `update` and
+  `network-quality.tokens.create`, in beta, for Network Quality Tests; `o11y.destinations.get`;
+  `pay-per-use.agreements.create` and `list` and `pay-per-use.enabled-publishers.list`; `user.subscriptions.get`;
+  `workers.previews.deployments.profile`, which returns the profile's bytes; and
+  `zero-trust.risk-scoring.behaviours.high-dlp.get` and `update`, `zero-trust.risk-scoring.behaviours.single.get` and
+  `update`, for a behavior with no other settings, and `zero-trust.risk-scoring.event-clusters.list`, which groups a
+  user's risk events by day.
+  `ai-gateway.model-aliases.list`, `d1.insights.recommendations`, `pay-per-use.agreements.list` and
+  `zero-trust.risk-scoring.event-clusters.list` are paginated.
 - Doc comments say `flagship.apps.ofrep.evaluateAll` throws an `ApiError` with status 304 given a matching
   `If-None-Match`.
-- `queues.subscriptions.list` takes `queue_id`, and Spectrum applications take `edge_alpn_protocols`.
+- `queues.subscriptions.list` takes `queue_id`, and Spectrum applications take `edge_alpn_protocols`. `d1.list` takes
+  `fields`, `dns.records.list` orders by `created_on` or `modified_on`, `cloudforce-one.threat-signals.articles.list`
+  takes `feed_category_id`, and RealtimeKit's storage configuration takes the type `cloudflare`, which requires an
+  `account_id`. The `filters` of an alerting policy take `source`, `execution_interval`,
+  `alert_trigger_preferences_operator`, `alert_trigger_preferences_short_window`,
+  `alert_trigger_preferences_long_window` and `alert_trigger_preferences_minimum_threshold`, mostly for
+  `custom_analytics` alerts.
+- Results have new fields: `file_size`, `num_tables` and, when `fields` asks for it, `recommendation_count` on a
+  database of `d1.list`; `scheduled_removal_date` on an abuse report's mitigation; `location.repo` on a finding of a
+  vulnerability report; and `enterprise_provisioning_status` and `provisioning_mode` on an account of
+  `organizations.accounts.list`.
+- `alert_enabled` in `cloudforce-one.threat-intel.events.queries` is no longer deprecated, as the spec says it sends
+  notifications again.
 - `types/*` export the models that Forge's release wrote in place, such as `DnsFirewallCluster`, `DnsViewInput` and
   the `ApiResponseCommon` of several modules.
 
@@ -70,12 +98,35 @@ This release breaks calls: each breaking change below says how to update one.
     as its description says.
 - Doc comments of the account-or-zone operations list token permissions for an account and for a zone apart where the
   two differ, such as `Account Custom Pages Write` and `Custom Pages Write`, rather than one set for both.
+- Doc comments of operations the spec names by an alias, such as those in `o11y` and `workflows.instances.pause`, list
+  their token permissions, and the 24 in `o11y` that the spec says are in beta, such as `o11y.issues.list`, say so.
+- Doc comments of the `workers-for-platforms.dispatch-namespaces` operations list the token permissions the spec now
+  gives them beside `Workers Scripts Write`, such as `Workers Admin` and `Workers Namespace Admin`, and 3 that listed
+  none list theirs.
+- What the spec requires in a branch of a `oneOf` or `anyOf`, of a field that a schema around it declares, is required:
+  - `builds.create`, `builds.previews.createBuild` and `builds.triggers.createBuild` need `branch` or `commit_hash`;
+    `stream.videos.copy` `input` or `url`; `abuse-reports.mitigations.review` `appeals` or `type`;
+    `email-sending.send` `to`, `cc` or `bcc`, and `text` or `html`; `email-sending.subdomains.update`
+    `drop_suppressed_recipients` or `preview_enabled`; `magic-transit.apps.create` `hostnames`, `ip_subnets` or
+    `source_subnets`; `magic-transit.apps.edit` and `update` any of those, `name` or `type`; and
+    `magic-transit.sites.app-configuration.create` `breakout` or `priority`. A field that may be `undefined` no longer
+    counts as given, so check it first.
+  - In results, a transferable domain of `registrar.registrations.transferCheck` has its `pricing`, and a ramp of
+    `magic-transit.cf1-sites.ramps` has one of its kinds, such as `gre`.
+- `workers.versions.profile` takes `actor_id` and `namespace_id` together or not at all, as the API refuses either
+  alone.
+- `zero-trust.risk-scoring.get` and `zero-trust.risk-scoring.summary.get` are paginated, over a user's `events` and an
+  account's `users`, and take an order. `get` also takes a time range and a time zone.
+  `zero-trust.risk-scoring.behaviours.update` takes a behavior's `points` beside its `risk_level`, which it no longer
+  requires.
 - Forge is 0.3.0, which reads a `required` beside an `allOf`, as a restated branch already did, so no field changes. It
   writes some models in place, so `types/access` no longer exports `AppRespEmbeddedTargetCriteriaInfra` and
   `AppRespEmbeddedTargetCriteriaSelfHosted`, `types/dns-settings` `DnsView`, `types/smartshield`
   `SmartShieldSettings`, and `types/waf-managed-rules` `Base`, `Group` and `SchemasBase`. Name the type that holds
   one instead, such as `DnsViewResponse`.
 - Types follow the spec's other changes. Those that can break a call:
+  - `cloudforce-one.threat-signals.articles.list` and `cloudforce-one.threat-signals.search` take a list as `feed_id`:
+    give one feed as `[feed_id]`.
   - `turnstile.widgets.create` no longer takes `page`, `per_page`, `order`, `direction` and `filter`, which are
     `list`'s, and `turnstile.widgets.update` no longer takes `region`, which can't change after creation.
   - `web3.hostnames.delete` and `web3.hostnames.ipfs-universal-paths.content-lists.entries.delete` no longer take a
@@ -85,6 +136,10 @@ This release breaks calls: each breaking change below says how to update one.
   - DEX notification outcomes from `zero-trust.dex.notifications` no longer have `sample_interval`, nor their counts
     `estimated`, as the counts are exact. The results of `pay-per-use.enabled-domains.list`,
     `pay-per-use.pricing.listOperators` and `pay-per-use.proposals.list` no longer have `non_billable_since`.
+  - Risk scoring behaviors and events have `points`, `zero-trust.risk-scoring.get` always has `last_reset_time`, a
+    user's `max_risk_level` from `zero-trust.risk-scoring.summary.get` can be `unset`, and
+    `zero-trust.risk-scoring.behaviours.update` returns every behavior as a `Behaviors`, rather than an
+    `UpdateBehaviors`.
 
 ## [0.4.0] - 2026-11-22
 

@@ -14,6 +14,8 @@ export type SignatureResult = $hyperdrive.HyperdriveDatabaseSignatureResponse;
  *
  * `POST /accounts/{account_id}/hyperdrive/integrationsOperations/planetScale/createDatabaseSignature`
  *
+ * Token permissions (any one): Hyperdrive PlanetScale Setup, Billing Write.
+ *
  * @beta
  */
 export declare const signature: Operation<SignatureRequest, SignatureResult>;

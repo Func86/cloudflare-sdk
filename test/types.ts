@@ -11,6 +11,8 @@ import { update as updateWebhook } from '@libreflare/cloudflare-sdk/stream/webho
 import type { CreateResult as ScriptResult, ExecuteResult as SessionScriptResult } from '@libreflare/cloudflare-sdk/browser-run/script';
 import { get as getRawFile } from '@libreflare/cloudflare-sdk/artifacts/namespaces/repos/raw';
 import { screenshot } from '@libreflare/cloudflare-sdk/browser-run/quick-action';
+import { recommendations } from '@libreflare/cloudflare-sdk/d1/insights';
+import type { InsightsRecommendation } from '@libreflare/cloudflare-sdk/types/d1';
 import { create as createImage, list as listImages } from '@libreflare/cloudflare-sdk/images';
 import { get as getQueueMetrics } from '@libreflare/cloudflare-sdk/queues/metrics';
 import { create as createScan } from '@libreflare/cloudflare-sdk/url-scanner/scans';
@@ -40,6 +42,13 @@ import type { Operation as ApiShieldOperation } from '@libreflare/cloudflare-sdk
 import type { Project } from '@libreflare/cloudflare-sdk/types/pages';
 import type { Deployment, DeploymentInput, VersionInput, VersionPatchInput } from '@libreflare/cloudflare-sdk/types/workers';
 import type { TempAccessCredsRequest } from '@libreflare/cloudflare-sdk/types/r2';
+import type { CreateBuildRequest } from '@libreflare/cloudflare-sdk/types/builds';
+import type { EmailBuilder } from '@libreflare/cloudflare-sdk/types/email-sending';
+import type { AppConfigAddSingleRequest } from '@libreflare/cloudflare-sdk/types/magic';
+import type { StorageConfig } from '@libreflare/cloudflare-sdk/types/realtimekit';
+import type { DomainTransferCheckResult, PricingTransfer } from '@libreflare/cloudflare-sdk/types/registrar';
+import type { ProfileRequest } from '@libreflare/cloudflare-sdk/workers/versions';
+import type { ProfileRequest as PreviewProfileRequest } from '@libreflare/cloudflare-sdk/workers/previews/deployments';
 import type { ListRequest as DnsRecordsRequest } from '@libreflare/cloudflare-sdk/dns/records';
 import type {
 	DeleteRequest as DeleteTagsRequest,
@@ -71,6 +80,10 @@ export async function checks(): Promise<void> {
 	void first;
 	for await (const deployment of cf.paginate(deployments.list, scope)) {
 		assertType<Equal<typeof deployment, Deployment>>();
+	}
+	// An override names an array further down than the result's own.
+	for await (const recommendation of cf.paginate(recommendations, { account_id: 'a' })) {
+		assertType<Equal<typeof recommendation, InsightsRecommendation>>();
 	}
 	const page = await cf.page(deployments.list, { ...scope, per_page: 1 });
 	assertType<Equal<(typeof page.items)[number], Deployment>>();
@@ -398,6 +411,41 @@ export const byActions: TempAccessCredsRequest = { ...credentials, actions: ['Ge
 export const noSelector: TempAccessCredsRequest = credentials;
 // @ts-expect-error Both.
 export const bothSelectors: TempAccessCredsRequest = { ...credentials, permission: 'object-read-only', actions: ['GetObject'] };
+
+// What a branch of a `oneOf` or `anyOf` requires of the schema it's in is required.
+export const byBranch: CreateBuildRequest = { branch: 'main' };
+export const byCommit: CreateBuildRequest = { commit_hash: 'c' };
+// @ts-expect-error A build needs a branch or a commit.
+export const noSource: CreateBuildRequest = {};
+export const cloudflareStorage: StorageConfig = { type: 'cloudflare', bucket: 'b', account_id: 'a' };
+// @ts-expect-error Cloudflare storage needs its account.
+export const noAccount: StorageConfig = { type: 'cloudflare', bucket: 'b' };
+export const sftp: StorageConfig = { type: 'sftp', bucket: 'b', region: 'r', auth_method: 'KEY', username: 'u', host: 'h', port: 22 };
+// @ts-expect-error SFTP storage needs its host.
+export const noHost: StorageConfig = { type: 'sftp', bucket: 'b', region: 'r', auth_method: 'KEY', username: 'u', port: 22 };
+const email = { from: 'a@example.com', subject: 's' };
+export const toWithText: EmailBuilder = { ...email, to: 'b@example.com', text: 't' };
+export const ccWithHtml: EmailBuilder = { ...email, cc: ['b@example.com'], html: 'h' };
+export const allGiven: EmailBuilder = { ...email, to: 'b@example.com', bcc: 'c@example.com', text: 't', html: 'h' };
+// @ts-expect-error An email needs a recipient.
+export const noRecipient: EmailBuilder = { ...email, text: 't' };
+// @ts-expect-error And text or HTML.
+export const noContent: EmailBuilder = { ...email, to: 'b@example.com' };
+export const breakout: AppConfigAddSingleRequest = { managed_app_id: 'm', breakout: true };
+export const prioritized: AppConfigAddSingleRequest = { account_app_id: 'a', priority: 1 };
+// @ts-expect-error A traffic decision needs a breakout or a priority.
+export const noDecision: AppConfigAddSingleRequest = { managed_app_id: 'm' };
+export function transferPrice(check: DomainTransferCheckResult): PricingTransfer | undefined {
+	return check.transferable ? (check.pricing satisfies PricingTransfer) : undefined;
+}
+
+// Profiling a Durable Object takes both its IDs, and the API refuses either alone.
+export const byWorker: ProfileRequest['body'] = { duration_ms: 1000 };
+export const byActor: ProfileRequest['body'] = { duration_ms: 1000, actor_id: 'o', namespace_id: 'n' };
+// @ts-expect-error An actor without its namespace.
+export const actorOnly: ProfileRequest['body'] = { duration_ms: 1000, actor_id: 'o' };
+// @ts-expect-error A namespace without an actor.
+export const namespaceOnly: PreviewProfileRequest['body'] = { duration_ms: 1000, namespace_id: 'n' };
 
 // A patch of a Worker's latest version removes one binding with null, which a new version can't send.
 export const removeBinding: VersionPatchInput = { env: { OLD: null, NEW: { type: 'plain_text', text: 'x' } } };

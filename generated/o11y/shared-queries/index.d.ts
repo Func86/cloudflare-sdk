@@ -122,6 +122,8 @@ export type CreateResult = {
  * Shared queries store the results of a previously run query, allowing you to share the results with others.
  *
  * `POST /accounts/{account_id}/workers/observability/shared/query`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -140,5 +142,7 @@ export type GetResult = $workers_observability.QueryResults;
  * Shared queries store the results of a previously run query, allowing you to share the results with others.
  *
  * `GET /accounts/{account_id}/workers/observability/shared/query/{id}`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

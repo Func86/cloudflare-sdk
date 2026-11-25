@@ -38,6 +38,10 @@ export type CreateResult = {
  * Create an account or service issue automation.
  *
  * `POST /accounts/{account_id}/workers/observability/issues/automations`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -71,6 +75,10 @@ export type DeleteResult = {
  * Delete an issue automation while preserving its historical runs.
  *
  * `DELETE /accounts/{account_id}/workers/observability/issues/automations/{automationId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -105,6 +113,10 @@ export type GetResult = {
  * Retrieve an issue automation.
  *
  * `GET /accounts/{account_id}/workers/observability/issues/automations/{automationId}`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -138,6 +150,10 @@ export type ListResult = {
  * List account and service issue automations.
  *
  * `GET /accounts/{account_id}/workers/observability/issues/automations`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
+ *
+ * @beta
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -179,5 +195,9 @@ export type UpdateResult = {
  * Replace an issue automation configuration.
  *
  * `PUT /accounts/{account_id}/workers/observability/issues/automations/{automationId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
+ *
+ * @beta
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

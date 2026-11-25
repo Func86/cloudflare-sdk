@@ -98,15 +98,22 @@ export type ProfileRequest = {
 	worker_id: string;
 	/** Identifies the version by UUID or UUID prefix with a minimum length of eight characters. Use "latest" to select the most recently created version, which may not be deployed. Use "latest-deployed" to profile a version in the active deployment. Versions are tried in order of traffic share until one has a loaded isolate. */
 	version_id: string;
-	body: {
-		/** Identifies the exact Durable Object actor to profile. Must be specified together with namespace_id. The actor must currently be active and running the requested version. */
-		actor_id?: string;
+	body: (({
 		/** Profile duration in milliseconds. */
 		duration_ms: number;
-		/** Identifies the Durable Object namespace containing the actor to profile. Must be specified together with actor_id. */
-		namespace_id?: string;
 		profile_type?: "cpu" | "heap";
-	};
+	}) & {
+		actor_id?: never;
+		namespace_id?: never;
+	}) | ({
+		/** Profile duration in milliseconds. */
+		duration_ms: number;
+		profile_type?: "cpu" | "heap";
+		/** Identifies the exact Durable Object actor to profile. Must be specified together with namespace_id. The actor must currently be active and running the requested version. */
+		actor_id: string;
+		/** Identifies the Durable Object namespace containing the actor to profile. Must be specified together with actor_id. */
+		namespace_id: string;
+	});
 };
 export type ProfileResult = Uint8Array;
 /**

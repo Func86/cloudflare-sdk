@@ -13,7 +13,17 @@ export type UpdateSendingSubdomainProperties = {
 	drop_suppressed_recipients?: boolean;
 	/** Whether sent messages from this subdomain can be previewed in the activity log. */
 	preview_enabled?: boolean;
-};
+} & ({
+	/** Whether sent messages from this subdomain can be previewed in the activity log. */
+	preview_enabled: boolean;
+} | {
+	/**
+	 * Whether a send request that includes a recipient suppressed on
+	 * this subdomain drops that recipient and still delivers to the
+	 * rest, instead of failing the entire request.
+	 */
+	drop_suppressed_recipients: boolean;
+});
 
 /**
  * Public tag (script_tag) of the Worker that owns this rule. Required when

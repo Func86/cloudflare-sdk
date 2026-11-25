@@ -7,9 +7,9 @@ export type CreateRequest = {
 	account_id: string;
 	/** UUID of the tunnel. */
 	tunnel_id: string;
-	body: $tunnel.PostTunnelHostnameBody;
+	body: $tunnel.PostHostnameRecordBody;
 };
-export type CreateResult = $tunnel.TunnelHostname;
+export type CreateResult = $tunnel.HostnameRecord;
 /**
  * Create a tunnel hostname
  *
@@ -27,7 +27,7 @@ export type DeleteRequest = {
 	/** UUID of the tunnel hostname. */
 	hostname_id: string;
 };
-export type DeleteResult = $tunnel.TunnelHostname;
+export type DeleteResult = $tunnel.HostnameRecord;
 /**
  * Delete a tunnel hostname
  *
@@ -47,9 +47,9 @@ export type EditRequest = {
 	tunnel_id: string;
 	/** UUID of the tunnel hostname. */
 	hostname_id: string;
-	body: $tunnel.PatchTunnelHostnameBody;
+	body: $tunnel.PatchHostnameRecordBody;
 };
-export type EditResult = $tunnel.TunnelHostname;
+export type EditResult = $tunnel.HostnameRecord;
 /**
  * Update a tunnel hostname
  *
@@ -67,7 +67,7 @@ export type GetRequest = {
 	/** UUID of the tunnel hostname. */
 	hostname_id: string;
 };
-export type GetResult = $tunnel.TunnelHostname;
+export type GetResult = $tunnel.HostnameRecord;
 /**
  * Get a tunnel hostname
  *
@@ -95,7 +95,7 @@ export type ListRequest = {
 	/** Page number to return. */
 	page?: $tunnel.PageNumber;
 };
-export type ListResult = $tunnel.TunnelHostname[];
+export type ListResult = $tunnel.HostnameRecord[];
 export type ListItem = RootItem<ListResult>;
 /**
  * List tunnel hostnames

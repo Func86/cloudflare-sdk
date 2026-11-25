@@ -25,6 +25,10 @@ export type DeleteResult = {
  * Delete every sampling override from a zone's managed Cloudflare Traces ruleset.
  *
  * `DELETE /zones/{zone_id}/observability/tracing/rules`
+ *
+ * Token permissions (any one): Zone Observability Write.
+ *
+ * @beta
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -53,6 +57,10 @@ export type GetResult = {
  * Retrieve the ordered sampling overrides for a zone's managed Cloudflare Traces ruleset.
  *
  * `GET /zones/{zone_id}/observability/tracing/rules`
+ *
+ * Token permissions (any one): Zone Observability Write, Zone Observability Read.
+ *
+ * @beta
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -95,5 +103,9 @@ export type UpdateResult = {
  * Replace all sampling overrides in a zone's managed Cloudflare Traces ruleset. Rules are evaluated in the supplied order.
  *
  * `PUT /zones/{zone_id}/observability/tracing/rules`
+ *
+ * Token permissions (any one): Zone Observability Write.
+ *
+ * @beta
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

@@ -93,10 +93,23 @@ export type Sql = string;
 export type DatabaseResponse = {
 	/** Specifies the timestamp the resource was created as an ISO8601 string. */
 	created_at?: CreatedAt;
+	/** The D1 database's size, in bytes. */
+	file_size?: FileSize;
 	/** Specify the location to restrict the D1 database to run and store data. If this option is present, the location hint is ignored. */
 	jurisdiction?: JurisdictionNullable;
 	/** D1 database name. */
 	name?: DatabaseName;
+	/** The number of tables in the D1 database. This count is no longer accurate and should not be relied upon. */
+	num_tables?: TableCount;
+	/**
+	 * Number of current index recommendations for the database. To list them, use
+	 * `GET /accounts/{account_id}/d1/insights/recommendations?database_id={database_id}`.
+	 *
+	 * Only returned when requested with `fields`. Left out of every database when D1 Insights
+	 * is turned off for the account, or when the count is unavailable, so a missing value
+	 * means unknown, not `0`.
+	 */
+	recommendation_count?: number;
 	/** D1 database identifier (UUID). */
 	uuid?: DatabaseIdentifier;
 	version?: DatabaseVersion;
@@ -144,6 +157,54 @@ export type InsightsQueryUsage = {
 	rows_written?: number;
 	/** Estimated total execution time in the window, in milliseconds. */
 	total_duration_ms?: number;
+};
+
+export type InsightsRecommendation = {
+	/** D1 database identifier (UUID). */
+	database_id: DatabaseIdentifier;
+	/** The current name of the database. */
+	database_name: string;
+	/** When D1 generated the recommendation. */
+	generated_at: string;
+	/** Recommendation identifier. */
+	id: string;
+	/** The queries the change is expected to speed up, with their usage in `query_window`. */
+	impacted_queries: {
+		metrics: {
+			/** Estimated number of times the query ran in `query_window`. */
+			execution_count: number;
+			/** 95th percentile execution time in `query_window`, in milliseconds. */
+			p95_query_duration_ms: number;
+			/** Estimated number of rows the query read in `query_window`. */
+			total_rows_read: number;
+			/** Estimated number of rows the query wrote in `query_window`. */
+			total_rows_written: number;
+		};
+		/** The SQL statement text, as sent to the database. */
+		query: string;
+	}[];
+	/** `high` when the impacted queries spend a large amount of time scanning rows they do not return. */
+	priority: "high" | "low";
+	/** The window of query usage the recommendation is based on, in UTC. `from` is inclusive, `to` is exclusive. */
+	query_window: {
+		/** Start of the window (inclusive). */
+		from: string;
+		/** End of the window (exclusive). */
+		to: string;
+	};
+	/** Why the change is recommended. */
+	reasoning: string;
+	/** The changes to make. */
+	suggestions: {
+		/** The kind of change. Always `index_creation`. */
+		kind: "index_creation";
+		/** The statement to run, for example in a migration. D1 checks that it parses as one `CREATE INDEX` statement. It does not check it against the database schema or run it. */
+		sql: string;
+	}[];
+	/** A short description of the recommended change. */
+	summary: string;
+	/** The kind of recommendation. */
+	type: "index_suggestion";
 };
 
 export type Params = string[];

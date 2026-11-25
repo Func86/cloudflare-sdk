@@ -192,19 +192,19 @@ export type GetTopupEligibilityV2Result = {
 	};
 	/** The account's payment methods, and whether each can pay for a top-up. */
 	payment_methods: ({
-		/** Card brand. Present for cards. */
+		/** Card brand. Present for cards, including cards saved in a wallet. */
 		brand?: string;
-		/** Expiration month, 1 to 12. Present for cards. */
+		/** Expiration month, 1 to 12. Present for cards, including cards saved in a wallet. */
 		exp_month?: number;
-		/** Four-digit expiration year. Present for cards. */
+		/** Four-digit expiration year. Present for cards, including cards saved in a wallet. */
 		exp_year?: number;
 		/** Payment method identifier. */
 		id: string;
 		/** Whether this is the account's default payment method. */
 		is_default: boolean;
-		/** Last 4 digits. Present for cards. */
+		/** Last 4 digits. Present for cards, including cards saved in a wallet. */
 		last4?: string;
-		/** Payment method type. */
+		/** Payment method type. A card saved in a wallet has the wallet type and its card details. `link` is a card saved with Link, which has card details, or a Link payment that no card funds, which has none. */
 		type: "card" | "apple_pay" | "google_pay" | "link" | "paypal" | "other";
 		/** Why this payment method can't pay for a top-up. Present only when `usable` is false. */
 		unusable_reason?: "payment_method_not_supported" | "expired_card" | "prepaid_card_not_supported" | "card_not_3ds_capable";

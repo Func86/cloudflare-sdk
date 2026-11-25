@@ -32,7 +32,7 @@ for await (const deployment of cf.paginate(list, { account_id, script_name })) {
   compile error, and a `TypeError` without types. A type made from it with `Omit` or `Pick` loses that rule, as it does
   for any union, so type a helper's scope as `AccountOrZone`. Where the account and the zone take different requests,
   as for `tags.resources.get`, `delete` and `update`, narrow such a scope first, by `scope.zone_id === undefined`.
-- `send` returns `undefined` when a success leaves out `result`, though result types don't say so. 1,280 of the 2,835
+- `send` returns `undefined` when a success leaves out `result`, though result types don't say so. 1,283 of the 2,871
   success envelopes declare `result` optional, mostly through shared base schemas, and adding `| undefined` would make
   nearly half of all calls check for a case not seen live. The official SDK types it the same way.
 - A ruleset write that takes `dry_run`, such as `rulesets.create`, returns what it changed, or `null` with
@@ -164,12 +164,13 @@ operations from `0c348dc4` on.
 - **Pagination is inferred from the response shape.** Only 2 operations state it with `x-fern-pagination`. A GET with
   page, cursor or offset parameters paginates over `result`, or over the one array inside it. Anything ambiguous isn't
   paginated and is listed in `generated/_meta/report.json` (48 operations today). An override in `generator/patches.ts`
-  decides what the shape gets wrong: `dns.records.list` pages by number, as its cursor starts only when the first
-  request sends one, even empty. When the caller sends `cursor`, it follows that instead, as the API refuses a page
+  decides what the shape gets wrong. `d1.insights.recommendations` keeps its array two levels down, at
+  `recommendations.items`. `dns.records.list` pages by number, as its cursor starts only when the first request sends
+  one, even empty. When the caller sends `cursor`, it follows that instead, as the API refuses a page
   number beside one, and when the caller sends `prev_cursor`, it goes back to the first page, which comes last.
 - **`readOnly` fields get a separate input type,** `FooInput`, where they're optional. A value read from the API can
   still be sent back.
-- **Lengths and ranges aren't typed.** The spec has 407 arrays with `minItems: 1`, such as R2's `actions`, but a type
+- **Lengths and ranges aren't typed.** The spec has 413 arrays with `minItems: 1`, such as R2's `actions`, but a type
   for a non-empty array, `[T, ...T[]]`, refuses an ordinary one, such as an array from `filter`, so every caller would
   need a cast or a check. The same goes for string lengths, patterns and number ranges. The API refuses what's out of
   range.
@@ -242,7 +243,7 @@ operations from `0c348dc4` on.
 - **An operation served from another host is left out.** K2's 9 data-plane operations declare
   `https://{stream_id}.k2.cloudflarestorage.com`, and the runtime would send them to the API's base URL.
 - **A numeric path parameter takes a number or its text.** Other path parameters are strings, whatever model names
-  them, but the 57 declared as integers or numbers, such as a Logpush `job_id`, also take the number the API sends as
+  them, but the 58 declared as integers or numbers, such as a Logpush `job_id`, also take the number the API sends as
   the ID. Text keeps an int64 above 2^53, or a decimal such as a Magic connector event's timestamp, exact.
 - **Spec patches expire.** A patch whose defect has gone stops generation, so an upstream fix retires it. So does a
   pagination override whose operation is gone, now states its own pagination, or no longer has the page parameter, the
@@ -259,21 +260,22 @@ operations from `0c348dc4` on.
   Stream's webhook body, which takes it or the `notification_url` that the spec hides from SDKs;
   give a patch of a Worker's latest version a body of its own, whose `env` entries can be `null` to remove one binding,
   as creating a version shares the body; let the tags route take a zone's resource types and body, and an Access
-  policy's `access_application_id`; and make temporary R2 credentials take exactly one of `permission` and `actions`, as
-  the API refuses neither and both. `RequestRule` and R2's `TempAccessCredsRequest` list their variants so that each
-  declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in `generator/patches.ts` says. The six
-  rule actions that take no parameters, such as `log`, have `action_parameters?: never`, though the API also accepts
-  `{}`. Code can read `action_parameters` on any `RequestRule` or `ResponseRule`, but not on `Rule`, the base every
-  variant shares, which no longer declares it. One action's rule is `Extract<ResponseRule, { action: 'rewrite' }>`, with
-  that action's parameters.
+  policy's `access_application_id`; make temporary R2 credentials take exactly one of `permission` and `actions`, as
+  the API refuses neither and both; and make a Worker's profile take a Durable Object's `actor_id` and `namespace_id`
+  together or not at all, as the API refuses either alone. `RequestRule` and R2's `TempAccessCredsRequest` list their
+  variants so that each declares `?: never` for the fields only others have, as `EXCLUSIVE_MODELS` in
+  `generator/patches.ts` says. The six rule actions that take no parameters, such as `log`, have
+  `action_parameters?: never`, though the API also accepts `{}`. Code can read `action_parameters` on any `RequestRule`
+  or `ResponseRule`, but not on `Rule`, the base every variant shares, which no longer declares it. One action's
+  rule is `Extract<ResponseRule, { action: 'rewrite' }>`, with that action's parameters.
 - **A string described as a comma-separated list is a list,** sent joined with commas, where `COMMA_LISTS` in
   `generator/patches.ts` names it: Builds' `version_ids` and `external_script_ids` for now. Of the 52 query strings
   whose description says comma-separated, comma-delimited or separated by commas, each of the other 50 is added after
   reading its description, because some aren't plain lists: Workers' `tags` takes `tag:yes` pairs, a `status` can be
   `all`, and Page Shield's `urls` takes URLs encoded beforehand. The joining comma is sent encoded, as `%2C`, which
   Builds splits, as a live check showed.
-- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,660
-  of its 3,933 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
+- **Names come from the spec, apart from its mistakes.** `x-fern-sdk-group-name` and `x-fern-sdk-method-name` name 3,675
+  of its 3,948 operations, and cf uses them too. They follow current product names, and a mistake in them shows in
   Cloudflare's own CLI. Forge would name the other 273 by their `operationId`, outside any group. 271 are hidden copies,
   on one account or one zone, of operations that take either, which stay out, as below. `UNNAMED_OPERATIONS` in
   `generator/patches.ts` leaves out the 2 for the NEL setting, as `zones.settings.get` and `edit` reach them with
@@ -300,17 +302,19 @@ output with a direct reading of the spec. No type check catches them, because th
 
 | In the spec | What Forge does | What `prepare.ts` does |
 | --- | --- | --- |
-| `required` beside a `oneOf`, beside an `allOf` for a property no branch declares, such as one only an `anyOf` in a branch has, or in a branch without the property | Ignores it, so the field is optional | Restates it in a branch that declares the property (146 names) |
-| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (558 properties) |
-| `writeOnly` | Has no such flag | Stops requiring the field (20), also where a branch of its schema, or a schema built on it with `allOf`, requires it, so responses don't promise it |
+| `required` beside a `oneOf`, beside an `allOf` for a property no branch declares, such as one only an `anyOf` in a branch has, or in a branch that doesn't declare the property, such as a `oneOf` branch of a schema that does, also within its `allOf` | Ignores it, so the field is optional | Restates it in a branch that declares the property (182 names) |
+| `readOnly` only on the schema a `$ref` points at | Doesn't see it, and ignores keys beside a `$ref` | Wraps the reference in `allOf` with the flag and the schema's description (559 properties) |
+| `writeOnly` | Has no such flag | Stops requiring the field (21), also where a branch of its schema, or a schema built on it with `allOf`, requires it, so responses don't promise it |
+| An operation's extensions, such as its token permissions and availability, where `x-forge-aliases` names it | Gives the method its alias's own extensions, of which five state an availability and the rest none | Gives each alias those of the operation that it doesn't state (47) |
 | `nullable` in one `allOf` branch, such as Pages' `latest_deployment` | Drops it, or intersects it away | Makes the `allOf` nullable (9 that reach a type, and an error body), whether a property, an item or a map's values, as the official SDK types Pages' |
 
 A spec patch exempts API Shield's `operation`, whose nullable branch only adds `features`: read as written, every
 operation listed, created or read would be nullable. Any other named schema that would turn nullable as a whole stops
 generation until a patch like that one decides it, because every use of it would change.
 
-These apply to schemas wherever they're declared, including shared request bodies. Forge 0.3.0 reads a `required`
-beside an `allOf` itself, as `rulesets.create`'s, which requires `name`, `kind` and `phase`.
+These apply to schemas wherever they're declared, including shared request bodies, and not to data such as examples,
+some of which hold a schema. Forge 0.3.0 reads a `required` beside an `allOf` itself, as `rulesets.create`'s, which
+requires `name`, `kind` and `phase`.
 
 The `writeOnly` change is a trade-off: a request type no longer requires a field like `password`, and the API reports
 that with a clear error. Fields with `x-stainless-skip`, such as `access.Tag.app_count`, are left out, as they are in cf.
@@ -435,6 +439,10 @@ Expect to write patches.
 - Writes on a test account on 2026-11-20: patching a Worker's latest version with a `null` entry in `env` removed that
   binding and kept the other. Temporary R2 credentials asked for with neither `permission` nor `actions`, or both, got
   400, 10040, and either alone got past that.
+- Profiles of a Worker version on a test account on 2026-11-25: `actor_id` alone and `namespace_id` alone got 400,
+  10004. Both or neither got past that.
+- Email sends on a test account on 2026-11-25, with made-up addresses: with no `to`, `cc` or `bcc`, or with no `text` or
+  `html`, they got 400, 10001. `to` or `bcc` with `text`, and `cc` with `html`, got past that to 400, 10202.
 - Query parameters on a test account on 2026-11-20: Radar refuses `dateRange` beside `dateStart` and `dateEnd`, 2001,
   and `dateStart` alone.
 - Tags on a test account and zone on 2026-11-20: each route serves its own resource types and refuses the other's, 444
@@ -480,6 +488,10 @@ Expect to write patches.
   types Pages' `latest_deployment` as nullable too. Nor that API Shield's `operation`, exempted by a patch, never is.
 - That literal slashes matter. A `GET` of an existing R2 key worked live both with them and with `%2F`, as far as that
   tool passes a path unchanged. They're kept because the spec requires them. `PUT` and `DELETE` weren't tried.
+- `d1.insights.recommendations`, whose route got 404 on the test account on 2026-11-25. Its pagination rests on the
+  spec.
+- That a preview deployment's profile refuses what a version's does, as the two share a body.
+- That a transferable domain always has its `pricing`, and a CF1 site ramp one of its kinds. The spec's `oneOf` says so.
 - `artifacts.namespaces.repos.raw.get`. Its two spec patches rest on its descriptions, as the test account gets a 403.
 - `notificationUrl` on `stream.webhooks.update`. Its spec patch rests on Stream's docs, as the test account has no
   Stream.
@@ -490,14 +502,15 @@ Expect to write patches.
 
 ## Known gaps
 
-- **Cloudforce One request quota isn't reachable.** v1 is left out in favour of v2, and v2 declares no response.
 - **K2's data plane isn't reachable.** Its operations are on a host for each stream, which the runtime has no way to
   name.
 - **`cloudforce-one.requests.constants.get` has the wrong type.** Its schema is nested one level too deep, under a
   literal `properties` key.
-- **The official SDK reaches 130 endpoints this doesn't:** 96 deprecated, 18 not in the spec, 7 for Terraform alone, 4
-  with no declared response (including `POST /stream`), 3 left out above, and 2 with no group name
-  (`/zones/{zone_id}/settings/nel`), which `zones.settings.get` and `edit` reach with `setting_id: 'nel'`.
+- **The official SDK reaches 130 endpoints this doesn't,** counted on 2026-11-07 against spec `07fc9fa4`: 96 deprecated,
+  18 not in the spec, 7 for Terraform alone, 4 with no declared response (including `POST /stream`), 3 left out above,
+  and 2 with no group name (`/zones/{zone_id}/settings/nel`), which `zones.settings.get` and `edit` reach with
+  `setting_id: 'nel'`. The spec has since dropped 1 that SDK 7.4.0 has, the bulk create of Cloudforce One events with
+  relationships.
 
 ## Forge dependencies
 

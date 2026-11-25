@@ -23,6 +23,6 @@ export type ListItem = RootItem<ListResult>;
  *
  * `GET /accounts/{account_id}/alerting/v3/history`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

@@ -3,7 +3,7 @@ import type { Operation } from "#runtime";
 import type * as $analytics_sql from "../../../../_types/analytics-sql.js";
 
 export type GetRequest = {
-	/** Account that authorizes and scopes the request. */
+	/** 32-character hexadecimal account identifier (account tag). */
 	account_id: string;
 	/** Include column metadata for each returned dataset. */
 	include_columns?: boolean;
@@ -26,7 +26,7 @@ export type GetResult = $analytics_sql.IntrospectionResponse;
 /**
  * List available analytics datasets
  *
- * Returns the dataset catalogue for the account in the request path. API Gateway preserves the account path, and SQL API requires it to match the signed JWT account; account_tag is not required as a query parameter. If supplied, it must match the path account. Dataset and column discovery options are identical to the legacy introspection endpoint.
+ * Returns the dataset catalogue for the account in the path. The account_tag query parameter is optional and must match the path account if supplied. Dataset and column discovery options are identical to the legacy introspection endpoint.
  *
  * `GET /accounts/{account_id}/analytics/sql/introspection`
  *

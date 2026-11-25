@@ -15,7 +15,7 @@ export type CreateResult = $logcontrol.CmbConfig | null;
  *
  * `POST /accounts/{account_id}/logs/control/cmb/config`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  *
  * @deprecated
  */
@@ -33,7 +33,7 @@ export type DeleteResult = null;
  *
  * `DELETE /accounts/{account_id}/logs/control/cmb/config`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  *
  * @deprecated
  */
@@ -52,7 +52,7 @@ export type GetResult = $logcontrol.CmbConfig | null;
  *
  * `GET /accounts/{account_id}/logs/control/cmb/config`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  *
  * @deprecated
  */

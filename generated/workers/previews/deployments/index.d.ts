@@ -123,3 +123,41 @@ export type ListItem = RootItem<ListResult>;
  * @beta
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;
+
+export type ProfileRequest = {
+	/** Identifier. */
+	account_id: string;
+	/** Identifies the Worker by ID or name. */
+	worker_id: string;
+	/** Identifier for the Preview, which can be ID, slug, or URL-encoded name. */
+	preview_id: string;
+	/** Identifier for the deployment, which can be a UUID, a UUID prefix (minimum length 8), or the literal "latest" to select the most recently created deployment. */
+	deployment_id: string;
+	body: (({
+		/** Profile duration in milliseconds. */
+		duration_ms: number;
+		profile_type?: "cpu" | "heap";
+	}) & {
+		actor_id?: never;
+		namespace_id?: never;
+	}) | ({
+		/** Profile duration in milliseconds. */
+		duration_ms: number;
+		profile_type?: "cpu" | "heap";
+		/** Identifies the exact Durable Object actor to profile. Must be specified together with namespace_id. The actor must currently be active and running the requested version. */
+		actor_id: string;
+		/** Identifies the Durable Object namespace containing the actor to profile. Must be specified together with actor_id. */
+		namespace_id: string;
+	});
+};
+export type ProfileResult = Uint8Array;
+/**
+ * Profile Preview Deployment
+ *
+ * Captures a CPU or heap profile from a recently active isolate running the specified Preview deployment. This endpoint requires the Worker Preview profiling feature to be enabled for the account. If the deployment's bundle is identical to another deployed Worker version in the account, the profile may be captured from an isolate running that version.
+ *
+ * `POST /accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}/profile`
+ *
+ * @alpha
+ */
+export declare const profile: Operation<ProfileRequest, ProfileResult>;

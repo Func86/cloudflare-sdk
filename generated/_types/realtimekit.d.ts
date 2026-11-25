@@ -725,6 +725,8 @@ export type StorageConfig = ({
 	 * Note that this field is not readable by clients, only writeable.
 	 */
 	access_key?: string;
+	/** Cloudflare account ID, a 32-character hexadecimal string. Required for `cloudflare` storage. */
+	account_id?: string;
 	/** Authentication method used for "sftp" type storage medium */
 	auth_method?: "KEY" | "PASSWORD";
 	/** Name of the storage medium's bucket. */
@@ -744,7 +746,7 @@ export type StorageConfig = ({
 	/** Secret key of the storage medium. Required for `aws` storage. Similar to `access_key`, it is only writeable by clients, not readable. */
 	secret?: string;
 	/** Type of storage media. */
-	type: "aws" | "azure" | "digitalocean" | "gcs" | "sftp";
+	type: "aws" | "azure" | "digitalocean" | "gcs" | "sftp" | "cloudflare";
 	/** SSH destination server username for SFTP type storage medium */
 	username?: string;
 }) & ({
@@ -776,7 +778,21 @@ export type StorageConfig = ({
 	username: unknown;
 	host: unknown;
 	port: unknown;
-})) | null;
+}) & ({
+	/** Authentication method used for "sftp" type storage medium */
+	auth_method: "KEY" | "PASSWORD";
+	/** SSH destination server username for SFTP type storage medium */
+	username: string;
+	/** SSH destination server host for SFTP type storage medium */
+	host: string;
+	/** SSH destination server port for SFTP type storage medium */
+	port: number;
+}) | {
+	type?: "cloudflare";
+} & {
+	/** Cloudflare account ID, a 32-character hexadecimal string. Required for `cloudflare` storage. */
+	account_id: string;
+}) | null;
 
 /** Summary Config */
 export type SummarizationConfig = {

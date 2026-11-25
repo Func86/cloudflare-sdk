@@ -8,7 +8,7 @@ export { export_ as export };
 export const get = {"method":"GET","route":"/accounts/{account_id}/d1/database/{database_id}","query":["fields"],"joined":["fields"]};
 const import_ = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/import","body":"json"};
 export { import_ as import };
-export const list = {"method":"GET","route":"/accounts/{account_id}/d1/database","query":["name","page","per_page"],"page":{"kind":"page"}};
+export const list = {"method":"GET","route":"/accounts/{account_id}/d1/database","query":["name","page","per_page","fields"],"joined":["fields"],"page":{"kind":"page"}};
 export const query = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/query","body":"json"};
 export const raw = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/raw","body":"json"};
 export const undelete = {"method":"POST","route":"/accounts/{account_id}/d1/database/{database_id}/undelete","body":"json"};

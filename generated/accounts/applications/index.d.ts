@@ -199,6 +199,24 @@ export type LookupResult = $alexandria.Applications;
  */
 export declare const lookup: Operation<LookupRequest, LookupResult>;
 
+export type ReferencesRequest = {
+	/** Account ID. */
+	account_id: string;
+	/** Application ID of a custom application in the account. */
+	id: number | string;
+};
+export type ReferencesResult = $alexandria.ApplicationReference[];
+/**
+ * Get application references
+ *
+ * List the resources in the account that reference a custom application, such as Gateway rules. This is the same list a delete of the application returns when it is rejected. A delete checks the references again, so the list can change before the delete runs.
+ *
+ * `GET /accounts/{account_id}/resource-library/applications/{id}/references`
+ *
+ * Token permissions (any one): Zero Trust Read, Zero Trust Write, Resource Library Read, Resource Library Write.
+ */
+export declare const references: Operation<ReferencesRequest, ReferencesResult>;
+
 export type UpdateRequest = {
 	/** Account ID. */
 	account_id: string;

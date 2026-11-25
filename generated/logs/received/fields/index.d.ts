@@ -14,6 +14,6 @@ export type GetResult = $logshare.FieldsResponse;
  *
  * `GET /zones/{zone_id}/logs/received/fields`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

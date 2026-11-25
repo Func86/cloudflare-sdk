@@ -90,6 +90,14 @@ export type Filters = {
 	airport_code?: string[];
 	/** Usage depends on specific alert type */
 	alert_trigger_preferences?: string[];
+	/** Usage depends on specific alert type. Takes at most one value, a duration such as `4h`. custom_analytics requires it when alert_trigger_preferences is slo, zscore_spike, zscore_drop or zscore_spike_and_drop. There it must be at most 24h, and for the z-score types at least six times alert_trigger_preferences_short_window. */
+	alert_trigger_preferences_long_window?: string[];
+	/** Usage depends on specific alert type. Takes at most one value, a number as a string. */
+	alert_trigger_preferences_minimum_threshold?: string[];
+	/** Used for configuring custom_analytics, which requires it. Takes exactly one value, the operator that compares the result with alert_trigger_preferences_value. It must be `<` unless alert_trigger_preferences is threshold. */
+	alert_trigger_preferences_operator?: ("<" | ">" | "<=" | ">=" | "==" | "!=")[];
+	/** Usage depends on specific alert type. Takes at most one value, a duration such as `5m`. custom_analytics requires it, and it must be at least 1m there. queues_lag_alert requires it, at least 5m. */
+	alert_trigger_preferences_short_window?: string[];
 	/** Usage depends on specific alert type */
 	alert_trigger_preferences_value?: string[];
 	/** Used for configuring magic_endpoint_healthcheck_alert. Takes one or more health check IDs, each a UUID. That alert type requires check_id together with alert_trigger_preferences set to slo, a numeric alert_trigger_preferences_value, and selectors set to failures. */
@@ -104,6 +112,8 @@ export type Filters = {
 	event_source?: string[];
 	/** Usage depends on specific alert type */
 	event_type?: string[];
+	/** Used for configuring custom_analytics when source is sql_api. Other sources reject it. Takes at most one value, how often the query runs, as a duration in whole seconds such as `5m`. It can't be shorter than the minimum for the query, which is 1m, or 10m for Log Explorer datasets. If it's omitted, the API sets it to that minimum. */
+	execution_interval?: string[];
 	/** Usage depends on specific alert type */
 	group_by?: string[];
 	/** Used for configuring health_check_status_notification */
@@ -148,6 +158,8 @@ export type Filters = {
 	services?: string[];
 	/** Usage depends on specific alert type */
 	slo?: string[];
+	/** Used for configuring custom_analytics, which requires it. Takes exactly one value, the dataset the alert queries. */
+	source?: ("workers_analytics_engine" | "sql_api")[];
 	/** Used for configuring health_check_status_notification */
 	status?: string[];
 	/** Used for configuring advanced_ddos_attack_l7_alert */

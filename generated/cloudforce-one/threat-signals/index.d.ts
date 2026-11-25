@@ -12,8 +12,8 @@ export type SearchRequest = {
 	query: string;
 	/** Maximum search matches to request, an integer from 1 to 50. Defaults to 20 when omitted or empty; multiple matches from one article can produce fewer returned articles. */
 	max_results?: string | "";
-	/** Optional feed UUID that restricts results to articles from that feed. */
-	feed_id?: string;
+	/** Optional repeatable feed UUID filter, up to 40 feeds. Results come only from articles in the selected feeds. */
+	feed_id?: string[];
 };
 export type SearchResult = {
 	/** Number of unique article candidates returned in this response. Equal to results.length. */

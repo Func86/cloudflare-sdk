@@ -99,7 +99,7 @@ export type OfframpWarpEnabled = boolean;
 export type IcmpProxyEnabled = boolean;
 
 /** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
-export type TunnelHostnameValue = string;
+export type HostnameRecordValue = string;
 
 /** A user-friendly name for a tunnel. */
 export type TunnelName = string;
@@ -365,7 +365,7 @@ export type ClientIdInput = string;
 export type RouteId = string;
 
 /** UUID of the tunnel hostname. */
-export type TunnelHostnameId = string;
+export type HostnameRecordId = string;
 
 /** UUID of the tunnel. */
 export type TunnelId = string;
@@ -383,7 +383,7 @@ export type VirtualNetworkId = string;
 export type VirtualNetworkIdComputedOptional = string;
 
 /** Whether this is the canonical hostname for the tunnel. */
-export type TunnelHostnameCanonical = boolean;
+export type HostnameRecordCanonical = boolean;
 
 export type AccountRegion = {
 	/** The key of a Data Localization Suite region. */
@@ -393,6 +393,19 @@ export type AccountRegion = {
 export type ActiveAccountRegion = {
 	/** The key of the account's active Data Localization Suite region, or `null` if the account has not selected a region. */
 	region_key: string | null;
+};
+
+export type HostnameRecord = {
+	/** Whether this is the canonical hostname for the tunnel. */
+	canonical: HostnameRecordCanonical;
+	/** Timestamp of when the resource was created. */
+	created_at: CreatedAt;
+	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
+	hostname: HostnameRecordValue;
+	/** UUID of the tunnel hostname. */
+	id: HostnameRecordId;
+	/** UUID of the tunnel. */
+	tunnel_id: TunnelId2;
 };
 
 export type HostnameRoute = {
@@ -454,21 +467,21 @@ export type MeshVipEntry = {
 	address: string;
 };
 
-export type PatchTunnelHostnameBody = {
+export type PatchHostnameRecordBody = {
 	/** Makes this hostname canonical. `false` is not accepted; make a different hostname canonical to unset this one. */
 	canonical?: true;
 	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
-	hostname?: TunnelHostnameValue;
+	hostname?: HostnameRecordValue;
 };
 
-export type PostTunnelHostnameBody = {
+export type PostHostnameRecordBody = {
 	/**
 	 * Set to `true` to make the new hostname canonical, replacing any existing canonical hostname.
 	 * If `false` or omitted, the new hostname is canonical only if the tunnel has no active hostnames.
 	 */
 	canonical?: boolean;
 	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
-	hostname: TunnelHostnameValue;
+	hostname: HostnameRecordValue;
 };
 
 export type PutAccountRegionBody = {
@@ -571,19 +584,6 @@ export type Teamnet = {
 };
 
 export type Timestamp = string;
-
-export type TunnelHostname = {
-	/** Whether this is the canonical hostname for the tunnel. */
-	canonical: TunnelHostnameCanonical;
-	/** Timestamp of when the resource was created. */
-	created_at: CreatedAt;
-	/** A single DNS label assigned to the tunnel. The value is normalized to lowercase and may contain only letters, digits, and internal hyphens. */
-	hostname: TunnelHostnameValue;
-	/** UUID of the tunnel hostname. */
-	id: TunnelHostnameId;
-	/** UUID of the tunnel. */
-	tunnel_id: TunnelId2;
-};
 
 export type VirtualNetwork = {
 	/** Optional remark describing the virtual network. */

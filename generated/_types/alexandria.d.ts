@@ -194,6 +194,15 @@ export type Application = {
 	version: ApplicationVersion;
 };
 
+export type ApplicationReference = {
+	/** The public identifier of the referencing resource. */
+	id: string;
+	/** The name of the referencing resource. */
+	name: string;
+	/** The resource type, such as Rule or Profile. Additional types may be returned. */
+	type: string;
+};
+
 export type Category = {
 	/** Returns the category creation time. */
 	created_at: CategoryCreatedAt;

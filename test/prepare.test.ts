@@ -5,6 +5,7 @@ import {
 	checkPaginationOverrides,
 	checkRequestVariants,
 	foldNativeKeys,
+	giveAliasesExtensions,
 	joinCommaLists,
 	markLiteralSlashes,
 	normalizeFlags,
@@ -467,6 +468,195 @@ test('a required that Forge does not read is restated where it does', () => {
 	});
 	// `required` means nothing to a string.
 	assert.deepEqual(text, { $ref: '#/components/schemas/text' });
+});
+
+test('what a branch of a oneOf or anyOf requires of the schema it is in is restated there, once', () => {
+	const string = { type: 'string' };
+	const doc = document({});
+	doc.components.schemas = {
+		byName: { type: 'object', required: ['name'] },
+		base: { type: 'object', properties: { owner: string } },
+		build: {
+			type: 'object',
+			properties: { branch: string, name: string, secret: { type: 'string', writeOnly: true } },
+			anyOf: [
+				{ required: ['branch'] },
+				{ $ref: '#/components/schemas/byName' },
+				{ type: 'object', properties: { branch: string }, required: ['branch', 'other'] },
+				{ required: ['secret'] },
+				string,
+			],
+		},
+		owned: { allOf: [{ $ref: '#/components/schemas/base' }], oneOf: [{ required: ['owner'] }] },
+		mail: {
+			properties: { to: string, secret: { type: 'string', writeOnly: true } },
+			allOf: [{ anyOf: [{ required: ['to'] }, { required: ['secret'] }, { required: ['other'] }] }],
+		},
+		app: { allOf: [{ anyOf: [{ required: ['priority'] }] }, { properties: { priority: string } }] },
+		storage: { properties: { host: string }, oneOf: [{ oneOf: [{ required: ['host'] }] }] },
+		// An `allOf` that isn't a list is a property's name, or in an example.
+		named: { properties: { allOf: string }, example: { allOf: { required: ['to'] } } },
+		// A property's schema isn't part of the schema that has it.
+		holder: { properties: { to: string, inner: { anyOf: [{ required: ['to'] }] } } },
+	};
+	assert.equal(restateRequired(doc), 6);
+	const restated = (name: string, branch: Schema): Schema => ({
+		allOf: [branch, { type: 'object', properties: { [name]: string }, required: [name] }],
+	});
+	assert.deepEqual(doc.components.schemas['build']?.['anyOf'], [
+		restated('branch', { required: ['branch'] }),
+		restated('name', { $ref: '#/components/schemas/byName' }),
+		// Its own property is read already, and nothing declares `other`.
+		{ type: 'object', properties: { branch: string }, required: ['branch', 'other'] },
+		// A response doesn't promise a field only writes have.
+		{ required: ['secret'] },
+		string,
+	]);
+	// What an `allOf` beside it declares counts too.
+	assert.deepEqual(doc.components.schemas['owned']?.['oneOf'], [restated('owner', { required: ['owner'] })]);
+	// So does what a schema further out declares, with the same exceptions.
+	assert.deepEqual(doc.components.schemas['mail']?.['allOf'], [
+		{ anyOf: [restated('to', { required: ['to'] }), { required: ['secret'] }, { required: ['other'] }] },
+	]);
+	assert.deepEqual(doc.components.schemas['app']?.['allOf'], [
+		{ anyOf: [restated('priority', { required: ['priority'] })] },
+		{ properties: { priority: string } },
+	]);
+	assert.deepEqual(doc.components.schemas['storage']?.['oneOf'], [{ oneOf: [restated('host', { required: ['host'] })] }]);
+	assert.deepEqual(doc.components.schemas['named'], { properties: { allOf: string }, example: { allOf: { required: ['to'] } } });
+	assert.deepEqual(doc.components.schemas['holder']?.['properties'], { to: string, inner: { anyOf: [{ required: ['to'] }] } });
+});
+
+test('a property that would be restated inside itself stops generation, and one with a named schema does not', () => {
+	const node = { $ref: '#/components/schemas/node' };
+	const tree = (items: Schema): OpenApiDocument => {
+		const doc = document({});
+		doc.components.schemas['node'] = { type: 'object', properties: { children: { type: 'array', items } } };
+		return doc;
+	};
+	// Each place a name is restated in.
+	for (const items of [
+		{ allOf: [node, { anyOf: [{ required: ['children'] }] }] },
+		{ allOf: [node], anyOf: [{ required: ['children'] }] },
+		{ allOf: [node, { required: ['children'] }] },
+		{ oneOf: [node], required: ['children'] },
+	]) {
+		assert.throws(() => restateRequired(tree(items)), /would hold themselves, .*: children in node$/);
+	}
+	// The schema that declares it is named, and not one before it that the property is restated in.
+	const wrapped = tree({ allOf: [node, { required: ['children'] }] });
+	wrapped.components.schemas = { wrapper: { allOf: [node, { required: ['children'] }] }, ...wrapped.components.schemas };
+	assert.throws(() => restateRequired(wrapped), /themselves, .*: children in node$/);
+	// The next item of a list is that schema itself.
+	const list = document({});
+	list.components.schemas['node'] = { type: 'object', properties: { next: { allOf: [node, { required: ['next'] }] } } };
+	assert.throws(() => restateRequired(list), /: next in node$/);
+	// As a patch would leave it.
+	const children = { $ref: '#/components/schemas/children' };
+	const named = document({});
+	named.components.schemas = {
+		node: { type: 'object', properties: { children } },
+		children: { type: 'array', items: { allOf: [node, { required: ['children'] }] } },
+	};
+	assert.equal(restateRequired(named), 1);
+	assert.deepEqual(named.components.schemas['children']?.['items'].allOf.at(-1), {
+		type: 'object',
+		properties: { children },
+		required: ['children'],
+	});
+});
+
+test('data that looks like a schema is left as it is, and a name that looks like data is not data', () => {
+	const string = { type: 'string' };
+	const data = [
+		{ oneOf: [{ required: true }], allOf: [{ required: true }, 'x', { nullable: true }], properties: 3 },
+		{ type: 'object', properties: { secret: { writeOnly: true } }, required: ['secret'], anyOf: [{ required: ['secret'] }] },
+	];
+	const build = (): Schema => ({ properties: { branch: string }, anyOf: [{ required: ['branch'] }] });
+	const make = (): OpenApiDocument => {
+		const doc = document({
+			'/a': {
+				get: {
+					'x-data': data,
+					responses: {
+						200: {
+							content: { 'application/json': { example: data[0], examples: { one: { value: data } } } },
+							links: { next: { requestBody: data[0], parameters: { id: data[1] } } },
+						},
+						default: { content: { 'application/json': { schema: build() } } },
+						'x-data': data[0]!,
+					},
+				},
+			},
+			'x-data': { oneOf: [{ required: true }] },
+		});
+		doc.components.schemas = {
+			held: { example: data[0], default: data[1], enum: data, 'x-data': data },
+			named: { properties: { default: build(), links: build(), 'x-data': build() } },
+			default: build(),
+		};
+		return doc;
+	};
+	const doc = make();
+	assert.deepEqual(normalizeFlags(doc), { readOnly: 0, writeOnly: 0, nullable: 0 });
+	// The response, the schema and the three properties.
+	assert.equal(restateRequired(doc), 5);
+	const restated: Schema = {
+		properties: { branch: string },
+		anyOf: [{ allOf: [{ required: ['branch'] }, { type: 'object', properties: { branch: string }, required: ['branch'] }] }],
+	};
+	const expected = make();
+	expected.paths['/a']!['get']!['responses'].default.content['application/json'].schema = restated;
+	expected.components.schemas['named'] = { properties: { default: restated, links: restated, 'x-data': restated } };
+	expected.components.schemas['default'] = restated;
+	assert.deepEqual(doc, expected);
+});
+
+test('a schema keyword that could hold schemas, and is not known to, stops generation', () => {
+	const doc = document({});
+	doc.components.schemas = { a: { properties: { prefixItems: { type: 'array', prefixItems: [{ type: 'string' }] } } }, b: { type: 'object' } };
+	assert.throws(() => restateRequired(doc), /could hold schemas, .*: prefixItems$/);
+	assert.throws(() => normalizeFlags(doc), /could hold schemas, .*: prefixItems$/);
+});
+
+test('the profile patch takes both IDs or neither, as a schema too', () => {
+	const patch = SPEC_PATCHES.find(({ id }) => id === 'workers-profile-actor-with-namespace')!;
+	const string = { type: 'string' };
+	const body: Schema = { type: 'object', properties: { duration_ms: string, actor_id: string, namespace_id: string }, required: ['duration_ms'] };
+	const doc = document({});
+	assert.equal(patch.applies(body, doc), true);
+	patch.apply(body, doc);
+	const requires = (schema: Schema, names: string[]): boolean => (schema['required'] as string[]).every((name) => names.includes(name));
+	const matches = (member: Schema, names: string[]): boolean =>
+		requires(member, names) && !((member['not']?.['anyOf'] ?? []) as Schema[]).some((branch) => requires(branch, names));
+	const matched = (...ids: string[]): number => (body['oneOf'] as Schema[]).filter((member) => matches(member, ['duration_ms', ...ids])).length;
+	assert.equal(matched(), 1);
+	assert.equal(matched('actor_id', 'namespace_id'), 1);
+	assert.equal(matched('actor_id'), 0);
+	assert.equal(matched('namespace_id'), 0);
+	assert.equal(patch.applies(body, doc), false);
+});
+
+test('an alias gets the extensions of its operation that the plugin reads, and keeps its own', () => {
+	const alias = (extra: Schema = {}): Schema => ({ 'x-fern-sdk-group-name': 'a', 'x-fern-sdk-method-name': 'm', ...extra });
+	const doc = document({
+		'/aliased': {
+			get: op({
+				'x-api-token-group': ['Read'],
+				'x-fern-availability': 'beta',
+				[LITERAL_SLASHES]: ['key'],
+				'x-forge-aliases': [alias(), alias({ 'x-api-token-group': ['Own'], 'x-fern-availability': 'generally-available' })],
+			}),
+			post: op({ 'x-forge-aliases': [alias()] }),
+		},
+		'/plain': { get: op({ 'x-api-token-group': ['Read'] }) },
+	});
+	assert.equal(giveAliasesExtensions(doc), 2);
+	assert.deepEqual(doc.paths['/aliased']?.['get']?.['x-forge-aliases'], [
+		alias({ 'x-api-token-group': ['Read'], 'x-fern-availability': 'beta', [LITERAL_SLASHES]: ['key'] }),
+		alias({ 'x-api-token-group': ['Own'], 'x-fern-availability': 'generally-available', [LITERAL_SLASHES]: ['key'] }),
+	]);
+	assert.deepEqual(doc.paths['/aliased']?.['post']?.['x-forge-aliases'], [alias()]);
 });
 
 test('a path parameter that allows reserved characters is passed on, wherever it is declared', () => {

@@ -76,6 +76,6 @@ export type GetResult = {
  *
  * `GET /zones/{zone_id}/spectrum/analytics/events/bytime`
  *
- * Token permissions (any one): Analytics Read.
+ * Token permissions (any one): Observability Write, Observability Read, Analytics Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;

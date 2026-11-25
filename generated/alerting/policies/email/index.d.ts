@@ -18,7 +18,7 @@ export type DetailsResult = $aaa.UnsubscribeEmail | string;
  *
  * `GET /accounts/{account_id}/alerting/v3/policies/{policy_id}/email/unsubscribe`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const details: Operation<DetailsRequest, DetailsResult>;
 

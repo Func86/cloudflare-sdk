@@ -14,6 +14,6 @@ export type ListResult = { [key: string]: $aaa.AlertTypes[] };
  *
  * `GET /accounts/{account_id}/alerting/v3/available_alerts`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;

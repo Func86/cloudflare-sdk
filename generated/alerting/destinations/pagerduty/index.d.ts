@@ -17,7 +17,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/alerting/v3/destinations/pagerduty/connect`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -33,7 +33,7 @@ export type DeleteResult = $aaa.ApiResponseCommon2;
  *
  * `DELETE /accounts/{account_id}/alerting/v3/destinations/pagerduty`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -50,7 +50,7 @@ export type GetResult = $aaa.Pagerduty[];
  *
  * `GET /accounts/{account_id}/alerting/v3/destinations/pagerduty`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -71,6 +71,6 @@ export type LinkResult = {
  *
  * `GET /accounts/{account_id}/alerting/v3/destinations/pagerduty/connect/{token_id}`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 export declare const link: Operation<LinkRequest, LinkResult>;

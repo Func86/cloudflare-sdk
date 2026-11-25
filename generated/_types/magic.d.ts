@@ -471,7 +471,16 @@ export type AppAddSingleRequest = {
 	source_subnets?: AppSourceSubnets;
 	/** Category of the app. */
 	type: AppType;
-};
+} & ({
+	/** FQDNs to associate with traffic decisions. */
+	hostnames: AppHostnames;
+} | {
+	/** IPv4 CIDRs to associate with traffic decisions. (IPv6 CIDRs are currently unsupported) */
+	ip_subnets: AppSubnets;
+} | {
+	/** IPv4 CIDRs to associate with traffic decisions. (IPv6 CIDRs are currently unsupported) */
+	source_subnets: AppSourceSubnets;
+});
 
 export type AppConfigAddSingleRequest = ({
 	/** Magic account app ID. */
@@ -479,6 +488,12 @@ export type AppConfigAddSingleRequest = ({
 } | {
 	/** Managed app ID. */
 	managed_app_id: ManagedAppId;
+}) & ({
+	/** Whether to breakout traffic to the app's endpoints directly. Null preserves default behavior. */
+	breakout: AppBreakout;
+} | {
+	/** Priority of traffic. 0 is default, anything greater is prioritized. (Currently only 0 and 1 are supported) */
+	priority: AppPriority;
 }) & {
 	/** Whether to breakout traffic to the app's endpoints directly. Null preserves default behavior. */
 	breakout?: AppBreakout;
@@ -512,7 +527,22 @@ export type AppUpdateRequest = {
 	source_subnets?: AppSourceSubnets;
 	/** Category of the app. */
 	type?: AppType;
-};
+} & ({
+	/** Display name for the app. */
+	name: AppName;
+} | {
+	/** Category of the app. */
+	type: AppType;
+} | {
+	/** FQDNs to associate with traffic decisions. */
+	hostnames: AppHostnames;
+} | {
+	/** IPv4 CIDRs to associate with traffic decisions. (IPv6 CIDRs are currently unsupported) */
+	ip_subnets: AppSubnets;
+} | {
+	/** IPv4 CIDRs to associate with traffic decisions. (IPv6 CIDRs are currently unsupported) */
+	source_subnets: AppSourceSubnets;
+});
 
 export type BgpConfig = {
 	/** ASN used on the customer end of the BGP session */
@@ -635,7 +665,17 @@ export type Cf1SiteRamp = {
 	/** A human-provided name describing the ramp that should be unique within the CF1 Site. */
 	name: string;
 	type: Cf1SiteRampType;
-};
+} & ({
+	gre: Cf1SiteManagedRamp;
+} | {
+	ipsec: Cf1SiteManagedRamp;
+} | {
+	gre_interconnect: Cf1SiteManagedRamp;
+} | {
+	mpls_interconnect: Cf1SiteManagedRamp;
+} | {
+	mconn: Cf1SiteManagedRamp;
+});
 
 export type Cf1SiteRampBodyInput = {
 	/** Identifier of the source network resource to associate as a ramp. */

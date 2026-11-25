@@ -4,7 +4,7 @@ import type * as $analytics_sql from "../../../_types/analytics-sql.js";
 export * as introspection from "./introspection/index.js";
 
 export type GetRequest = {
-	/** Account that authorizes and scopes the request. */
+	/** 32-character hexadecimal account identifier (account tag). */
 	account_id: string;
 	/** SQL query to execute. A trailing FORMAT selects JSON, JSONEachRow, TabSeparated, or TSV output on any dataset. */
 	query: string;
@@ -13,7 +13,7 @@ export type GetResult = $analytics_sql.SqlQueryResponse | $analytics_sql.ClickHo
 /**
  * Query analytics datasets
  *
- * Executes a SQL query scoped to the account in the request path. API Gateway preserves the account path, and SQL API requires it to match the signed JWT account, so an accountTag predicate or JSON scope is not required. Explicit account scope must match the path account. Any zone restrictions must belong to that account. Query parameters, time ranges, output formats, authorization, and responses follow the legacy query endpoint.
+ * Executes a SQL query scoped to the account in the path. An accountTag predicate or JSON scope is not required. Explicit account scope must match the path account. Any requested zones must belong to that account. Query parameters, time ranges, output formats, authorization, and responses follow the legacy query endpoint.
  *
  * `GET /accounts/{account_id}/analytics/sql`
  *
@@ -24,7 +24,7 @@ export type GetResult = $analytics_sql.SqlQueryResponse | $analytics_sql.ClickHo
 export declare const get: Operation<GetRequest, GetResult>;
 
 export type PostRequest = {
-	/** Account that authorizes and scopes the request. */
+	/** 32-character hexadecimal account identifier (account tag). */
 	account_id: string;
 	body: $analytics_sql.SqlQueryRequest;
 };
@@ -32,7 +32,7 @@ export type PostResult = $analytics_sql.SqlQueryResponse | $analytics_sql.ClickH
 /**
  * Query analytics datasets
  *
- * Executes a SQL query scoped to the account in the request path. API Gateway preserves the account path, and SQL API requires it to match the signed JWT account, so an accountTag predicate or JSON scope is not required. Explicit account scope must match the path account. Any zone restrictions must belong to that account. Query parameters, time ranges, output formats, authorization, and responses follow the legacy query endpoint.
+ * Executes a SQL query scoped to the account in the path. An accountTag predicate or JSON scope is not required. Explicit account scope must match the path account. Any requested zones must belong to that account. Query parameters, time ranges, output formats, authorization, and responses follow the legacy query endpoint.
  *
  * `POST /accounts/{account_id}/analytics/sql`
  *

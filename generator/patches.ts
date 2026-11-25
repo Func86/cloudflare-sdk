@@ -56,6 +56,9 @@ const RULE_ACTION_PARAMETERS =
 const R2_ONE_SELECTOR =
 	'Temporary R2 credentials asked for with neither `permission` nor `actions`, or with both, got 400, 10040, "The JSON you provided was not well formed", on the playground account, 2026-11-20. Either alone got past that, to 401 for a made-up parent key. The descriptions say exactly one.';
 
+const PROFILE_IDS =
+	'Profiling a probe Worker\'s latest version with actor_id alone, and with namespace_id alone, got 400, 10004, on the playground account, 2026-11-25. Both, made up, got past that to 404, 10066, and neither to 404, 10393. The descriptions say they go together. A preview deployment\'s profile shares the body.';
+
 const VERSION_PATCH_NULL_ENV =
 	"Patching a probe Worker's latest version with `env: { NAME: null }` removed that binding and kept the other, on the playground account, 2026-11-20, as `env`'s description says. Creating a version shares the body, so the patch gets one of its own.";
 
@@ -134,6 +137,22 @@ function scriptEventStream(id: string, path: string): SpecPatch {
 			node['text/event-stream'] = {
 				schema: { description: 'Server-sent events, from a script that returns them as a `Response`.', type: 'string' },
 			};
+		},
+	};
+}
+
+const PROFILE_BODY = '#/components/requestBodies/workers_WorkerProfileRequest';
+
+/** An operation that profiles a Worker, whose body has both of a Durable Object's IDs or neither. */
+function profileBodyExclusive(id: string, path: string): SpecPatch {
+	return {
+		id,
+		evidence: PROFILE_IDS,
+		pointer: operationPointer(path, 'post'),
+		applies: (node) => node['requestBody']?.['$ref'] === PROFILE_BODY && node[EXCLUSIVE_BODY] === undefined,
+		apply: (node) => {
+			// So a body with either ID alone isn't the member with neither.
+			node[EXCLUSIVE_BODY] = true;
 		},
 	};
 }
@@ -458,6 +477,43 @@ export const SPEC_PATCHES: readonly SpecPatch[] = [
 		},
 	},
 	{
+		id: 'workers-profile-actor-with-namespace',
+		evidence: PROFILE_IDS,
+		pointer: `${PROFILE_BODY.slice(1)}/content/application~1json/schema`,
+		applies: (node) =>
+			node['oneOf'] === undefined &&
+			Array.isArray(node['required']) &&
+			node['properties']?.['actor_id'] !== undefined &&
+			node['properties']?.['namespace_id'] !== undefined &&
+			!['actor_id', 'namespace_id'].some((name) => node['required']?.includes(name)),
+		apply: (node) => {
+			const { actor_id, namespace_id, ...shared } = node['properties'] as Record<string, Schema>;
+			const required = node['required'] as string[];
+			node['oneOf'] = [
+				// Without the `not`, either ID alone would match this member, and both IDs both members.
+				{
+					type: 'object',
+					properties: structuredClone(shared),
+					required,
+					not: { anyOf: [{ required: ['actor_id'] }, { required: ['namespace_id'] }] },
+				},
+				{
+					type: 'object',
+					properties: { ...structuredClone(shared), actor_id, namespace_id },
+					required: [...required, 'actor_id', 'namespace_id'],
+				},
+			];
+			delete node['type'];
+			delete node['properties'];
+			delete node['required'];
+		},
+	},
+	profileBodyExclusive('workers-version-profile-exclusive', '/accounts/{account_id}/workers/workers/{worker_id}/versions/{version_id}/profile'),
+	profileBodyExclusive(
+		'workers-preview-profile-exclusive',
+		'/accounts/{account_id}/workers/workers/{worker_id}/previews/{preview_id}/deployments/{deployment_id}/profile',
+	),
+	{
 		id: 'workers-version-patch-body',
 		evidence: VERSION_PATCH_NULL_ENV,
 		pointer: '/components/schemas',
@@ -681,13 +737,20 @@ export const OPERATION_RENAMES: Readonly<Record<string, OperationRename>> = byKe
 
 /**
  * Pagination the spec's shape can't decide, by `METHOD /path`. Some pages hold more
- * than one array, and the override names the one that is paged. Others declare a
- * cursor that only an empty one on the first request starts, and page by number
- * otherwise, so the override names the cursors to follow when the caller sends one. An
- * entry whose operation is gone, now states its own pagination, or no longer has that
- * array or a cursor stops generation.
+ * than one array, or hold it further down than the shape is read, and the override names
+ * the one that is paged. Others declare a cursor that only an empty one on the first
+ * request starts, and page by number otherwise, so the override names the cursors to
+ * follow when the caller sends one. An entry whose operation is gone, now states its own
+ * pagination, or no longer has that array or a cursor stops generation.
  */
 export const PAGINATION_OVERRIDES: Readonly<Record<string, Pagination>> = {
+	// Its array is two levels down. Not called: the route got 404 on the playground account, 2026-11-25.
+	'GET /accounts/{account_id}/d1/insights/recommendations': {
+		kind: 'cursor',
+		items: 'recommendations.items',
+		param: 'cursor',
+		next: 'next_cursor',
+	},
 	'GET /radar/bgp/hijacks/events': { kind: 'page', items: 'events' },
 	'GET /radar/bgp/leaks/events': { kind: 'page', items: 'events' },
 	// Without a cursor, the API pages by number and sends no cursor back. With one, even

@@ -245,6 +245,8 @@ export type PauseResult = {
  * Changes the execution status of a workflow instance (e.g., pause, resume, terminate).
  *
  * `PATCH /accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status`
+ *
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const pause: Operation<PauseRequest, PauseResult>;
 
@@ -282,6 +284,8 @@ export type RestartResult = {
  * Changes the execution status of a workflow instance (e.g., pause, resume, terminate).
  *
  * `PATCH /accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status`
+ *
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const restart: Operation<RestartRequest, RestartResult>;
 
@@ -319,6 +323,8 @@ export type ResumeResult = {
  * Changes the execution status of a workflow instance (e.g., pause, resume, terminate).
  *
  * `PATCH /accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status`
+ *
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const resume: Operation<ResumeRequest, ResumeResult>;
 
@@ -377,5 +383,7 @@ export type TerminateResult = {
  * Changes the execution status of a workflow instance (e.g., pause, resume, terminate).
  *
  * `PATCH /accounts/{account_id}/workflows/{workflow_name}/instances/{instance_id}/status`
+ *
+ * Token permissions (any one): Workers Editor, Workers Admin, Individual Workers Editor, Individual Workers Admin, Workers Scripts Write.
  */
 export declare const terminate: Operation<TerminateRequest, TerminateResult>;

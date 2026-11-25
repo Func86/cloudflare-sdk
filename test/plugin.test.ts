@@ -122,6 +122,13 @@ test('a pagination override must name an array of the result, as the types read 
 		() => checkOverride('GET /records', cursored, response(envelope(array(string))), new Set(['cursor', 'page'])),
 		/no result_info\.cursor/,
 	);
+	// A cursor list's own, with its array further down.
+	const list = { kind: 'cursor', items: 'page.items', param: 'cursor', next: 'cursor' } as const;
+	const nested = { ...withCursor, types: [object(field('page', object(field('items', array(string)))))] } as ResolvedResponse;
+	checkOverride('GET /nested', list, nested, new Set(['cursor']));
+	assert.throws(() => checkOverride('GET /nested', list, nested, new Set()), /no cursor parameter/);
+	assert.throws(() => checkOverride('GET /nested', { ...list, next: 'next_cursor' }, nested, new Set(['cursor'])), /no result_info\.next_cursor/);
+	assert.throws(() => checkOverride('GET /nested', { ...list, items: 'page.rows' }, nested, new Set(['cursor'])), /no array at result\.page\.rows/);
 });
 
 test('an account-or-zone route is one the runtime can fill from account_id or zone_id', () => {

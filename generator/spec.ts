@@ -21,6 +21,21 @@ export const SCOPED_PERMISSIONS = 'x-sdk-scoped-permissions';
  * only, as `oneOf` says, so a field one of them declares is absent from the others.
  */
 export const EXCLUSIVE_BODY = 'x-sdk-exclusive-body';
+/**
+ * The extensions of an operation that the plugin reads, or that Forge reads for it, as it does
+ * the availability, which `prepare` gives its aliases too.
+ */
+export const OPERATION_EXTENSIONS = [
+	EXCLUSIVE_BODY,
+	LITERAL_SLASHES,
+	SCOPED_PERMISSIONS,
+	'x-api-token-group',
+	'x-cfDeprecation',
+	'x-fern-availability',
+	'x-fern-pagination',
+	'x-forge-sunset',
+	'x-stainless-deprecation-message',
+] as const;
 
 /** Reads the node at a JSON pointer, as `#/a/b` or `/a/b`. */
 export function pointerGet(doc: unknown, pointer: string): unknown {

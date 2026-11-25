@@ -2,5 +2,6 @@
 export const create = {"method":"POST","route":"/accounts/{account_id}/workers/observability/destinations","body":"json"};
 const delete_ = {"method":"DELETE","route":"/accounts/{account_id}/workers/observability/destinations/{slug}"};
 export { delete_ as delete };
+export const get = {"method":"GET","route":"/accounts/{account_id}/workers/observability/destinations/{slug}"};
 export const list = {"method":"GET","route":"/accounts/{account_id}/workers/observability/destinations","query":["page","perPage","order","orderBy"],"page":{"kind":"page"}};
 export const update = {"method":"PATCH","route":"/accounts/{account_id}/workers/observability/destinations/{slug}","body":"json"};

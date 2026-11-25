@@ -53,6 +53,8 @@ export type KeysResult = ({
  * List all the keys in your telemetry events.
  *
  * `POST /accounts/{account_id}/workers/observability/telemetry/keys`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const keys: Operation<KeysRequest, KeysResult>;
 
@@ -173,6 +175,8 @@ export type QueryResult = $workers_observability.QueryResults;
  * Run a temporary or saved query.
  *
  * `POST /accounts/{account_id}/workers/observability/telemetry/query`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const query: Operation<QueryRequest, QueryResult>;
 
@@ -222,5 +226,7 @@ export type ValuesResult = ({
  * List unique values found in your events.
  *
  * `POST /accounts/{account_id}/workers/observability/telemetry/values`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const values: Operation<ValuesRequest, ValuesResult>;

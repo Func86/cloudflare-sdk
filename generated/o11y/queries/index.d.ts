@@ -65,6 +65,8 @@ export type CreateResult = $workers_observability.Query;
  * Persist query for later use.
  *
  * `POST /accounts/{account_id}/workers/observability/queries`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -80,6 +82,8 @@ export type DeleteResult = $workers_observability.Query;
  * Delete a saved query.
  *
  * `DELETE /accounts/{account_id}/workers/observability/queries/{queryId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -148,6 +152,8 @@ export type EditResult = $workers_observability.Query;
  * Update saved query.
  *
  * `PATCH /accounts/{account_id}/workers/observability/queries/{queryId}`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const edit: Operation<EditRequest, EditResult>;
 
@@ -163,6 +169,8 @@ export type GetResult = $workers_observability.Query;
  * Retrieve a saved query.
  *
  * `GET /accounts/{account_id}/workers/observability/queries/{queryId}`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -182,5 +190,7 @@ export type ListItem = RootItem<ListResult>;
  * List saved queries.
  *
  * `GET /accounts/{account_id}/workers/observability/queries`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const list: PagedOperation<ListRequest, ListResult, ListItem>;

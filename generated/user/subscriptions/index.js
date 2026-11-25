@@ -2,5 +2,6 @@
 export const create = {"method":"POST","route":"/user/subscriptions","body":"json"};
 const delete_ = {"method":"DELETE","route":"/user/subscriptions/{identifier}","envelope":false};
 export { delete_ as delete };
+export const get = {"method":"GET","route":"/user/subscriptions/{identifier}"};
 export const list = {"method":"GET","route":"/user/subscriptions"};
 export const update = {"method":"PUT","route":"/user/subscriptions/{identifier}","body":"json"};

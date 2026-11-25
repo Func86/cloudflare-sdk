@@ -34,7 +34,7 @@ export type CreateResult = {
  *
  * `POST /accounts/{account_id}/alerting/v3/policies`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 export declare const create: Operation<CreateRequest, CreateResult>;
 
@@ -52,7 +52,7 @@ export type DeleteResult = $aaa.ApiResponseCollection;
  *
  * `DELETE /accounts/{account_id}/alerting/v3/policies/{policy_id}`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
@@ -71,7 +71,7 @@ export type GetResult = $aaa.Policies;
  *
  * `GET /accounts/{account_id}/alerting/v3/policies/{policy_id}`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const get: Operation<GetRequest, GetResult>;
 
@@ -87,7 +87,7 @@ export type ListResult = $aaa.Policies[];
  *
  * `GET /accounts/{account_id}/alerting/v3/policies`
  *
- * Token permissions (any one): Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
+ * Token permissions (any one): Observability Write, Observability Read, Zero Trust: PII Read, Notifications Write, Notifications Read, Account Settings Write, Account Settings Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -116,7 +116,7 @@ export type TestResult = $aaa.ApiResponseCommon2;
  *
  * `POST /accounts/{account_id}/alerting/v3/policies/{policy_id}/test`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 export declare const test: Operation<TestRequest, TestResult>;
 
@@ -153,6 +153,6 @@ export type UpdateResult = {
  *
  * `PUT /accounts/{account_id}/alerting/v3/policies/{policy_id}`
  *
- * Token permissions (any one): Notifications Write, Account Settings Write.
+ * Token permissions (any one): Observability Write, Notifications Write, Account Settings Write.
  */
 export declare const update: Operation<UpdateRequest, UpdateResult>;

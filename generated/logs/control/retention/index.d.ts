@@ -15,7 +15,7 @@ export type CreateResult = $logcontrol.RetentionFlag | null;
  *
  * `POST /zones/{zone_id}/logs/control/retention/flag`
  *
- * Token permissions (any one): Logs Write.
+ * Token permissions (any one): Observability Write, Logs Write.
  *
  * @deprecated
  */
@@ -33,7 +33,7 @@ export type GetResult = $logcontrol.RetentionFlag | null;
  *
  * `GET /zones/{zone_id}/logs/control/retention/flag`
  *
- * Token permissions (any one): Logs Write, Logs Read.
+ * Token permissions (any one): Observability Write, Observability Read, Logs Write, Logs Read.
  *
  * @deprecated
  */

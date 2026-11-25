@@ -440,7 +440,13 @@ export type CreateBuildRequest = {
 	commit_hash?: CommitHash;
 	/** Optional repository and file overrides used to seed this build. */
 	seed_repo?: BuildSeedRepoInput;
-};
+} & ({
+	/** Git commit hash (required if branch not provided) */
+	commit_hash: CommitHash;
+} | {
+	/** Git branch name (required if commit_hash not provided) */
+	branch: Branch;
+});
 
 export type CreateBuildTokenRequest = {
 	build_token_name: BuildTokenName;

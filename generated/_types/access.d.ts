@@ -643,13 +643,14 @@ export type TargetCriteriaBase = {
 	require?: TargetRule;
 	target_attributes?: TargetAttributes;
 } & ({
-	protocol: unknown;
+	target_attributes: TargetAttributes;
 } & {
-	target_attributes: unknown;
+	protocol: unknown;
 } | {
-	protocol: unknown;
+	/** Target matches when any selector in this rule matches. */
+	include: TargetRule;
 } & {
-	include: unknown;
+	protocol: unknown;
 });
 
 /** Determines when to skip the App Launcher landing page. */

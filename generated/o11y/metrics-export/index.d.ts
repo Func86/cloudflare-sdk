@@ -18,6 +18,8 @@ export type ListResult = ({
  * List resources configured for Workers Observability metrics export.
  *
  * `GET /accounts/{account_id}/workers/observability/metricsexport`
+ *
+ * Token permissions (any one): Observability Write, Observability Read, Workers Metadata Read-Only, Workers Observability Write, Workers Observability Read.
  */
 export declare const list: Operation<ListRequest, ListResult>;
 
@@ -49,5 +51,7 @@ export type UpsertResult = ({
  * Create or replace resources configured for Workers Observability metrics export.
  *
  * `POST /accounts/{account_id}/workers/observability/metricsexport`
+ *
+ * Token permissions (any one): Observability Write, Workers Observability Write.
  */
 export declare const upsert: Operation<UpsertRequest, UpsertResult>;

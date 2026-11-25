@@ -91,7 +91,13 @@ export type MitigationAppealRequest = {
 	explanation?: string;
 	/** The type of appeal being submitted. */
 	type?: AppealType;
-};
+} & ({
+	/** List of mitigations to appeal. */
+	appeals: MitigationAppeal[];
+} | {
+	/** The type of appeal being submitted. */
+	type: AppealType;
+});
 
 /** Submitter-safe reason that a submitted report was denied. */
 export type SubmittedAbuseReportDenialReason = "unable_to_confirm" | "incomplete_report" | "not_on_cloudflare" | "duplicate_report" | "content_removed" | "report_details_mismatch" | "no_abuse_found" | "missing_original_work" | "direct_url_required" | "wrong_report_category" | "content_unavailable" | "law_enforcement_referral_required" | "domain_dispute_process_required";
@@ -249,6 +255,8 @@ export type MitigationListItem = {
 	entity_type: MitigatedEntityType;
 	/** ID of remediation. */
 	id: string;
+	/** Date when the mitigation is scheduled to be removed. Present only when a removal is scheduled, for example after an approved counter notice. Time in RFC 3339 format (https://www.rfc-editor.org/rfc/rfc3339.html) */
+	scheduled_removal_date?: string;
 	/** The status of a mitigation */
 	status: MitigationStatus;
 	/** The type of mitigation applied to a reported entity. */

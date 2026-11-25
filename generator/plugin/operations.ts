@@ -7,7 +7,7 @@ import type { Pagination } from '../../src/client.ts';
 import { formatOfMediaType } from '../../src/media.ts';
 import { afterAccountOrZone } from '../../src/routes.ts';
 import { DRY_RUNS, type EnumValue, PAGINATION_OVERRIDES, REQUEST_VARIANTS, type RequestVariant } from '../patches.ts';
-import { EXCLUSIVE_BODY, LITERAL_SLASHES, SCOPED_PERMISSIONS } from '../spec.ts';
+import { EXCLUSIVE_BODY, LITERAL_SLASHES, type OPERATION_EXTENSIONS, SCOPED_PERMISSIONS } from '../spec.ts';
 
 /**
  * Headers the runtime or fetch sets, which a request field must not override. A declared
@@ -346,6 +346,14 @@ function resolveParams(method: Method): { params: Param[]; joined: string[] } {
 }
 
 /**
+ * An extension of the operation, which must be one `prepare` gives its aliases too, as a method
+ * Forge makes from an alias has only the alias's own.
+ */
+function extensionOf(method: Method, name: (typeof OPERATION_EXTENSIONS)[number]): ReturnType<Method['extension']> {
+	return method.extension(name);
+}
+
+/**
  * Whether the route runs against an account or a zone. The runtime fills its
  * `/{account_or_zone}/{account_or_zone_id}` prefix from `account_id` or `zone_id`,
  * so this throws for a pair it couldn't fill that way.
@@ -377,7 +385,7 @@ function resolveBody(method: Method): ResolvedBody | undefined {
 		return undefined;
 	}
 	const form = body.contents.find((content) => content.mediaType === 'multipart/form-data');
-	const exclusive = method.extension(EXCLUSIVE_BODY) === true;
+	const exclusive = extensionOf(method, EXCLUSIVE_BODY) === true;
 	// The mark says more than `oneOf` does, which a value with fields of two members can still
 	// match, but never less.
 	if (exclusive && (body.json === undefined || alternativesOf(body.json.type)?.exclusive !== true)) {
@@ -517,7 +525,7 @@ function declares(info: Map<string, Field>, path: string): boolean {
 
 /** The pagination an operation states with `x-fern-pagination`. */
 function statedPagination(method: Method): Pagination | undefined {
-	const stated = method.extension('x-fern-pagination') as Record<string, string> | undefined;
+	const stated = extensionOf(method, 'x-fern-pagination') as Record<string, string> | undefined;
 	const param = /^\$request\.(.+)$/.exec(stated?.['cursor'] ?? '')?.[1];
 	const next = /^\$response\.result_info\.(.+)$/.exec(stated?.['next_cursor'] ?? '')?.[1];
 	const items = /^\$response\.result(?:\.(.+))?$/.exec(stated?.['results'] ?? '');
@@ -538,7 +546,8 @@ export function checkOverride(key: string, override: Pagination, response: Resol
 	if (override.kind === 'page' && !query.has('page')) {
 		throw new Error(`The pagination override for ${key} is stale, so check it and remove it: it has no page parameter`);
 	}
-	for (const cursor of override.kind === 'page' ? (override.cursors ?? []) : []) {
+	const cursors = override.kind === 'page' ? (override.cursors ?? []) : override.kind === 'cursor' ? [override] : [];
+	for (const cursor of cursors) {
 		if (!query.has(cursor.param) || !declares(response.resultInfo, cursor.next)) {
 			throw new Error(
 				`The pagination override for ${key} is stale, so check it and remove it: it has no ${cursor.param} parameter, or no result_info.${cursor.next}`,
@@ -821,10 +830,10 @@ function deprecationOf(method: Method): string | undefined {
 	if (!method.deprecated && method.availability !== 'deprecated') {
 		return undefined;
 	}
-	const sunset = method.extension('x-forge-sunset');
+	const sunset = extensionOf(method, 'x-forge-sunset');
 	const message =
-		method.extension('x-stainless-deprecation-message') ??
-		(method.extension('x-cfDeprecation') as Record<string, unknown> | undefined)?.['description'];
+		extensionOf(method, 'x-stainless-deprecation-message') ??
+		(extensionOf(method, 'x-cfDeprecation') as Record<string, unknown> | undefined)?.['description'];
 	return [typeof message === 'string' ? message : '', typeof sunset === 'string' ? `Sunset: ${sunset}.` : '']
 		.filter(Boolean)
 		.join(' ');
@@ -842,8 +851,8 @@ export function throws3xx(method: Pick<Method, 'errors'>): StatusNote[] {
 }
 
 function permissionsOf(method: Method): ResolvedOperation['permissions'] {
-	const names = method.extension('x-api-token-group');
-	const scoped = method.extension(SCOPED_PERMISSIONS) as Partial<Record<'account' | 'zone', string[]>> | undefined;
+	const names = extensionOf(method, 'x-api-token-group');
+	const scoped = extensionOf(method, SCOPED_PERMISSIONS) as Partial<Record<'account' | 'zone', string[]>> | undefined;
 	return [
 		...(Array.isArray(names) && names.length > 0 ? [{ scope: undefined, names: names as string[] }] : []),
 		...(['account', 'zone'] as const).flatMap((scope) => {
@@ -864,7 +873,7 @@ export function resolveOperation(method: Method, report: Report, model: VariantC
 	const body = resolveBody(method);
 	const variants = readVariants(key, { params, accountOrZone, body, model });
 	const page = resolvePagination(method, key, params, response, report);
-	const slashes = method.extension(LITERAL_SLASHES);
+	const slashes = extensionOf(method, LITERAL_SLASHES);
 	return {
 		id: [...method.group.path.map((name) => name.kebab()), method.name.camel()].join('.'),
 		name: method.name.camel(),

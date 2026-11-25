@@ -37,6 +37,22 @@ export type DeleteResult = {
 declare const delete_: Operation<DeleteRequest, DeleteResult>;
 export { delete_ as delete };
 
+export type GetRequest = {
+	/** Subscription identifier tag. */
+	identifier: string;
+};
+export type GetResult = $bill_subs.Subscription;
+/**
+ * Get User Subscription
+ *
+ * Gets a user's subscription by identifier.
+ *
+ * `GET /user/subscriptions/{identifier}`
+ *
+ * Token permissions (any one): Billing Write, Billing Read.
+ */
+export declare const get: Operation<GetRequest, GetResult>;
+
 export type ListRequest = {};
 export type ListResult = $bill_subs.Subscription[];
 /**

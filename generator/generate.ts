@@ -22,7 +22,7 @@ import { prepare } from './prepare.ts';
 import type { OpenApiDocument } from './spec.ts';
 
 // Bump this SHA, a commit of cloudflare/api-schemas, to generate from a newer document.
-const OPENAPI_VERSION = '76c66fb2fa6a6b494a075a83da032fc5bdb83582';
+const OPENAPI_VERSION = '9a5e4d44bd74d90fa9e4822142b8eb67e4ba3c70';
 const OPENAPI_URL = `https://raw.githubusercontent.com/cloudflare/api-schemas/${OPENAPI_VERSION}/openapi.json`;
 
 async function loadDocument(path: string | undefined): Promise<OpenApiDocument> {
